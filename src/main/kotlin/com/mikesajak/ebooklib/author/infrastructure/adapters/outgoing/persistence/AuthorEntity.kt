@@ -12,5 +12,5 @@ data class AuthorEntity(
     val name: String,
     val bio: String?,
     val birthDate: LocalDate?,
-    val deathDate: LocalDate?
+    val deathDate: LocalDate?,
 )

@@ -9,7 +9,7 @@ import java.util.*
 
 @Repository
 @Primary
-class JpaAuthorRepository(
+class DbAuthorRepository(
     private val authorJpaRepository: AuthorJpaRepository,
     private val mapper: AuthorEntityMapper
 ) : AuthorRepositoryPort {

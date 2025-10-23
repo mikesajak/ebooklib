@@ -4,7 +4,7 @@ import java.time.LocalDate
 
 data class BookRequestDto(
     val title: String,
-    val author: String,
+    val authorIds: List<java.util.UUID>,
     val creationDate: LocalDate?,
     val publicationDate: LocalDate?,
     val publisher: String?,

@@ -9,7 +9,7 @@ import java.util.*
 
 @Repository
 @Primary
-class JpaBookRepository(
+class DBBookRepository(
     private val bookJpaRepository: BookJpaRepository,
     private val mapper: BookEntityMapper
 ) : BookRepositoryPort {
