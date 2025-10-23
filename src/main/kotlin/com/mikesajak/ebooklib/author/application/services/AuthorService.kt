@@ -11,8 +11,6 @@ import org.springframework.stereotype.Service
 
 @Service
 class AuthorService(private val authorRepository: AuthorRepositoryPort) : GetAuthorUseCase, SaveAuthorUseCase {
-    private val logger = KotlinLogging.logger {}
-
     override fun getAuthor(authorId: AuthorId): Author {
         val author = authorRepository.findById(authorId)
             ?: throw AuthorNotFoundException("Author with id $authorId not found")

@@ -1,4 +1,5 @@
 package com.mikesajak.ebooklib.book.application.services
+import com.mikesajak.ebooklib.author.domain.model.AuthorId
 
 import com.mikesajak.ebooklib.book.application.ports.incoming.GetBookUseCase
 import com.mikesajak.ebooklib.book.application.ports.incoming.AddBookUseCase
@@ -11,8 +12,6 @@ import org.springframework.stereotype.Service
 
 @Service
 class BookService(private val bookRepository: BookRepositoryPort) : GetBookUseCase, AddBookUseCase {
-    private val logger = KotlinLogging.logger {}
-
     override fun getBook(bookId: BookId): Book {
         val book = bookRepository.findById(bookId)
             ?: throw BookNotFoundException("Book with id $bookId not found")
@@ -27,4 +26,8 @@ class BookService(private val bookRepository: BookRepositoryPort) : GetBookUseCa
         return bookRepository.save(book)
     }
 
+    fun getBooksByAuthor(authorId: AuthorId): List<Book> {
+        return bookRepository.findByAuthorId(authorId)
+    }
 }
+

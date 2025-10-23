@@ -1,4 +1,7 @@
 package com.mikesajak.ebooklib.author.infrastructure.adapters.incoming.rest
+import com.mikesajak.ebooklib.book.application.services.BookService
+import com.mikesajak.ebooklib.book.infrastructure.adapters.incoming.rest.BookRestMapper
+import com.mikesajak.ebooklib.book.infrastructure.adapters.incoming.rest.dto.BookResponseDto
 
 import com.mikesajak.ebooklib.author.application.ports.incoming.GetAuthorUseCase
 import com.mikesajak.ebooklib.author.application.ports.incoming.SaveAuthorUseCase
@@ -21,6 +24,9 @@ class AuthorRestController(
     private val getAuthorUseCase: GetAuthorUseCase,
     private val saveAuthorUseCase: SaveAuthorUseCase,
     private val authorRestMapper: AuthorRestMapper
+    ,
+    private val bookService: BookService,
+    private val bookRestMapper: BookRestMapper
 ) {
     @GetMapping
     fun getAllAuthors(): List<AuthorResponseDto> =
@@ -30,6 +36,11 @@ class AuthorRestController(
     @GetMapping("/{id}")
     fun getAuthorById(@PathVariable id: UUID): AuthorResponseDto =
         authorRestMapper.toResponse(getAuthorUseCase.getAuthor(AuthorId(id)))
+
+    @GetMapping("/{id}/books")
+    fun getBooksByAuthor(@PathVariable id: UUID): List<BookResponseDto> =
+        bookService.getBooksByAuthor(AuthorId(id))
+            .map { book -> bookRestMapper.toResponse(book) }
 
     @PostMapping
     fun saveAuthor(@RequestBody authorRequestDto: AuthorRequestDto): ResponseEntity<AuthorResponseDto> {
