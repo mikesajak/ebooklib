@@ -1,0 +1,3 @@
+spring:
+  liquibase:
+    contexts: schema,test-data
