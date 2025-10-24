@@ -38,9 +38,11 @@ class AuthorRestController(
         authorRestMapper.toResponse(getAuthorUseCase.getAuthor(AuthorId(id)))
 
     @GetMapping("/{id}/books")
-    fun getBooksByAuthor(@PathVariable id: UUID): List<BookResponseDto> =
-        bookService.getBooksByAuthor(AuthorId(id))
+    fun getBooksByAuthor(@PathVariable id: UUID): List<BookResponseDto> {
+        getAuthorUseCase.getAuthor(AuthorId(id)) // Throws if not found
+        return bookService.getBooksByAuthor(AuthorId(id))
             .map { book -> bookRestMapper.toResponse(book) }
+}
 
     @PostMapping
     fun saveAuthor(@RequestBody authorRequestDto: AuthorRequestDto): ResponseEntity<AuthorResponseDto> {

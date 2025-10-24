@@ -13,7 +13,7 @@ import org.springframework.stereotype.Service
 class AuthorService(private val authorRepository: AuthorRepositoryPort) : GetAuthorUseCase, SaveAuthorUseCase {
     override fun getAuthor(authorId: AuthorId): Author {
         val author = authorRepository.findById(authorId)
-            ?: throw AuthorNotFoundException("Author with id $authorId not found")
+            ?: throw AuthorNotFoundException(authorId)
         return author
     }
 

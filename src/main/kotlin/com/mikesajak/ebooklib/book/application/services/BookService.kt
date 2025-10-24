@@ -1,5 +1,9 @@
 package com.mikesajak.ebooklib.book.application.services
+
+import com.mikesajak.ebooklib.author.application.ports.outgoing.AuthorRepositoryPort
+import com.mikesajak.ebooklib.author.domain.exception.AuthorNotFoundException
 import com.mikesajak.ebooklib.author.domain.model.AuthorId
+import com.mikesajak.ebooklib.author.infrastructure.adapters.outgoing.persistence.DbAuthorRepository
 
 import com.mikesajak.ebooklib.book.application.ports.incoming.GetBookUseCase
 import com.mikesajak.ebooklib.book.application.ports.incoming.AddBookUseCase
@@ -11,10 +15,11 @@ import mu.KotlinLogging
 import org.springframework.stereotype.Service
 
 @Service
-class BookService(private val bookRepository: BookRepositoryPort) : GetBookUseCase, AddBookUseCase {
+class BookService(private val bookRepository: BookRepositoryPort, private val authorRepository: AuthorRepositoryPort) :
+        GetBookUseCase, AddBookUseCase {
     override fun getBook(bookId: BookId): Book {
         val book = bookRepository.findById(bookId)
-            ?: throw BookNotFoundException("Book with id $bookId not found")
+            ?: throw BookNotFoundException(bookId)
         return book
     }
 
@@ -27,6 +32,7 @@ class BookService(private val bookRepository: BookRepositoryPort) : GetBookUseCa
     }
 
     fun getBooksByAuthor(authorId: AuthorId): List<Book> {
+        authorRepository.findById(authorId) ?: throw AuthorNotFoundException(authorId)
         return bookRepository.findByAuthorId(authorId)
     }
 }

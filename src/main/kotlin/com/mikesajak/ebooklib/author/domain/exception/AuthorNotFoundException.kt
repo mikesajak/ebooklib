@@ -1,3 +1,5 @@
 package com.mikesajak.ebooklib.author.domain.exception
 
-class AuthorNotFoundException(message: String) : RuntimeException(message)
+import com.mikesajak.ebooklib.author.domain.model.AuthorId
+
+class AuthorNotFoundException(val authorId: AuthorId) : RuntimeException()
