@@ -1,4 +1,7 @@
 package com.mikesajak.ebooklib.series.infrastructure.adapters.incoming.rest
+import com.mikesajak.ebooklib.book.infrastructure.adapters.incoming.rest.BookRestMapper
+import com.mikesajak.ebooklib.book.infrastructure.adapters.incoming.rest.dto.BookResponseDto
+import com.mikesajak.ebooklib.book.application.ports.incoming.GetBooksBySeriesUseCase
 
 import com.mikesajak.ebooklib.series.application.ports.incoming.GetSeriesUseCase
 import com.mikesajak.ebooklib.series.domain.model.SeriesId
@@ -13,6 +16,8 @@ import java.util.UUID
 @RequestMapping("/api/series")
 class SeriesRestController(
     private val getSeriesUseCase: GetSeriesUseCase,
+    private val getBooksBySeriesUseCase: GetBooksBySeriesUseCase,
+    private val bookRestMapper: BookRestMapper,
     private val seriesRestMapper: SeriesRestMapper
 ) {
 
@@ -24,4 +29,10 @@ class SeriesRestController(
     @GetMapping("/{id}")
     fun getSeriesById(@PathVariable id: UUID): SeriesResponseDto =
         seriesRestMapper.toResponse(getSeriesUseCase.getSeries(SeriesId(id)))
+
+    @GetMapping("/{id}/books")
+    fun getBooksOfSeries(@PathVariable id: UUID): List<BookResponseDto> {
+        return getBooksBySeriesUseCase.getBooksOfSeries(SeriesId(id))
+            .map { book -> bookRestMapper.toResponse(book) }
+    }
 }

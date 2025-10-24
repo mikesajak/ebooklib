@@ -3,4 +3,4 @@ spring:
     contexts: schema,test-data
   h2:
     console:
-      enabled=true:
+      enabled: true

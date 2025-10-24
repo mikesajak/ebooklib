@@ -1,5 +1,4 @@
 package com.mikesajak.ebooklib.author.infrastructure.adapters.incoming.rest
-import com.mikesajak.ebooklib.book.application.services.BookService
 import com.mikesajak.ebooklib.book.infrastructure.adapters.incoming.rest.BookRestMapper
 import com.mikesajak.ebooklib.book.infrastructure.adapters.incoming.rest.dto.BookResponseDto
 
@@ -8,6 +7,7 @@ import com.mikesajak.ebooklib.author.application.ports.incoming.SaveAuthorUseCas
 import com.mikesajak.ebooklib.author.domain.model.AuthorId
 import com.mikesajak.ebooklib.author.infrastructure.adapters.incoming.rest.dto.AuthorRequestDto
 import com.mikesajak.ebooklib.author.infrastructure.adapters.incoming.rest.dto.AuthorResponseDto
+import com.mikesajak.ebooklib.book.application.ports.incoming.GetBooksByAuthorUseCase
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
@@ -25,7 +25,7 @@ class AuthorRestController(
     private val saveAuthorUseCase: SaveAuthorUseCase,
     private val authorRestMapper: AuthorRestMapper
     ,
-    private val bookService: BookService,
+    private val getBooksByAuthorUseCase: GetBooksByAuthorUseCase,
     private val bookRestMapper: BookRestMapper
 ) {
     @GetMapping
@@ -39,8 +39,7 @@ class AuthorRestController(
 
     @GetMapping("/{id}/books")
     fun getBooksByAuthor(@PathVariable id: UUID): List<BookResponseDto> {
-        getAuthorUseCase.getAuthor(AuthorId(id)) // Throws if not found
-        return bookService.getBooksByAuthor(AuthorId(id))
+        return getBooksByAuthorUseCase.getBooksByAuthor(AuthorId(id))
             .map { book -> bookRestMapper.toResponse(book) }
 }
 

@@ -1,4 +1,5 @@
 package com.mikesajak.ebooklib.book.infrastructure.adapters.outgoing.persistence
+import com.mikesajak.ebooklib.series.domain.model.SeriesId
 
 import com.mikesajak.ebooklib.author.domain.model.AuthorId
 import com.mikesajak.ebooklib.book.application.ports.outgoing.BookRepositoryPort
@@ -29,4 +30,7 @@ class DBBookRepository(private val bookJpaRepository: BookJpaRepository,
 
     override fun findByAuthorId(authorId: AuthorId): List<Book> =
         bookJpaRepository.findBooksByAuthorId(authorId.value).map { bookEntity -> mapper.toDomain(bookEntity) }
+
+    override fun findBySeriesId(seriesId: SeriesId): List<Book> =
+        bookJpaRepository.findBooksBySeriesId(seriesId.value).map { bookEntity -> mapper.toDomain(bookEntity) }
 }
