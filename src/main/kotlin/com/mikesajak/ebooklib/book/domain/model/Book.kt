@@ -1,4 +1,5 @@
 package com.mikesajak.ebooklib.book.domain.model
+import com.mikesajak.ebooklib.series.domain.model.Series
 import com.mikesajak.ebooklib.author.domain.model.Author
 
 import java.time.LocalDate
@@ -15,5 +16,7 @@ data class Book(
     val creationDate: LocalDate?,
     val publicationDate: LocalDate?,
     val publisher: String?,
-    val description: String?
+    val description: String?,
+    val series: Series?,
+    val volume: Int?
 )

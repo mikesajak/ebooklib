@@ -1,0 +1,46 @@
+databaseChangeLog:
+  - changeSet:
+      id: 004-create-series-table
+      context: schema
+      author: ebooklib
+      changes:
+        - createTable:
+            tableName: series
+            columns:
+              - column:
+                  name: id
+                  type: UUID
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: title
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: description
+                  type: text
+                  constraints:
+                    nullable: true
+  - changeSet:
+      id: 005-alter-books-add-series
+      context: schema
+      author: ebooklib
+      changes:
+        - addColumn:
+            tableName: books
+            columns:
+              - column:
+                  name: series_id
+                  type: UUID
+                  constraints:
+                    nullable: true
+                    foreignKeyName: fk_books_series_id
+                    referencedTableName: series
+                    referencedColumnNames: id
+              - column:
+                  name: volume
+                  type: int
+                  constraints:
+                    nullable: true

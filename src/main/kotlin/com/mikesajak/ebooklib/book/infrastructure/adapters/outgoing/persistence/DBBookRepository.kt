@@ -10,9 +10,8 @@ import java.util.*
 
 @Repository
 @Primary
-class DBBookRepository(
-    private val bookJpaRepository: BookJpaRepository,
-    private val mapper: BookEntityMapper
+class DBBookRepository(private val bookJpaRepository: BookJpaRepository,
+                       private val mapper: BookEntityMapper
 ) : BookRepositoryPort {
 
     override fun findAll(): List<Book> =

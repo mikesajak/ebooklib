@@ -1,0 +1,248 @@
+databaseChangeLog:
+  - changeSet:
+      id: 003-insert-test-data
+      author: ebooklib
+      context: test-data
+      changes:
+        - insert:
+            tableName: series
+            columns:
+              - column:
+                  name: id
+                  value: '550e8400-e29b-41d4-a716-446655440004'
+              - column:
+                  name: title
+                  value: 'Harry Potter'
+              - column:
+                  name: description
+                  value: 'Wizarding series by J.K. Rowling'
+        - insert:
+            tableName: series
+            columns:
+              - column:
+                  name: id
+                  value: '550e8400-e29b-41d4-a716-446655440006'
+              - column:
+                  name: title
+                  value: 'The Lord of the Rings'
+              - column:
+                  name: description
+                  value: 'Epic fantasy trilogy by J.R.R. Tolkien'
+        - insert:
+            tableName: authors
+            columns:
+              - column:
+                  name: id
+                  value: '550e8400-e29b-41d4-a716-446655440000'
+              - column:
+                  name: name
+                  value: 'J.K. Rowling'
+              - column:
+                  name: bio
+                  value: 'British author, best known for the Harry Potter series'
+              - column:
+                  name: birth_date
+                  value: '1965-07-31'
+        - insert:
+            tableName: authors
+            columns:
+              - column:
+                  name: id
+                  value: '550e8400-e29b-41d4-a716-446655440001'
+              - column:
+                  name: name
+                  value: 'George Orwell'
+              - column:
+                  name: bio
+                  value: 'English novelist and essayist'
+              - column:
+                  name: birth_date
+                  value: '1903-06-25'
+              - column:
+                  name: death_date
+        - insert:
+            tableName: authors
+            columns:
+              - column:
+                  name: id
+                  value: '550e8400-e29b-41d4-a716-446655440005'
+              - column:
+                  name: name
+                  value: 'J.R.R. Tolkien'
+              - column:
+                  name: bio
+                  value: 'English writer and philologist'
+              - column:
+                  name: birth_date
+                  value: '1892-01-03'
+              - column:
+                  name: death_date
+                  value: '1950-01-21'
+        - insert:
+            tableName: books
+            columns:
+              - column:
+                  name: id
+                  value: '550e8400-e29b-41d4-a716-446655440002'
+              - column:
+                  name: title
+                  value: 'Harry Potter and the Philosopher''s Stone'
+              - column:
+                  name: creation_date
+                  value: '1997-06-26'
+              - column:
+                  name: publication_date
+                  value: '1997-06-26'
+              - column:
+                  name: publisher
+                  value: 'Bloomsbury'
+              - column:
+                  name: description
+                  value: 'The first book in the Harry Potter series'
+        - insert:
+            tableName: books
+            columns:
+              - column:
+                  name: id
+                  value: '550e8400-e29b-41d4-a716-446655440003'
+              - column:
+                  name: title
+                  value: '1984'
+              - column:
+                  name: creation_date
+                  value: '1948-01-01'
+              - column:
+                  name: publication_date
+                  value: '1949-06-08'
+              - column:
+                  name: publisher
+                  value: 'Secker & Warburg'
+              - column:
+                  name: description
+                  value: 'Dystopian social science fiction novel'
+        - insert:
+            tableName: books
+            columns:
+              - column:
+                  name: id
+                  value: '550e8400-e29b-41d4-a716-446655440007'
+              - column:
+                  name: title
+                  value: 'The Fellowship of the Ring'
+              - column:
+                  name: series_id
+                  value: '550e8400-e29b-41d4-a716-446655440006'
+              - column:
+                  name: volume
+                  value: 1
+              - column:
+                  name: creation_date
+                  value: '1954-07-29'
+              - column:
+                  name: publication_date
+                  value: '1954-07-29'
+              - column:
+                  name: publisher
+                  value: 'George Allen & Unwin'
+              - column:
+                  name: description
+                  value: 'The first volume of The Lord of the Rings'
+        - insert:
+            tableName: books
+            columns:
+              - column:
+                  name: id
+                  value: '550e8400-e29b-41d4-a716-446655440008'
+              - column:
+                  name: title
+                  value: 'The Two Towers'
+              - column:
+                  name: series_id
+                  value: '550e8400-e29b-41d4-a716-446655440006'
+              - column:
+                  name: volume
+                  value: 2
+              - column:
+                  name: creation_date
+                  value: '1954-11-11'
+              - column:
+                  name: publication_date
+                  value: '1954-11-11'
+              - column:
+                  name: publisher
+                  value: 'George Allen & Unwin'
+              - column:
+                  name: description
+                  value: 'The second volume of The Lord of the Rings'
+        - insert:
+            tableName: books
+            columns:
+              - column:
+                  name: id
+                  value: '550e8400-e29b-41d4-a716-446655440009'
+              - column:
+                  name: title
+                  value: 'The Return of the King'
+              - column:
+                  name: series_id
+                  value: '550e8400-e29b-41d4-a716-446655440006'
+              - column:
+                  name: volume
+                  value: 3
+              - column:
+                  name: creation_date
+                  value: '1955-10-20'
+              - column:
+                  name: publication_date
+                  value: '1955-10-20'
+              - column:
+                  name: publisher
+                  value: 'George Allen & Unwin'
+              - column:
+                  name: description
+                  value: 'The third volume of The Lord of the Rings'
+        - insert:
+            tableName: book_authors
+            columns:
+              - column:
+                  name: book_id
+                  value: '550e8400-e29b-41d4-a716-446655440002'
+              - column:
+                  name: author_id
+                  value: '550e8400-e29b-41d4-a716-446655440000'
+        - insert:
+            tableName: book_authors
+            columns:
+              - column:
+                  name: book_id
+                  value: '550e8400-e29b-41d4-a716-446655440007'
+              - column:
+                  name: author_id
+                  value: '550e8400-e29b-41d4-a716-446655440005'
+        - insert:
+            tableName: book_authors
+            columns:
+              - column:
+                  name: book_id
+                  value: '550e8400-e29b-41d4-a716-446655440008'
+              - column:
+                  name: author_id
+                  value: '550e8400-e29b-41d4-a716-446655440005'
+        - insert:
+            tableName: book_authors
+            columns:
+              - column:
+                  name: book_id
+                  value: '550e8400-e29b-41d4-a716-446655440009'
+              - column:
+                  name: author_id
+                  value: '550e8400-e29b-41d4-a716-446655440005'
+        - insert:
+            tableName: book_authors
+            columns:
+              - column:
+                  name: book_id
+                  value: '550e8400-e29b-41d4-a716-446655440003'
+              - column:
+                  name: author_id
+                  value: '550e8400-e29b-41d4-a716-446655440001'

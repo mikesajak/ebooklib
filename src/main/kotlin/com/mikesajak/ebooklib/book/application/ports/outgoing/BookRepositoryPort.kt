@@ -1,6 +1,6 @@
 package com.mikesajak.ebooklib.book.application.ports.outgoing
-import com.mikesajak.ebooklib.author.domain.model.AuthorId
 
+import com.mikesajak.ebooklib.author.domain.model.AuthorId
 import com.mikesajak.ebooklib.book.domain.model.Book
 import com.mikesajak.ebooklib.book.domain.model.BookId
 
