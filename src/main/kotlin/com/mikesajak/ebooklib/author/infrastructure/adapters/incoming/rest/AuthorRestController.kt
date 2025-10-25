@@ -1,4 +1,6 @@
 package com.mikesajak.ebooklib.author.infrastructure.adapters.incoming.rest
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.Pageable
 import com.mikesajak.ebooklib.book.infrastructure.adapters.incoming.rest.BookRestMapper
 import com.mikesajak.ebooklib.book.infrastructure.adapters.incoming.rest.dto.BookResponseDto
 
@@ -29,8 +31,8 @@ class AuthorRestController(
     private val bookRestMapper: BookRestMapper
 ) {
     @GetMapping
-    fun getAllAuthors(): List<AuthorResponseDto> =
-        getAuthorUseCase.getAllAuthors()
+    fun getAllAuthors(pageable: Pageable): Page<AuthorResponseDto> =
+        getAuthorUseCase.getAllAuthors(pageable)
             .map { author -> authorRestMapper.toResponse(author) }
 
     @GetMapping("/{id}")
@@ -38,8 +40,8 @@ class AuthorRestController(
         authorRestMapper.toResponse(getAuthorUseCase.getAuthor(AuthorId(id)))
 
     @GetMapping("/{id}/books")
-    fun getBooksByAuthor(@PathVariable id: UUID): List<BookResponseDto> {
-        return getBooksByAuthorUseCase.getBooksByAuthor(AuthorId(id))
+    fun getBooksByAuthor(@PathVariable id: UUID, pageable: Pageable): Page<BookResponseDto> {
+        return getBooksByAuthorUseCase.getBooksByAuthor(AuthorId(id), pageable)
             .map { book -> bookRestMapper.toResponse(book) }
 }
 

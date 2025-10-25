@@ -1,4 +1,6 @@
 package com.mikesajak.ebooklib.author.application.services
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.Pageable
 
 import com.mikesajak.ebooklib.author.application.ports.incoming.GetAuthorUseCase
 import com.mikesajak.ebooklib.author.application.ports.incoming.SaveAuthorUseCase
@@ -17,8 +19,8 @@ class AuthorService(private val authorRepository: AuthorRepositoryPort) : GetAut
         return author
     }
 
-    override fun getAllAuthors(): List<Author> {
-        return authorRepository.findAll()
+    override fun getAllAuthors(pageable: Pageable): Page<Author> {
+        return authorRepository.findAll(pageable)
     }
 
     override fun saveAuthor(author: Author): Author {

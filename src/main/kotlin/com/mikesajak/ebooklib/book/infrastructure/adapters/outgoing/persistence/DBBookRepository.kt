@@ -1,4 +1,6 @@
 package com.mikesajak.ebooklib.book.infrastructure.adapters.outgoing.persistence
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.Pageable
 import com.mikesajak.ebooklib.series.domain.model.SeriesId
 
 import com.mikesajak.ebooklib.author.domain.model.AuthorId
@@ -15,8 +17,8 @@ class DBBookRepository(private val bookJpaRepository: BookJpaRepository,
                        private val mapper: BookEntityMapper
 ) : BookRepositoryPort {
 
-    override fun findAll(): List<Book> =
-        bookJpaRepository.findAll().map { bookEntity -> mapper.toDomain(bookEntity) }
+    override fun findAll(pageable: Pageable): Page<Book> =
+        bookJpaRepository.findAll(pageable).map { bookEntity -> mapper.toDomain(bookEntity) }
 
     override fun findById(id: BookId): Book? =
         bookJpaRepository.findById(id.value).map { bookEntity -> mapper.toDomain(bookEntity) }.orElse(null)
@@ -28,9 +30,9 @@ class DBBookRepository(private val bookJpaRepository: BookJpaRepository,
         return mapper.toDomain(savedEntity)
     }
 
-    override fun findByAuthorId(authorId: AuthorId): List<Book> =
-        bookJpaRepository.findBooksByAuthorId(authorId.value).map { bookEntity -> mapper.toDomain(bookEntity) }
+    override fun findByAuthorId(authorId: AuthorId, pageable: Pageable): Page<Book> =
+        bookJpaRepository.findBooksByAuthorId(authorId.value, pageable).map { bookEntity -> mapper.toDomain(bookEntity) }
 
-    override fun findBySeriesId(seriesId: SeriesId): List<Book> =
-        bookJpaRepository.findBooksBySeriesId(seriesId.value).map { bookEntity -> mapper.toDomain(bookEntity) }
+    override fun findBySeriesId(seriesId: SeriesId, pageable: Pageable): Page<Book> =
+        bookJpaRepository.findBooksBySeriesId(seriesId.value, pageable).map { bookEntity -> mapper.toDomain(bookEntity) }
 }

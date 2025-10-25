@@ -1,4 +1,6 @@
 package com.mikesajak.ebooklib.book.application.services
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.Pageable
 
 import com.mikesajak.ebooklib.author.application.ports.incoming.GetAuthorUseCase
 import com.mikesajak.ebooklib.author.application.ports.outgoing.AuthorRepositoryPort
@@ -31,22 +33,22 @@ class BookService(private val bookRepository: BookRepositoryPort,
         return book
     }
 
-    override fun getAllBooks(): List<Book> {
-        return bookRepository.findAll()
+    override fun getAllBooks(pageable: Pageable): Page<Book> {
+        return bookRepository.findAll(pageable)
     }
 
     override fun addBook(book: Book): Book {
         return bookRepository.save(book)
     }
 
-    override fun getBooksByAuthor(authorId: AuthorId): List<Book> {
+    override fun getBooksByAuthor(authorId: AuthorId, pageable: Pageable): Page<Book> {
         getAuthorsUseCase.getAuthor(authorId)
-        return bookRepository.findByAuthorId(authorId)
+        return bookRepository.findByAuthorId(authorId, pageable)
     }
 
-    override fun getBooksOfSeries(seriesId: SeriesId): List<Book> {
+    override fun getBooksOfSeries(seriesId: SeriesId, pageable: Pageable): Page<Book> {
         getSeriesUseCase.getSeries(seriesId)
-        return bookRepository.findBySeriesId(seriesId)
+        return bookRepository.findBySeriesId(seriesId, pageable)
     }
 }
 

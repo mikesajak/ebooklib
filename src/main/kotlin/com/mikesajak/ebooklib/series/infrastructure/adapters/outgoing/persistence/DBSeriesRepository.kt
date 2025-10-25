@@ -1,4 +1,6 @@
 package com.mikesajak.ebooklib.series.infrastructure.adapters.outgoing.persistence
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.Pageable
 
 import com.mikesajak.ebooklib.series.application.ports.outgoing.SeriesRepositoryPort
 import com.mikesajak.ebooklib.series.domain.model.Series
@@ -14,8 +16,8 @@ class DBSeriesRepository(
     private val mapper: SeriesEntityMapper
 ) : SeriesRepositoryPort {
 
-    override fun findAll(): List<Series> =
-        seriesJpaRepository.findAll().map { seriesEntity -> mapper.toDomain(seriesEntity) }
+    override fun findAll(pageable: Pageable): Page<Series> =
+        seriesJpaRepository.findAll(pageable).map { seriesEntity -> mapper.toDomain(seriesEntity) }
 
     override fun findById(id: SeriesId): Series? =
         seriesJpaRepository.findById(id.value).map { seriesEntity -> mapper.toDomain(seriesEntity) }.orElse(null)

@@ -1,4 +1,6 @@
 package com.mikesajak.ebooklib.series.infrastructure.adapters.incoming.rest
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.Pageable
 import com.mikesajak.ebooklib.book.infrastructure.adapters.incoming.rest.BookRestMapper
 import com.mikesajak.ebooklib.book.infrastructure.adapters.incoming.rest.dto.BookResponseDto
 import com.mikesajak.ebooklib.book.application.ports.incoming.GetBooksBySeriesUseCase
@@ -22,8 +24,8 @@ class SeriesRestController(
 ) {
 
     @GetMapping
-    fun getAllSeries(): List<SeriesResponseDto> =
-        getSeriesUseCase.getAllSeries()
+    fun getAllSeries(pageable: Pageable): Page<SeriesResponseDto> =
+        getSeriesUseCase.getAllSeries(pageable)
             .map { series -> seriesRestMapper.toResponse(series) }
 
     @GetMapping("/{id}")
@@ -31,8 +33,8 @@ class SeriesRestController(
         seriesRestMapper.toResponse(getSeriesUseCase.getSeries(SeriesId(id)))
 
     @GetMapping("/{id}/books")
-    fun getBooksOfSeries(@PathVariable id: UUID): List<BookResponseDto> {
-        return getBooksBySeriesUseCase.getBooksOfSeries(SeriesId(id))
+    fun getBooksOfSeries(@PathVariable id: UUID, pageable: Pageable): Page<BookResponseDto> {
+        return getBooksBySeriesUseCase.getBooksOfSeries(SeriesId(id), pageable)
             .map { book -> bookRestMapper.toResponse(book) }
     }
 }

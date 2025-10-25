@@ -1,4 +1,6 @@
 package com.mikesajak.ebooklib.author.infrastructure.adapters.outgoing.persistence
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.Pageable
 
 import com.mikesajak.ebooklib.author.application.ports.outgoing.AuthorRepositoryPort
 import com.mikesajak.ebooklib.author.domain.model.Author
@@ -14,8 +16,8 @@ class DbAuthorRepository(
     private val mapper: AuthorEntityMapper
 ) : AuthorRepositoryPort {
 
-    override fun findAll(): List<Author> =
-        authorJpaRepository.findAll().map { mapper.toDomain(it) }
+    override fun findAll(pageable: Pageable): Page<Author> =
+        authorJpaRepository.findAll(pageable).map { mapper.toDomain(it) }
 
     override fun findById(id: AuthorId): Author? =
         authorJpaRepository.findById(id.value).map { mapper.toDomain(it) }.orElse(null)

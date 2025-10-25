@@ -1,4 +1,6 @@
 package com.mikesajak.ebooklib.book.infrastructure.adapters.incoming.rest
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.Pageable
 
 import com.mikesajak.ebooklib.book.application.ports.incoming.GetBookUseCase
 import com.mikesajak.ebooklib.book.application.ports.incoming.AddBookUseCase
@@ -23,8 +25,8 @@ class BookRestController(
     private val bookRestMapper: BookRestMapper
 ) {
     @GetMapping
-    fun getAllBooks(): List<BookResponseDto> =
-        getBookUseCase.getAllBooks()
+    fun getAllBooks(pageable: Pageable): Page<BookResponseDto> =
+        getBookUseCase.getAllBooks(pageable)
             .map { book -> bookRestMapper.toResponse(book) }
 
     @GetMapping("/{id}")
