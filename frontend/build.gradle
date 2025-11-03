@@ -1,0 +1,18 @@
+plugins {
+    id 'com.github.node-gradle.node' version '7.0.1'
+}
+
+node {
+    
+    download = false
+}
+task copyReactBuild(type: Copy) {
+task npmRunBuild(type: com.github.gradle.node.npm.task.NpmTask) {
+    args = ["run", "build"]
+    dependsOn npmInstall
+}
+
+    from 'dist'
+    into '../src/main/resources/static'
+    dependsOn npmRunBuild
+}

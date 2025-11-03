@@ -52,3 +52,4 @@ allOpen {
 tasks.withType<Test> {
 	useJUnitPlatform()
 }
+tasks.named("build") { dependsOn(":frontend:copyReactBuild") }
