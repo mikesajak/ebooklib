@@ -40,7 +40,7 @@ const BookDetails = () => {
       <div className="container mx-auto p-4">
         <h1 className="text-2xl font-bold mb-4">Book Details</h1>
         <p className="text-center text-red-500">Error: {error}</p>
-        <Link to="/" className="mt-4 inline-block bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-700">
+        <Link to="/" style={{marginTop: '1rem', display: 'inline-block', color: '#2563eb', textDecoration: 'none', fontWeight: '600'}}>
           Back to List
         </Link>
       </div>
@@ -55,10 +55,17 @@ const BookDetails = () => {
           <strong>Title:</strong> {book.title}
         </div>
         <div className="mb-4">
-          <strong>Authors:</strong> {book.authors.map((author) => author.name).join(', ')}
+          <strong>Authors:</strong> {book.authors.map((author, index) => (
+            <span key={author.id}>
+              <Link to={`/author/${author.id}`} style={{color: '#059669', textDecoration: 'none', marginRight: '0.25rem'}}>
+                {author.name}
+              </Link>
+              {index < book.authors.length - 1 ? ', ' : ''}
+            </span>
+          ))}
         </div>
         <div className="mb-4">
-          <strong>Series:</strong> {book.series ? book.series.name : 'N/A'}
+          <strong>Series:</strong> {book.series ? <Link to={`/series/${book.series.id}`} style={{color: '#d97706', textDecoration: 'none'}}>{book.series.title}</Link> : 'N/A'}
         </div>
         <div className="mb-4">
           <strong>Volume:</strong> {book.volume || 'N/A'}
@@ -76,7 +83,7 @@ const BookDetails = () => {
           <strong>Description:</strong> {book.description || 'N/A'}
         </div>
       </div>
-      <Link to="/" className="mt-4 inline-block bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-700">
+      <Link to="/" style={{marginTop: '1rem', display: 'inline-block', color: '#2563eb', textDecoration: 'none', fontWeight: '600'}}>
         Back to List
       </Link>
     </div>

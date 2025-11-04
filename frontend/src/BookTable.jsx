@@ -28,81 +28,89 @@ const BookTable = () => {
 
   if (loading) {
     return (
-      <div className="container mx-auto p-4">
-        <h1 className="text-2xl font-bold mb-4">Book List</h1>
-        <p className="text-center text-gray-500">Loading books...</p>
+      <div style={{maxWidth: '1280px', margin: '0 auto', padding: '1rem'}}>
+        <h1 style={{fontSize: '1.5rem', fontWeight: 'bold', marginBottom: '1rem'}}>Book List</h1>
+        <p style={{textAlign: 'center', color: '#6b7280'}}>Loading books...</p>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="container mx-auto p-4">
-        <h1 className="text-2xl font-bold mb-4">Book List</h1>
-        <p className="text-center text-red-500">Error: {error}</p>
+      <div style={{maxWidth: '1280px', margin: '0 auto', padding: '1rem'}}>
+        <h1 style={{fontSize: '1.5rem', fontWeight: 'bold', marginBottom: '1rem'}}>Book List</h1>
+        <p style={{textAlign: 'center', color: '#dc2626'}}>Error: {error}</p>
       </div>
     );
   }
 
   return (
-    <div className="container mx-auto p-4">
-      <h1 className="text-2xl font-bold mb-4">Book List</h1>
-      <table className="min-w-full bg-white border border-gray-300">
+    <div style={{maxWidth: '1280px', margin: '0 auto', padding: '1rem'}}>
+      <h1 style={{fontSize: '1.5rem', fontWeight: 'bold', marginBottom: '1rem'}}>Book List</h1>
+      <table style={{width: '100%', backgroundColor: 'white', border: '1px solid #d1d5db', borderCollapse: 'collapse'}}>
         <thead>
-          <tr className="bg-gray-100">
-            <th className="py-2 px-4 border-b">Title</th>
-            <th className="py-2 px-4 border-b">Authors</th>
-            <th className="py-2 px-4 border-b">Series</th>
-            <th className="py-2 px-4 border-b">Volume</th>
-            <th className="py-2 px-4 border-b">Publication Date</th>
-            <th className="py-2 px-4 border-b">Publisher</th>
-            <th className="py-2 px-4 border-b">Description</th>
+          <tr style={{backgroundColor: '#3b82f6', color: '#1e40af'}}>
+            <th style={{padding: '0.5rem 1rem', border: '1px solid #d1d5db'}}>Title</th>
+            <th style={{padding: '0.5rem 1rem', border: '1px solid #d1d5db'}}>Authors</th>
+            <th style={{padding: '0.5rem 1rem', border: '1px solid #d1d5db', width: '60px'}}>Series</th>
+            <th style={{padding: '0.5rem 1rem', border: '1px solid #d1d5db'}}>Volume</th>
+            <th style={{padding: '0.5rem 1rem', border: '1px solid #d1d5db'}}>Publication Date</th>
+            <th style={{padding: '0.5rem 1rem', border: '1px solid #d1d5db'}}>Publisher</th>
+            <th style={{padding: '0.5rem 1rem', border: '1px solid #d1d5db'}}>Description</th>
           </tr>
         </thead>
         <tbody>
           {books.length === 0 ? (
             <tr>
-              <td colSpan="7" className="py-4 px-4 text-center text-gray-500">
+              <td colSpan="7" style={{padding: '1rem', textAlign: 'center', color: '#6b7280'}}>
                 No books found.
               </td>
             </tr>
           ) : (
-            books.map((book) => (
+            books.map((book, index) => (
               <tr
                 key={book.id}
                 onClick={() => navigate(`/book/${book.id}`)}
-                className="hover:bg-gray-50 cursor-pointer"
+                style={{backgroundColor: index % 2 === 0 ? '#f9fafb' : 'white', cursor: 'pointer'}}
               >
-                <td className="py-2 px-4 border-b">
+                <td style={{padding: '0.5rem 1rem', border: '1px solid #d1d5db'}}>
                   <Link
                     to={`/book/${book.id}`}
-                    className="text-blue-500 hover:underline"
+                    style={{color: '#2563eb', textDecoration: 'none'}}
                     onClick={(e) => e.stopPropagation()}
                   >
                     {book.title}
                   </Link>
                 </td>
-                <td className="py-2 px-4 border-b">
-                  {book.authors.map((author, index) => (
+                <td style={{padding: '0.5rem 1rem', border: '1px solid #d1d5db'}}>
+                  {book.authors.map((author, idx) => (
                     <span key={author.id}>
                       <Link
                         to={`/author/${author.id}`}
-                        className="text-blue-500 hover:underline"
-                        onClick={(e) => e.stopPropagation()} // Prevent row click
+                        style={{color: '#059669', textDecoration: 'none', marginRight: '0.25rem'}}
+                        onClick={(e) => e.stopPropagation()}
                       >
                         {author.name}
                       </Link>
-                      {index < book.authors.length - 1 ? ', ' : ''}
+                      {idx < book.authors.length - 1 ? ' ' : ''}
                     </span>
                   ))}
                 </td>
-                <td className="py-2 px-4 border-b">
-                  {book.series ? book.series.name : '-'}
+                <td style={{padding: '0.5rem 1rem', border: '1px solid #d1d5db', width: '60px'}}>
+                  {book.series ? (
+                    <Link
+                      to={`/series/${book.series.id}`}
+                      style={{color: '#d97706', textDecoration: 'none'}}
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      {book.series.title}
+                    </Link>
+                  ) : '-'}
                 </td>
-                <td className="py-2 px-4 border-b">{book.volume || '-'}</td>
-                <td className="py-2 px-4 border-b">{book.publicationDate || '-'}</td>
-                <td className="py-2 px-4 border-b">{book.publisher || '-'}</td>
-                <td className="py-2 px-4 border-b">{book.description || '-'}</td>
+                <td style={{padding: '0.5rem 1rem', border: '1px solid #d1d5db'}}>{book.volume || '-'}</td>
+                <td style={{padding: '0.5rem 1rem', border: '1px solid #d1d5db'}}>{book.publicationDate || '-'}</td>
+                <td style={{padding: '0.5rem 1rem', border: '1px solid #d1d5db'}}>{book.publisher || '-'}</td>
+                <td style={{padding: '0.5rem 1rem', border: '1px solid #d1d5db'}}>{book.description || '-'}</td>
               </tr>
             ))
           )}

@@ -4,18 +4,26 @@ import { useParams, Link } from 'react-router-dom';
 const AuthorDetails = () => {
   const { id } = useParams();
   const [author, setAuthor] = useState(null);
+  const [books, setBooks] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    const fetchAuthor = async () => {
+    const fetchAuthorAndBooks = async () => {
       try {
-        const response = await fetch(`/api/authors/${id}`);
-        if (!response.ok) {
+        const authorResponse = await fetch(`/api/authors/${id}`);
+        if (!authorResponse.ok) {
           throw new Error('Failed to fetch author details');
         }
-        const data = await response.json();
-        setAuthor(data);
+        const authorData = await authorResponse.json();
+        setAuthor(authorData);
+
+        const booksResponse = await fetch(`/api/authors/${id}/books?page=0&size=100`);
+        if (!booksResponse.ok) {
+          throw new Error('Failed to fetch author books');
+        }
+        const booksData = await booksResponse.json();
+        setBooks(booksData.content || []);
       } catch (err) {
         setError(err.message);
       } finally {
@@ -23,7 +31,7 @@ const AuthorDetails = () => {
       }
     };
 
-    fetchAuthor();
+    fetchAuthorAndBooks();
   }, [id]);
 
   if (loading) {
@@ -40,7 +48,7 @@ const AuthorDetails = () => {
       <div className="container mx-auto p-4">
         <h1 className="text-2xl font-bold mb-4">Author Details</h1>
         <p className="text-center text-red-500">Error: {error}</p>
-        <Link to="/" className="mt-4 inline-block bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-700">
+        <Link to="/" style={{marginTop: '1rem', display: 'inline-block', color: '#2563eb', textDecoration: 'none', fontWeight: '600'}}>
           Back to List
         </Link>
       </div>
@@ -50,7 +58,7 @@ const AuthorDetails = () => {
   return (
     <div className="container mx-auto p-4">
       <h1 className="text-2xl font-bold mb-4">Author Details</h1>
-      <div className="bg-white border border-gray-300 rounded p-6 shadow">
+      <div className="bg-white border border-gray-300 rounded p-6 shadow mb-6">
         <div className="mb-4">
           <strong>Name:</strong> {author.name}
         </div>
@@ -64,7 +72,23 @@ const AuthorDetails = () => {
           <strong>Death Date:</strong> {author.deathDate || 'N/A'}
         </div>
       </div>
-      <Link to="/" className="mt-4 inline-block bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-700">
+
+      <h2 className="text-xl font-semibold mb-4">Books by this Author</h2>
+      {books.length === 0 ? (
+        <p className="text-gray-500">No books found.</p>
+      ) : (
+        <ul className="list-disc list-inside bg-white border border-gray-300 rounded p-4 shadow">
+          {books.map((book) => (
+            <li key={book.id} className="mb-2">
+              <Link to={`/book/${book.id}`} style={{color: '#2563eb', textDecoration: 'none'}}>
+                {book.title}
+              </Link>
+            </li>
+          ))}
+        </ul>
+      )}
+
+      <Link to="/" style={{marginTop: '1rem', display: 'inline-block', color: '#2563eb', textDecoration: 'none', fontWeight: '600'}}>
         Back to List
       </Link>
     </div>
