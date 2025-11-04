@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate, Link } from 'react-router-dom';
 
 const BookTable = () => {
+  const navigate = useNavigate();
   const [books, setBooks] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -66,10 +68,33 @@ const BookTable = () => {
             </tr>
           ) : (
             books.map((book) => (
-              <tr key={book.id} className="hover:bg-gray-50">
-                <td className="py-2 px-4 border-b">{book.title}</td>
+              <tr
+                key={book.id}
+                onClick={() => navigate(`/book/${book.id}`)}
+                className="hover:bg-gray-50 cursor-pointer"
+              >
                 <td className="py-2 px-4 border-b">
-                  {book.authors.map((author) => author.name).join(', ')}
+                  <Link
+                    to={`/book/${book.id}`}
+                    className="text-blue-500 hover:underline"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    {book.title}
+                  </Link>
+                </td>
+                <td className="py-2 px-4 border-b">
+                  {book.authors.map((author, index) => (
+                    <span key={author.id}>
+                      <Link
+                        to={`/author/${author.id}`}
+                        className="text-blue-500 hover:underline"
+                        onClick={(e) => e.stopPropagation()} // Prevent row click
+                      >
+                        {author.name}
+                      </Link>
+                      {index < book.authors.length - 1 ? ', ' : ''}
+                    </span>
+                  ))}
                 </td>
                 <td className="py-2 px-4 border-b">
                   {book.series ? book.series.name : '-'}
