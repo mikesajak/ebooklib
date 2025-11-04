@@ -3,9 +3,9 @@ plugins {
 }
 
 node {
-    
-    download = false
+    download = true
 }
+
 task copyReactBuild(type: Copy) {
 task npmRunBuild(type: com.github.gradle.node.npm.task.NpmTask) {
     args = ["run", "build"]
