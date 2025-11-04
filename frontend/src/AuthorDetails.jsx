@@ -48,7 +48,7 @@ const AuthorDetails = () => {
       <div className="container mx-auto p-4">
         <h1 className="text-2xl font-bold mb-4">Author Details</h1>
         <p className="text-center text-red-500">Error: {error}</p>
-        <Link to="/" style={{marginTop: '1rem', display: 'inline-block', color: '#2563eb', textDecoration: 'none', fontWeight: '600'}}>
+        <Link to="/" className="back-link">
           Back to List
         </Link>
       </div>
@@ -80,7 +80,7 @@ const AuthorDetails = () => {
         <ul className="list-disc list-inside bg-white border border-gray-300 rounded p-4 shadow">
           {books.map((book) => (
             <li key={book.id} className="mb-2">
-              <Link to={`/book/${book.id}`} style={{color: '#2563eb', textDecoration: 'none'}}>
+              <Link to={`/book/${book.id}`} className="book-link">
                 {book.title}
               </Link>
             </li>
@@ -88,7 +88,7 @@ const AuthorDetails = () => {
         </ul>
       )}
 
-      <Link to="/" style={{marginTop: '1rem', display: 'inline-block', color: '#2563eb', textDecoration: 'none', fontWeight: '600'}}>
+      <Link to="/" className="back-link">
         Back to List
       </Link>
     </div>

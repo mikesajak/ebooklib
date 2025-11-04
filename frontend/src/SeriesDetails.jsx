@@ -49,7 +49,7 @@ const SeriesDetails = () => {
       <div className="container mx-auto p-4">
         <h1 className="text-2xl font-bold mb-4">Series Details</h1>
         <p className="text-center text-red-500">Error: {error}</p>
-        <Link to="/" style={{marginTop: '1rem', display: 'inline-block', color: '#2563eb', textDecoration: 'none', fontWeight: '600'}}>
+        <Link to="/" className="back-link">
           Back to List
         </Link>
       </div>
@@ -84,7 +84,7 @@ const SeriesDetails = () => {
               <tr key={book.id} className="hover:bg-gray-50">
                 <td className="py-2 px-4 border-b w-16">{book.volume || '-'}</td>
                 <td className="py-2 px-4 border-b">
-                  <Link to={`/book/${book.id}`} style={{color: '#2563eb', textDecoration: 'none'}}>
+                  <Link to={`/book/${book.id}`} className="book-link">
                     {book.title}
                   </Link>
                 </td>
@@ -94,7 +94,7 @@ const SeriesDetails = () => {
         </table>
       )}
 
-      <Link to="/" style={{marginTop: '1rem', display: 'inline-block', color: '#2563eb', textDecoration: 'none', fontWeight: '600'}}>
+      <Link to="/" className="back-link">
         Back to List
       </Link>
     </div>

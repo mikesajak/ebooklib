@@ -8,13 +8,13 @@ const Header = () => {
         <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
           <h1 style={{fontSize: '1.25rem', fontWeight: 'bold'}}>Ebook Library</h1>
           <div style={{display: 'flex', gap: '1rem'}}>
-            <Link to="/" style={{color: '#2563eb', textDecoration: 'none', fontWeight: '600'}}>
+            <Link to="/" className="book-link">
               Books
             </Link>
-            <Link to="/authors" style={{color: '#059669', textDecoration: 'none', fontWeight: '600'}}>
+            <Link to="/authors" className="author-link">
               Authors
             </Link>
-            <Link to="/series" style={{color: '#d97706', textDecoration: 'none', fontWeight: '600'}}>
+            <Link to="/series" className="series-link">
               Series
             </Link>
           </div>

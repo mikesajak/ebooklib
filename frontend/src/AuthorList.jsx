@@ -52,7 +52,7 @@ const AuthorList = () => {
         <ul className="list-disc list-inside bg-white border border-gray-300 rounded p-4 shadow">
           {authors.map((author) => (
             <li key={author.id} className="mb-2">
-              <Link to={`/author/${author.id}`} style={{color: '#059669', textDecoration: 'none'}}>
+              <Link to={`/author/${author.id}`} className="author-link">
                 {author.name}
               </Link>
             </li>

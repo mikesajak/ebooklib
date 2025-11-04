@@ -76,7 +76,7 @@ const BookTable = () => {
                 <td style={{padding: '0.5rem 1rem', border: '1px solid #d1d5db'}}>
                   <Link
                     to={`/book/${book.id}`}
-                    style={{color: '#2563eb', textDecoration: 'none'}}
+                    className="book-link"
                     onClick={(e) => e.stopPropagation()}
                   >
                     {book.title}
@@ -87,7 +87,7 @@ const BookTable = () => {
                     <span key={author.id}>
                       <Link
                         to={`/author/${author.id}`}
-                        style={{color: '#059669', textDecoration: 'none', marginRight: '0.25rem'}}
+                        className="author-link"
                         onClick={(e) => e.stopPropagation()}
                       >
                         {author.name}
@@ -100,7 +100,7 @@ const BookTable = () => {
                   {book.series ? (
                     <Link
                       to={`/series/${book.series.id}`}
-                      style={{color: '#d97706', textDecoration: 'none'}}
+                      className="series-link"
                       onClick={(e) => e.stopPropagation()}
                     >
                       {book.series.title}

@@ -52,7 +52,7 @@ const SeriesList = () => {
         <ul className="list-disc list-inside bg-white border border-gray-300 rounded p-4 shadow">
           {series.map((s) => (
             <li key={s.id} className="mb-2">
-              <Link to={`/series/${s.id}`} style={{color: '#d97706', textDecoration: 'none'}}>
+              <Link to={`/series/${s.id}`} className="series-link">
                 {s.title}
               </Link>
             </li>
