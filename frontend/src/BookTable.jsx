@@ -10,11 +10,13 @@ const BookTable = () => {
   const [size, setSize] = useState(10);
   const [totalPages, setTotalPages] = useState(0);
   const [totalElements, setTotalElements] = useState(0);
+  const [sortField, setSortField] = useState('title'); // Default sort field
+  const [sortDirection, setSortDirection] = useState('asc'); // Default sort direction
 
   useEffect(() => {
     const fetchBooks = async () => {
       try {
-        const response = await fetch(`/api/books?page=${page}&size=${size}`);
+        const response = await fetch(`/api/books?page=${page}&size=${size}&sort=${sortField},${sortDirection}`);
         if (!response.ok) {
           throw new Error('Failed to fetch books');
         }
@@ -30,7 +32,7 @@ const BookTable = () => {
     };
 
     fetchBooks();
-  }, [page, size]);
+  }, [page, size, sortField, sortDirection]);
 
   if (loading) {
     return (
@@ -50,18 +52,34 @@ const BookTable = () => {
     );
   }
 
+  const handleSort = (field) => {
+    if (sortField === field) {
+      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortField(field);
+      setSortDirection('asc'); // Default to ascending when changing sort field
+    }
+  };
+
+  const getSortIndicator = (field) => {
+    if (sortField === field) {
+      return sortDirection === 'asc' ? ' ▲' : ' ▼';
+    }
+    return '';
+  };
+
   return (
     <div style={{maxWidth: '1280px', margin: '0 auto', padding: '1rem'}}>
       <h1 style={{fontSize: '1.5rem', fontWeight: 'bold', marginBottom: '1rem'}}>Book List</h1>
       <table style={{width: '100%', backgroundColor: 'white', border: '1px solid #d1d5db', borderCollapse: 'collapse'}}>
         <thead>
           <tr style={{backgroundColor: '#3b82f6', color: '#1e40af'}}>
-            <th style={{padding: '0.5rem 1rem', border: '1px solid #d1d5db'}}>Title</th>
+            <th style={{padding: '0.5rem 1rem', border: '1px solid #d1d5db', cursor: 'pointer'}} onClick={() => handleSort('title')}>Title{getSortIndicator('title')}</th>
             <th style={{padding: '0.5rem 1rem', border: '1px solid #d1d5db'}}>Authors</th>
-            <th style={{padding: '0.5rem 1rem', border: '1px solid #d1d5db', width: '60px'}}>Series</th>
-            <th style={{padding: '0.5rem 1rem', border: '1px solid #d1d5db'}}>Volume</th>
-            <th style={{padding: '0.5rem 1rem', border: '1px solid #d1d5db'}}>Publication Date</th>
-            <th style={{padding: '0.5rem 1rem', border: '1px solid #d1d5db'}}>Publisher</th>
+            <th style={{padding: '0.5rem 1rem', border: '1px solid #d1d5db', width: '60px', cursor: 'pointer'}} onClick={() => handleSort('series.title')}>Series{getSortIndicator('series.title')}</th>
+            <th style={{padding: '0.5rem 1rem', border: '1px solid #d1d5db', cursor: 'pointer'}} onClick={() => handleSort('volume')}>Volume{getSortIndicator('volume')}</th>
+            <th style={{padding: '0.5rem 1rem', border: '1px solid #d1d5db', cursor: 'pointer'}} onClick={() => handleSort('publicationDate')}>Publication Date{getSortIndicator('publicationDate')}</th>
+            <th style={{padding: '0.5rem 1rem', border: '1px solid #d1d5db', cursor: 'pointer'}} onClick={() => handleSort('publisher')}>Publisher{getSortIndicator('publisher')}</th>
             <th style={{padding: '0.5rem 1rem', border: '1px solid #d1d5db'}}>Description</th>
           </tr>
         </thead>
