@@ -29,6 +29,43 @@ databaseChangeLog:
                   name: description
                   value: 'Epic fantasy trilogy by J.R.R. Tolkien'
         - insert:
+            tableName: series
+            columns:
+              - column:
+                  name: id
+                  value: '550e8400-e29b-41d4-a716-446655440037'
+              - column:
+                  name: title
+                  value: 'Great American Novels'
+              - column:
+                  name: description
+                  value: 'A collection of classic American novels'
+        - insert:
+            tableName: series
+            columns:
+              - column:
+                  name: id
+                  value: '550e8400-e29b-41d4-a716-446655440038'
+              - column:
+                  name: title
+                  value: 'Ender''s Game Series'
+              - column:
+                  name: description
+                  value: 'Science fiction military series'
+        - insert:
+            tableName: series
+            columns:
+              - column:
+                  name: id
+                  value: '550e8400-e29b-41d4-a716-446655440039'
+              - column:
+                  name: title
+                  value: 'The Witcher Series'
+              - column:
+                  name: description
+                  value: 'Fantasy series by Andrzej Sapkowski'
+
+        - insert:
             tableName: authors
             columns:
               - column:
@@ -78,6 +115,499 @@ databaseChangeLog:
               - column:
                   name: death_date
                   value: '1950-01-21'
+        - insert:
+            tableName: authors
+            columns:
+              - column:
+                  name: id
+                  value: '550e8400-e29b-41d4-a716-446655440010'
+              - column:
+                  name: name
+                  value: 'F. Scott Fitzgerald'
+              - column:
+                  name: bio
+                  value: 'American novelist and short story writer'
+              - column:
+                  name: birth_date
+                  value: '1896-09-24'
+              - column:
+                  name: death_date
+                  value: '1940-12-21'
+        - insert:
+            tableName: authors
+            columns:
+              - column:
+                  name: id
+                  value: '550e8400-e29b-41d4-a716-446655440011'
+              - column:
+                  name: name
+                  value: 'Gabriel García Márquez'
+              - column:
+                  name: bio
+                  value: 'Colombian novelist, short-story writer, screenwriter and journalist'
+              - column:
+                  name: birth_date
+                  value: '1927-03-06'
+              - column:
+                  name: death_date
+                  value: '2014-04-17'
+        - insert:
+            tableName: authors
+            columns:
+              - column:
+                  name: id
+                  value: '550e8400-e29b-41d4-a716-446655440012'
+              - column:
+                  name: name
+                  value: 'Herman Melville'
+              - column:
+                  name: bio
+                  value: 'American novelist, short story writer, and poet'
+              - column:
+                  name: birth_date
+                  value: '1819-08-01'
+              - column:
+                  name: death_date
+                  value: '1891-09-28'
+        - insert:
+            tableName: authors
+            columns:
+              - column:
+                  name: id
+                  value: '550e8400-e29b-41d4-a716-446655440013'
+              - column:
+                  name: name
+                  value: 'Miguel de Cervantes'
+              - column:
+                  name: bio
+                  value: 'Spanish writer who is widely regarded as the greatest writer in the Spanish language'
+              - column:
+                  name: birth_date
+                  value: '1547-09-29'
+              - column:
+                  name: death_date
+                  value: '1616-04-22'
+        - insert:
+            tableName: authors
+            columns:
+              - column:
+                  name: id
+                  value: '550e8400-e29b-41d4-a716-446655440014'
+              - column:
+                  name: name
+                  value: 'Leo Tolstoy'
+              - column:
+                  name: bio
+                  value: 'Russian writer who is regarded as one of the greatest authors of all time'
+              - column:
+                  name: birth_date
+                  value: '1828-09-09'
+              - column:
+                  name: death_date
+                  value: '1910-11-20'
+        - insert:
+            tableName: authors
+            columns:
+              - column:
+                  name: id
+                  value: '550e8400-e29b-41d4-a716-446655440015'
+              - column:
+                  name: name
+                  value: 'Fyodor Dostoevsky'
+              - column:
+                  name: bio
+                  value: 'Russian novelist, short story writer, essayist, and journalist'
+              - column:
+                  name: birth_date
+                  value: '1821-11-11'
+              - column:
+                  name: death_date
+                  value: '1881-02-09'
+        - insert:
+            tableName: authors
+            columns:
+              - column:
+                  name: id
+                  value: '550e8400-e29b-41d4-a716-446655440016'
+              - column:
+                  name: name
+                  value: 'Jane Austen'
+              - column:
+                  name: bio
+                  value: 'English novelist known primarily for her six major novels'
+              - column:
+                  name: birth_date
+                  value: '1775-12-16'
+              - column:
+                  name: death_date
+                  value: '1817-07-18'
+        - insert:
+            tableName: authors
+            columns:
+              - column:
+                  name: id
+                  value: '550e8400-e29b-41d4-a716-446655440017'
+              - column:
+                  name: name
+                  value: 'Harper Lee'
+              - column:
+                  name: bio
+                  value: 'American novelist best known for her 1960 novel To Kill a Mockingbird'
+              - column:
+                  name: birth_date
+                  value: '1926-04-28'
+              - column:
+                  name: death_date
+                  value: '2016-02-19'
+        - insert:
+            tableName: authors
+            columns:
+              - column:
+                  name: id
+                  value: '550e8400-e29b-41d4-a716-446655440018'
+              - column:
+                  name: name
+                  value: 'J. D. Salinger'
+              - column:
+                  name: bio
+                  value: 'American writer known for his novel The Catcher in the Rye'
+              - column:
+                  name: birth_date
+                  value: '1919-01-01'
+              - column:
+                  name: death_date
+                  value: '2010-01-27'
+        - insert:
+            tableName: authors
+            columns:
+              - column:
+                  name: id
+                  value: '550e8400-e29b-41d4-a716-446655440019'
+              - column:
+                  name: name
+                  value: 'Emily Brontë'
+              - column:
+                  name: bio
+                  value: 'English novelist and poet who is best known for her only novel, Wuthering Heights'
+              - column:
+                  name: birth_date
+                  value: '1818-07-30'
+              - column:
+                  name: death_date
+                  value: '1848-12-19'
+        - insert:
+            tableName: authors
+            columns:
+              - column:
+                  name: id
+                  value: '550e8400-e29b-41d4-a716-446655440020'
+              - column:
+                  name: name
+                  value: 'Aldous Huxley'
+              - column:
+                  name: bio
+                  value: 'English writer and philosopher'
+              - column:
+                  name: birth_date
+                  value: '1894-07-26'
+              - column:
+                  name: death_date
+                  value: '1963-11-22'
+        - insert:
+            tableName: authors
+            columns:
+              - column:
+                  name: id
+                  value: '550e8400-e29b-41d4-a716-446655440021'
+              - column:
+                  name: name
+                  value: 'Victor Hugo'
+              - column:
+                  name: bio
+                  value: 'French poet, novelist, and dramatist of the Romantic movement'
+              - column:
+                  name: birth_date
+                  value: '1802-02-26'
+              - column:
+                  name: death_date
+                  value: '1885-05-22'
+        - insert:
+            tableName: authors
+            columns:
+              - column:
+                  name: id
+                  value: '550e8400-e29b-41d4-a716-446655440022'
+              - column:
+                  name: name
+                  value: 'William Shakespeare'
+              - column:
+                  name: bio
+                  value: 'English playwright, poet, and actor, widely regarded as the greatest writer in the English language'
+              - column:
+                  name: birth_date
+                  value: '1564-04-26'
+              - column:
+                  name: death_date
+                  value: '1616-04-23'
+        - insert:
+            tableName: authors
+            columns:
+              - column:
+                  name: id
+                  value: '550e8400-e29b-41d4-a716-446655440040'
+              - column:
+                  name: name
+                  value: 'Orson Scott Card'
+              - column:
+                  name: bio
+                  value: 'American science fiction writer'
+              - column:
+                  name: birth_date
+                  value: '1951-08-24'
+        - insert:
+            tableName: authors
+            columns:
+              - column:
+                  name: id
+                  value: '550e8400-e29b-41d4-a716-446655440041'
+              - column:
+                  name: name
+                  value: 'Andrzej Sapkowski'
+              - column:
+                  name: bio
+                  value: 'Polish fantasy writer'
+              - column:
+                  name: birth_date
+                  value: '1948-06-21'
+        - insert:
+            tableName: authors
+            columns:
+              - column:
+                  name: id
+                  value: '550e8400-e29b-41d4-a716-446655440042'
+              - column:
+                  name: name
+                  value: 'Andy Hunt'
+              - column:
+                  name: bio
+                  value: 'American computer programmer and author'
+        - insert:
+            tableName: authors
+            columns:
+              - column:
+                  name: id
+                  value: '550e8400-e29b-41d4-a716-446655440043'
+              - column:
+                  name: name
+                  value: 'Dave Thomas'
+              - column:
+                  name: bio
+                  value: 'American computer programmer and author'
+        - insert:
+            tableName: authors
+            columns:
+              - column:
+                  name: id
+                  value: '550e8400-e29b-41d4-a716-446655440044'
+              - column:
+                  name: name
+                  value: 'Robert C. Martin'
+              - column:
+                  name: bio
+                  value: 'American software engineer and author'
+        - insert:
+            tableName: authors
+            columns:
+              - column:
+                  name: id
+                  value: '550e8400-e29b-41d4-a716-446655440045'
+              - column:
+                  name: name
+                  value: 'Steve McConnell'
+              - column:
+                  name: bio
+                  value: 'American software engineer and author'
+        - insert:
+            tableName: authors
+            columns:
+              - column:
+                  name: id
+                  value: '550e8400-e29b-41d4-a716-446655440046'
+              - column:
+                  name: name
+                  value: 'Aditya Y. Bhargava'
+              - column:
+                  name: bio
+                  value: 'Author of Grokking Algorithms'
+        - insert:
+            tableName: authors
+            columns:
+              - column:
+                  name: id
+                  value: '550e8400-e29b-41d4-a716-446655440047'
+              - column:
+                  name: name
+                  value: 'Gayle Laakmann McDowell'
+              - column:
+                  name: bio
+                  value: 'Author of Cracking the Coding Interview'
+        - insert:
+            tableName: authors
+            columns:
+              - column:
+                  name: id
+                  value: '550e8400-e29b-41d4-a716-446655440048'
+              - column:
+                  name: name
+                  value: 'Jon L. Bentley'
+              - column:
+                  name: bio
+                  value: 'American computer scientist and author'
+        - insert:
+            tableName: authors
+            columns:
+              - column:
+                  name: id
+                  value: '550e8400-e29b-41d4-a716-446655440049'
+              - column:
+                  name: name
+                  value: 'Charles Petzold'
+              - column:
+                  name: bio
+                  value: 'American programmer and author'
+        - insert:
+            tableName: authors
+            columns:
+              - column:
+                  name: id
+                  value: '550e8400-e29b-41d4-a716-446655440050'
+              - column:
+                  name: name
+                  value: 'Douglas Crockford'
+              - column:
+                  name: bio
+                  value: 'American computer programmer and author'
+        - insert:
+            tableName: authors
+            columns:
+              - column:
+                  name: id
+                  value: '550e8400-e29b-41d4-a716-446655440051'
+              - column:
+                  name: name
+                  value: 'Michael C. Feathers'
+              - column:
+                  name: bio
+                  value: 'American software engineer and author'
+        - insert:
+            tableName: authors
+            columns:
+              - column:
+                  name: id
+                  value: '550e8400-e29b-41d4-a716-446655440052'
+              - column:
+                  name: name
+                  value: 'Brian W. Kernighan'
+              - column:
+                  name: bio
+                  value: 'Canadian computer scientist'
+        - insert:
+            tableName: authors
+            columns:
+              - column:
+                  name: id
+                  value: '550e8400-e29b-41d4-a716-446655440053'
+              - column:
+                  name: name
+                  value: 'Thomas H. Cormen'
+              - column:
+                  name: bio
+                  value: 'American computer scientist'
+        - insert:
+            tableName: authors
+            columns:
+              - column:
+                  name: id
+                  value: '550e8400-e29b-41d4-a716-446655440054'
+              - column:
+                  name: name
+                  value: 'Martin Kleppmann'
+              - column:
+                  name: bio
+                  value: 'Researcher and author'
+        - insert:
+            tableName: authors
+            columns:
+              - column:
+                  name: id
+                  value: '550e8400-e29b-41d4-a716-446655440055'
+              - column:
+                  name: name
+                  value: 'Sam Newman'
+              - column:
+                  name: bio
+                  value: 'Author and consultant'
+        - insert:
+            tableName: authors
+            columns:
+              - column:
+                  name: id
+                  value: '550e8400-e29b-41d4-a716-446655440056'
+              - column:
+                  name: name
+                  value: 'Martin Fowler'
+              - column:
+                  name: bio
+                  value: 'British software engineer and author'
+        - insert:
+            tableName: authors
+            columns:
+              - column:
+                  name: id
+                  value: '550e8400-e29b-41d4-a716-446655440057'
+              - column:
+                  name: name
+                  value: 'Joshua Bloch'
+              - column:
+                  name: bio
+                  value: 'American computer scientist and author'
+        - insert:
+            tableName: authors
+            columns:
+              - column:
+                  name: id
+                  value: '550e8400-e29b-41d4-a716-446655440058'
+              - column:
+                  name: name
+                  value: 'Kent Beck'
+              - column:
+                  name: bio
+                  value: 'American software engineer and author'
+        - insert:
+            tableName: authors
+            columns:
+              - column:
+                  name: id
+                  value: '550e8400-e29b-41d4-a716-446655440059'
+              - column:
+                  name: name
+                  value: 'Robert Nystrom'
+              - column:
+                  name: bio
+                  value: 'Game programmer and author'
+        - insert:
+            tableName: authors
+            columns:
+              - column:
+                  name: id
+                  value: '550e8400-e29b-41d4-a716-446655440060'
+              - column:
+                  name: name
+                  value: 'Roy Osherove'
+              - column:
+                  name: bio
+                  value: 'Software consultant and author'
+
         - insert:
             tableName: books
             columns:
@@ -202,6 +732,934 @@ databaseChangeLog:
                   name: description
                   value: 'The third volume of The Lord of the Rings'
         - insert:
+            tableName: books
+            columns:
+              - column:
+                  name: id
+                  value: '550e8400-e29b-41d4-a716-446655440023'
+              - column:
+                  name: title
+                  value: 'The Great Gatsby'
+              - column:
+                  name: series_id
+                  value: '550e8400-e29b-41d4-a716-446655440037'
+              - column:
+                  name: volume
+                  value: 1
+              - column:
+                  name: creation_date
+                  value: '1925-04-10'
+              - column:
+                  name: publication_date
+                  value: '1925-04-10'
+              - column:
+                  name: publisher
+                  value: 'Charles Scribner''s Sons'
+              - column:
+                  name: description
+                  value: 'A novel about the American dream'
+        - insert:
+            tableName: books
+            columns:
+              - column:
+                  name: id
+                  value: '550e8400-e29b-41d4-a716-446655440024'
+              - column:
+                  name: title
+                  value: 'One Hundred Years of Solitude'
+              - column:
+                  name: creation_date
+                  value: '1967-05-30'
+              - column:
+                  name: publication_date
+                  value: '1967-05-30'
+              - column:
+                  name: publisher
+                  value: 'Harper & Row'
+              - column:
+                  name: description
+                  value: 'A landmark novel in Latin American literature'
+        - insert:
+            tableName: books
+            columns:
+              - column:
+                  name: id
+                  value: '550e8400-e29b-41d4-a716-446655440025'
+              - column:
+                  name: title
+                  value: 'Moby-Dick'
+              - column:
+                  name: series_id
+                  value: '550e8400-e29b-41d4-a716-446655440037'
+              - column:
+                  name: volume
+                  value: 2
+              - column:
+                  name: creation_date
+                  value: '1851-10-18'
+              - column:
+                  name: publication_date
+                  value: '1851-10-18'
+              - column:
+                  name: publisher
+                  value: 'Harper & Brothers'
+              - column:
+                  name: description
+                  value: 'A novel about the voyage of the whaling ship Pequod'
+        - insert:
+            tableName: books
+            columns:
+              - column:
+                  name: id
+                  value: '550e8400-e29b-41d4-a716-446655440026'
+              - column:
+                  name: title
+                  value: 'Don Quixote'
+              - column:
+                  name: creation_date
+                  value: '1605-01-16'
+              - column:
+                  name: publication_date
+                  value: '1605-01-16'
+              - column:
+                  name: publisher
+                  value: 'Francisco de Robles'
+              - column:
+                  name: description
+                  value: 'A Spanish epic novel'
+        - insert:
+            tableName: books
+            columns:
+              - column:
+                  name: id
+                  value: '550e8400-e29b-41d4-a716-446655440027'
+              - column:
+                  name: title
+                  value: 'War and Peace'
+              - column:
+                  name: creation_date
+                  value: '1869-01-01'
+              - column:
+                  name: publication_date
+                  value: '1869-01-01'
+              - column:
+                  name: publisher
+                  value: 'The Russian Messenger'
+              - column:
+                  name: description
+                  value: 'An epic novel in Russian literature'
+        - insert:
+            tableName: books
+            columns:
+              - column:
+                  name: id
+                  value: '550e8400-e29b-41d4-a716-446655440028'
+              - column:
+                  name: title
+                  value: 'Anna Karenina'
+              - column:
+                  name: creation_date
+                  value: '1878-01-01'
+              - column:
+                  name: publication_date
+                  value: '1878-01-01'
+              - column:
+                  name: publisher
+                  value: 'The Russian Messenger'
+              - column:
+                  name: description
+                  value: 'A novel of contemporary life in Russia'
+        - insert:
+            tableName: books
+            columns:
+              - column:
+                  name: id
+                  value: '550e8400-e29b-41d4-a716-446655440029'
+              - column:
+                  name: title
+                  value: 'Crime and Punishment'
+              - column:
+                  name: creation_date
+                  value: '1866-01-01'
+              - column:
+                  name: publication_date
+                  value: '1866-01-01'
+              - column:
+                  name: publisher
+                  value: 'The Russian Messenger'
+              - column:
+                  name: description
+                  value: 'A novel about the mental anguish and moral dilemmas of an impoverished ex-student'
+        - insert:
+            tableName: books
+            columns:
+              - column:
+                  name: id
+                  value: '550e8400-e29b-41d4-a716-446655440030'
+              - column:
+                  name: title
+                  value: 'Pride and Prejudice'
+              - column:
+                  name: creation_date
+                  value: '1813-01-28'
+              - column:
+                  name: publication_date
+                  value: '1813-01-28'
+              - column:
+                  name: publisher
+                  value: 'T. Egerton, Whitehall'
+              - column:
+                  name: description
+                  value: 'A romantic novel of manners'
+        - insert:
+            tableName: books
+            columns:
+              - column:
+                  name: id
+                  value: '550e8400-e29b-41d4-a716-446655440031'
+              - column:
+                  name: title
+                  value: 'To Kill a Mockingbird'
+              - column:
+                  name: series_id
+                  value: '550e8400-e29b-41d4-a716-446655440037'
+              - column:
+                  name: volume
+                  value: 3
+              - column:
+                  name: creation_date
+                  value: '1960-07-11'
+              - column:
+                  name: publication_date
+                  value: '1960-07-11'
+              - column:
+                  name: publisher
+                  value: 'J. B. Lippincott & Co.'
+              - column:
+                  name: description
+                  value: 'A novel about the serious issues of rape and racial inequality'
+        - insert:
+            tableName: books
+            columns:
+              - column:
+                  name: id
+                  value: '550e8400-e29b-41d4-a716-446655440032'
+              - column:
+                  name: title
+                  value: 'The Catcher in the Rye'
+              - column:
+                  name: series_id
+                  value: '550e8400-e29b-41d4-a716-446655440037'
+              - column:
+                  name: volume
+                  value: 4
+              - column:
+                  name: creation_date
+                  value: '1951-07-16'
+              - column:
+                  name: publication_date
+                  value: '1951-07-16'
+              - column:
+                  name: publisher
+                  value: 'Little, Brown and Company'
+              - column:
+                  name: description
+                  value: 'A story about a few days in the life of a troubled teenager'
+        - insert:
+            tableName: books
+            columns:
+              - column:
+                  name: id
+                  value: '550e8400-e29b-41d4-a716-446655440033'
+              - column:
+                  name: title
+                  value: 'Wuthering Heights'
+              - column:
+                  name: creation_date
+                  value: '1847-12-01'
+              - column:
+                  name: publication_date
+                  value: '1847-12-01'
+              - column:
+                  name: publisher
+                  value: 'Thomas Cautley Newby'
+              - column:
+                  name: description
+                  value: 'A novel of passion and revenge'
+        - insert:
+            tableName: books
+            columns:
+              - column:
+                  name: id
+                  value: '550e8400-e29b-41d4-a716-446655440034'
+              - column:
+                  name: title
+                  value: 'Brave New World'
+              - column:
+                  name: creation_date
+                  value: '1932-01-01'
+              - column:
+                  name: publication_date
+                  value: '1932-01-01'
+              - column:
+                  name: publisher
+                  value: 'Chatto & Windus'
+              - column:
+                  name: description
+                  value: 'A dystopian novel'
+        - insert:
+            tableName: books
+            columns:
+              - column:
+                  name: id
+                  value: '550e8400-e29b-41d4-a716-446655440035'
+              - column:
+                  name: title
+                  value: 'Les Misérables'
+              - column:
+                  name: creation_date
+                  value: '1862-01-01'
+              - column:
+                  name: publication_date
+                  value: '1862-01-01'
+              - column:
+                  name: publisher
+                  value: 'A. Lacroix, Verboeckhoven & Cie.'
+              - column:
+                  name: description
+                  value: 'A French historical novel'
+        - insert:
+            tableName: books
+            columns:
+              - column:
+                  name: id
+                  value: '550e8400-e29b-41d4-a716-446655440036'
+              - column:
+                  name: title
+                  value: 'Hamlet'
+              - column:
+                  name: creation_date
+                  value: '1603-01-01'
+              - column:
+                  name: publication_date
+                  value: '1603-01-01'
+              - column:
+                  name: publisher
+                  value: 'Nicholas Ling and John Trundell'
+              - column:
+                  name: description
+                  value: 'A tragedy written by William Shakespeare'
+        - insert:
+            tableName: books
+            columns:
+              - column:
+                  name: id
+                  value: '550e8400-e29b-41d4-a716-446655440061'
+              - column:
+                  name: title
+                  value: 'Ender''s Game'
+              - column:
+                  name: series_id
+                  value: '550e8400-e29b-41d4-a716-446655440038'
+              - column:
+                  name: volume
+                  value: 1
+              - column:
+                  name: creation_date
+                  value: '1985-01-15'
+              - column:
+                  name: publication_date
+                  value: '1985-01-15'
+              - column:
+                  name: publisher
+                  value: 'Tor Books'
+              - column:
+                  name: description
+                  value: 'The first book in the Ender''s Game series'
+        - insert:
+            tableName: books
+            columns:
+              - column:
+                  name: id
+                  value: '550e8400-e29b-41d4-a716-446655440062'
+              - column:
+                  name: title
+                  value: 'Speaker for the Dead'
+              - column:
+                  name: series_id
+                  value: '550e8400-e29b-41d4-a716-446655440038'
+              - column:
+                  name: volume
+                  value: 2
+              - column:
+                  name: creation_date
+                  value: '1986-01-15'
+              - column:
+                  name: publication_date
+                  value: '1986-01-15'
+              - column:
+                  name: publisher
+                  value: 'Tor Books'
+              - column:
+                  name: description
+                  value: 'The second book in the Ender''s Game series'
+        - insert:
+            tableName: books
+            columns:
+              - column:
+                  name: id
+                  value: '550e8400-e29b-41d4-a716-446655440063'
+              - column:
+                  name: title
+                  value: 'Xenocide'
+              - column:
+                  name: series_id
+                  value: '550e8400-e29b-41d4-a716-446655440038'
+              - column:
+                  name: volume
+                  value: 3
+              - column:
+                  name: creation_date
+                  value: '1991-01-15'
+              - column:
+                  name: publication_date
+                  value: '1991-01-15'
+              - column:
+                  name: publisher
+                  value: 'Tor Books'
+              - column:
+                  name: description
+                  value: 'The third book in the Ender''s Game series'
+        - insert:
+            tableName: books
+            columns:
+              - column:
+                  name: id
+                  value: '550e8400-e29b-41d4-a716-446655440064'
+              - column:
+                  name: title
+                  value: 'Children of the Mind'
+              - column:
+                  name: series_id
+                  value: '550e8400-e29b-41d4-a716-446655440038'
+              - column:
+                  name: volume
+                  value: 4
+              - column:
+                  name: creation_date
+                  value: '1996-01-15'
+              - column:
+                  name: publication_date
+                  value: '1996-01-15'
+              - column:
+                  name: publisher
+                  value: 'Tor Books'
+              - column:
+                  name: description
+                  value: 'The fourth book in the Ender''s Game series'
+        - insert:
+            tableName: books
+            columns:
+              - column:
+                  name: id
+                  value: '550e8400-e29b-41d4-a716-446655440065'
+              - column:
+                  name: title
+                  value: 'The Last Wish'
+              - column:
+                  name: series_id
+                  value: '550e8400-e29b-41d4-a716-446655440039'
+              - column:
+                  name: volume
+                  value: 1
+              - column:
+                  name: creation_date
+                  value: '1993-01-01'
+              - column:
+                  name: publication_date
+                  value: '1993-01-01'
+              - column:
+                  name: publisher
+                  value: 'SuperNOWA'
+              - column:
+                  name: description
+                  value: 'The first book in The Witcher series'
+        - insert:
+            tableName: books
+            columns:
+              - column:
+                  name: id
+                  value: '550e8400-e29b-41d4-a716-446655440066'
+              - column:
+                  name: title
+                  value: 'Sword of Destiny'
+              - column:
+                  name: series_id
+                  value: '550e8400-e29b-41d4-a716-446655440039'
+              - column:
+                  name: volume
+                  value: 2
+              - column:
+                  name: creation_date
+                  value: '1992-01-01'
+              - column:
+                  name: publication_date
+                  value: '1992-01-01'
+              - column:
+                  name: publisher
+                  value: 'SuperNOWA'
+              - column:
+                  name: description
+                  value: 'The second book in The Witcher series'
+        - insert:
+            tableName: books
+            columns:
+              - column:
+                  name: id
+                  value: '550e8400-e29b-41d4-a716-446655440067'
+              - column:
+                  name: title
+                  value: 'Blood of Elves'
+              - column:
+                  name: series_id
+                  value: '550e8400-e29b-41d4-a716-446655440039'
+              - column:
+                  name: volume
+                  value: 3
+              - column:
+                  name: creation_date
+                  value: '1994-01-01'
+              - column:
+                  name: publication_date
+                  value: '1994-01-01'
+              - column:
+                  name: publisher
+                  value: 'SuperNOWA'
+              - column:
+                  name: description
+                  value: 'The third book in The Witcher series'
+        - insert:
+            tableName: books
+            columns:
+              - column:
+                  name: id
+                  value: '550e8400-e29b-41d4-a716-446655440068'
+              - column:
+                  name: title
+                  value: 'The Pragmatic Programmer'
+              - column:
+                  name: creation_date
+                  value: '1999-10-20'
+              - column:
+                  name: publication_date
+                  value: '1999-10-20'
+              - column:
+                  name: publisher
+                  value: 'Addison-Wesley Professional'
+              - column:
+                  name: description
+                  value: 'A guide to software development'
+        - insert:
+            tableName: books
+            columns:
+              - column:
+                  name: id
+                  value: '550e8400-e29b-41d4-a716-446655440069'
+              - column:
+                  name: title
+                  value: 'Clean Code'
+              - column:
+                  name: creation_date
+                  value: '2008-08-01'
+              - column:
+                  name: publication_date
+                  value: '2008-08-01'
+              - column:
+                  name: publisher
+                  value: 'Prentice Hall'
+              - column:
+                  name: description
+                  value: 'A handbook of agile software craftsmanship'
+        - insert:
+            tableName: books
+            columns:
+              - column:
+                  name: id
+                  value: '550e8400-e29b-41d4-a716-446655440070'
+              - column:
+                  name: title
+                  value: 'Code Complete'
+              - column:
+                  name: creation_date
+                  value: '1993-01-01'
+              - column:
+                  name: publication_date
+                  value: '1993-01-01'
+              - column:
+                  name: publisher
+                  value: 'Microsoft Press'
+              - column:
+                  name: description
+                  value: 'A practical handbook of software construction'
+        - insert:
+            tableName: books
+            columns:
+              - column:
+                  name: id
+                  value: '550e8400-e29b-41d4-a716-446655440071'
+              - column:
+                  name: title
+                  value: 'Grokking Algorithms'
+              - column:
+                  name: creation_date
+                  value: '2016-01-01'
+              - column:
+                  name: publication_date
+                  value: '2016-01-01'
+              - column:
+                  name: publisher
+                  value: 'Manning Publications'
+              - column:
+                  name: description
+                  value: 'An illustrated guide for programmers'
+        - insert:
+            tableName: books
+            columns:
+              - column:
+                  name: id
+                  value: '550e8400-e29b-41d4-a716-446655440072'
+              - column:
+                  name: title
+                  value: 'Cracking the Coding Interview'
+              - column:
+                  name: creation_date
+                  value: '2015-07-01'
+              - column:
+                  name: publication_date
+                  value: '2015-07-01'
+              - column:
+                  name: publisher
+                  value: 'CareerCup'
+              - column:
+                  name: description
+                  value: '189 programming questions and solutions'
+        - insert:
+            tableName: books
+            columns:
+              - column:
+                  name: id
+                  value: '550e8400-e29b-41d4-a716-446655440073'
+              - column:
+                  name: title
+                  value: 'Programming Pearls'
+              - column:
+                  name: creation_date
+                  value: '1986-01-01'
+              - column:
+                  name: publication_date
+                  value: '1986-01-01'
+              - column:
+                  name: publisher
+                  value: 'Addison-Wesley Professional'
+              - column:
+                  name: description
+                  value: 'A classic book on programming techniques'
+        - insert:
+            tableName: books
+            columns:
+              - column:
+                  name: id
+                  value: '550e8400-e29b-41d4-a716-446655440074'
+              - column:
+                  name: title
+                  value: 'Code: The Hidden Language of Computer Hardware and Software'
+              - column:
+                  name: creation_date
+                  value: '1999-01-01'
+              - column:
+                  name: publication_date
+                  value: '1999-01-01'
+              - column:
+                  name: publisher
+                  value: 'Microsoft Press'
+              - column:
+                  name: description
+                  value: 'Explains how computers work'
+        - insert:
+            tableName: books
+            columns:
+              - column:
+                  name: id
+                  value: '550e8400-e29b-41d4-a716-446655440075'
+              - column:
+                  name: title
+                  value: 'JavaScript: The Good Parts'
+              - column:
+                  name: creation_date
+                  value: '2008-05-01'
+              - column:
+                  name: publication_date
+                  value: '2008-05-01'
+              - column:
+                  name: publisher
+                  value: 'O''Reilly Media'
+              - column:
+                  name: description
+                  value: 'Focuses on the good parts of JavaScript'
+        - insert:
+            tableName: books
+            columns:
+              - column:
+                  name: id
+                  value: '550e8400-e29b-41d4-a716-446655440076'
+              - column:
+                  name: title
+                  value: 'Working Effectively with Legacy Code'
+              - column:
+                  name: creation_date
+                  value: '2004-09-24'
+              - column:
+                  name: publication_date
+                  value: '2004-09-24'
+              - column:
+                  name: publisher
+                  value: 'Prentice Hall'
+              - column:
+                  name: description
+                  value: 'Strategies for changing legacy code'
+        - insert:
+            tableName: books
+            columns:
+              - column:
+                  name: id
+                  value: '550e8400-e29b-41d4-a716-446655440077'
+              - column:
+                  name: title
+                  value: 'The C Programming Language'
+              - column:
+                  name: creation_date
+                  value: '1978-01-01'
+              - column:
+                  name: publication_date
+                  value: '1978-01-01'
+              - column:
+                  name: publisher
+                  value: 'Prentice Hall'
+              - column:
+                  name: description
+                  value: 'A classic book on C programming'
+        - insert:
+            tableName: books
+            columns:
+              - column:
+                  name: id
+                  value: '550e8400-e29b-41d4-a716-446655440078'
+              - column:
+                  name: title
+                  value: 'Introduction to Algorithms'
+              - column:
+                  name: creation_date
+                  value: '1990-01-01'
+              - column:
+                  name: publication_date
+                  value: '1990-01-01'
+              - column:
+                  name: publisher
+                  value: 'MIT Press'
+              - column:
+                  name: description
+                  value: 'A comprehensive textbook on algorithms'
+        - insert:
+            tableName: books
+            columns:
+              - column:
+                  name: id
+                  value: '550e8400-e29b-41d4-a716-446655440079'
+              - column:
+                  name: title
+                  value: 'Designing Data-Intensive Applications'
+              - column:
+                  name: creation_date
+                  value: '2017-03-01'
+              - column:
+                  name: publication_date
+                  value: '2017-03-01'
+              - column:
+                  name: publisher
+                  value: 'O''Reilly Media'
+              - column:
+                  name: description
+                  value: 'A book on the systems that store and process data'
+        - insert:
+            tableName: books
+            columns:
+              - column:
+                  name: id
+                  value: '550e8400-e29b-41d4-a716-446655440080'
+              - column:
+                  name: title
+                  value: 'Clean Architecture'
+              - column:
+                  name: creation_date
+                  value: '2017-09-26'
+              - column:
+                  name: publication_date
+                  value: '2017-09-26'
+              - column:
+                  name: publisher
+                  value: 'Prentice Hall'
+              - column:
+                  name: description
+                  value: 'A book on the art of software structure and design'
+        - insert:
+            tableName: books
+            columns:
+              - column:
+                  name: id
+                  value: '550e8400-e29b-41d4-a716-446655440081'
+              - column:
+                  name: title
+                  value: 'Building Microservices'
+              - column:
+                  name: creation_date
+                  value: '2015-02-01'
+              - column:
+                  name: publication_date
+                  value: '2015-02-01'
+              - column:
+                  name: publisher
+                  value: 'O''Reilly Media'
+              - column:
+                  name: description
+                  value: 'Designing fine-grained systems'
+        - insert:
+            tableName: books
+            columns:
+              - column:
+                  name: id
+                  value: '550e8400-e29b-41d4-a716-446655440082'
+              - column:
+                  name: title
+                  value: 'Refactoring'
+              - column:
+                  name: creation_date
+                  value: '1999-01-01'
+              - column:
+                  name: publication_date
+                  value: '1999-01-01'
+              - column:
+                  name: publisher
+                  value: 'Addison-Wesley Professional'
+              - column:
+                  name: description
+                  value: 'Improving the design of existing code'
+        - insert:
+            tableName: books
+            columns:
+              - column:
+                  name: id
+                  value: '550e8400-e29b-41d4-a716-446655440083'
+              - column:
+                  name: title
+                  value: 'Effective Java'
+              - column:
+                  name: creation_date
+                  value: '2001-01-01'
+              - column:
+                  name: publication_date
+                  value: '2001-01-01'
+              - column:
+                  name: publisher
+                  value: 'Addison-Wesley Professional'
+              - column:
+                  name: description
+                  value: 'Programming practices for Java'
+        - insert:
+            tableName: books
+            columns:
+              - column:
+                  name: id
+                  value: '550e8400-e29b-41d4-a716-446655440084'
+              - column:
+                  name: title
+                  value: 'Test Driven Development'
+              - column:
+                  name: creation_date
+                  value: '2000-01-01'
+              - column:
+                  name: publication_date
+                  value: '2000-01-01'
+              - column:
+                  name: publisher
+                  value: 'Addison-Wesley Professional'
+              - column:
+                  name: description
+                  value: 'By Example'
+        - insert:
+            tableName: books
+            columns:
+              - column:
+                  name: id
+                  value: '550e8400-e29b-41d4-a716-446655440085'
+              - column:
+                  name: title
+                  value: 'Game Programming Patterns'
+              - column:
+                  name: creation_date
+                  value: '2014-08-10'
+              - column:
+                  name: publication_date
+                  value: '2014-08-10'
+              - column:
+                  name: publisher
+                  value: 'Genever Benning'
+              - column:
+                  name: description
+                  value: 'A catalog of patterns for game programmers'
+        - insert:
+            tableName: books
+            columns:
+              - column:
+                  name: id
+                  value: '550e8400-e29b-41d4-a716-446655440086'
+              - column:
+                  name: title
+                  value: 'The Art of Unit Testing'
+              - column:
+                  name: creation_date
+                  value: '2009-01-01'
+              - column:
+                  name: publication_date
+                  value: '2009-01-01'
+              - column:
+                  name: publisher
+                  value: 'Manning Publications'
+              - column:
+                  name: description
+                  value: 'With examples in C#'
+        - insert:
+            tableName: books
+            columns:
+              - column:
+                  name: id
+                  value: '550e8400-e29b-41d4-a716-446655440087'
+              - column:
+                  name: title
+                  value: 'Python Crash Course'
+              - column:
+                  name: creation_date
+                  value: '2015-11-01'
+              - column:
+                  name: publication_date
+                  value: '2015-11-01'
+              - column:
+                  name: publisher
+                  value: 'No Starch Press'
+              - column:
+                  name: description
+                  value: 'A hands-on, project-based introduction to programming'
+
+        - insert:
             tableName: book_authors
             columns:
               - column:
@@ -246,3 +1704,381 @@ databaseChangeLog:
               - column:
                   name: author_id
                   value: '550e8400-e29b-41d4-a716-446655440001'
+        - insert:
+            tableName: book_authors
+            columns:
+              - column:
+                  name: book_id
+                  value: '550e8400-e29b-41d4-a716-446655440023'
+              - column:
+                  name: author_id
+                  value: '550e8400-e29b-41d4-a716-446655440010'
+        - insert:
+            tableName: book_authors
+            columns:
+              - column:
+                  name: book_id
+                  value: '550e8400-e29b-41d4-a716-446655440024'
+              - column:
+                  name: author_id
+                  value: '550e8400-e29b-41d4-a716-446655440011'
+        - insert:
+            tableName: book_authors
+            columns:
+              - column:
+                  name: book_id
+                  value: '550e8400-e29b-41d4-a716-446655440025'
+              - column:
+                  name: author_id
+                  value: '550e8400-e29b-41d4-a716-446655440012'
+        - insert:
+            tableName: book_authors
+            columns:
+              - column:
+                  name: book_id
+                  value: '550e8400-e29b-41d4-a716-446655440026'
+              - column:
+                  name: author_id
+                  value: '550e8400-e29b-41d4-a716-446655440013'
+        - insert:
+            tableName: book_authors
+            columns:
+              - column:
+                  name: book_id
+                  value: '550e8400-e29b-41d4-a716-446655440027'
+              - column:
+                  name: author_id
+                  value: '550e8400-e29b-41d4-a716-446655440014'
+        - insert:
+            tableName: book_authors
+            columns:
+              - column:
+                  name: book_id
+                  value: '550e8400-e29b-41d4-a716-446655440028'
+              - column:
+                  name: author_id
+                  value: '550e8400-e29b-41d4-a716-446655440014'
+        - insert:
+            tableName: book_authors
+            columns:
+              - column:
+                  name: book_id
+                  value: '550e8400-e29b-41d4-a716-446655440029'
+              - column:
+                  name: author_id
+                  value: '550e8400-e29b-41d4-a716-446655440015'
+        - insert:
+            tableName: book_authors
+            columns:
+              - column:
+                  name: book_id
+                  value: '550e8400-e29b-41d4-a716-446655440030'
+              - column:
+                  name: author_id
+                  value: '550e8400-e29b-41d4-a716-446655440016'
+        - insert:
+            tableName: book_authors
+            columns:
+              - column:
+                  name: book_id
+                  value: '550e8400-e29b-41d4-a716-446655440031'
+              - column:
+                  name: author_id
+                  value: '550e8400-e29b-41d4-a716-446655440017'
+        - insert:
+            tableName: book_authors
+            columns:
+              - column:
+                  name: book_id
+                  value: '550e8400-e29b-41d4-a716-446655440032'
+              - column:
+                  name: author_id
+                  value: '550e8400-e29b-41d4-a716-446655440018'
+        - insert:
+            tableName: book_authors
+            columns:
+              - column:
+                  name: book_id
+                  value: '550e8400-e29b-41d4-a716-446655440033'
+              - column:
+                  name: author_id
+                  value: '550e8400-e29b-41d4-a716-446655440019'
+        - insert:
+            tableName: book_authors
+            columns:
+              - column:
+                  name: book_id
+                  value: '550e8400-e29b-41d4-a716-446655440034'
+              - column:
+                  name: author_id
+                  value: '550e8400-e29b-41d4-a716-446655440020'
+        - insert:
+            tableName: book_authors
+            columns:
+              - column:
+                  name: book_id
+                  value: '550e8400-e29b-41d4-a716-446655440035'
+              - column:
+                  name: author_id
+                  value: '550e8400-e29b-41d4-a716-446655440021'
+        - insert:
+            tableName: book_authors
+            columns:
+              - column:
+                  name: book_id
+                  value: '550e8400-e29b-41d4-a716-446655440036'
+              - column:
+                  name: author_id
+                  value: '550e8400-e29b-41d4-a716-446655440022'
+        - insert:
+            tableName: book_authors
+            columns:
+              - column:
+                  name: book_id
+                  value: '550e8400-e29b-41d4-a716-446655440061'
+              - column:
+                  name: author_id
+                  value: '550e8400-e29b-41d4-a716-446655440040'
+        - insert:
+            tableName: book_authors
+            columns:
+              - column:
+                  name: book_id
+                  value: '550e8400-e29b-41d4-a716-446655440062'
+              - column:
+                  name: author_id
+                  value: '550e8400-e29b-41d4-a716-446655440040'
+        - insert:
+            tableName: book_authors
+            columns:
+              - column:
+                  name: book_id
+                  value: '550e8400-e29b-41d4-a716-446655440063'
+              - column:
+                  name: author_id
+                  value: '550e8400-e29b-41d4-a716-446655440040'
+        - insert:
+            tableName: book_authors
+            columns:
+              - column:
+                  name: book_id
+                  value: '550e8400-e29b-41d4-a716-446655440064'
+              - column:
+                  name: author_id
+                  value: '550e8400-e29b-41d4-a716-446655440040'
+        - insert:
+            tableName: book_authors
+            columns:
+              - column:
+                  name: book_id
+                  value: '550e8400-e29b-41d4-a716-446655440065'
+              - column:
+                  name: author_id
+                  value: '550e8400-e29b-41d4-a716-446655440041'
+        - insert:
+            tableName: book_authors
+            columns:
+              - column:
+                  name: book_id
+                  value: '550e8400-e29b-41d4-a716-446655440066'
+              - column:
+                  name: author_id
+                  value: '550e8400-e29b-41d4-a716-446655440041'
+        - insert:
+            tableName: book_authors
+            columns:
+              - column:
+                  name: book_id
+                  value: '550e8400-e29b-41d4-a716-446655440067'
+              - column:
+                  name: author_id
+                  value: '550e8400-e29b-41d4-a716-446655440041'
+        - insert:
+            tableName: book_authors
+            columns:
+              - column:
+                  name: book_id
+                  value: '550e8400-e29b-41d4-a716-446655440068'
+              - column:
+                  name: author_id
+                  value: '550e8400-e29b-41d4-a716-446655440042'
+        - insert:
+            tableName: book_authors
+            columns:
+              - column:
+                  name: book_id
+                  value: '550e8400-e29b-41d4-a716-446655440068'
+              - column:
+                  name: author_id
+                  value: '550e8400-e29b-41d4-a716-446655440043'
+        - insert:
+            tableName: book_authors
+            columns:
+              - column:
+                  name: book_id
+                  value: '550e8400-e29b-41d4-a716-446655440069'
+              - column:
+                  name: author_id
+                  value: '550e8400-e29b-41d4-a716-446655440044'
+        - insert:
+            tableName: book_authors
+            columns:
+              - column:
+                  name: book_id
+                  value: '550e8400-e29b-41d4-a716-446655440070'
+              - column:
+                  name: author_id
+                  value: '550e8400-e29b-41d4-a716-446655440045'
+        - insert:
+            tableName: book_authors
+            columns:
+              - column:
+                  name: book_id
+                  value: '550e8400-e29b-41d4-a716-446655440071'
+              - column:
+                  name: author_id
+                  value: '550e8400-e29b-41d4-a716-446655440046'
+        - insert:
+            tableName: book_authors
+            columns:
+              - column:
+                  name: book_id
+                  value: '550e8400-e29b-41d4-a716-446655440072'
+              - column:
+                  name: author_id
+                  value: '550e8400-e29b-41d4-a716-446655440047'
+        - insert:
+            tableName: book_authors
+            columns:
+              - column:
+                  name: book_id
+                  value: '550e8400-e29b-41d4-a716-446655440073'
+              - column:
+                  name: author_id
+                  value: '550e8400-e29b-41d4-a716-446655440048'
+        - insert:
+            tableName: book_authors
+            columns:
+              - column:
+                  name: book_id
+                  value: '550e8400-e29b-41d4-a716-446655440074'
+              - column:
+                  name: author_id
+                  value: '550e8400-e29b-41d4-a716-446655440049'
+        - insert:
+            tableName: book_authors
+            columns:
+              - column:
+                  name: book_id
+                  value: '550e8400-e29b-41d4-a716-446655440075'
+              - column:
+                  name: author_id
+                  value: '550e8400-e29b-41d4-a716-446655440050'
+        - insert:
+            tableName: book_authors
+            columns:
+              - column:
+                  name: book_id
+                  value: '550e8400-e29b-41d4-a716-446655440076'
+              - column:
+                  name: author_id
+                  value: '550e8400-e29b-41d4-a716-446655440051'
+        - insert:
+            tableName: book_authors
+            columns:
+              - column:
+                  name: book_id
+                  value: '550e8400-e29b-41d4-a716-446655440077'
+              - column:
+                  name: author_id
+                  value: '550e8400-e29b-41d4-a716-446655440052'
+        - insert:
+            tableName: book_authors
+            columns:
+              - column:
+                  name: book_id
+                  value: '550e8400-e29b-41d4-a716-446655440078'
+              - column:
+                  name: author_id
+                  value: '550e8400-e29b-41d4-a716-446655440053'
+        - insert:
+            tableName: book_authors
+            columns:
+              - column:
+                  name: book_id
+                  value: '550e8400-e29b-41d4-a716-446655440079'
+              - column:
+                  name: author_id
+                  value: '550e8400-e29b-41d4-a716-446655440054'
+        - insert:
+            tableName: book_authors
+            columns:
+              - column:
+                  name: book_id
+                  value: '550e8400-e29b-41d4-a716-446655440080'
+              - column:
+                  name: author_id
+                  value: '550e8400-e29b-41d4-a716-446655440044'
+        - insert:
+            tableName: book_authors
+            columns:
+              - column:
+                  name: book_id
+                  value: '550e8400-e29b-41d4-a716-446655440081'
+              - column:
+                  name: author_id
+                  value: '550e8400-e29b-41d4-a716-446655440055'
+        - insert:
+            tableName: book_authors
+            columns:
+              - column:
+                  name: book_id
+                  value: '550e8400-e29b-41d4-a716-446655440082'
+              - column:
+                  name: author_id
+                  value: '550e8400-e29b-41d4-a716-446655440056'
+        - insert:
+            tableName: book_authors
+            columns:
+              - column:
+                  name: book_id
+                  value: '550e8400-e29b-41d4-a716-446655440083'
+              - column:
+                  name: author_id
+                  value: '550e8400-e29b-41d4-a716-446655440057'
+        - insert:
+            tableName: book_authors
+            columns:
+              - column:
+                  name: book_id
+                  value: '550e8400-e29b-41d4-a716-446655440084'
+              - column:
+                  name: author_id
+                  value: '550e8400-e29b-41d4-a716-446655440058'
+        - insert:
+            tableName: book_authors
+            columns:
+              - column:
+                  name: book_id
+                  value: '550e8400-e29b-41d4-a716-446655440085'
+              - column:
+                  name: author_id
+                  value: '550e8400-e29b-41d4-a716-446655440059'
+        - insert:
+            tableName: book_authors
+            columns:
+              - column:
+                  name: book_id
+                  value: '550e8400-e29b-41d4-a716-446655440086'
+              - column:
+                  name: author_id
+                  value: '550e8400-e29b-41d4-a716-446655440060'
+        - insert:
+            tableName: book_authors
+            columns:
+              - column:
+                  name: book_id
+                  value: '550e8400-e29b-41d4-a716-446655440087'
+              - column:
+                  name: author_id
+                  value: '550e8400-e29b-41d4-a716-446655440040'
