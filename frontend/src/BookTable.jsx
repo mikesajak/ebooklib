@@ -6,16 +6,22 @@ const BookTable = () => {
   const [books, setBooks] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [page, setPage] = useState(0);
+  const [size, setSize] = useState(10);
+  const [totalPages, setTotalPages] = useState(0);
+  const [totalElements, setTotalElements] = useState(0);
 
   useEffect(() => {
     const fetchBooks = async () => {
       try {
-        const response = await fetch('/api/books?page=0&size=100'); // Adjust size as needed
+        const response = await fetch(`/api/books?page=${page}&size=${size}`);
         if (!response.ok) {
           throw new Error('Failed to fetch books');
         }
         const data = await response.json();
         setBooks(data.content || []);
+        setTotalPages(data.totalPages);
+        setTotalElements(data.totalElements);
       } catch (err) {
         setError(err.message);
       } finally {
@@ -24,7 +30,7 @@ const BookTable = () => {
     };
 
     fetchBooks();
-  }, []);
+  }, [page, size]);
 
   if (loading) {
     return (
@@ -116,6 +122,58 @@ const BookTable = () => {
           )}
         </tbody>
       </table>
+
+      <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '1rem'}}>
+        <div>
+          Items per page:
+          <select
+            value={size}
+            onChange={(e) => {
+              setSize(Number(e.target.value));
+              setPage(0); // Reset to first page when size changes
+            }}
+            style={{marginLeft: '0.5rem', padding: '0.25rem', borderRadius: '0.25rem', border: '1px solid #d1d5db'}}
+          >
+            <option value="10">10</option>
+            <option value="20">20</option>
+            <option value="50">50</option>
+          </select>
+        </div>
+
+        <div>
+          <button
+            onClick={() => setPage(0)}
+            disabled={page === 0}
+            style={{padding: '0.5rem 1rem', border: '1px solid #d1d5db', borderRadius: '0.25rem', backgroundColor: '#f9fafb', cursor: page === 0 ? 'not-allowed' : 'pointer'}}
+          >
+            First
+          </button>
+          <button
+            onClick={() => setPage(page - 1)}
+            disabled={page === 0}
+            style={{marginLeft: '0.5rem', padding: '0.5rem 1rem', border: '1px solid #d1d5db', borderRadius: '0.25rem', backgroundColor: '#f9fafb', cursor: page === 0 ? 'not-allowed' : 'pointer'}}
+          >
+            Previous
+          </button>
+          <span style={{margin: '0 1rem'}}>
+            Page {page + 1} of {totalPages}
+          </span>
+          <button
+            onClick={() => setPage(page + 1)}
+            disabled={page === totalPages - 1}
+            style={{padding: '0.5rem 1rem', border: '1px solid #d1d5db', borderRadius: '0.25rem', backgroundColor: '#f9fafb', cursor: page === totalPages - 1 ? 'not-allowed' : 'pointer'}}
+          >
+            Next
+          </button>
+          <button
+            onClick={() => setPage(totalPages - 1)}
+            disabled={page === totalPages - 1}
+            style={{marginLeft: '0.5rem', padding: '0.5rem 1rem', border: '1px solid #d1d5db', borderRadius: '0.25rem', backgroundColor: '#f9fafb', cursor: page === totalPages - 1 ? 'not-allowed' : 'pointer'}}
+          >
+            Last
+          </button>
+        </div>
+      </div>
     </div>
   );
 };
