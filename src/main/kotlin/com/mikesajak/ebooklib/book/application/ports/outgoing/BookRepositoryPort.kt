@@ -11,6 +11,7 @@ interface BookRepositoryPort {
     fun findAll(pageable: Pageable): Page<Book>
     fun findById(id: BookId): Book?
     fun save(book: Book): Book
+    fun update(book: Book): Book
     fun findByAuthorId(authorId: AuthorId, pageable: Pageable): Page<Book>
     fun findBySeriesId(seriesId: SeriesId, pageable: Pageable): Page<Book>
 }

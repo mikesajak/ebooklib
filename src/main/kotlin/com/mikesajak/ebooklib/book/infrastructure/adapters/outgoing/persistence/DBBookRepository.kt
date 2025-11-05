@@ -30,6 +30,14 @@ class DBBookRepository(private val bookJpaRepository: BookJpaRepository,
         return mapper.toDomain(savedEntity)
     }
 
+    override fun update(book: Book): Book {
+        val existingBook = bookJpaRepository.findById(book.id!!.value)
+            .orElseThrow { NoSuchElementException("Book with id ${book.id.value} not found") }
+        val entity = mapper.toEntity(book)
+        val savedEntity = bookJpaRepository.save(entity)
+        return mapper.toDomain(savedEntity)
+    }
+
     override fun findByAuthorId(authorId: AuthorId, pageable: Pageable): Page<Book> =
         bookJpaRepository.findBooksByAuthorId(authorId.value, pageable).map { bookEntity -> mapper.toDomain(bookEntity) }
 

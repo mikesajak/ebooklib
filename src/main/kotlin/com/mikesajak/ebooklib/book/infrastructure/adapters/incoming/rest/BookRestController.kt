@@ -4,6 +4,7 @@ import org.springframework.data.domain.Pageable
 
 import com.mikesajak.ebooklib.book.application.ports.incoming.GetBookUseCase
 import com.mikesajak.ebooklib.book.application.ports.incoming.AddBookUseCase
+import com.mikesajak.ebooklib.book.application.ports.incoming.UpdateBookUseCase
 import com.mikesajak.ebooklib.book.domain.model.BookId
 import com.mikesajak.ebooklib.book.infrastructure.adapters.incoming.rest.dto.BookRequestDto
 import com.mikesajak.ebooklib.book.infrastructure.adapters.incoming.rest.dto.BookResponseDto
@@ -11,6 +12,7 @@ import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
@@ -22,6 +24,7 @@ import java.util.UUID
 class BookRestController(
     private val getBookUseCase: GetBookUseCase,
     private val addBookUseCase: AddBookUseCase,
+    private val updateBookUseCase: UpdateBookUseCase,
     private val bookRestMapper: BookRestMapper
 ) {
     @GetMapping
@@ -41,5 +44,12 @@ class BookRestController(
         val savedBook = addBookUseCase.addBook(book)
         val location = URI.create("/api/books/${savedBook.id!!.value}")
         return ResponseEntity.created(location).body(bookRestMapper.toResponse(savedBook))
+    }
+
+    @PutMapping("/{id}")
+    fun updateBook(@PathVariable id: UUID, @RequestBody bookRequestDto: BookRequestDto): BookResponseDto {
+        val book = bookRestMapper.toDomain(bookRequestDto).copy(id = BookId(id))
+        val updatedBook = updateBookUseCase.updateBook(book)
+        return bookRestMapper.toResponse(updatedBook)
     }
 }
