@@ -1,6 +1,4 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
 
 .book-link { color: #2563eb; text-decoration: none; font-weight: 600; }
 .author-link { color: #059669; text-decoration: none; margin-right: 0.25rem; font-weight: 600; }
