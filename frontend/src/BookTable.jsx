@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Link, useLocation } from 'react-router-dom';
+import Notification from './Notification';
 
 const BookTable = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [books, setBooks] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -12,6 +14,15 @@ const BookTable = () => {
   const [totalElements, setTotalElements] = useState(0);
   const [sortField, setSortField] = useState('title'); // Default sort field
   const [sortDirection, setSortDirection] = useState('asc'); // Default sort direction
+  const [notification, setNotification] = useState(null);
+
+  useEffect(() => {
+    if (location.state && location.state.notification) {
+      setNotification(location.state.notification);
+      // Clear location state to prevent notification from re-appearing on refresh
+      window.history.replaceState({}, document.title)
+    }
+  }, [location.state]);
 
   useEffect(() => {
     const fetchBooks = async () => {
@@ -70,7 +81,21 @@ const BookTable = () => {
 
   return (
     <div style={{maxWidth: '1280px', margin: '0 auto', padding: '1rem'}}>
-      <h1 style={{fontSize: '1.5rem', fontWeight: 'bold', marginBottom: '1rem'}}>Book List</h1>
+      {notification && (
+        <Notification
+          message={notification.message}
+          type={notification.type}
+          onClose={() => setNotification(null)}
+        />
+      )}
+      <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem'}}>
+        <h1 style={{fontSize: '1.5rem', fontWeight: 'bold'}}>Book List</h1>
+        <Link to="/add-book">
+          <button style={{backgroundColor: '#22c55e', color: 'white', fontWeight: 'bold', padding: '0.5rem 1rem', borderRadius: '0.25rem'}}>
+            Add Book
+          </button>
+        </Link>
+      </div>
       <table style={{width: '100%', backgroundColor: 'white', border: '1px solid #d1d5db', borderCollapse: 'collapse'}}>
         <thead>
           <tr style={{backgroundColor: '#3b82f6', color: '#1e40af'}}>

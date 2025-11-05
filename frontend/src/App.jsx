@@ -7,6 +7,7 @@ import AuthorDetails from './AuthorDetails'
 import SeriesDetails from './SeriesDetails'
 import AuthorList from './AuthorList'
 import SeriesList from './SeriesList'
+import AddBook from './AddBook'
 
 function App() {
   return (
@@ -14,6 +15,7 @@ function App() {
       <Header />
       <Routes>
         <Route path="/" element={<BookTable />} />
+        <Route path="/add-book" element={<AddBook />} />
         <Route path="/book/:id" element={<BookDetails />} />
         <Route path="/author/:id" element={<AuthorDetails />} />
         <Route path="/series/:id" element={<SeriesDetails />} />

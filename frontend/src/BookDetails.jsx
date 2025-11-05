@@ -157,6 +157,30 @@ const BookDetails = () => {
     );
   }
 
+  const isTitleValid = editedBook?.title?.trim() !== '';
+
+  const hasChanges = () => {
+    if (!book || !editedBook) return false;
+
+    const normalize = (val) => val || '';
+
+    if (normalize(book.title) !== normalize(editedBook.title)) return true;
+    if (String(normalize(book.volume)) !== String(normalize(editedBook.volume))) return true;
+    if (normalize(book.publicationDate) !== normalize(editedBook.publicationDate)) return true;
+    if (normalize(book.publisher) !== normalize(editedBook.publisher)) return true;
+    if (normalize(book.description) !== normalize(editedBook.description)) return true;
+
+    const bookAuthorIds = book.authors?.map(a => a.id).sort() || [];
+    const editedBookAuthorIds = editedBook.authors?.map(a => a.id).sort() || [];
+    if (JSON.stringify(bookAuthorIds) !== JSON.stringify(editedBookAuthorIds)) return true;
+
+    if (normalize(book.series?.id) !== normalize(editedBook.series?.id)) return true;
+
+    return false;
+  };
+
+  const isSaveDisabled = !isTitleValid || !hasChanges();
+
   return (
     <div className="container mx-auto p-4">
       <h1 className="text-2xl font-bold mb-4">Book Details</h1>
@@ -279,8 +303,8 @@ const BookDetails = () => {
           <div className="flex justify-end mt-4">
             <button
               onClick={handleSave}
-              className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded mr-2"
-            >
+              disabled={isSaveDisabled}
+              className={`font-bold py-2 px-4 rounded mr-2 ${isSaveDisabled ? 'bg-gray-400 text-white cursor-not-allowed' : 'bg-green-500 hover:bg-green-700 text-white'}`}>
               Save
             </button>
             <button
