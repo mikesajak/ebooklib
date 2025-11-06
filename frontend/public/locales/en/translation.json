@@ -1,0 +1,119 @@
+{
+  "welcome": "Welcome",
+  "header": {
+    "title": "Ebook Library",
+    "books": "Books",
+    "authors": "Authors",
+    "series": "Series"
+  },
+  "bookTable": {
+    "title": "Book List",
+    "loadingBooks": "Loading books...",
+    "error": "Error",
+    "addBookButton": "Add Book",
+    "header": {
+      "title": "Title",
+      "authors": "Authors",
+      "series": "Series",
+      "volume": "Volume",
+      "publicationDate": "Publication Date",
+      "publisher": "Publisher",
+      "description": "Description"
+    },
+    "noBooksFound": "No books found.",
+    "itemsPerPage": "Items per page:",
+    "pagination": {
+      "first": "First",
+      "previous": "Previous",
+      "pageOf": "Page {{page}} of {{totalPages}}",
+      "next": "Next",
+      "last": "Last"
+    }
+  },
+  "bookDetails": {
+    "title": "Book Details",
+    "loading": "Loading book details...",
+    "form": {
+      "title": "Title",
+      "author": "Author",
+      "series": "Series",
+      "volume": "Volume",
+      "creationDate": "Creation Date",
+      "publicationDate": "Publication Date",
+      "publisher": "Publisher",
+      "description": "Description",
+      "selectAuthor": "Select an author",
+      "selectSeries": "Select a series"
+    },
+    "display": {
+      "title": "Title",
+      "authors": "Authors",
+      "series": "Series",
+      "volume": "Volume",
+      "creationDate": "Creation Date",
+      "publicationDate": "Publication Date",
+      "publisher": "Publisher",
+      "description": "Description"
+    }
+  },
+  "addBook": {
+    "title": "Add New Book",
+    "form": {
+      "title": "Title",
+      "author": "Author",
+      "series": "Series",
+      "volume": "Volume",
+      "publicationDate": "Publication Date",
+      "publisher": "Publisher",
+      "description": "Description",
+      "selectAuthor": "Select an author",
+      "selectSeries": "Select a series"
+    },
+    "successMessage": "Book added successfully!",
+    "failureMessage": "Failed to create book"
+  },
+  "authorDetails": {
+    "title": "Author Details",
+    "loading": "Loading author details...",
+    "name": "Name",
+    "bio": "Bio",
+    "birthDate": "Birth Date",
+    "deathDate": "Death Date",
+    "booksByAuthor": "Books by this Author",
+    "noBooksFound": "No books found."
+  },
+  "authorList": {
+    "title": "Authors",
+    "loading": "Loading authors...",
+    "noAuthorsFound": "No authors found.",
+    "groupBy": "Group by",
+    "lastName": "Last Name",
+    "firstName": "First Name",
+    "nationality": "Nationality"
+  },
+  "seriesDetails": {
+    "title": "Series Details",
+    "loading": "Loading series details...",
+    "seriesTitle": "Title",
+    "description": "Description",
+    "booksInSeries": "Books in this Series",
+    "noBooksFound": "No books found.",
+    "header": {
+      "volume": "Volume",
+      "title": "Title"
+    }
+  },
+  "seriesList": {
+    "title": "Series",
+    "loading": "Loading series...",
+    "noSeriesFound": "No series found."
+  },
+  "common": {
+    "na": "N/A",
+    "error": "Error",
+    "backToList": "Back to List",
+    "cancel": "Cancel",
+    "edit": "Edit",
+    "save": "Save"
+  }
+}

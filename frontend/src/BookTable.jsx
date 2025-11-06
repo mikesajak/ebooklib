@@ -141,7 +141,7 @@ const BookTable = () => {
                         className="author-link"
                         onClick={(e) => e.stopPropagation()}
                       >
-                        {author.name}
+                        {author.firstName} {author.lastName}
                       </Link>
                       {idx < book.authors.length - 1 ? ' ' : ''}
                     </span>

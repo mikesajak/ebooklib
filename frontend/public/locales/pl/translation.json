@@ -1,0 +1,119 @@
+{
+  "welcome": "Witamy",
+  "header": {
+    "title": "Biblioteka Ebooków",
+    "books": "Książki",
+    "authors": "Autorzy",
+    "series": "Serie"
+  },
+  "bookTable": {
+    "title": "Lista Książek",
+    "loadingBooks": "Ładowanie książek...",
+    "error": "Błąd",
+    "addBookButton": "Dodaj Książkę",
+    "header": {
+      "title": "Tytuł",
+      "authors": "Autorzy",
+      "series": "Seria",
+      "volume": "Tom",
+      "publicationDate": "Data Publikacji",
+      "publisher": "Wydawca",
+      "description": "Opis"
+    },
+    "noBooksFound": "Nie znaleziono książek.",
+    "itemsPerPage": "Elementów na stronę:",
+    "pagination": {
+      "first": "Pierwsza",
+      "previous": "Poprzednia",
+      "pageOf": "Strona {{page}} z {{totalPages}}",
+      "next": "Następna",
+      "last": "Ostatnia"
+    }
+  },
+  "bookDetails": {
+    "title": "Szczegóły Książki",
+    "loading": "Ładowanie szczegółów książki...",
+    "form": {
+      "title": "Tytuł",
+      "author": "Autor",
+      "series": "Seria",
+      "volume": "Tom",
+      "creationDate": "Data Utworzenia",
+      "publicationDate": "Data Publikacji",
+      "publisher": "Wydawca",
+      "description": "Opis",
+      "selectAuthor": "Wybierz autora",
+      "selectSeries": "Wybierz serię"
+    },
+    "display": {
+      "title": "Tytuł",
+      "authors": "Autorzy",
+      "series": "Seria",
+      "volume": "Tom",
+      "creationDate": "Data Utworzenia",
+      "publicationDate": "Data Publikacji",
+      "publisher": "Wydawca",
+      "description": "Opis"
+    }
+  },
+  "addBook": {
+    "title": "Dodaj Nową Książkę",
+    "form": {
+      "title": "Tytuł",
+      "author": "Autor",
+      "series": "Seria",
+      "volume": "Tom",
+      "publicationDate": "Data Publikacji",
+      "publisher": "Wydawca",
+      "description": "Opis",
+      "selectAuthor": "Wybierz autora",
+      "selectSeries": "Wybierz serię"
+    },
+    "successMessage": "Książka dodana pomyślnie!",
+    "failureMessage": "Nie udało się dodać książki"
+  },
+  "authorDetails": {
+    "title": "Szczegóły Autora",
+    "loading": "Ładowanie szczegółów autora...",
+    "name": "Imię i Nazwisko",
+    "bio": "Biografia",
+    "birthDate": "Data Urodzenia",
+    "deathDate": "Data Śmierci",
+    "booksByAuthor": "Książki tego autora",
+    "noBooksFound": "Nie znaleziono książek."
+  },
+  "authorList": {
+    "title": "Autorzy",
+    "loading": "Ładowanie autorów...",
+    "noAuthorsFound": "Nie znaleziono autorów.",
+    "groupBy": "Grupuj według",
+    "lastName": "Nazwisko",
+    "firstName": "Imię",
+    "nationality": "Narodowość"
+  },
+  "seriesDetails": {
+    "title": "Szczegóły Serii",
+    "loading": "Ładowanie szczegółów serii...",
+    "seriesTitle": "Tytuł",
+    "description": "Opis",
+    "booksInSeries": "Książki w tej serii",
+    "noBooksFound": "Nie znaleziono książek.",
+    "header": {
+      "volume": "Tom",
+      "title": "Tytuł"
+    }
+  },
+  "seriesList": {
+    "title": "Serie",
+    "loading": "Ładowanie serii...",
+    "noSeriesFound": "Nie znaleziono serii."
+  },
+  "common": {
+    "na": "Brak",
+    "error": "Błąd",
+    "backToList": "Powrót do listy",
+    "cancel": "Anuluj",
+    "edit": "Edytuj",
+    "save": "Zapisz"
+  }
+}

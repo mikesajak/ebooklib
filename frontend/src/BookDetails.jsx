@@ -226,7 +226,7 @@ const BookDetails = () => {
               <option value="">{t('bookDetails.form.selectAuthor')}</option>
               {authors.map(author => (
                 <option key={author.id} value={author.id}>
-                  {author.name}
+                  {author.firstName} {author.lastName}
                 </option>
               ))}
             </select>
@@ -325,9 +325,7 @@ const BookDetails = () => {
           <div className="mb-4">
             <strong>{t('bookDetails.display.authors')}:</strong> {book.authors.map((author, index) => (
               <span key={author.id}>
-                <Link to={`/author/${author.id}`} className="author-link">
-                  {author.name}
-                </Link>
+                  {author.firstName} {author.lastName}
                 {index < book.authors.length - 1 ? ', ' : ''}
               </span>
             ))}

@@ -62,7 +62,7 @@ const AuthorDetails = () => {
       <h1 className="text-2xl font-bold mb-4">{t('authorDetails.title')}</h1>
       <div className="bg-white border border-gray-300 rounded p-6 shadow mb-6">
         <div className="mb-4">
-          <strong>{t('authorDetails.name')}:</strong> {author.name}
+          <strong>{t('authorDetails.name')}:</strong> {author.firstName} {author.lastName}
         </div>
         <div className="mb-4">
           <strong>{t('authorDetails.bio')}:</strong> {author.bio || t('common.na')}
