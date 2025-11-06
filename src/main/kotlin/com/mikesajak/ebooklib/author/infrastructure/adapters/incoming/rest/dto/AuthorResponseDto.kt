@@ -5,7 +5,8 @@ import java.util.*
 
 data class AuthorResponseDto(
     val id: UUID,
-    val name: String,
+    val firstName: String,
+    val lastName: String,
     val bio: String?,
     val birthDate: LocalDate?,
     val deathDate: LocalDate?

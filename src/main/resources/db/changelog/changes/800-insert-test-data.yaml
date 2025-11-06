@@ -72,8 +72,11 @@ databaseChangeLog:
                   name: id
                   value: '550e8400-e29b-41d4-a716-446655440000'
               - column:
-                  name: name
-                  value: 'J.K. Rowling'
+                  name: first_name
+                  value: 'J.K.'
+              - column:
+                  name: last_name
+                  value: 'Rowling'
               - column:
                   name: bio
                   value: 'British author, best known for the Harry Potter series'
@@ -87,8 +90,11 @@ databaseChangeLog:
                   name: id
                   value: '550e8400-e29b-41d4-a716-446655440001'
               - column:
-                  name: name
-                  value: 'George Orwell'
+                  name: first_name
+                  value: 'George'
+              - column:
+                  name: last_name
+                  value: 'Orwell'
               - column:
                   name: bio
                   value: 'English novelist and essayist'
@@ -104,8 +110,11 @@ databaseChangeLog:
                   name: id
                   value: '550e8400-e29b-41d4-a716-446655440005'
               - column:
-                  name: name
-                  value: 'J.R.R. Tolkien'
+                  name: first_name
+                  value: 'J.R.R.'
+              - column:
+                  name: last_name
+                  value: 'Tolkien'
               - column:
                   name: bio
                   value: 'English writer and philologist'
@@ -122,8 +131,11 @@ databaseChangeLog:
                   name: id
                   value: '550e8400-e29b-41d4-a716-446655440010'
               - column:
-                  name: name
-                  value: 'F. Scott Fitzgerald'
+                  name: first_name
+                  value: 'F. Scott'
+              - column:
+                  name: last_name
+                  value: 'Fitzgerald'
               - column:
                   name: bio
                   value: 'American novelist and short story writer'
@@ -140,8 +152,11 @@ databaseChangeLog:
                   name: id
                   value: '550e8400-e29b-41d4-a716-446655440011'
               - column:
-                  name: name
-                  value: 'Gabriel García Márquez'
+                  name: first_name
+                  value: 'Gabriel García'
+              - column:
+                  name: last_name
+                  value: 'Márquez'
               - column:
                   name: bio
                   value: 'Colombian novelist, short-story writer, screenwriter and journalist'
@@ -158,8 +173,11 @@ databaseChangeLog:
                   name: id
                   value: '550e8400-e29b-41d4-a716-446655440012'
               - column:
-                  name: name
-                  value: 'Herman Melville'
+                  name: first_name
+                  value: 'Herman'
+              - column:
+                  name: last_name
+                  value: 'Melville'
               - column:
                   name: bio
                   value: 'American novelist, short story writer, and poet'
@@ -176,8 +194,11 @@ databaseChangeLog:
                   name: id
                   value: '550e8400-e29b-41d4-a716-446655440013'
               - column:
-                  name: name
-                  value: 'Miguel de Cervantes'
+                  name: first_name
+                  value: 'Miguel de'
+              - column:
+                  name: last_name
+                  value: 'Cervantes'
               - column:
                   name: bio
                   value: 'Spanish writer who is widely regarded as the greatest writer in the Spanish language'
@@ -194,8 +215,11 @@ databaseChangeLog:
                   name: id
                   value: '550e8400-e29b-41d4-a716-446655440014'
               - column:
-                  name: name
-                  value: 'Leo Tolstoy'
+                  name: first_name
+                  value: 'Leo'
+              - column:
+                  name: last_name
+                  value: 'Tolstoy'
               - column:
                   name: bio
                   value: 'Russian writer who is regarded as one of the greatest authors of all time'
@@ -212,8 +236,11 @@ databaseChangeLog:
                   name: id
                   value: '550e8400-e29b-41d4-a716-446655440015'
               - column:
-                  name: name
-                  value: 'Fyodor Dostoevsky'
+                  name: first_name
+                  value: 'Fyodor'
+              - column:
+                  name: last_name
+                  value: 'Dostoevsky'
               - column:
                   name: bio
                   value: 'Russian novelist, short story writer, essayist, and journalist'
@@ -230,8 +257,11 @@ databaseChangeLog:
                   name: id
                   value: '550e8400-e29b-41d4-a716-446655440016'
               - column:
-                  name: name
-                  value: 'Jane Austen'
+                  name: first_name
+                  value: 'Jane'
+              - column:
+                  name: last_name
+                  value: 'Austen'
               - column:
                   name: bio
                   value: 'English novelist known primarily for her six major novels'
@@ -248,8 +278,11 @@ databaseChangeLog:
                   name: id
                   value: '550e8400-e29b-41d4-a716-446655440017'
               - column:
-                  name: name
-                  value: 'Harper Lee'
+                  name: first_name
+                  value: 'Harper'
+              - column:
+                  name: last_name
+                  value: 'Lee'
               - column:
                   name: bio
                   value: 'American novelist best known for her 1960 novel To Kill a Mockingbird'
@@ -266,8 +299,11 @@ databaseChangeLog:
                   name: id
                   value: '550e8400-e29b-41d4-a716-446655440018'
               - column:
-                  name: name
-                  value: 'J. D. Salinger'
+                  name: first_name
+                  value: 'J. D.'
+              - column:
+                  name: last_name
+                  value: 'Salinger'
               - column:
                   name: bio
                   value: 'American writer known for his novel The Catcher in the Rye'
@@ -284,8 +320,11 @@ databaseChangeLog:
                   name: id
                   value: '550e8400-e29b-41d4-a716-446655440019'
               - column:
-                  name: name
-                  value: 'Emily Brontë'
+                  name: first_name
+                  value: 'Emily'
+              - column:
+                  name: last_name
+                  value: 'Brontë'
               - column:
                   name: bio
                   value: 'English novelist and poet who is best known for her only novel, Wuthering Heights'
@@ -302,8 +341,11 @@ databaseChangeLog:
                   name: id
                   value: '550e8400-e29b-41d4-a716-446655440020'
               - column:
-                  name: name
-                  value: 'Aldous Huxley'
+                  name: first_name
+                  value: 'Aldous'
+              - column:
+                  name: last_name
+                  value: 'Huxley'
               - column:
                   name: bio
                   value: 'English writer and philosopher'
@@ -320,8 +362,11 @@ databaseChangeLog:
                   name: id
                   value: '550e8400-e29b-41d4-a716-446655440021'
               - column:
-                  name: name
-                  value: 'Victor Hugo'
+                  name: first_name
+                  value: 'Victor'
+              - column:
+                  name: last_name
+                  value: 'Hugo'
               - column:
                   name: bio
                   value: 'French poet, novelist, and dramatist of the Romantic movement'
@@ -338,8 +383,11 @@ databaseChangeLog:
                   name: id
                   value: '550e8400-e29b-41d4-a716-446655440022'
               - column:
-                  name: name
-                  value: 'William Shakespeare'
+                  name: first_name
+                  value: 'William'
+              - column:
+                  name: last_name
+                  value: 'Shakespeare'
               - column:
                   name: bio
                   value: 'English playwright, poet, and actor, widely regarded as the greatest writer in the English language'
@@ -356,8 +404,11 @@ databaseChangeLog:
                   name: id
                   value: '550e8400-e29b-41d4-a716-446655440040'
               - column:
-                  name: name
-                  value: 'Orson Scott Card'
+                  name: first_name
+                  value: 'Orson Scott'
+              - column:
+                  name: last_name
+                  value: 'Card'
               - column:
                   name: bio
                   value: 'American science fiction writer'
@@ -371,8 +422,11 @@ databaseChangeLog:
                   name: id
                   value: '550e8400-e29b-41d4-a716-446655440041'
               - column:
-                  name: name
-                  value: 'Andrzej Sapkowski'
+                  name: first_name
+                  value: 'Andrzej'
+              - column:
+                  name: last_name
+                  value: 'Sapkowski'
               - column:
                   name: bio
                   value: 'Polish fantasy writer'
@@ -386,8 +440,11 @@ databaseChangeLog:
                   name: id
                   value: '550e8400-e29b-41d4-a716-446655440042'
               - column:
-                  name: name
-                  value: 'Andy Hunt'
+                  name: first_name
+                  value: 'Andy'
+              - column:
+                  name: last_name
+                  value: 'Hunt'
               - column:
                   name: bio
                   value: 'American computer programmer and author'
@@ -398,8 +455,11 @@ databaseChangeLog:
                   name: id
                   value: '550e8400-e29b-41d4-a716-446655440043'
               - column:
-                  name: name
-                  value: 'Dave Thomas'
+                  name: first_name
+                  value: 'Dave'
+              - column:
+                  name: last_name
+                  value: 'Thomas'
               - column:
                   name: bio
                   value: 'American computer programmer and author'
@@ -410,8 +470,11 @@ databaseChangeLog:
                   name: id
                   value: '550e8400-e29b-41d4-a716-446655440044'
               - column:
-                  name: name
-                  value: 'Robert C. Martin'
+                  name: first_name
+                  value: 'Robert C.'
+              - column:
+                  name: last_name
+                  value: 'Martin'
               - column:
                   name: bio
                   value: 'American software engineer and author'
@@ -422,8 +485,11 @@ databaseChangeLog:
                   name: id
                   value: '550e8400-e29b-41d4-a716-446655440045'
               - column:
-                  name: name
-                  value: 'Steve McConnell'
+                  name: first_name
+                  value: 'Steve'
+              - column:
+                  name: last_name
+                  value: 'McConnell'
               - column:
                   name: bio
                   value: 'American software engineer and author'
@@ -434,8 +500,11 @@ databaseChangeLog:
                   name: id
                   value: '550e8400-e29b-41d4-a716-446655440046'
               - column:
-                  name: name
-                  value: 'Aditya Y. Bhargava'
+                  name: first_name
+                  value: 'Aditya Y.'
+              - column:
+                  name: last_name
+                  value: 'Bhargava'
               - column:
                   name: bio
                   value: 'Author of Grokking Algorithms'
@@ -446,8 +515,11 @@ databaseChangeLog:
                   name: id
                   value: '550e8400-e29b-41d4-a716-446655440047'
               - column:
-                  name: name
-                  value: 'Gayle Laakmann McDowell'
+                  name: first_name
+                  value: 'Gayle Laakmann'
+              - column:
+                  name: last_name
+                  value: 'McDowell'
               - column:
                   name: bio
                   value: 'Author of Cracking the Coding Interview'
@@ -458,8 +530,11 @@ databaseChangeLog:
                   name: id
                   value: '550e8400-e29b-41d4-a716-446655440048'
               - column:
-                  name: name
-                  value: 'Jon L. Bentley'
+                  name: first_name
+                  value: 'Jon L.'
+              - column:
+                  name: last_name
+                  value: 'Bentley'
               - column:
                   name: bio
                   value: 'American computer scientist and author'
@@ -470,8 +545,11 @@ databaseChangeLog:
                   name: id
                   value: '550e8400-e29b-41d4-a716-446655440049'
               - column:
-                  name: name
-                  value: 'Charles Petzold'
+                  name: first_name
+                  value: 'Charles'
+              - column:
+                  name: last_name
+                  value: 'Petzold'
               - column:
                   name: bio
                   value: 'American programmer and author'
@@ -482,8 +560,11 @@ databaseChangeLog:
                   name: id
                   value: '550e8400-e29b-41d4-a716-446655440050'
               - column:
-                  name: name
-                  value: 'Douglas Crockford'
+                  name: first_name
+                  value: 'Douglas'
+              - column:
+                  name: last_name
+                  value: 'Crockford'
               - column:
                   name: bio
                   value: 'American computer programmer and author'
@@ -494,8 +575,11 @@ databaseChangeLog:
                   name: id
                   value: '550e8400-e29b-41d4-a716-446655440051'
               - column:
-                  name: name
-                  value: 'Michael C. Feathers'
+                  name: first_name
+                  value: 'Michael C.'
+              - column:
+                  name: last_name
+                  value: 'Feathers'
               - column:
                   name: bio
                   value: 'American software engineer and author'
@@ -506,8 +590,11 @@ databaseChangeLog:
                   name: id
                   value: '550e8400-e29b-41d4-a716-446655440052'
               - column:
-                  name: name
-                  value: 'Brian W. Kernighan'
+                  name: first_name
+                  value: 'Brian W.'
+              - column:
+                  name: last_name
+                  value: 'Kernighan'
               - column:
                   name: bio
                   value: 'Canadian computer scientist'
@@ -518,8 +605,11 @@ databaseChangeLog:
                   name: id
                   value: '550e8400-e29b-41d4-a716-446655440053'
               - column:
-                  name: name
-                  value: 'Thomas H. Cormen'
+                  name: first_name
+                  value: 'Thomas H.'
+              - column:
+                  name: last_name
+                  value: 'Cormen'
               - column:
                   name: bio
                   value: 'American computer scientist'
@@ -530,8 +620,11 @@ databaseChangeLog:
                   name: id
                   value: '550e8400-e29b-41d4-a716-446655440054'
               - column:
-                  name: name
-                  value: 'Martin Kleppmann'
+                  name: first_name
+                  value: 'Martin'
+              - column:
+                  name: last_name
+                  value: 'Kleppmann'
               - column:
                   name: bio
                   value: 'Researcher and author'
@@ -542,8 +635,11 @@ databaseChangeLog:
                   name: id
                   value: '550e8400-e29b-41d4-a716-446655440055'
               - column:
-                  name: name
-                  value: 'Sam Newman'
+                  name: first_name
+                  value: 'Sam'
+              - column:
+                  name: last_name
+                  value: 'Newman'
               - column:
                   name: bio
                   value: 'Author and consultant'
@@ -554,8 +650,11 @@ databaseChangeLog:
                   name: id
                   value: '550e8400-e29b-41d4-a716-446655440056'
               - column:
-                  name: name
-                  value: 'Martin Fowler'
+                  name: first_name
+                  value: 'Martin'
+              - column:
+                  name: last_name
+                  value: 'Fowler'
               - column:
                   name: bio
                   value: 'British software engineer and author'
@@ -566,8 +665,11 @@ databaseChangeLog:
                   name: id
                   value: '550e8400-e29b-41d4-a716-446655440057'
               - column:
-                  name: name
-                  value: 'Joshua Bloch'
+                  name: first_name
+                  value: 'Joshua'
+              - column:
+                  name: last_name
+                  value: 'Bloch'
               - column:
                   name: bio
                   value: 'American computer scientist and author'
@@ -578,8 +680,11 @@ databaseChangeLog:
                   name: id
                   value: '550e8400-e29b-41d4-a716-446655440058'
               - column:
-                  name: name
-                  value: 'Kent Beck'
+                  name: first_name
+                  value: 'Kent'
+              - column:
+                  name: last_name
+                  value: 'Beck'
               - column:
                   name: bio
                   value: 'American software engineer and author'
@@ -590,8 +695,11 @@ databaseChangeLog:
                   name: id
                   value: '550e8400-e29b-41d4-a716-446655440059'
               - column:
-                  name: name
-                  value: 'Robert Nystrom'
+                  name: first_name
+                  value: 'Robert'
+              - column:
+                  name: last_name
+                  value: 'Nystrom'
               - column:
                   name: bio
                   value: 'Game programmer and author'
@@ -602,8 +710,11 @@ databaseChangeLog:
                   name: id
                   value: '550e8400-e29b-41d4-a716-446655440060'
               - column:
-                  name: name
-                  value: 'Roy Osherove'
+                  name: first_name
+                  value: 'Roy'
+              - column:
+                  name: last_name
+                  value: 'Osherove'
               - column:
                   name: bio
                   value: 'Software consultant and author'

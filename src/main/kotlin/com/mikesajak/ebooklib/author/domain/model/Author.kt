@@ -9,8 +9,12 @@ data class AuthorId(val value: UUID) {
 
 data class Author(
     val id: AuthorId?,
-    val name: String,
+    val firstName: String,
+    val lastName: String,
     val bio: String?,
     val birthDate: LocalDate?,
     val deathDate: LocalDate?
-)
+) {
+    val fullName: String
+        get() = "$firstName $lastName"
+}

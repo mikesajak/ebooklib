@@ -9,7 +9,8 @@ import java.util.*
 data class AuthorEntity(
     @Id
     val id: UUID? = null,
-    val name: String,
+    val firstName: String,
+    val lastName: String,
     val bio: String?,
     val birthDate: LocalDate?,
     val deathDate: LocalDate?,

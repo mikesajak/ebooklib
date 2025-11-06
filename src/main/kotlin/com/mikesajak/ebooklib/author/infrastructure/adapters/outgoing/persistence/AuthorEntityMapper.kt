@@ -10,7 +10,8 @@ class AuthorEntityMapper {
     fun toEntity(author: Author): AuthorEntity =
         AuthorEntity(
             id = author.id?.value,
-            name = author.name,
+            firstName = author.firstName,
+            lastName = author.lastName,
             bio = author.bio,
             birthDate = author.birthDate,
             deathDate = author.deathDate
@@ -19,7 +20,8 @@ class AuthorEntityMapper {
     fun toDomain(authorEntity: AuthorEntity): Author =
         Author(
             id = authorEntity.id?.let { AuthorId(it) },
-            name = authorEntity.name,
+            firstName = authorEntity.firstName,
+            lastName = authorEntity.lastName,
             bio = authorEntity.bio,
             birthDate = authorEntity.birthDate,
             deathDate = authorEntity.deathDate
