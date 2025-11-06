@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link, useLocation } from 'react-router-dom';
 import Notification from './Notification';
+import { useTranslation } from 'react-i18next';
 
 const BookTable = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const location = useLocation();
   const [books, setBooks] = useState([]);
@@ -48,8 +50,8 @@ const BookTable = () => {
   if (loading) {
     return (
       <div style={{maxWidth: '1280px', margin: '0 auto', padding: '1rem'}}>
-        <h1 style={{fontSize: '1.5rem', fontWeight: 'bold', marginBottom: '1rem'}}>Book List</h1>
-        <p style={{textAlign: 'center', color: '#6b7280'}}>Loading books...</p>
+        <h1 style={{fontSize: '1.5rem', fontWeight: 'bold', marginBottom: '1rem'}}>{t('bookTable.title')}</h1>
+        <p style={{textAlign: 'center', color: '#6b7280'}}>{t('bookTable.loadingBooks')}</p>
       </div>
     );
   }
@@ -57,8 +59,8 @@ const BookTable = () => {
   if (error) {
     return (
       <div style={{maxWidth: '1280px', margin: '0 auto', padding: '1rem'}}>
-        <h1 style={{fontSize: '1.5rem', fontWeight: 'bold', marginBottom: '1rem'}}>Book List</h1>
-        <p style={{textAlign: 'center', color: '#dc2626'}}>Error: {error}</p>
+        <h1 style={{fontSize: '1.5rem', fontWeight: 'bold', marginBottom: '1rem'}}>{t('bookTable.title')}</h1>
+        <p style={{textAlign: 'center', color: '#dc2626'}}>{t('bookTable.error')}: {error}</p>
       </div>
     );
   }
@@ -89,30 +91,30 @@ const BookTable = () => {
         />
       )}
       <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem'}}>
-        <h1 style={{fontSize: '1.5rem', fontWeight: 'bold'}}>Book List</h1>
+        <h1 style={{fontSize: '1.5rem', fontWeight: 'bold'}}>{t('bookTable.title')}</h1>
         <Link to="/add-book">
           <button style={{backgroundColor: '#22c55e', color: 'white', fontWeight: 'bold', padding: '0.5rem 1rem', borderRadius: '0.25rem'}}>
-            Add Book
+            {t('bookTable.addBookButton')}
           </button>
         </Link>
       </div>
       <table style={{width: '100%', backgroundColor: 'white', border: '1px solid #d1d5db', borderCollapse: 'collapse'}}>
         <thead>
           <tr style={{backgroundColor: '#3b82f6', color: '#1e40af'}}>
-            <th style={{padding: '0.5rem 1rem', border: '1px solid #d1d5db', cursor: 'pointer'}} onClick={() => handleSort('title')}>Title{getSortIndicator('title')}</th>
-            <th style={{padding: '0.5rem 1rem', border: '1px solid #d1d5db'}}>Authors</th>
-            <th style={{padding: '0.5rem 1rem', border: '1px solid #d1d5db', width: '60px', cursor: 'pointer'}} onClick={() => handleSort('series.title')}>Series{getSortIndicator('series.title')}</th>
-            <th style={{padding: '0.5rem 1rem', border: '1px solid #d1d5db', cursor: 'pointer'}} onClick={() => handleSort('volume')}>Volume{getSortIndicator('volume')}</th>
+            <th style={{padding: '0.5rem 1rem', border: '1px solid #d1d5db', cursor: 'pointer'}} onClick={() => handleSort('title')}>{t('bookTable.header.title')}{getSortIndicator('title')}</th>
+            <th style={{padding: '0.5rem 1rem', border: '1px solid #d1d5db'}}>{t('bookTable.header.authors')}</th>
+            <th style={{padding: '0.5rem 1rem', border: '1px solid #d1d5db', width: '60px', cursor: 'pointer'}} onClick={() => handleSort('series.title')}>{t('bookTable.header.series')}{getSortIndicator('series.title')}</th>
+            <th style={{padding: '0.5rem 1rem', border: '1px solid #d1d5db', cursor: 'pointer'}} onClick={() => handleSort('volume')}>{t('bookTable.header.volume')}{getSortIndicator('volume')}</th>
             <th style={{padding: '0.5rem 1rem', border: '1px solid #d1d5db', cursor: 'pointer'}} onClick={() => handleSort('publicationDate')}>Publication Date{getSortIndicator('publicationDate')}</th>
             <th style={{padding: '0.5rem 1rem', border: '1px solid #d1d5db', cursor: 'pointer'}} onClick={() => handleSort('publisher')}>Publisher{getSortIndicator('publisher')}</th>
-            <th style={{padding: '0.5rem 1rem', border: '1px solid #d1d5db'}}>Description</th>
+            <th style={{padding: '0.5rem 1rem', border: '1px solid #d1d5db'}}>{t('bookTable.header.description')}</th>
           </tr>
         </thead>
         <tbody>
           {books.length === 0 ? (
             <tr>
               <td colSpan="7" style={{padding: '1rem', textAlign: 'center', color: '#6b7280'}}>
-                No books found.
+                {t('bookTable.noBooksFound')}
               </td>
             </tr>
           ) : (
@@ -154,12 +156,12 @@ const BookTable = () => {
                     >
                       {book.series.title}
                     </Link>
-                  ) : '-'}
+                  ) : t('common.na')}
                 </td>
-                <td style={{padding: '0.5rem 1rem', border: '1px solid #d1d5db'}}>{book.volume || '-'}</td>
-                <td style={{padding: '0.5rem 1rem', border: '1px solid #d1d5db'}}>{book.publicationDate || '-'}</td>
-                <td style={{padding: '0.5rem 1rem', border: '1px solid #d1d5db'}}>{book.publisher || '-'}</td>
-                <td style={{padding: '0.5rem 1rem', border: '1px solid #d1d5db'}}>{book.description || '-'}</td>
+                <td style={{padding: '0.5rem 1rem', border: '1px solid #d1d5db'}}>{book.volume || t('common.na')}</td>
+                <td style={{padding: '0.5rem 1rem', border: '1px solid #d1d5db'}}>{book.publicationDate || t('common.na')}</td>
+                <td style={{padding: '0.5rem 1rem', border: '1px solid #d1d5db'}}>{book.publisher || t('common.na')}</td>
+                <td style={{padding: '0.5rem 1rem', border: '1px solid #d1d5db'}}>{book.description || t('common.na')}</td>
               </tr>
             ))
           )}
@@ -168,7 +170,7 @@ const BookTable = () => {
 
       <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '1rem'}}>
         <div>
-          Items per page:
+          {t('bookTable.itemsPerPage')}
           <select
             value={size}
             onChange={(e) => {
@@ -189,31 +191,31 @@ const BookTable = () => {
             disabled={page === 0}
             style={{padding: '0.5rem 1rem', border: '1px solid #d1d5db', borderRadius: '0.25rem', backgroundColor: '#f9fafb', cursor: page === 0 ? 'not-allowed' : 'pointer'}}
           >
-            First
+            {t('bookTable.pagination.first')}
           </button>
           <button
             onClick={() => setPage(page - 1)}
             disabled={page === 0}
             style={{marginLeft: '0.5rem', padding: '0.5rem 1rem', border: '1px solid #d1d5db', borderRadius: '0.25rem', backgroundColor: '#f9fafb', cursor: page === 0 ? 'not-allowed' : 'pointer'}}
           >
-            Previous
+            {t('bookTable.pagination.previous')}
           </button>
           <span style={{margin: '0 1rem'}}>
-            Page {page + 1} of {totalPages}
+            {t('bookTable.pagination.pageOf', { page: page + 1, totalPages: totalPages })}
           </span>
           <button
             onClick={() => setPage(page + 1)}
             disabled={page === totalPages - 1}
             style={{padding: '0.5rem 1rem', border: '1px solid #d1d5db', borderRadius: '0.25rem', backgroundColor: '#f9fafb', cursor: page === totalPages - 1 ? 'not-allowed' : 'pointer'}}
           >
-            Next
+            {t('bookTable.pagination.next')}
           </button>
           <button
             onClick={() => setPage(totalPages - 1)}
             disabled={page === totalPages - 1}
             style={{marginLeft: '0.5rem', padding: '0.5rem 1rem', border: '1px solid #d1d5db', borderRadius: '0.25rem', backgroundColor: '#f9fafb', cursor: page === totalPages - 1 ? 'not-allowed' : 'pointer'}}
           >
-            Last
+            {t('bookTable.pagination.last')}
           </button>
         </div>
       </div>

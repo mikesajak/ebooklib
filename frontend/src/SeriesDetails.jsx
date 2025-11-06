@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 
 const SeriesDetails = () => {
+  const { t } = useTranslation();
   const { id } = useParams();
   const [series, setSeries] = useState(null);
   const [books, setBooks] = useState([]);
@@ -38,8 +40,8 @@ const SeriesDetails = () => {
   if (loading) {
     return (
       <div className="container mx-auto p-4">
-        <h1 className="text-2xl font-bold mb-4">Series Details</h1>
-        <p className="text-center text-gray-500">Loading series details...</p>
+        <h1 className="text-2xl font-bold mb-4">{t('seriesDetails.title')}</h1>
+        <p className="text-center text-gray-500">{t('seriesDetails.loading')}</p>
       </div>
     );
   }
@@ -47,10 +49,10 @@ const SeriesDetails = () => {
   if (error) {
     return (
       <div className="container mx-auto p-4">
-        <h1 className="text-2xl font-bold mb-4">Series Details</h1>
-        <p className="text-center text-red-500">Error: {error}</p>
+        <h1 className="text-2xl font-bold mb-4">{t('seriesDetails.title')}</h1>
+        <p className="text-center text-red-500">{t('common.error')}: {error}</p>
         <Link to="/" className="back-link">
-          Back to List
+          {t('common.backToList')}
         </Link>
       </div>
     );
@@ -58,25 +60,25 @@ const SeriesDetails = () => {
 
   return (
     <div className="container mx-auto p-4">
-      <h1 className="text-2xl font-bold mb-4">Series Details</h1>
+      <h1 className="text-2xl font-bold mb-4">{t('seriesDetails.title')}</h1>
       <div className="bg-white border border-gray-300 rounded p-6 shadow mb-6">
         <div className="mb-4">
-          <strong>Title:</strong> {series.title}
+          <strong>{t('seriesDetails.seriesTitle')}:</strong> {series.title}
         </div>
         <div className="mb-4">
-          <strong>Description:</strong> {series.description || 'N/A'}
+          <strong>{t('seriesDetails.description')}:</strong> {series.description || t('common.na')}
         </div>
       </div>
 
-      <h2 className="text-xl font-semibold mb-4">Books in this Series</h2>
+      <h2 className="text-xl font-semibold mb-4">{t('seriesDetails.booksInSeries')}</h2>
       {books.length === 0 ? (
-        <p className="text-gray-500">No books found.</p>
+        <p className="text-gray-500">{t('seriesDetails.noBooksFound')}</p>
       ) : (
         <table className="table-fixed w-full bg-white border border-gray-300">
           <thead>
             <tr className="bg-gray-100">
-              <th className="py-2 px-4 border-b w-1/6">Volume</th>
-              <th className="py-2 px-4 border-b">Title</th>
+              <th className="py-2 px-4 border-b w-1/6">{t('seriesDetails.header.volume')}</th>
+              <th className="py-2 px-4 border-b">{t('seriesDetails.header.title')}</th>
             </tr>
           </thead>
           <tbody>
@@ -95,7 +97,7 @@ const SeriesDetails = () => {
       )}
 
       <Link to="/" className="back-link">
-        Back to List
+        {t('common.backToList')}
       </Link>
     </div>
   );

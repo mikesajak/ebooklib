@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 
 const AuthorList = () => {
+  const { t } = useTranslation();
   const [authors, setAuthors] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -28,8 +30,8 @@ const AuthorList = () => {
   if (loading) {
     return (
       <div className="container mx-auto p-4">
-        <h1 className="text-2xl font-bold mb-4">Authors</h1>
-        <p className="text-center text-gray-500">Loading authors...</p>
+        <h1 className="text-2xl font-bold mb-4">{t('authorList.title')}</h1>
+        <p className="text-center text-gray-500">{t('authorList.loading')}</p>
       </div>
     );
   }
@@ -37,17 +39,17 @@ const AuthorList = () => {
   if (error) {
     return (
       <div className="container mx-auto p-4">
-        <h1 className="text-2xl font-bold mb-4">Authors</h1>
-        <p className="text-center text-red-500">Error: {error}</p>
+        <h1 className="text-2xl font-bold mb-4">{t('authorList.title')}</h1>
+        <p className="text-center text-red-500">{t('common.error')}: {error}</p>
       </div>
     );
   }
 
   return (
     <div className="container mx-auto p-4">
-      <h1 className="text-2xl font-bold mb-4">Authors</h1>
+      <h1 className="text-2xl font-bold mb-4">{t('authorList.title')}</h1>
       {authors.length === 0 ? (
-        <p className="text-gray-500">No authors found.</p>
+        <p className="text-gray-500">{t('authorList.noAuthorsFound')}</p>
       ) : (
         <ul className="list-disc list-inside bg-white border border-gray-300 rounded p-4 shadow">
           {authors.map((author) => (

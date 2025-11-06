@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 
 const SeriesList = () => {
+  const { t } = useTranslation();
   const [series, setSeries] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -28,8 +30,8 @@ const SeriesList = () => {
   if (loading) {
     return (
       <div className="container mx-auto p-4">
-        <h1 className="text-2xl font-bold mb-4">Series</h1>
-        <p className="text-center text-gray-500">Loading series...</p>
+        <h1 className="text-2xl font-bold mb-4">{t('seriesList.title')}</h1>
+        <p className="text-center text-gray-500">{t('seriesList.loading')}</p>
       </div>
     );
   }
@@ -37,17 +39,17 @@ const SeriesList = () => {
   if (error) {
     return (
       <div className="container mx-auto p-4">
-        <h1 className="text-2xl font-bold mb-4">Series</h1>
-        <p className="text-center text-red-500">Error: {error}</p>
+        <h1 className="text-2xl font-bold mb-4">{t('seriesList.title')}</h1>
+        <p className="text-center text-red-500">{t('common.error')}: {error}</p>
       </div>
     );
   }
 
   return (
     <div className="container mx-auto p-4">
-      <h1 className="text-2xl font-bold mb-4">Series</h1>
+      <h1 className="text-2xl font-bold mb-4">{t('seriesList.title')}</h1>
       {series.length === 0 ? (
-        <p className="text-gray-500">No series found.</p>
+        <p className="text-gray-500">{t('seriesList.noSeriesFound')}</p>
       ) : (
         <ul className="list-disc list-inside bg-white border border-gray-300 rounded p-4 shadow">
           {series.map((s) => (

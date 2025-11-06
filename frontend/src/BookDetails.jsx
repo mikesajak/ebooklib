@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import Notification from './Notification';
+import { useTranslation } from 'react-i18next';
 
 const BookDetails = () => {
+  const { t } = useTranslation();
   const { id } = useParams();
   const [book, setBook] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -139,8 +141,8 @@ const BookDetails = () => {
   if (loading) {
     return (
       <div className="container mx-auto p-4">
-        <h1 className="text-2xl font-bold mb-4">Book Details</h1>
-        <p className="text-center text-gray-500">Loading book details...</p>
+        <h1 className="text-2xl font-bold mb-4">{t('bookDetails.title')}</h1>
+        <p className="text-center text-gray-500">{t('bookDetails.loading')}</p>
       </div>
     );
   }
@@ -148,10 +150,10 @@ const BookDetails = () => {
   if (error) {
     return (
       <div className="container mx-auto p-4">
-        <h1 className="text-2xl font-bold mb-4">Book Details</h1>
-        <p className="text-center text-red-500">Error: {error}</p>
+        <h1 className="text-2xl font-bold mb-4">{t('bookDetails.title')}</h1>
+        <p className="text-center text-red-500">{t('common.error')}: {error}</p>
         <Link to="/" className="back-link">
-          Back to List
+          {t('common.backToList')}
         </Link>
       </div>
     );
@@ -183,7 +185,7 @@ const BookDetails = () => {
 
   return (
     <div className="container mx-auto p-4">
-      <h1 className="text-2xl font-bold mb-4">Book Details</h1>
+      <h1 className="text-2xl font-bold mb-4">{t('bookDetails.title')}</h1>
       {notification && (
         <Notification
           message={notification.message}
@@ -196,13 +198,13 @@ const BookDetails = () => {
           onClick={() => setIsEditing(!isEditing)}
           className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
         >
-          {isEditing ? 'Cancel' : 'Edit'}
+          {isEditing ? t('common.cancel') : t('common.edit')}
         </button>
       </div>
       {isEditing ? (
         <div className="bg-white border border-gray-300 rounded p-6 shadow">
           <div className="mb-4">
-            <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="title">Title:</label>
+            <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="title">{t('bookDetails.form.title')}:</label>
             <input
               type="text"
               id="title"
@@ -213,7 +215,7 @@ const BookDetails = () => {
             />
           </div>
           <div className="mb-4">
-            <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="author">Author:</label>
+            <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="author">{t('bookDetails.form.author')}:</label>
             <select
               id="author"
               name="authorId"
@@ -221,7 +223,7 @@ const BookDetails = () => {
               onChange={handleAuthorChange}
               className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
             >
-              <option value="">Select an author</option>
+              <option value="">{t('bookDetails.form.selectAuthor')}</option>
               {authors.map(author => (
                 <option key={author.id} value={author.id}>
                   {author.name}
@@ -230,7 +232,7 @@ const BookDetails = () => {
             </select>
           </div>
           <div className="mb-4">
-            <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="series">Series:</label>
+            <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="series">{t('bookDetails.form.series')}:</label>
             <select
               id="series"
               name="seriesId"
@@ -238,7 +240,7 @@ const BookDetails = () => {
               onChange={handleSeriesChange}
               className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
             >
-              <option value="">Select a series</option>
+              <option value="">{t('bookDetails.form.selectSeries')}</option>
               {series.map(s => (
                 <option key={s.id} value={s.id}>
                   {s.title}
@@ -247,7 +249,7 @@ const BookDetails = () => {
             </select>
           </div>
           <div className="mb-4">
-            <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="volume">Volume:</label>
+            <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="volume">{t('bookDetails.form.volume')}:</label>
             <input
               type="number"
               id="volume"
@@ -258,7 +260,7 @@ const BookDetails = () => {
             />
           </div>
           <div className="mb-4">
-            <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="creationDate">Creation Date:</label>
+            <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="creationDate">{t('bookDetails.form.creationDate')}:</label>
             <input
               type="date"
               id="creationDate"
@@ -269,7 +271,7 @@ const BookDetails = () => {
             />
           </div>
           <div className="mb-4">
-            <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="publicationDate">Publication Date:</label>
+            <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="publicationDate">{t('bookDetails.form.publicationDate')}:</label>
             <input
               type="date"
               id="publicationDate"
@@ -280,7 +282,7 @@ const BookDetails = () => {
             />
           </div>
           <div className="mb-4">
-            <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="publisher">Publisher:</label>
+            <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="publisher">{t('bookDetails.form.publisher')}:</label>
             <input
               type="text"
               id="publisher"
@@ -291,7 +293,7 @@ const BookDetails = () => {
             />
           </div>
           <div className="mb-4">
-            <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="description">Description:</label>
+            <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="description">{t('bookDetails.form.description')}:</label>
             <textarea
               id="description"
               name="description"
@@ -305,23 +307,23 @@ const BookDetails = () => {
               onClick={handleSave}
               disabled={isSaveDisabled}
               className={`font-bold py-2 px-4 rounded mr-2 ${isSaveDisabled ? 'bg-gray-400 text-white cursor-not-allowed' : 'bg-green-500 hover:bg-green-700 text-white'}`}>
-              Save
+              {t('common.save')}
             </button>
             <button
               onClick={() => setIsEditing(false)}
               className="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded"
             >
-              Cancel
+              {t('common.cancel')}
             </button>
           </div>
         </div>
       ) : (
         <div className="bg-white border border-gray-300 rounded p-6 shadow">
           <div className="mb-4">
-            <strong>Title:</strong> {book.title}
+            <strong>{t('bookDetails.display.title')}:</strong> {book.title}
           </div>
           <div className="mb-4">
-            <strong>Authors:</strong> {book.authors.map((author, index) => (
+            <strong>{t('bookDetails.display.authors')}:</strong> {book.authors.map((author, index) => (
               <span key={author.id}>
                 <Link to={`/author/${author.id}`} className="author-link">
                   {author.name}
@@ -331,27 +333,27 @@ const BookDetails = () => {
             ))}
           </div>
           <div className="mb-4">
-            <strong>Series:</strong> {book.series ? <Link to={`/series/${book.series.id}`} className="series-link">{book.series.title}</Link> : 'N/A'}
+            <strong>{t('bookDetails.display.series')}:</strong> {book.series ? <Link to={`/series/${book.series.id}`} className="series-link">{book.series.title}</Link> : t('common.na')}
           </div>
           <div className="mb-4">
-            <strong>Volume:</strong> {book.volume || 'N/A'}
+            <strong>{t('bookDetails.display.volume')}:</strong> {book.volume || t('common.na')}
           </div>
           <div className="mb-4">
-            <strong>Creation Date:</strong> {book.creationDate || 'N/A'}
+            <strong>{t('bookDetails.display.creationDate')}:</strong> {book.creationDate || t('common.na')}
           </div>
           <div className="mb-4">
-            <strong>Publication Date:</strong> {book.publicationDate || 'N/A'}
+            <strong>{t('bookDetails.display.publicationDate')}:</strong> {book.publicationDate || t('common.na')}
           </div>
           <div className="mb-4">
-            <strong>Publisher:</strong> {book.publisher || 'N/A'}
+            <strong>{t('bookDetails.display.publisher')}:</strong> {book.publisher || t('common.na')}
           </div>
           <div className="mb-4">
-            <strong>Description:</strong> {book.description || 'N/A'}
+            <strong>{t('bookDetails.display.description')}:</strong> {book.description || t('common.na')}
           </div>
         </div>
       )}
       <Link to="/" className="back-link">
-        Back to List
+        {t('common.backToList')}
       </Link>
     </div>
   );

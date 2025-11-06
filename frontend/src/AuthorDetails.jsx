@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 
 const AuthorDetails = () => {
+  const { t } = useTranslation();
   const { id } = useParams();
   const [author, setAuthor] = useState(null);
   const [books, setBooks] = useState([]);
@@ -37,8 +39,8 @@ const AuthorDetails = () => {
   if (loading) {
     return (
       <div className="container mx-auto p-4">
-        <h1 className="text-2xl font-bold mb-4">Author Details</h1>
-        <p className="text-center text-gray-500">Loading author details...</p>
+        <h1 className="text-2xl font-bold mb-4">{t('authorDetails.title')}</h1>
+        <p className="text-center text-gray-500">{t('authorDetails.loading')}</p>
       </div>
     );
   }
@@ -46,10 +48,10 @@ const AuthorDetails = () => {
   if (error) {
     return (
       <div className="container mx-auto p-4">
-        <h1 className="text-2xl font-bold mb-4">Author Details</h1>
-        <p className="text-center text-red-500">Error: {error}</p>
+        <h1 className="text-2xl font-bold mb-4">{t('authorDetails.title')}</h1>
+        <p className="text-center text-red-500">{t('common.error')}: {error}</p>
         <Link to="/" className="back-link">
-          Back to List
+          {t('common.backToList')}
         </Link>
       </div>
     );
@@ -57,25 +59,25 @@ const AuthorDetails = () => {
 
   return (
     <div className="container mx-auto p-4">
-      <h1 className="text-2xl font-bold mb-4">Author Details</h1>
+      <h1 className="text-2xl font-bold mb-4">{t('authorDetails.title')}</h1>
       <div className="bg-white border border-gray-300 rounded p-6 shadow mb-6">
         <div className="mb-4">
-          <strong>Name:</strong> {author.name}
+          <strong>{t('authorDetails.name')}:</strong> {author.name}
         </div>
         <div className="mb-4">
-          <strong>Bio:</strong> {author.bio || 'N/A'}
+          <strong>{t('authorDetails.bio')}:</strong> {author.bio || t('common.na')}
         </div>
         <div className="mb-4">
-          <strong>Birth Date:</strong> {author.birthDate || 'N/A'}
+          <strong>{t('authorDetails.birthDate')}:</strong> {author.birthDate || t('common.na')}
         </div>
         <div className="mb-4">
-          <strong>Death Date:</strong> {author.deathDate || 'N/A'}
+          <strong>{t('authorDetails.deathDate')}:</strong> {author.deathDate || t('common.na')}
         </div>
       </div>
 
-      <h2 className="text-xl font-semibold mb-4">Books by this Author</h2>
+      <h2 className="text-xl font-semibold mb-4">{t('authorDetails.booksByAuthor')}</h2>
       {books.length === 0 ? (
-        <p className="text-gray-500">No books found.</p>
+        <p className="text-gray-500">{t('authorDetails.noBooksFound')}</p>
       ) : (
         <ul className="list-disc list-inside bg-white border border-gray-300 rounded p-4 shadow">
           {books.map((book) => (
@@ -89,7 +91,7 @@ const AuthorDetails = () => {
       )}
 
       <Link to="/" className="back-link">
-        Back to List
+        {t('common.backToList')}
       </Link>
     </div>
   );
