@@ -49,7 +49,7 @@ const BookTable = () => {
 
   if (loading) {
     return (
-      <div style={{maxWidth: '1280px', margin: '0 auto', padding: '1rem'}}>
+      <div style={{padding: '1rem 2rem'}}>
         <h1 style={{fontSize: '1.5rem', fontWeight: 'bold', marginBottom: '1rem'}}>{t('bookTable.title')}</h1>
         <p style={{textAlign: 'center', color: '#6b7280'}}>{t('bookTable.loadingBooks')}</p>
       </div>
@@ -58,7 +58,7 @@ const BookTable = () => {
 
   if (error) {
     return (
-      <div style={{maxWidth: '1280px', margin: '0 auto', padding: '1rem'}}>
+      <div style={{padding: '1rem 2rem'}}>
         <h1 style={{fontSize: '1.5rem', fontWeight: 'bold', marginBottom: '1rem'}}>{t('bookTable.title')}</h1>
         <p style={{textAlign: 'center', color: '#dc2626'}}>{t('bookTable.error')}: {error}</p>
       </div>
@@ -82,7 +82,7 @@ const BookTable = () => {
   };
 
   return (
-    <div style={{maxWidth: '1280px', margin: '0 auto', padding: '1rem'}}>
+    <div style={{padding: '1rem 2rem'}}>
       {notification && (
         <Notification
           message={notification.message}
