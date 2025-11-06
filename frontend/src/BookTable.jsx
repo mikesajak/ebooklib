@@ -134,17 +134,16 @@ const BookTable = () => {
                   </Link>
                 </td>
                 <td style={{padding: '0.5rem 1rem', border: '1px solid #d1d5db'}}>
-                  {book.authors.map((author, idx) => (
-                    <span key={author.id}>
-                      <Link
+                  {book.authors.map((author) => (
+                    <div key={author.id} style={{marginBottom: '0.25rem'}}>
+                      ▪ <Link
                         to={`/author/${author.id}`}
                         className="author-link"
                         onClick={(e) => e.stopPropagation()}
                       >
                         {author.firstName} {author.lastName}
                       </Link>
-                      {idx < book.authors.length - 1 ? ' ' : ''}
-                    </span>
+                    </div>
                   ))}
                 </td>
                 <td style={{padding: '0.5rem 1rem', border: '1px solid #d1d5db', width: '60px'}}>

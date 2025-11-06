@@ -720,6 +720,25 @@ databaseChangeLog:
                   value: 'Software consultant and author'
 
         - insert:
+            tableName: authors
+            columns:
+              - column:
+                  name: id
+                  value: '550e8400-e29b-41d4-a716-446655440061'
+              - column:
+                  name: first_name
+                  value: 'Alan'
+              - column:
+                  name: last_name
+                  value: 'Lee'
+              - column:
+                  name: bio
+                  value: 'English illustrator, best known for his artwork for J. R. R. Tolkien''s works'
+              - column:
+                  name: birth_date
+                  value: '1947-08-20'
+
+        - insert:
             tableName: books
             columns:
               - column:
@@ -1771,6 +1790,34 @@ databaseChangeLog:
                   value: 'A hands-on, project-based introduction to programming'
 
         - insert:
+            tableName: books
+            columns:
+              - column:
+                  name: id
+                  value: '550e8400-e29b-41d4-a716-446655440088'
+              - column:
+                  name: title
+                  value: 'The Lord of the Rings: The Fellowship of the Ring (Illustrated Edition)'
+              - column:
+                  name: series_id
+                  value: '550e8400-e29b-41d4-a716-446655440006'
+              - column:
+                  name: volume
+                  value: 1
+              - column:
+                  name: creation_date
+                  value: '2020-01-01'
+              - column:
+                  name: publication_date
+                  value: '2020-01-01'
+              - column:
+                  name: publisher
+                  value: 'HarperCollins'
+              - column:
+                  name: description
+                  value: 'An illustrated edition of the first volume of The Lord of the Rings'
+
+        - insert:
             tableName: book_authors
             columns:
               - column:
@@ -2109,6 +2156,27 @@ databaseChangeLog:
               - column:
                   name: book_id
                   value: '550e8400-e29b-41d4-a716-446655440078'
+              - column:
+                  name: author_id
+                  value: '550e8400-e29b-41d4-a716-446655440053'
+        - insert:
+            tableName: book_authors
+            columns:
+              - column:
+                  name: book_id
+                  value: '550e8400-e29b-41d4-a716-446655440088'
+              - column:
+                  name: author_id
+                  value: '550e8400-e29b-41d4-a716-446655440005'
+        - insert:
+            tableName: book_authors
+            columns:
+              - column:
+                  name: book_id
+                  value: '550e8400-e29b-41d4-a716-446655440088'
+              - column:
+                  name: author_id
+                  value: '550e8400-e29b-41d4-a716-446655440061'
               - column:
                   name: author_id
                   value: '550e8400-e29b-41d4-a716-446655440053'
