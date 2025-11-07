@@ -2,13 +2,15 @@ package com.mikesajak.ebooklib.book.infrastructure.adapters.incoming.rest
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 
-import com.mikesajak.ebooklib.book.application.ports.incoming.GetBookUseCase
 import com.mikesajak.ebooklib.book.application.ports.incoming.AddBookUseCase
+import com.mikesajak.ebooklib.book.application.ports.incoming.DeleteBookUseCase
+import com.mikesajak.ebooklib.book.application.ports.incoming.GetBookUseCase
 import com.mikesajak.ebooklib.book.application.ports.incoming.UpdateBookUseCase
 import com.mikesajak.ebooklib.book.domain.model.BookId
 import com.mikesajak.ebooklib.book.infrastructure.adapters.incoming.rest.dto.BookRequestDto
 import com.mikesajak.ebooklib.book.infrastructure.adapters.incoming.rest.dto.BookResponseDto
 import org.springframework.http.ResponseEntity
+import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
@@ -25,6 +27,7 @@ class BookRestController(
     private val getBookUseCase: GetBookUseCase,
     private val addBookUseCase: AddBookUseCase,
     private val updateBookUseCase: UpdateBookUseCase,
+    private val deleteBookUseCase: DeleteBookUseCase,
     private val bookRestMapper: BookRestMapper
 ) {
     @GetMapping
@@ -51,5 +54,11 @@ class BookRestController(
         val book = bookRestMapper.toDomain(bookRequestDto).copy(id = BookId(id))
         val updatedBook = updateBookUseCase.updateBook(book)
         return bookRestMapper.toResponse(updatedBook)
+    }
+
+    @DeleteMapping("/{id}")
+    fun deleteBook(@PathVariable id: UUID): ResponseEntity<Unit> {
+        deleteBookUseCase.deleteBook(BookId(id))
+        return ResponseEntity.noContent().build()
     }
 }

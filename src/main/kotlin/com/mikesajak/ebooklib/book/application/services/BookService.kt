@@ -20,6 +20,7 @@ class BookService(private val bookRepository: BookRepositoryPort,
         GetBookUseCase,
         AddBookUseCase,
         UpdateBookUseCase,
+        DeleteBookUseCase,
         GetBooksByAuthorUseCase,
         GetBooksBySeriesUseCase {
     override fun getBook(bookId: BookId): Book {
@@ -48,6 +49,10 @@ class BookService(private val bookRepository: BookRepositoryPort,
 
     override fun updateBook(book: Book): Book {
         return bookRepository.save(book)
+    }
+
+    override fun deleteBook(bookId: BookId) {
+        bookRepository.delete(bookId)
     }
 }
 

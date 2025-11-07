@@ -11,4 +11,6 @@ interface BookJpaRepository : JpaRepository<BookEntity, UUID> {
 
     @Query("SELECT b FROM BookEntity b WHERE b.series.id = :seriesId")
     fun findBooksBySeriesId(@Param("seriesId") seriesId: UUID, pageable: org.springframework.data.domain.Pageable): org.springframework.data.domain.Page<BookEntity>
+
+    override fun deleteById(id: UUID)
 }
