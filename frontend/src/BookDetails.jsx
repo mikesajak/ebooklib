@@ -17,10 +17,17 @@ const BookDetails = () => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setEditedBook(prevBook => ({
-      ...prevBook,
-      [name]: value
-    }));
+    if (name === 'labels') {
+      setEditedBook(prevBook => ({
+        ...prevBook,
+        labels: value.split(',').map(label => label.trim()).filter(label => label !== '')
+      }));
+    } else {
+      setEditedBook(prevBook => ({
+        ...prevBook,
+        [name]: value
+      }));
+    }
   };
 
   const handleAuthorChange = (e) => {
@@ -178,6 +185,10 @@ const BookDetails = () => {
 
     if (normalize(book.series?.id) !== normalize(editedBook.series?.id)) return true;
 
+    const bookLabels = book.labels?.sort() || [];
+    const editedBookLabels = editedBook.labels?.sort() || [];
+    if (JSON.stringify(bookLabels) !== JSON.stringify(editedBookLabels)) return true;
+
     return false;
   };
 
@@ -302,6 +313,18 @@ const BookDetails = () => {
               className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
             />
           </div>
+          <div className="mb-4">
+            <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="labels">{t('bookDetails.form.labels')}:</label>
+            <input
+              type="text"
+              id="labels"
+              name="labels"
+              value={editedBook?.labels?.join(', ') || ''}
+              onChange={handleChange}
+              className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+              placeholder={t('bookDetails.form.labelsPlaceholder')}
+            />
+          </div>
           <div className="flex justify-end mt-4">
             <button
               onClick={handleSave}
@@ -347,6 +370,9 @@ const BookDetails = () => {
           </div>
           <div className="mb-4">
             <strong>{t('bookDetails.display.description')}:</strong> {book.description || t('common.na')}
+          </div>
+          <div className="mb-4">
+            <strong>{t('bookDetails.display.labels')}:</strong> {book.labels && book.labels.length > 0 ? book.labels.join(', ') : t('common.na')}
           </div>
         </div>
       )}

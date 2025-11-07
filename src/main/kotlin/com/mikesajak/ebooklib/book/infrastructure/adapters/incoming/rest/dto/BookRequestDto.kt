@@ -10,5 +10,6 @@ data class BookRequestDto(
     val creationDate: LocalDate?,
     val publicationDate: LocalDate?,
     val publisher: String?,
-    val description: String?
+    val description: String?,
+    val labels: List<String>?
 )

@@ -103,3 +103,26 @@ databaseChangeLog:
                     foreignKeyName: fk_book_authors_author_id
                     referencedTableName: authors
                     referencedColumnNames: id
+  - changeSet:
+      id: 004-create-book-labels-table
+      author: ebooklib
+      context: schema
+      changes:
+        - createTable:
+            tableName: book_labels
+            columns:
+              - column:
+                  name: book_id
+                  type: UUID
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+                    foreignKeyName: fk_book_labels_book_id
+                    referencedTableName: books
+                    referencedColumnNames: id
+              - column:
+                  name: label
+                  type: varchar(255)
+                  constraints:
+                    primaryKey: true
+                    nullable: false

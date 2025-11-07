@@ -18,7 +18,8 @@
       "volume": "Volume",
       "publicationDate": "Publication Date",
       "publisher": "Publisher",
-      "description": "Description"
+      "description": "Description",
+      "labels": "Labels"
     },
     "noBooksFound": "No books found.",
     "itemsPerPage": "Items per page:",
@@ -42,8 +43,10 @@
       "publicationDate": "Publication Date",
       "publisher": "Publisher",
       "description": "Description",
+      "labels": "Labels",
       "selectAuthor": "Select an author",
-      "selectSeries": "Select a series"
+      "selectSeries": "Select a series",
+      "labelsPlaceholder": "Comma-separated labels (e.g. Fantasy, Adventure)"
     },
     "display": {
       "title": "Title",
@@ -53,7 +56,8 @@
       "creationDate": "Creation Date",
       "publicationDate": "Publication Date",
       "publisher": "Publisher",
-      "description": "Description"
+      "description": "Description",
+      "labels": "Labels"
     }
   },
   "addBook": {
@@ -67,7 +71,9 @@
       "publisher": "Publisher",
       "description": "Description",
       "selectAuthor": "Select an author",
-      "selectSeries": "Select a series"
+      "selectSeries": "Select a series",
+      "labels": "Labels",
+      "labelsPlaceholder": "Comma-separated labels (e.g. Fantasy, Adventure)"
     },
     "successMessage": "Book added successfully!",
     "failureMessage": "Failed to create book"

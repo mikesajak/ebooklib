@@ -26,5 +26,10 @@ data class BookEntity(
     val creationDate: LocalDate?,
     val publicationDate: LocalDate?,
     val publisher: String?,
-    val description: String?
+    val description: String?,
+
+    @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(name = "book_labels", joinColumns = [JoinColumn(name = "book_id")])
+    @Column(name = "label")
+    val labels: Set<String> = emptySet()
 )

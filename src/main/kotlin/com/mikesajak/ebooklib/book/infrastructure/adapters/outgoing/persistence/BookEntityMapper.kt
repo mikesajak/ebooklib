@@ -21,7 +21,8 @@ class BookEntityMapper(
             creationDate = book.creationDate,
             publicationDate = book.publicationDate,
             publisher = book.publisher,
-            description = book.description
+            description = book.description,
+            labels = book.labels.toSet()
         )
 
     fun toDomain(bookEntity: BookEntity): Book =
@@ -34,6 +35,7 @@ class BookEntityMapper(
             creationDate = bookEntity.creationDate,
             publicationDate = bookEntity.publicationDate,
             publisher = bookEntity.publisher,
-            description = bookEntity.description
+            description = bookEntity.description,
+            labels = bookEntity.labels.toList()
         )
 }

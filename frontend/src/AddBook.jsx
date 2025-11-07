@@ -13,7 +13,8 @@ const AddBook = () => {
     volume: '',
     publicationDate: '',
     publisher: '',
-    description: ''
+    description: '',
+    labels: []
   });
   const [authors, setAuthors] = useState([]);
   const [series, setSeries] = useState([]);
@@ -22,10 +23,17 @@ const AddBook = () => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setBook(prevBook => ({
-      ...prevBook,
-      [name]: value
-    }));
+    if (name === 'labels') {
+      setBook(prevBook => ({
+        ...prevBook,
+        labels: value.split(',').map(label => label.trim()).filter(label => label !== '')
+      }));
+    } else {
+      setBook(prevBook => ({
+        ...prevBook,
+        [name]: value
+      }));
+    }
   };
 
   const handleAuthorChange = (e) => {
@@ -52,7 +60,8 @@ const AddBook = () => {
       const bookData = {
         ...book,
         authorIds: book.authors.map(author => author.id),
-        seriesId: book.series ? book.series.id : null
+        seriesId: book.series ? book.series.id : null,
+        labels: book.labels
       };
       delete bookData.authors;
       delete bookData.series;
@@ -160,6 +169,18 @@ const AddBook = () => {
         <div className="mb-4">
           <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="description">{t('addBook.form.description')}:</label>
           <textarea id="description" name="description" value={book.description} onChange={handleChange} className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" />
+        </div>
+        <div className="mb-4">
+          <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="labels">{t('addBook.form.labels')}:</label>
+          <input
+            type="text"
+            id="labels"
+            name="labels"
+            value={book.labels.join(', ')}
+            onChange={handleChange}
+            className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+            placeholder={t('addBook.form.labelsPlaceholder')}
+          />
         </div>
         <div className="flex justify-end mt-4">
           <button onClick={handleSave} disabled={isSaveDisabled} className={`font-bold py-2 px-4 rounded mr-2 ${isSaveDisabled ? 'bg-gray-400 text-white cursor-not-allowed' : 'bg-green-500 hover:bg-green-700 text-white'}`}>

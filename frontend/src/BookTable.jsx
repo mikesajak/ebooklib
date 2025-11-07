@@ -108,6 +108,7 @@ const BookTable = () => {
             <th style={{padding: '0.5rem 1rem', border: '1px solid #d1d5db', cursor: 'pointer'}} onClick={() => handleSort('publicationDate')}>Publication Date{getSortIndicator('publicationDate')}</th>
             <th style={{padding: '0.5rem 1rem', border: '1px solid #d1d5db', cursor: 'pointer'}} onClick={() => handleSort('publisher')}>Publisher{getSortIndicator('publisher')}</th>
             <th style={{padding: '0.5rem 1rem', border: '1px solid #d1d5db'}}>{t('bookTable.header.description')}</th>
+            <th style={{padding: '0.5rem 1rem', border: '1px solid #d1d5db'}}>{t('bookTable.header.labels')}</th>
           </tr>
         </thead>
         <tbody>
@@ -161,6 +162,7 @@ const BookTable = () => {
                 <td style={{padding: '0.5rem 1rem', border: '1px solid #d1d5db'}}>{book.publicationDate || t('common.na')}</td>
                 <td style={{padding: '0.5rem 1rem', border: '1px solid #d1d5db'}}>{book.publisher || t('common.na')}</td>
                 <td style={{padding: '0.5rem 1rem', border: '1px solid #d1d5db'}}>{book.description || t('common.na')}</td>
+                <td style={{padding: '0.5rem 1rem', border: '1px solid #d1d5db'}}>{book.labels && book.labels.length > 0 ? book.labels.join(', ') : t('common.na')}</td>
               </tr>
             ))
           )}

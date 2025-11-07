@@ -2177,87 +2177,58 @@ databaseChangeLog:
               - column:
                   name: author_id
                   value: '550e8400-e29b-41d4-a716-446655440061'
-              - column:
-                  name: author_id
-                  value: '550e8400-e29b-41d4-a716-446655440053'
+
         - insert:
-            tableName: book_authors
+            tableName: book_labels
             columns:
               - column:
                   name: book_id
-                  value: '550e8400-e29b-41d4-a716-446655440079'
+                  value: '550e8400-e29b-41d4-a716-446655440002'
               - column:
-                  name: author_id
-                  value: '550e8400-e29b-41d4-a716-446655440054'
+                  name: label
+                  value: 'Fantasy'
         - insert:
-            tableName: book_authors
+            tableName: book_labels
             columns:
               - column:
                   name: book_id
-                  value: '550e8400-e29b-41d4-a716-446655440080'
+                  value: '550e8400-e29b-41d4-a716-446655440002'
               - column:
-                  name: author_id
-                  value: '550e8400-e29b-41d4-a716-446655440044'
+                  name: label
+                  value: 'Young Adult'
         - insert:
-            tableName: book_authors
+            tableName: book_labels
             columns:
               - column:
                   name: book_id
-                  value: '550e8400-e29b-41d4-a716-446655440081'
+                  value: '550e8400-e29b-41d4-a716-446655440003'
               - column:
-                  name: author_id
-                  value: '550e8400-e29b-41d4-a716-446655440055'
+                  name: label
+                  value: 'Dystopian'
         - insert:
-            tableName: book_authors
+            tableName: book_labels
             columns:
               - column:
                   name: book_id
-                  value: '550e8400-e29b-41d4-a716-446655440082'
+                  value: '550e8400-e29b-41d4-a716-446655440003'
               - column:
-                  name: author_id
-                  value: '550e8400-e29b-41d4-a716-446655440056'
+                  name: label
+                  value: 'Classic'
         - insert:
-            tableName: book_authors
+            tableName: book_labels
             columns:
               - column:
                   name: book_id
-                  value: '550e8400-e29b-41d4-a716-446655440083'
+                  value: '550e8400-e29b-41d4-a716-446655440088'
               - column:
-                  name: author_id
-                  value: '550e8400-e29b-41d4-a716-446655440057'
+                  name: label
+                  value: 'Fantasy'
         - insert:
-            tableName: book_authors
+            tableName: book_labels
             columns:
               - column:
                   name: book_id
-                  value: '550e8400-e29b-41d4-a716-446655440084'
+                  value: '550e8400-e29b-41d4-a716-446655440088'
               - column:
-                  name: author_id
-                  value: '550e8400-e29b-41d4-a716-446655440058'
-        - insert:
-            tableName: book_authors
-            columns:
-              - column:
-                  name: book_id
-                  value: '550e8400-e29b-41d4-a716-446655440085'
-              - column:
-                  name: author_id
-                  value: '550e8400-e29b-41d4-a716-446655440059'
-        - insert:
-            tableName: book_authors
-            columns:
-              - column:
-                  name: book_id
-                  value: '550e8400-e29b-41d4-a716-446655440086'
-              - column:
-                  name: author_id
-                  value: '550e8400-e29b-41d4-a716-446655440060'
-        - insert:
-            tableName: book_authors
-            columns:
-              - column:
-                  name: book_id
-                  value: '550e8400-e29b-41d4-a716-446655440087'
-              - column:
-                  name: author_id
-                  value: '550e8400-e29b-41d4-a716-446655440040'
+                  name: label
+                  value: 'Illustrated'

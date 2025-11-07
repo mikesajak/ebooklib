@@ -28,7 +28,8 @@ class BookRestMapper(
                         book.creationDate,
                         book.publicationDate,
                         book.publisher,
-                        book.description)
+                        book.description,
+                        book.labels)
 
     fun toDomain(bookRequestDto: BookRequestDto): Book {
         val authors = bookRequestDto.authorIds.map { authorId -> getAuthorUseCase.getAuthor(AuthorId(authorId)) }
@@ -41,6 +42,7 @@ class BookRestMapper(
                     bookRequestDto.publisher,
                     bookRequestDto.description,
                     series,
-                    bookRequestDto.volume)
+                    bookRequestDto.volume,
+                    bookRequestDto.labels ?: emptyList())
     }
 }

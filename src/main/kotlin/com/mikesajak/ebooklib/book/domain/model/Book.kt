@@ -18,5 +18,6 @@ data class Book(
     val publisher: String?,
     val description: String?,
     val series: Series?,
-    val volume: Int?
+    val volume: Int?,
+    val labels: List<String> = emptyList()
 )

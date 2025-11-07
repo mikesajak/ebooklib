@@ -18,7 +18,8 @@
       "volume": "Tom",
       "publicationDate": "Data Publikacji",
       "publisher": "Wydawca",
-      "description": "Opis"
+      "description": "Opis",
+      "labels": "Etykiety"
     },
     "noBooksFound": "Nie znaleziono książek.",
     "itemsPerPage": "Elementów na stronę:",
@@ -42,8 +43,10 @@
       "publicationDate": "Data Publikacji",
       "publisher": "Wydawca",
       "description": "Opis",
+      "labels": "Etykiety",
       "selectAuthor": "Wybierz autora",
-      "selectSeries": "Wybierz serię"
+      "selectSeries": "Wybierz serię",
+      "labelsPlaceholder": "Lista etykiet, oddzielona przecinkami (e.g. Fantasy, Adventure)"
     },
     "display": {
       "title": "Tytuł",
@@ -53,7 +56,8 @@
       "creationDate": "Data Utworzenia",
       "publicationDate": "Data Publikacji",
       "publisher": "Wydawca",
-      "description": "Opis"
+      "description": "Opis",
+      "labels": "Etykiety"
     }
   },
   "addBook": {
@@ -65,9 +69,10 @@
       "volume": "Tom",
       "publicationDate": "Data Publikacji",
       "publisher": "Wydawca",
-      "description": "Opis",
       "selectAuthor": "Wybierz autora",
-      "selectSeries": "Wybierz serię"
+      "selectSeries": "Wybierz serię",
+      "labels": "Etykiety",
+      "labelsPlaceholder": "Lista etykiet, oddzielona przecinkami (e.g. Fantasy, Adventure)"
     },
     "successMessage": "Książka dodana pomyślnie!",
     "failureMessage": "Nie udało się dodać książki"
