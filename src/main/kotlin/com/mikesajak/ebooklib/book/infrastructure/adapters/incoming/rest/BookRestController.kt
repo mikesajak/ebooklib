@@ -1,34 +1,28 @@
 package com.mikesajak.ebooklib.book.infrastructure.adapters.incoming.rest
-import org.springframework.data.domain.Page
-import org.springframework.data.domain.Pageable
 
 import com.mikesajak.ebooklib.book.application.ports.incoming.AddBookUseCase
 import com.mikesajak.ebooklib.book.application.ports.incoming.DeleteBookUseCase
 import com.mikesajak.ebooklib.book.application.ports.incoming.GetBookUseCase
 import com.mikesajak.ebooklib.book.application.ports.incoming.UpdateBookUseCase
+import com.mikesajak.ebooklib.book.application.services.BookCoverService
+import com.mikesajak.ebooklib.book.application.services.EbookFormatService
+import com.mikesajak.ebooklib.book.domain.exception.BookCoverFileMissingException
 import com.mikesajak.ebooklib.book.domain.model.BookId
 import com.mikesajak.ebooklib.book.infrastructure.adapters.incoming.rest.dto.BookRequestDto
 import com.mikesajak.ebooklib.book.infrastructure.adapters.incoming.rest.dto.BookResponseDto
-import org.springframework.http.ResponseEntity
-import org.springframework.web.bind.annotation.DeleteMapping
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.PathVariable
-import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.PutMapping
-import org.springframework.web.bind.annotation.RequestBody
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RestController
-import java.net.URI
-import java.util.UUID
-import org.springframework.web.bind.annotation.RequestParam
-import org.springframework.web.multipart.MultipartFile
+import com.mikesajak.ebooklib.file.application.ports.outgoing.FileMetadata
 import org.springframework.core.io.InputStreamResource
 import org.springframework.core.io.Resource
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.Pageable
 import org.springframework.http.HttpHeaders
+import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
-import com.mikesajak.ebooklib.file.application.ports.outgoing.FileMetadata
-import com.mikesajak.ebooklib.book.application.services.BookCoverService
-import com.mikesajak.ebooklib.book.application.services.EbookFormatService
+import org.springframework.http.ResponseEntity
+import org.springframework.web.bind.annotation.*
+import org.springframework.web.multipart.MultipartFile
+import java.net.URI
+import java.util.*
 
 @RestController
 @RequestMapping("/api/books")
@@ -89,20 +83,30 @@ class BookRestController(
 
     @GetMapping("/{bookId}/cover")
     fun getBookCover(@PathVariable bookId: UUID): ResponseEntity<Resource> {
-        val (inputStream, fileMetadata) = bookCoverService.getCover(BookId(bookId))
-        val resource = InputStreamResource(inputStream)
+        return try {
+            val (inputStream, fileMetadata) = bookCoverService.getCover(BookId(bookId))
+            val resource = InputStreamResource(inputStream)
 
-        return ResponseEntity.ok()
-            .contentType(MediaType.parseMediaType(fileMetadata.contentType))
-            .contentLength(fileMetadata.size)
-            .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"${fileMetadata.fileName}\"")
-            .body(resource)
+            ResponseEntity.ok()
+                .contentType(MediaType.parseMediaType(fileMetadata.contentType))
+                .contentLength(fileMetadata.size)
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"${fileMetadata.fileName}\"")
+                .body(resource)
+        } catch (e: BookCoverFileMissingException) {
+            ResponseEntity.status(HttpStatus.NOT_FOUND).body(null)
+        }
     }
 
     @DeleteMapping("/{bookId}/cover")
     fun deleteBookCover(@PathVariable bookId: UUID): ResponseEntity<Unit> {
         bookCoverService.deleteCover(BookId(bookId))
         return ResponseEntity.noContent().build()
+    }
+
+    @GetMapping("/{bookId}/cover/exists")
+    fun hasBookCover(@PathVariable bookId: UUID): ResponseEntity<Map<String, Boolean>> {
+        val exists = bookCoverService.hasCover(BookId(bookId))
+        return ResponseEntity.ok(mapOf("exists" to exists))
     }
 
     @PostMapping("/{bookId}/formats")

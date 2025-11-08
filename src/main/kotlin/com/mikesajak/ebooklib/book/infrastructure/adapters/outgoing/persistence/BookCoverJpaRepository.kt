@@ -5,5 +5,6 @@ import java.util.UUID
 
 interface BookCoverJpaRepository : JpaRepository<BookCoverEntity, UUID> {
     fun findByBookId(bookId: UUID): BookCoverEntity?
+    fun existsByBookId(bookId: UUID): Boolean
     fun deleteByBookId(bookId: UUID)
 }

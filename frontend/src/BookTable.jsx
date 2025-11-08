@@ -239,15 +239,16 @@ const BookTable = () => {
         </tbody>
       </table>
 
-      <ConfirmationDialog
-        show={showConfirmation}
-        title={t('bookTable.deleteConfirmation.title')}
-        message={t('bookTable.deleteConfirmation.message', { bookTitle: bookToDelete?.title })}
-        onCancel={handleCancelDelete}
-        onConfirm={handleConfirmDelete}
-        confirmButtonText={t('bookTable.deleteConfirmation.delete')}
-        cancelButtonText={t('bookTable.deleteConfirmation.cancel')}
-      />
+      {showConfirmation && (
+        <ConfirmationDialog
+          title={t('bookTable.deleteConfirmation.title')}
+          message={t('bookTable.deleteConfirmation.message', { bookTitle: bookToDelete?.title })}
+          onCancel={handleCancelDelete}
+          onConfirm={handleConfirmDelete}
+          confirmButtonText={t('bookTable.deleteConfirmation.delete')}
+          cancelButtonText={t('bookTable.deleteConfirmation.cancel')}
+        />
+      )}
 
       <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '1rem'}}>
         <div>

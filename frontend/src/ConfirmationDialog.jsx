@@ -2,7 +2,6 @@ import React from 'react';
 import { useTranslation } from 'react-i18next';
 
 const ConfirmationDialog = ({
-  show,
   title,
   message,
   onCancel,
@@ -11,10 +10,6 @@ const ConfirmationDialog = ({
   cancelButtonText,
 }) => {
   const { t } = useTranslation();
-
-  if (!show) {
-    return null;
-  }
 
   return (
     <div className="confirmation-dialog">

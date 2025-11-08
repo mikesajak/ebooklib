@@ -70,7 +70,16 @@
       "publisher": "Publisher",
       "description": "Description",
       "labels": "Labels"
-    }
+    },
+    "noCoverAvailable": "No cover available",
+    "coverImageAlt": "Cover image for {{title}}",
+    "changeCover": "Change Cover",
+    "uploadCover": "Upload Cover",
+    "deleteCover": "Delete Cover",
+    "confirmCoverReplace": "A cover image already exists. Do you want to replace it?",
+    "confirmCoverDelete": "Are you sure you want to delete the book cover?",
+    "coverFileMissing": "Cover image metadata found, but the file is missing from storage. Do you want to delete the metadata?",
+    "deleteCoverMetadata": "Delete Cover Metadata"
   },
   "addBook": {
     "title": "Add New Book",
@@ -132,6 +141,7 @@
     "backToList": "Back to List",
     "cancel": "Cancel",
     "edit": "Edit",
-    "save": "Save"
+    "save": "Save",
+    "delete": "Delete"
   }
 }
