@@ -1,0 +1,51 @@
+databaseChangeLog:
+  - changeSet:
+      id: 006-create-ebook-format-file-table
+      author: gemini
+      changes:
+        - createTable:
+            tableName: ebook_format_file
+            columns:
+              - column:
+                  name: id
+                  type: UUID
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: book_id
+                  type: UUID
+                  constraints:
+                    nullable: false
+              - column:
+                  name: storage_key
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: file_name
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: content_type
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: file_size
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+              - column:
+                  name: format_type
+                  type: VARCHAR(50)
+                  constraints:
+                    nullable: false
+        - addForeignKeyConstraint:
+            baseColumnNames: book_id
+            baseTableName: ebook_format_file
+            constraintName: fk_ebook_format_file_book
+            referencedColumnNames: id
+            referencedTableName: books
+            onDelete: CASCADE

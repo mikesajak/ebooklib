@@ -34,8 +34,14 @@ dependencies {
 	testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
 	testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 
-    implementation("io.github.microutils:kotlin-logging-jvm:2.1.20")
-}
+    	implementation("io.github.microutils:kotlin-logging-jvm:2.1.20")
+
+    	implementation(platform("software.amazon.awssdk:bom:2.38.0"))
+
+    	implementation("software.amazon.awssdk:s3")
+	testImplementation("org.testcontainers:testcontainers")
+	testImplementation("org.testcontainers:junit-jupiter")
+	testImplementation("org.testcontainers:minio")}
 
 kotlin {
 	compilerOptions {
