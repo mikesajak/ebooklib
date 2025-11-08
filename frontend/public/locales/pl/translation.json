@@ -19,7 +19,8 @@
       "publicationDate": "Data Publikacji",
       "publisher": "Wydawca",
       "description": "Opis",
-      "labels": "Etykiety"
+      "labels": "Etykiety",
+      "actions": "Akcje"
     },
     "noBooksFound": "Nie znaleziono książek.",
     "itemsPerPage": "Elementów na stronę:",
@@ -29,7 +30,18 @@
       "pageOf": "Strona {{page}} z {{totalPages}}",
       "next": "Następna",
       "last": "Ostatnia"
-    }
+    },
+    "actions": {
+      "delete": "Usuń"
+    },
+    "deleteConfirmation": {
+      "title": "Potwierdź usunięcie",
+      "message": "Czy na pewno chcesz usunąć książkę \"{{bookTitle}}\"?",
+      "cancel": "Anuluj",
+      "delete": "Usuń"
+    },
+    "deleteSuccess": "Książka została pomyślnie usunięta!",
+    "deleteFailure": "Nie udało się usunąć książki."
   },
   "bookDetails": {
     "title": "Szczegóły Książki",

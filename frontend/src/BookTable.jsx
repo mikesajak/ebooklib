@@ -1,10 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate, Link, useLocation } from 'react-router-dom';
 import Notification from './Notification';
 import { useTranslation } from 'react-i18next';
+import ConfirmationDialog from './ConfirmationDialog';
 
 const BookTable = () => {
-  const { t } = useTranslation();
+  const { t, i18n, ready } = useTranslation();
   const navigate = useNavigate();
   const location = useLocation();
   const [books, setBooks] = useState([]);
@@ -17,6 +18,28 @@ const BookTable = () => {
   const [sortField, setSortField] = useState('title'); // Default sort field
   const [sortDirection, setSortDirection] = useState('asc'); // Default sort direction
   const [notification, setNotification] = useState(null);
+  const [showConfirmation, setShowConfirmation] = useState(false);
+  const [bookToDelete, setBookToDelete] = useState(null);
+  const [showDropdown, setShowDropdown] = useState(null); // State to manage which dropdown is open
+  const dropdownRef = useRef(null);
+
+  const fetchBooks = useCallback(async () => {
+    setLoading(true);
+    try {
+      const response = await fetch(`/api/books?page=${page}&size=${size}&sort=${sortField},${sortDirection}`);
+      if (!response.ok) {
+        throw new Error('Failed to fetch books');
+      }
+      const data = await response.json();
+      setBooks(data.content || []);
+      setTotalPages(data.totalPages);
+      setTotalElements(data.totalElements);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  }, [page, size, sortField, sortDirection]);
 
   useEffect(() => {
     if (location.state && location.state.notification) {
@@ -27,25 +50,69 @@ const BookTable = () => {
   }, [location.state]);
 
   useEffect(() => {
-    const fetchBooks = async () => {
-      try {
-        const response = await fetch(`/api/books?page=${page}&size=${size}&sort=${sortField},${sortDirection}`);
-        if (!response.ok) {
-          throw new Error('Failed to fetch books');
-        }
-        const data = await response.json();
-        setBooks(data.content || []);
-        setTotalPages(data.totalPages);
-        setTotalElements(data.totalElements);
-      } catch (err) {
-        setError(err.message);
-      } finally {
-        setLoading(false);
+    if (ready) {
+      fetchBooks();
+    }
+  }, [ready, fetchBooks]);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setShowDropdown(null);
       }
     };
 
-    fetchBooks();
-  }, [page, size, sortField, sortDirection]);
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [dropdownRef]);
+
+  const handleDeleteClick = (book) => {
+    setBookToDelete(book);
+    setShowConfirmation(true);
+    setShowDropdown(null); // Close dropdown after clicking delete
+  };
+
+  const handleConfirmDelete = async () => {
+    if (bookToDelete) {
+      await deleteBook(bookToDelete.id);
+      setShowConfirmation(false);
+      setBookToDelete(null);
+    }
+  };
+
+  const deleteBook = async (bookId) => {
+    try {
+      const response = await fetch(`/api/books/${bookId}`, {
+        method: 'DELETE',
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to delete book');
+      }
+
+      setNotification({ message: t('bookTable.deleteSuccess'), type: 'success' });
+      // Refresh the book list by refetching
+      fetchBooks();
+    } catch (err) {
+      setError(err.message);
+      setNotification({ message: t('bookTable.deleteFailure'), type: 'error' });
+    }
+  };
+
+  const handleCancelDelete = () => {
+    setShowConfirmation(false);
+    setBookToDelete(null);
+  };
+
+  const toggleDropdown = (bookId) => {
+    setShowDropdown(showDropdown === bookId ? null : bookId);
+  };
+
+  if (!ready) {
+    return <div>Loading translations...</div>;
+  }
 
   if (loading) {
     return (
@@ -54,9 +121,7 @@ const BookTable = () => {
         <p style={{textAlign: 'center', color: '#6b7280'}}>{t('bookTable.loadingBooks')}</p>
       </div>
     );
-  }
-
-  if (error) {
+  }  if (error) {
     return (
       <div style={{padding: '1rem 2rem'}}>
         <h1 style={{fontSize: '1.5rem', fontWeight: 'bold', marginBottom: '1rem'}}>{t('bookTable.title')}</h1>
@@ -109,12 +174,13 @@ const BookTable = () => {
             <th style={{padding: '0.5rem 1rem', border: '1px solid #d1d5db', cursor: 'pointer'}} onClick={() => handleSort('publisher')}>Publisher{getSortIndicator('publisher')}</th>
             <th style={{padding: '0.5rem 1rem', border: '1px solid #d1d5db'}}>{t('bookTable.header.description')}</th>
             <th style={{padding: '0.5rem 1rem', border: '1px solid #d1d5db'}}>{t('bookTable.header.labels')}</th>
+            <th style={{padding: '0.5rem 1rem', border: '1px solid #d1d5db'}}>{t('bookTable.header.actions')}</th>
           </tr>
         </thead>
         <tbody>
           {books.length === 0 ? (
             <tr>
-              <td colSpan="7" style={{padding: '1rem', textAlign: 'center', color: '#6b7280'}}>
+              <td colSpan="9" style={{padding: '1rem', textAlign: 'center', color: '#6b7280'}}>
                 {t('bookTable.noBooksFound')}
               </td>
             </tr>
@@ -122,14 +188,12 @@ const BookTable = () => {
             books.map((book, index) => (
               <tr
                 key={book.id}
-                onClick={() => navigate(`/book/${book.id}`)}
-                style={{backgroundColor: index % 2 === 0 ? '#f9fafb' : 'white', cursor: 'pointer'}}
+                style={{backgroundColor: index % 2 === 0 ? '#f9fafb' : 'white'}}
               >
                 <td style={{padding: '0.5rem 1rem', border: '1px solid #d1d5db'}}>
                   <Link
                     to={`/book/${book.id}`}
                     className="book-link"
-                    onClick={(e) => e.stopPropagation()}
                   >
                     {book.title}
                   </Link>
@@ -140,7 +204,6 @@ const BookTable = () => {
                       ▪ <Link
                         to={`/author/${author.id}`}
                         className="author-link"
-                        onClick={(e) => e.stopPropagation()}
                       >
                         {author.firstName} {author.lastName}
                       </Link>
@@ -152,7 +215,6 @@ const BookTable = () => {
                     <Link
                       to={`/series/${book.series.id}`}
                       className="series-link"
-                      onClick={(e) => e.stopPropagation()}
                     >
                       {book.series.title}
                     </Link>
@@ -163,11 +225,29 @@ const BookTable = () => {
                 <td style={{padding: '0.5rem 1rem', border: '1px solid #d1d5db'}}>{book.publisher || t('common.na')}</td>
                 <td style={{padding: '0.5rem 1rem', border: '1px solid #d1d5db'}}>{book.description || t('common.na')}</td>
                 <td style={{padding: '0.5rem 1rem', border: '1px solid #d1d5db'}}>{book.labels && book.labels.length > 0 ? book.labels.join(', ') : t('common.na')}</td>
+                <td style={{padding: '0.5rem 1rem', border: '1px solid #d1d5db'}}>
+                  <div className="action-dropdown" ref={dropdownRef}>
+                    <button className="action-button" onClick={(e) => { e.stopPropagation(); toggleDropdown(book.id); }}>...</button>
+                    <div className={`action-dropdown-content ${showDropdown === book.id ? 'show' : ''}`}>
+                      <button onClick={(e) => { e.stopPropagation(); handleDeleteClick(book); }}>{t('bookTable.actions.delete')}</button>
+                    </div>
+                  </div>
+                </td>
               </tr>
             ))
           )}
         </tbody>
       </table>
+
+      <ConfirmationDialog
+        show={showConfirmation}
+        title={t('bookTable.deleteConfirmation.title')}
+        message={t('bookTable.deleteConfirmation.message', { bookTitle: bookToDelete?.title })}
+        onCancel={handleCancelDelete}
+        onConfirm={handleConfirmDelete}
+        confirmButtonText={t('bookTable.deleteConfirmation.delete')}
+        cancelButtonText={t('bookTable.deleteConfirmation.cancel')}
+      />
 
       <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '1rem'}}>
         <div>

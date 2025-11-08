@@ -19,7 +19,8 @@
       "publicationDate": "Publication Date",
       "publisher": "Publisher",
       "description": "Description",
-      "labels": "Labels"
+      "labels": "Labels",
+      "actions": "Actions"
     },
     "noBooksFound": "No books found.",
     "itemsPerPage": "Items per page:",
@@ -29,7 +30,18 @@
       "pageOf": "Page {{page}} of {{totalPages}}",
       "next": "Next",
       "last": "Last"
-    }
+    },
+    "actions": {
+      "delete": "Delete"
+    },
+    "deleteConfirmation": {
+      "title": "Confirm Deletion",
+      "message": "Are you sure you want to delete the book \"{{bookTitle}}\"?",
+      "cancel": "Cancel",
+      "delete": "Delete"
+    },
+    "deleteSuccess": "Book deleted successfully!",
+    "deleteFailure": "Failed to delete book."
   },
   "bookDetails": {
     "title": "Book Details",
