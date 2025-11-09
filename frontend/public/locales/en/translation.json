@@ -81,6 +81,15 @@
     "coverFileMissing": "Cover image metadata found, but the file is missing from storage. Do you want to delete the metadata?",
     "deleteCoverMetadata": "Delete Cover Metadata"
   },
+  "bookFormats": {
+    "title": "Book Formats",
+    "loading": "Loading formats...",
+    "noFormats": "No formats available.",
+    "upload": "Upload Format",
+    "deleteConfirmation": {
+      "message": "Are you sure you want to delete the format \"{{formatType}}\"?"
+    }
+  },
   "addBook": {
     "title": "Add New Book",
     "form": {

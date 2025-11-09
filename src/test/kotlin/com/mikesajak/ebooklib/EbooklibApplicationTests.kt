@@ -1,10 +1,11 @@
 package com.mikesajak.ebooklib
 
+import com.mikesajak.ebooklib.file.application.ports.outgoing.FileStoragePort
 import org.junit.jupiter.api.Test
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.test.context.TestPropertySource
-import org.springframework.boot.test.mock.mockito.MockBean
-import com.mikesajak.ebooklib.file.application.ports.outgoing.FileStoragePort
+import org.springframework.test.context.bean.override.mockito.MockitoBean
+import software.amazon.awssdk.services.s3.S3Client
 
 @SpringBootTest
 @TestPropertySource(properties = [
@@ -15,11 +16,14 @@ import com.mikesajak.ebooklib.file.application.ports.outgoing.FileStoragePort
 ])
 class EbooklibApplicationTests {
 
-    @MockBean
+    @MockitoBean
     lateinit var fileStoragePort: FileStoragePort
 
-	@Test
-	fun contextLoads() {
-	}
+    @MockitoBean
+    lateinit var s3Client: S3Client
+
+    @Test
+    fun contextLoads() {
+    }
 
 }

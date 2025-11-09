@@ -81,6 +81,15 @@
     "coverFileMissing": "Znaleziono metadane okładki, ale plik brakuje w pamięci masowej. Czy chcesz usunąć metadane?",
     "deleteCoverMetadata": "Usuń metadane okładki"
   },
+  "bookFormats": {
+    "title": "Formaty książki",
+    "loading": "Ładowanie formatów...",
+    "noFormats": "Brak dostępnych formatów.",
+    "upload": "Prześlij format",
+    "deleteConfirmation": {
+      "message": "Czy na pewno chcesz usunąć format \"{{formatType}}\"?"
+    }
+  },
   "addBook": {
     "title": "Dodaj Nową Książkę",
     "form": {

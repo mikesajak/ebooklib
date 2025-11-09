@@ -1,11 +1,11 @@
 package com.mikesajak.ebooklib.book.application.services
 
 import com.mikesajak.ebooklib.book.application.ports.outgoing.BookRepositoryPort
+import com.mikesajak.ebooklib.book.application.ports.outgoing.EbookFormatFileRepositoryPort
 import com.mikesajak.ebooklib.book.domain.exception.BookNotFoundException
 import com.mikesajak.ebooklib.book.domain.exception.EbookFormatFileNotFoundException
 import com.mikesajak.ebooklib.book.domain.model.BookId
-import com.mikesajak.ebooklib.book.infrastructure.adapters.outgoing.persistence.EbookFormatFileEntity
-import com.mikesajak.ebooklib.book.infrastructure.adapters.outgoing.persistence.EbookFormatFileJpaRepository
+import com.mikesajak.ebooklib.book.domain.model.EbookFormatFile
 import com.mikesajak.ebooklib.file.application.ports.outgoing.FileMetadata
 import com.mikesajak.ebooklib.file.application.ports.outgoing.FileStoragePort
 import jakarta.transaction.Transactional
@@ -20,7 +20,7 @@ private val logger = KotlinLogging.logger {}
 @Transactional
 class EbookFormatService(
     private val bookRepository: BookRepositoryPort,
-    private val ebookFormatFileJpaRepository: EbookFormatFileJpaRepository,
+    private val ebookFormatFileRepository: EbookFormatFileRepositoryPort,
     private val fileStoragePort: FileStoragePort
 ) {
 
@@ -30,7 +30,7 @@ class EbookFormatService(
         originalFileName: String,
         contentType: String,
         formatType: String
-    ): FileMetadata {
+    ): EbookFormatFile {
         // 1. Verify book existence
         bookRepository.findById(bookId) ?: throw BookNotFoundException(bookId)
 
@@ -39,56 +39,43 @@ class EbookFormatService(
         logger.info { "Uploaded new ebook format file: ${fileMetadata.id} for book ${bookId.value}" }
 
         // 3. Save new format file metadata to DB
-        val newEbookFormatFileEntity = EbookFormatFileEntity(
+        val newEbookFormatFile = EbookFormatFile(
             id = UUID.fromString(fileMetadata.id),
-            bookId = bookId.value,
+            bookId = bookId,
             storageKey = fileMetadata.id, // Using fileMetadata.id as storageKey
             fileName = fileMetadata.fileName,
             contentType = fileMetadata.contentType,
             fileSize = fileMetadata.size,
             formatType = formatType
         )
-        ebookFormatFileJpaRepository.save(newEbookFormatFileEntity)
+        val savedEbookFormatFile = ebookFormatFileRepository.save(newEbookFormatFile)
         logger.info { "Saved new ebook format file metadata for book ${bookId.value}" }
 
-        return fileMetadata
+        return savedEbookFormatFile
     }
 
-    fun listFormatFiles(bookId: BookId): List<FileMetadata> {
+    fun listFormatFiles(bookId: BookId): List<EbookFormatFile> {
         // 1. Verify book existence
         bookRepository.findById(bookId) ?: throw BookNotFoundException(bookId)
 
-        return ebookFormatFileJpaRepository.findByBookId(bookId.value).map { entity ->
-            FileMetadata(
-                id = entity.id.toString(),
-                fileName = entity.fileName,
-                contentType = entity.contentType,
-                size = entity.fileSize
-            )
-        }
+        return ebookFormatFileRepository.findByBookId(bookId)
     }
 
-    fun downloadFormatFile(bookId: BookId, formatFileId: UUID): Pair<InputStream, FileMetadata> {
-        val ebookFormatFileEntity = ebookFormatFileJpaRepository.findByBookIdAndId(bookId.value, formatFileId)
+    fun downloadFormatFile(bookId: BookId, formatFileId: UUID): Pair<InputStream, EbookFormatFile> {
+        val ebookFormatFile = ebookFormatFileRepository.findByBookIdAndId(bookId, formatFileId)
             ?: throw EbookFormatFileNotFoundException(bookId, formatFileId)
 
-        val inputStream = fileStoragePort.downloadFile(ebookFormatFileEntity.storageKey)
-        val fileMetadata = FileMetadata(
-            id = ebookFormatFileEntity.id.toString(),
-            fileName = ebookFormatFileEntity.fileName,
-            contentType = ebookFormatFileEntity.contentType,
-            size = ebookFormatFileEntity.fileSize
-        )
-        return Pair(inputStream, fileMetadata)
+        val inputStream = fileStoragePort.downloadFile(ebookFormatFile.storageKey)
+        return Pair(inputStream, ebookFormatFile)
     }
 
     fun deleteFormatFile(bookId: BookId, formatFileId: UUID) {
-        val ebookFormatFileEntity = ebookFormatFileJpaRepository.findByBookIdAndId(bookId.value, formatFileId)
+        val ebookFormatFile = ebookFormatFileRepository.findByBookIdAndId(bookId, formatFileId)
             ?: throw EbookFormatFileNotFoundException(bookId, formatFileId)
 
-        logger.info { "Deleting ebook format file ${ebookFormatFileEntity.storageKey} for book ${bookId.value}" }
-        fileStoragePort.deleteFile(ebookFormatFileEntity.storageKey)
-        ebookFormatFileJpaRepository.delete(ebookFormatFileEntity)
+        logger.info { "Deleting ebook format file ${ebookFormatFile.storageKey} for book ${bookId.value}" }
+        fileStoragePort.deleteFile(ebookFormatFile.storageKey)
+        ebookFormatFileRepository.delete(ebookFormatFile)
         logger.info { "Deleted ebook format file metadata for book ${bookId.value}" }
     }
 }

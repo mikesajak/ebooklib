@@ -24,6 +24,14 @@ import org.springframework.web.multipart.MultipartFile
 import java.net.URI
 import java.util.*
 
+data class EbookFormatFileDto(
+    val id: String,
+    val fileName: String,
+    val contentType: String,
+    val size: Long,
+    val formatType: String
+)
+
 @RestController
 @RequestMapping("/api/books")
 class BookRestController(
@@ -114,20 +122,37 @@ class BookRestController(
         @PathVariable bookId: UUID,
         @RequestParam("file") file: MultipartFile,
         @RequestParam("formatType") formatType: String
-    ): ResponseEntity<FileMetadata> {
-        val fileMetadata = ebookFormatService.addFormatFile(
+    ): ResponseEntity<EbookFormatFileDto> {
+        val ebookFormatFile = ebookFormatService.addFormatFile(
             BookId(bookId),
             file.inputStream,
             file.originalFilename ?: "untitled",
             file.contentType ?: "application/octet-stream",
             formatType
         )
-        return ResponseEntity.ok(fileMetadata)
+        return ResponseEntity.ok(
+            EbookFormatFileDto(
+                id = ebookFormatFile.id.toString(),
+                fileName = ebookFormatFile.fileName,
+                contentType = ebookFormatFile.contentType,
+                size = ebookFormatFile.fileSize,
+                formatType = ebookFormatFile.formatType
+            )
+        )
     }
 
     @GetMapping("/{bookId}/formats")
-    fun listEbookFormats(@PathVariable bookId: UUID): ResponseEntity<List<FileMetadata>> {
+    fun listEbookFormats(@PathVariable bookId: UUID): ResponseEntity<List<EbookFormatFileDto>> {
         val formatFiles = ebookFormatService.listFormatFiles(BookId(bookId))
+            .map { ebookFormatFile ->
+                EbookFormatFileDto(
+                    id = ebookFormatFile.id.toString(),
+                    fileName = ebookFormatFile.fileName,
+                    contentType = ebookFormatFile.contentType,
+                    size = ebookFormatFile.fileSize,
+                    formatType = ebookFormatFile.formatType
+                )
+            }
         return ResponseEntity.ok(formatFiles)
     }
 
@@ -136,8 +161,9 @@ class BookRestController(
         @PathVariable bookId: UUID,
         @PathVariable formatFileId: UUID
     ): ResponseEntity<Resource> {
-        val (inputStream, fileMetadata) = ebookFormatService.downloadFormatFile(BookId(bookId), formatFileId)
+        val (inputStream, ebookFormatFile) = ebookFormatService.downloadFormatFile(BookId(bookId), formatFileId)
         val resource = InputStreamResource(inputStream)
+        val fileMetadata = ebookFormatFile.toFileMetadata()
 
         return ResponseEntity.ok()
             .contentType(MediaType.parseMediaType(fileMetadata.contentType))

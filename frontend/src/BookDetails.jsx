@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import Notification from './Notification';
 import ConfirmationDialog from './ConfirmationDialog';
+import BookFormats from './BookFormats';
 import { useTranslation } from 'react-i18next';
 
 const BookDetails = () => {
@@ -508,52 +509,55 @@ const BookDetails = () => {
               </button>
             </div>
           </div>
-          <div className="md:w-1/3 bg-white border border-gray-300 rounded p-6 shadow flex flex-col">
-            <div className="flex-grow flex items-center justify-center">
-              {bookCoverUrl ? (
-                <img src={bookCoverUrl} alt={t('bookDetails.coverImageAlt', { title: book.title })} className="max-w-full h-auto" />
-              ) : isCoverFileMissing ? (
-                <div className="text-center text-red-500">
-                  <p className="mb-2">{t('bookDetails.coverFileMissing')}</p>
+          <div className="md:w-1/3 flex flex-col gap-4">
+            <div className="bg-white border border-gray-300 rounded p-6 shadow flex flex-col">
+              <div className="flex-grow flex items-center justify-center">
+                {bookCoverUrl ? (
+                  <img src={bookCoverUrl} alt={t('bookDetails.coverImageAlt', { title: book.title })} className="max-w-full h-auto" />
+                ) : isCoverFileMissing ? (
+                  <div className="text-center text-red-500">
+                    <p className="mb-2">{t('bookDetails.coverFileMissing')}</p>
+                    <button
+                      onClick={handleCoverDelete}
+                      className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded"
+                    >
+                      {t('bookDetails.deleteCoverMetadata')}
+                    </button>
+                  </div>
+                ) : (
+                  <div className="text-gray-500 text-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L20 16m-2-6a2 2 0 100-4 2 2 0 000 4z" />
+                    </svg>
+                    <p className="mt-2">{t('bookDetails.noCoverAvailable')}</p>
+                  </div>
+                )}
+              </div>
+              <div className="flex justify-end gap-2 mt-4">
+                <input
+                  type="file"
+                  id="coverUpload"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={handleCoverUpload}
+                />
+                <button
+                  onClick={() => document.getElementById('coverUpload').click()}
+                  className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded"
+                >
+                  {hasCover ? t('bookDetails.changeCover') : t('bookDetails.uploadCover')}
+                </button>
+                {hasCover && !isCoverFileMissing && (
                   <button
                     onClick={handleCoverDelete}
                     className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded"
                   >
-                    {t('bookDetails.deleteCoverMetadata')}
+                    {t('bookDetails.deleteCover')}
                   </button>
-                </div>
-              ) : (
-                <div className="text-gray-500 text-center">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L20 16m-2-6a2 2 0 100-4 2 2 0 000 4z" />
-                  </svg>
-                  <p className="mt-2">{t('bookDetails.noCoverAvailable')}</p>
-                </div>
-              )}
+                )}
+              </div>
             </div>
-            <div className="flex justify-end gap-2 mt-4">
-              <input
-                type="file"
-                id="coverUpload"
-                accept="image/*"
-                className="hidden"
-                onChange={handleCoverUpload}
-              />
-              <button
-                onClick={() => document.getElementById('coverUpload').click()}
-                className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded"
-              >
-                {hasCover ? t('bookDetails.changeCover') : t('bookDetails.uploadCover')}
-              </button>
-              {hasCover && !isCoverFileMissing && (
-                <button
-                  onClick={handleCoverDelete}
-                  className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded"
-                >
-                  {t('bookDetails.deleteCover')}
-                </button>
-              )}
-            </div>
+            <BookFormats bookId={id} showNotification={setNotification} />
           </div>
         </div>
       )}

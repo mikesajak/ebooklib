@@ -26,15 +26,15 @@ class MinioConfig(
     @Bean
     fun s3Client(): S3Client {
         val s3Client = S3Client.builder()
-            .endpointOverride(URI.create(minioEndpoint))
-            .credentialsProvider(
-                StaticCredentialsProvider.create(
-                    AwsBasicCredentials.create(minioAccessKey, minioSecretKey)
+                .endpointOverride(URI.create(minioEndpoint))
+                .credentialsProvider(
+                    StaticCredentialsProvider.create(
+                        AwsBasicCredentials.create(minioAccessKey, minioSecretKey)
+                    )
                 )
-            )
-            .region(Region.US_EAST_1) // MinIO doesn't strictly use regions, but a default is required
-            .forcePathStyle(true) // Crucial for MinIO compatibility
-            .build()
+                .region(Region.US_EAST_1) // MinIO doesn't strictly use regions, but a default is required
+                .forcePathStyle(true) // Crucial for MinIO compatibility
+                .build()
 
         // Ensure the bucket exists
         if (!s3Client.listBuckets().buckets().any { bucket -> bucket.name() == bucketName }) {
