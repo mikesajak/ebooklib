@@ -43,3 +43,5 @@ out/
 -e 
 ### Generated frontend assets ###
 src/main/resources/static/
+
+.beads/
