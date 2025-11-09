@@ -20,5 +20,22 @@ services:
       retries: 3
       start_period: 10s # Give MinIO some time to start before first health check
 
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: ebooklib_db
+      POSTGRES_USER: ebooklib_user
+      POSTGRES_PASSWORD: ebooklib_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
 volumes:
   minio_data:
+  db_data:

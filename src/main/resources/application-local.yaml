@@ -1,9 +1,14 @@
 spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/ebooklib_db
+    username: ebooklib_user
+    password: ebooklib_password
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update # For development, automatically update schema
   liquibase:
     contexts: schema,test-data
-  h2:
-    console:
-      enabled: true
 
 minio:
   endpoint: http://localhost:9000
