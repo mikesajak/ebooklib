@@ -1,1 +1,0 @@
-package com.mikesajak.ebooklib.book.infrastructure.adapters.incoming.rest

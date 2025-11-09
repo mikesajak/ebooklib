@@ -1,5 +1,9 @@
 package com.mikesajak.ebooklib.book.application.services
 
+import com.mikesajak.ebooklib.book.application.ports.incoming.AddEbookFormatUseCase
+import com.mikesajak.ebooklib.book.application.ports.incoming.DeleteEbookFormatUseCase
+import com.mikesajak.ebooklib.book.application.ports.incoming.DownloadEbookFormatUseCase
+import com.mikesajak.ebooklib.book.application.ports.incoming.ListEbookFormatsUseCase
 import com.mikesajak.ebooklib.book.application.ports.outgoing.BookRepositoryPort
 import com.mikesajak.ebooklib.book.application.ports.outgoing.EbookFormatFileRepositoryPort
 import com.mikesajak.ebooklib.book.domain.exception.BookNotFoundException
@@ -22,9 +26,9 @@ class EbookFormatService(
     private val bookRepository: BookRepositoryPort,
     private val ebookFormatFileRepository: EbookFormatFileRepositoryPort,
     private val fileStoragePort: FileStoragePort
-) {
+) : AddEbookFormatUseCase, ListEbookFormatsUseCase, DownloadEbookFormatUseCase, DeleteEbookFormatUseCase {
 
-    fun addFormatFile(
+    override fun addFormatFile(
         bookId: BookId,
         fileContent: InputStream,
         originalFileName: String,
@@ -54,14 +58,14 @@ class EbookFormatService(
         return savedEbookFormatFile
     }
 
-    fun listFormatFiles(bookId: BookId): List<EbookFormatFile> {
+    override fun listFormatFiles(bookId: BookId): List<EbookFormatFile> {
         // 1. Verify book existence
         bookRepository.findById(bookId) ?: throw BookNotFoundException(bookId)
 
         return ebookFormatFileRepository.findByBookId(bookId)
     }
 
-    fun downloadFormatFile(bookId: BookId, formatFileId: UUID): Pair<InputStream, EbookFormatFile> {
+    override fun downloadFormatFile(bookId: BookId, formatFileId: UUID): Pair<InputStream, EbookFormatFile> {
         val ebookFormatFile = ebookFormatFileRepository.findByBookIdAndId(bookId, formatFileId)
             ?: throw EbookFormatFileNotFoundException(bookId, formatFileId)
 
@@ -69,7 +73,7 @@ class EbookFormatService(
         return Pair(inputStream, ebookFormatFile)
     }
 
-    fun deleteFormatFile(bookId: BookId, formatFileId: UUID) {
+    override fun deleteFormatFile(bookId: BookId, formatFileId: UUID) {
         val ebookFormatFile = ebookFormatFileRepository.findByBookIdAndId(bookId, formatFileId)
             ?: throw EbookFormatFileNotFoundException(bookId, formatFileId)
 

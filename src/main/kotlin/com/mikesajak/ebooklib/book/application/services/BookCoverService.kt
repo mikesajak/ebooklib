@@ -1,5 +1,9 @@
 package com.mikesajak.ebooklib.book.application.services
 
+import com.mikesajak.ebooklib.book.application.ports.incoming.DeleteBookCoverUseCase
+import com.mikesajak.ebooklib.book.application.ports.incoming.GetBookCoverUseCase
+import com.mikesajak.ebooklib.book.application.ports.incoming.HasBookCoverUseCase
+import com.mikesajak.ebooklib.book.application.ports.incoming.UploadBookCoverUseCase
 import com.mikesajak.ebooklib.book.application.ports.outgoing.BookCoverRepositoryPort
 import com.mikesajak.ebooklib.book.application.ports.outgoing.BookRepositoryPort
 import com.mikesajak.ebooklib.book.domain.exception.BookCoverFileMissingException
@@ -24,9 +28,9 @@ class BookCoverService(
     private val bookRepository: BookRepositoryPort,
     private val bookCoverRepository: BookCoverRepositoryPort,
     private val fileStoragePort: FileStoragePort
-) {
+) : UploadBookCoverUseCase, GetBookCoverUseCase, DeleteBookCoverUseCase, HasBookCoverUseCase {
 
-    fun uploadCover(bookId: BookId, fileContent: InputStream, originalFileName: String, contentType: String): FileMetadata {
+    override fun uploadCover(bookId: BookId, fileContent: InputStream, originalFileName: String, contentType: String): FileMetadata {
         // 1. Verify book existence
         bookRepository.findById(bookId) ?: throw BookNotFoundException(bookId)
 
@@ -57,7 +61,7 @@ class BookCoverService(
         return fileMetadata
     }
 
-    fun getCover(bookId: BookId): Pair<InputStream, FileMetadata> {
+    override fun getCover(bookId: BookId): Pair<InputStream, FileMetadata> {
         val bookCover = bookCoverRepository.findByBookId(bookId)
             ?: throw BookCoverNotFoundException(bookId)
 
@@ -77,7 +81,7 @@ class BookCoverService(
         return Pair(inputStream, fileMetadata)
     }
 
-    fun deleteCover(bookId: BookId) {
+    override fun deleteCover(bookId: BookId) {
         val bookCover = bookCoverRepository.findByBookId(bookId)
             ?: throw BookCoverNotFoundException(bookId)
 
@@ -94,7 +98,7 @@ class BookCoverService(
         logger.info { "Deleted cover metadata for book ${bookId.value}" }
     }
 
-    fun hasCover(bookId: BookId): Boolean {
+    override fun hasCover(bookId: BookId): Boolean {
         return bookCoverRepository.existsByBookId(bookId)
     }
 }

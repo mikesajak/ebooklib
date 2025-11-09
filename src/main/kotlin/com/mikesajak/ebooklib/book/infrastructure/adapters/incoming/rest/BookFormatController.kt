@@ -1,7 +1,11 @@
 package com.mikesajak.ebooklib.book.infrastructure.adapters.incoming.rest
 
-import com.mikesajak.ebooklib.book.application.services.EbookFormatService
+import com.mikesajak.ebooklib.book.application.ports.incoming.AddEbookFormatUseCase
+import com.mikesajak.ebooklib.book.application.ports.incoming.DeleteEbookFormatUseCase
+import com.mikesajak.ebooklib.book.application.ports.incoming.DownloadEbookFormatUseCase
+import com.mikesajak.ebooklib.book.application.ports.incoming.ListEbookFormatsUseCase
 import com.mikesajak.ebooklib.book.domain.model.BookId
+import com.mikesajak.ebooklib.book.infrastructure.adapters.incoming.rest.dto.EbookFormatFileDto
 import org.springframework.core.io.InputStreamResource
 import org.springframework.core.io.Resource
 import org.springframework.http.HttpHeaders
@@ -11,18 +15,13 @@ import org.springframework.web.bind.annotation.*
 import org.springframework.web.multipart.MultipartFile
 import java.util.*
 
-data class EbookFormatFileDto(
-    val id: String,
-    val fileName: String,
-    val contentType: String,
-    val size: Long,
-    val formatType: String
-)
-
 @RestController
 @RequestMapping("/api/books")
 class BookFormatController(
-    private val ebookFormatService: EbookFormatService
+    private val addEbookFormatUseCase: AddEbookFormatUseCase,
+    private val listEbookFormatsUseCase: ListEbookFormatsUseCase,
+    private val downloadEbookFormatUseCase: DownloadEbookFormatUseCase,
+    private val deleteEbookFormatUseCase: DeleteEbookFormatUseCase
 ) {
     @PostMapping("/{bookId}/formats")
     fun addEbookFormat(
@@ -30,7 +29,7 @@ class BookFormatController(
         @RequestParam("file") file: MultipartFile,
         @RequestParam("formatType") formatType: String
     ): ResponseEntity<EbookFormatFileDto> {
-        val ebookFormatFile = ebookFormatService.addFormatFile(
+        val ebookFormatFile = addEbookFormatUseCase.addFormatFile(
             BookId(bookId),
             file.inputStream,
             file.originalFilename ?: "untitled",
@@ -50,7 +49,7 @@ class BookFormatController(
 
     @GetMapping("/{bookId}/formats")
     fun listEbookFormats(@PathVariable bookId: UUID): ResponseEntity<List<EbookFormatFileDto>> {
-        val formatFiles = ebookFormatService.listFormatFiles(BookId(bookId))
+        val formatFiles = listEbookFormatsUseCase.listFormatFiles(BookId(bookId))
             .map {
                 EbookFormatFileDto(
                     id = it.id.toString(),
@@ -68,7 +67,7 @@ class BookFormatController(
         @PathVariable bookId: UUID,
         @PathVariable formatFileId: UUID
     ): ResponseEntity<Resource> {
-        val (inputStream, ebookFormatFile) = ebookFormatService.downloadFormatFile(BookId(bookId), formatFileId)
+        val (inputStream, ebookFormatFile) = downloadEbookFormatUseCase.downloadFormatFile(BookId(bookId), formatFileId)
         val resource = InputStreamResource(inputStream)
         val fileMetadata = ebookFormatFile.toFileMetadata()
 
@@ -84,7 +83,7 @@ class BookFormatController(
         @PathVariable bookId: UUID,
         @PathVariable formatFileId: UUID
     ): ResponseEntity<Unit> {
-        ebookFormatService.deleteFormatFile(BookId(bookId), formatFileId)
+        deleteEbookFormatUseCase.deleteFormatFile(BookId(bookId), formatFileId)
         return ResponseEntity.noContent().build()
     }
 }

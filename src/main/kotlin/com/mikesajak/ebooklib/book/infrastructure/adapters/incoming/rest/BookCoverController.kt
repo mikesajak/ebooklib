@@ -1,6 +1,9 @@
 package com.mikesajak.ebooklib.book.infrastructure.adapters.incoming.rest
 
-import com.mikesajak.ebooklib.book.application.services.BookCoverService
+import com.mikesajak.ebooklib.book.application.ports.incoming.DeleteBookCoverUseCase
+import com.mikesajak.ebooklib.book.application.ports.incoming.GetBookCoverUseCase
+import com.mikesajak.ebooklib.book.application.ports.incoming.HasBookCoverUseCase
+import com.mikesajak.ebooklib.book.application.ports.incoming.UploadBookCoverUseCase
 import com.mikesajak.ebooklib.book.domain.exception.BookCoverFileMissingException
 import com.mikesajak.ebooklib.book.domain.model.BookId
 import com.mikesajak.ebooklib.file.application.ports.outgoing.FileMetadata
@@ -17,14 +20,17 @@ import java.util.*
 @RestController
 @RequestMapping("/api/books")
 class BookCoverController(
-    private val bookCoverService: BookCoverService
+    private val uploadBookCoverUseCase: UploadBookCoverUseCase,
+    private val getBookCoverUseCase: GetBookCoverUseCase,
+    private val deleteBookCoverUseCase: DeleteBookCoverUseCase,
+    private val hasBookCoverUseCase: HasBookCoverUseCase
 ) {
     @PostMapping("/{bookId}/cover")
     fun uploadBookCover(
         @PathVariable bookId: UUID,
         @RequestParam("file") file: MultipartFile
     ): ResponseEntity<FileMetadata> {
-        val fileMetadata = bookCoverService.uploadCover(
+        val fileMetadata = uploadBookCoverUseCase.uploadCover(
             BookId(bookId),
             file.inputStream,
             file.originalFilename ?: "untitled",
@@ -36,7 +42,7 @@ class BookCoverController(
     @GetMapping("/{bookId}/cover")
     fun getBookCover(@PathVariable bookId: UUID): ResponseEntity<Resource> {
         return try {
-            val (inputStream, fileMetadata) = bookCoverService.getCover(BookId(bookId))
+            val (inputStream, fileMetadata) = getBookCoverUseCase.getCover(BookId(bookId))
             val resource = InputStreamResource(inputStream)
 
             ResponseEntity.ok()
@@ -51,13 +57,13 @@ class BookCoverController(
 
     @DeleteMapping("/{bookId}/cover")
     fun deleteBookCover(@PathVariable bookId: UUID): ResponseEntity<Unit> {
-        bookCoverService.deleteCover(BookId(bookId))
+        deleteBookCoverUseCase.deleteCover(BookId(bookId))
         return ResponseEntity.noContent().build()
     }
 
     @GetMapping("/{bookId}/cover/exists")
     fun hasBookCover(@PathVariable bookId: UUID): ResponseEntity<Map<String, Boolean>> {
-        val exists = bookCoverService.hasCover(BookId(bookId))
+        val exists = hasBookCoverUseCase.hasCover(BookId(bookId))
         return ResponseEntity.ok(mapOf("exists" to exists))
     }
 }
