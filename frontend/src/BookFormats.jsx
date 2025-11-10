@@ -11,6 +11,10 @@ const BookFormats = ({ bookId, showNotification }) => {
   const [showDeleteConfirmDialog, setShowDeleteConfirmDialog] = useState(false);
   const [formatToDelete, setFormatToDelete] = useState(null);
 
+  const [uploading, setUploading] = useState(false);
+  const [progress, setProgress] = useState(0);
+  const [uploadError, setUploadError] = useState(null);
+
   const fetchFormats = async () => {
     try {
       const response = await fetch(`/api/books/${bookId}/formats`);
@@ -51,29 +55,54 @@ const BookFormats = ({ bookId, showNotification }) => {
       return;
     }
 
+    setUploading(true);
+    setProgress(0);
+    setUploadError(null);
+
     const formData = new FormData();
     formData.append('file', file);
     formData.append('formatType', fileExtension);
 
-    try {
-      const response = await fetch(`/api/books/${bookId}/formats`, {
-        method: 'POST',
-        body: formData,
-      });
+    const xhr = new XMLHttpRequest();
 
-      if (!response.ok) {
-        throw new Error('Failed to upload file');
-      }
+    xhr.open('POST', `/api/books/${bookId}/formats`);
 
-      showNotification({ type: 'success', message: 'File uploaded successfully!' });
-      fetchFormats();
-    } catch (err) {
-      showNotification({ type: 'error', message: err.message });
-    } finally {
-      // Reset the file input
-      if (fileInputRef.current) {
-        fileInputRef.current.value = '';
+    xhr.upload.onprogress = (event) => {
+      if (event.lengthComputable) {
+        const percentCompleted = Math.round((event.loaded * 100) / event.total);
+        setProgress(percentCompleted);
       }
+    };
+
+    xhr.onload = () => {
+      setUploading(false);
+      if (xhr.status >= 200 && xhr.status < 300) {
+        showNotification({ type: 'success', message: 'File uploaded successfully!' });
+        fetchFormats();
+      } else {
+        let errorMessage = 'Failed to upload file';
+        try {
+          const errorData = JSON.parse(xhr.responseText);
+          errorMessage = errorData.message || errorMessage;
+        } catch (e) {
+          // ignore if response is not json
+        }
+        setUploadError(errorMessage);
+        showNotification({ type: 'error', message: errorMessage });
+      }
+    };
+
+    xhr.onerror = () => {
+      setUploading(false);
+      setUploadError('Network error occurred during upload.');
+      showNotification({ type: 'error', message: 'Network error occurred during upload.' });
+    };
+
+    xhr.send(formData);
+
+    // Reset the file input
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
     }
   };
 
@@ -128,6 +157,26 @@ const BookFormats = ({ bookId, showNotification }) => {
               </button>
             </li>
           ))}
+          {uploading && (
+            <li className="flex items-center mb-2">
+              <div className="w-full bg-gray-200 rounded-full h-2.5 dark:bg-gray-700">
+                {progress < 100 ? (
+                  <div
+                    className="bg-blue-600 h-2.5 rounded-full"
+                    style={{ width: `${progress}%` }}
+                  ></div>
+                ) : (
+                  <div
+                    className="bg-blue-600 h-2.5 rounded-full animate-pulse"
+                    style={{ width: '100%' }}
+                  ></div>
+                )}
+              </div>
+              <span className="text-sm text-gray-500 ml-2">
+                {progress < 100 ? `${progress}%` : t('bookFormats.processing')}
+              </span>
+            </li>
+          )}
         </ul>
       )}
       <div className="flex justify-end mt-4">
@@ -140,7 +189,8 @@ const BookFormats = ({ bookId, showNotification }) => {
         <button
           type="button"
           onClick={() => fileInputRef.current.click()}
-          className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded"
+          className={`font-bold py-2 px-4 rounded ${uploading ? 'bg-gray-400 text-white cursor-not-allowed' : 'bg-green-500 hover:bg-green-700 text-white'}`}
+          disabled={uploading}
         >
           {t('bookFormats.upload')}
         </button>

@@ -86,6 +86,7 @@
     "loading": "Loading formats...",
     "noFormats": "No formats available.",
     "upload": "Upload Format",
+    "processing": "Processing...",
     "deleteConfirmation": {
       "message": "Are you sure you want to delete the format \"{{formatType}}\"?"
     }
