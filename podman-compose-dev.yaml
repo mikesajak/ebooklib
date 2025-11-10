@@ -36,6 +36,16 @@ services:
       timeout: 5s
       retries: 5
 
+  pgweb:
+    image: sosedoff/pgweb
+    ports:
+      - "8081:8081"
+    environment:
+      DATABASE_URL: "postgres://ebooklib_user:ebooklib_password@db:5432/ebooklib_db?sslmode=disable"
+    depends_on:
+      db:
+        condition: service_healthy
+
 volumes:
   minio_data:
   db_data:
