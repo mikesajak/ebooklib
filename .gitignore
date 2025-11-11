@@ -44,4 +44,7 @@ out/
 ### Generated frontend assets ###
 src/main/resources/static/
 
+### DB volumes dir ###
+data/
+
 .beads/

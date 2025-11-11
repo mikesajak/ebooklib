@@ -7,7 +7,7 @@ services:
       - "9000:9000" # MinIO API and Console
       - "9001:9001" # MinIO Console (separate port for newer versions)
     volumes:
-      - minio_data:/data # Persistent storage for MinIO data
+      - ./data/minio:/data # Persistent storage for MinIO data
     environment:
       MINIO_ROOT_USER: minioadmin
       MINIO_ROOT_PASSWORD: minioadmin
@@ -29,7 +29,7 @@ services:
     ports:
       - "5432:5432"
     volumes:
-      - db_data:/var/lib/postgresql/data
+      - ./data/db:/var/lib/postgresql/data
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
       interval: 10s
@@ -45,7 +45,3 @@ services:
     depends_on:
       db:
         condition: service_healthy
-
-volumes:
-  minio_data:
-  db_data:
