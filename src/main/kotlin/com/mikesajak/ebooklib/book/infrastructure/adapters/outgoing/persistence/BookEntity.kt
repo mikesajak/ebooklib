@@ -11,6 +11,7 @@ import java.util.*
 data class BookEntity(
     @Id
     val id: UUID? = null,
+    @Column(columnDefinition = "TEXT", nullable = false)
     val title: String,
     @ManyToMany
     @JoinTable(
@@ -25,11 +26,13 @@ data class BookEntity(
     val volume: Int?,
     val creationDate: LocalDate?,
     val publicationDate: LocalDate?,
+    @Column(columnDefinition = "TEXT", nullable = true)
     val publisher: String?,
+    @Column(columnDefinition = "TEXT", nullable = true)
     val description: String?,
 
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "book_labels", joinColumns = [JoinColumn(name = "book_id")])
-    @Column(name = "label")
+    @Column(name = "label", columnDefinition = "TEXT")
     val labels: Set<String> = emptySet()
 )

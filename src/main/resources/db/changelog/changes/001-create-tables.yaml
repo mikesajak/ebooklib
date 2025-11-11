@@ -15,12 +15,12 @@ databaseChangeLog:
                     nullable: false
               - column:
                   name: first_name
-                  type: varchar(255)
+                  type: text
                   constraints:
                     nullable: false
               - column:
                   name: last_name
-                  type: varchar(255)
+                  type: text
                   constraints:
                     nullable: false
               - column:
@@ -54,7 +54,7 @@ databaseChangeLog:
                     nullable: false
               - column:
                   name: title
-                  type: varchar(255)
+                  type: text
                   constraints:
                     nullable: false
               - column:
@@ -69,7 +69,7 @@ databaseChangeLog:
                     nullable: true
               - column:
                   name: publisher
-                  type: varchar(255)
+                  type: text
                   constraints:
                     nullable: true
               - column:
@@ -122,7 +122,7 @@ databaseChangeLog:
                     referencedColumnNames: id
               - column:
                   name: label
-                  type: varchar(255)
+                  type: text
                   constraints:
                     primaryKey: true
                     nullable: false

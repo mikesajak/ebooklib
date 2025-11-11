@@ -26,20 +26,23 @@ dependencies {
 	implementation("org.springframework.boot:spring-boot-starter-hateoas")
 	implementation("org.springframework.boot:spring-boot-starter-web")
 	implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
-	implementation("org.jetbrains.kotlin:kotlin-reflect")
 	developmentOnly("org.springframework.boot:spring-boot-devtools")
-	runtimeOnly("org.postgresql:postgresql")
+	implementation("org.jetbrains.kotlin:kotlin-reflect")
+
 	implementation("org.liquibase:liquibase-core")
+    implementation("net.lbruun.springboot:preliquibase-spring-boot-starter:1.6.1")
+    runtimeOnly("org.postgresql:postgresql")
+
+    implementation("io.github.microutils:kotlin-logging-jvm:2.1.20")
+
+    implementation(platform("software.amazon.awssdk:bom:2.38.0"))
+    implementation("software.amazon.awssdk:s3")
+
 	testImplementation("org.springframework.boot:spring-boot-starter-test")
 	testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
 	testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 
-    	implementation("io.github.microutils:kotlin-logging-jvm:2.1.20")
-
-    	implementation(platform("software.amazon.awssdk:bom:2.38.0"))
-
-    	implementation("software.amazon.awssdk:s3")
-	testImplementation("org.testcontainers:testcontainers")
+    testImplementation("org.testcontainers:testcontainers")
 	testImplementation("org.testcontainers:junit-jupiter")
 	testImplementation("org.testcontainers:minio")
 	testImplementation("org.testcontainers:postgresql")}

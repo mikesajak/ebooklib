@@ -1,10 +1,30 @@
+db:
+  schema: ebooklib
+
 spring:
   application:
     name: ebooklib
   liquibase:
     change-log: classpath:db/changelog/db.changelog-master.yaml
     contexts: schema
+    default-schema: ${db.schema}
+  jpa:
+    properties:
+      hibernate:
+        default_schema: ${db.schema}
   servlet:
     multipart:
       max-file-size: 100MB
       max-request-size: 100MB
+
+preliquibase:
+  enabled: true
+
+# Debugging
+#debug: true
+#logging:
+#  level:
+#    org.springframework.jdbc.datasource.init: DEBUG
+#    org.springframework.boot.autoconfigure: DEBUG
+#    net.lbruun.springboot.preliquibase: DEBUG
+#    liquibase: TRACE

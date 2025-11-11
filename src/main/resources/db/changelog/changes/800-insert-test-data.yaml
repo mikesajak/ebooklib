@@ -1818,6 +1818,114 @@ databaseChangeLog:
                   value: 'An illustrated edition of the first volume of The Lord of the Rings'
 
         - insert:
+            tableName: authors
+            columns:
+              - column:
+                  name: id
+                  value: '550e8400-e29b-41d4-a716-446655440090'
+              - column:
+                  name: first_name
+                  value: 'Test'
+              - column:
+                  name: last_name
+                  value: 'Author'
+              - column:
+                  name: bio
+                  value: 'Author for testing long descriptions'
+        - insert:
+            tableName: books
+            columns:
+              - column:
+                  name: id
+                  value: '550e8400-e29b-41d4-a716-446655440091'
+              - column:
+                  name: title
+                  value: 'Book with Short Description'
+              - column:
+                  name: creation_date
+                  value: '2023-01-01'
+              - column:
+                  name: publication_date
+                  value: '2023-01-01'
+              - column:
+                  name: publisher
+                  value: 'Test Publisher'
+              - column:
+                  name: description
+                  value: 'This is a book with a short description. It has only a few lines to describe its content. It is meant for quick reading.'
+        - insert:
+            tableName: book_authors
+            columns:
+              - column:
+                  name: book_id
+                  value: '550e8400-e29b-41d4-a716-446655440091'
+              - column:
+                  name: author_id
+                  value: '550e8400-e29b-41d4-a716-446655440090'
+        - insert:
+            tableName: books
+            columns:
+              - column:
+                  name: id
+                  value: '550e8400-e29b-41d4-a716-446655440092'
+              - column:
+                  name: title
+                  value: 'Book with Medium Description'
+              - column:
+                  name: creation_date
+                  value: '2023-02-01'
+              - column:
+                  name: publication_date
+                  value: '2023-02-01'
+              - column:
+                  name: publisher
+                  value: 'Test Publisher'
+              - column:
+                  name: description
+                  value: 'This book features a description that spans several paragraphs, providing a more detailed overview of its themes, characters, and plot. It delves into the intricate world-building and character development, offering readers a glimpse into the rich narrative without revealing too many spoilers. The story explores complex relationships and societal issues, making it a thought-provoking read for those who enjoy depth and nuance in their literature. The author''s unique writing style brings the setting to life, immersing the reader in a vivid and unforgettable experience. This particular edition also includes an introduction by a renowned literary critic, offering further insights into the book''s impact and legacy. It''s a compelling journey from start to finish, promising an engaging experience for any avid reader.'
+        - insert:
+            tableName: book_authors
+            columns:
+              - column:
+                  name: book_id
+                  value: '550e8400-e29b-41d4-a716-446655440092'
+              - column:
+                  name: author_id
+                  value: '550e8400-e29b-41d4-a716-446655440090'
+        - insert:
+            tableName: books
+            columns:
+              - column:
+                  name: id
+                  value: '550e8400-e29b-41d4-a716-446655440093'
+              - column:
+                  name: title
+                  value: 'Book with Long Description'
+              - column:
+                  name: creation_date
+                  value: '2023-03-01'
+              - column:
+                  name: publication_date
+                  value: '2023-03-01'
+              - column:
+                  name: publisher
+                  value: 'Test Publisher'
+              - column:
+                  name: description
+                  value: |-
+                    This epic tale unfolds in a realm where ancient prophecies intertwine with the destinies of ordinary individuals thrust into extraordinary circumstances. The narrative begins in the tranquil village of Eldoria, a place untouched by the encroaching shadows of war, where young Elara discovers a hidden artifact that awakens a dormant magic within her. This discovery sets her on a perilous journey across vast, untamed lands, from the shimmering deserts of the Sunstone Empire to the frozen peaks of the Dragon''s Tooth Mountains. Along the way, she gathers a diverse band of companions: a grizzled warrior haunted by his past, a mischievous rogue with a heart of gold, a wise old sorcerer whose knowledge spans centuries, and a fierce elven archer seeking vengeance for her fallen kin.
+                    Their quest is fraught with danger, as they must navigate treacherous political landscapes, battle mythical beasts, and outwit dark sorcerers who seek to harness Elara''s burgeoning power for their own nefarious ends. The author masterfully weaves together multiple storylines, each character''s personal struggles and triumphs contributing to the overarching saga. Themes of courage, sacrifice, friendship, and the eternal struggle between light and darkness are explored with profound depth and emotional resonance. The world-building is meticulously crafted, with rich histories, diverse cultures, and a magic system that feels both ancient and alive.
+                    As Elara and her companions draw closer to their goal, they uncover shocking truths about their world and their own identities. The fate of the realm hangs in the balance, dependent on their ability to unite against a common enemy whose power threatens to consume everything. The climax is a breathtaking confrontation, a symphony of magic and steel, where alliances are tested, and heroes are forged in the crucible of battle. This novel is not merely a story; it is an immersive experience, a journey that will transport readers to a world of wonder and peril, leaving them eagerly anticipating the next installment. It is a testament to the enduring power of fantasy literature, a true masterpiece that will captivate the imagination and stir the soul.
+        - insert:
+            tableName: book_authors
+            columns:
+              - column:
+                  name: book_id
+                  value: '550e8400-e29b-41d4-a716-446655440093'
+              - column:
+                  name: author_id
+                  value: '550e8400-e29b-41d4-a716-446655440090'
+        - insert:
             tableName: book_authors
             columns:
               - column:

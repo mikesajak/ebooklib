@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import Notification from './Notification';
 import ConfirmationDialog from './ConfirmationDialog';
@@ -22,6 +22,17 @@ const BookDetails = () => {
   const [showDeleteConfirmDialog, setShowDeleteConfirmDialog] = useState(false);
   const [selectedFile, setSelectedFile] = useState(null);
   const [isCoverFileMissing, setIsCoverFileMissing] = useState(false);
+  const descriptionRef = useRef(null);
+  const [isScrolledToBottom, setIsScrolledToBottom] = useState(true); // Assume true initially if no scroll needed
+
+  const handleScroll = () => {
+    if (descriptionRef.current) {
+      const { scrollTop, scrollHeight, clientHeight } = descriptionRef.current;
+      // Check if scrolled to bottom (with a small tolerance for floating point inaccuracies)
+      const atBottom = scrollHeight - scrollTop <= clientHeight + 1;
+      setIsScrolledToBottom(atBottom);
+    }
+  };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -196,6 +207,15 @@ const BookDetails = () => {
   useEffect(() => {
     if (book) {
       setEditedBook({ ...book });
+    }
+  }, [book]);
+
+  useEffect(() => {
+    // Initial check when component mounts or book data changes
+    if (descriptionRef.current) {
+      const { scrollHeight, clientHeight } = descriptionRef.current;
+      // If content is not scrollable, it's effectively "scrolled to bottom"
+      setIsScrolledToBottom(scrollHeight <= clientHeight);
     }
   }, [book]);
 
@@ -427,16 +447,6 @@ const BookDetails = () => {
             />
           </div>
           <div className="mb-4">
-            <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="description">{t('bookDetails.form.description')}:</label>
-            <textarea
-              id="description"
-              name="description"
-              value={editedBook?.description || ''}
-              onChange={handleChange}
-              className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-            />
-          </div>
-          <div className="mb-4">
             <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="labels">{t('bookDetails.form.labels')}:</label>
             <input
               type="text"
@@ -446,6 +456,17 @@ const BookDetails = () => {
               onChange={handleChange}
               className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
               placeholder={t('bookDetails.form.labelsPlaceholder')}
+            />
+          </div>
+          <div className="mb-4">
+            <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="description">{t('bookDetails.form.description')}:</label>
+            <textarea
+              id="description"
+              name="description"
+              value={editedBook?.description || ''}
+              onChange={handleChange}
+              className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline h-auto overflow-y-auto"
+              rows="10"
             />
           </div>
           <div className="flex justify-end mt-4">
@@ -494,10 +515,17 @@ const BookDetails = () => {
                 <strong>{t('bookDetails.display.publisher')}:</strong> {book.publisher || t('common.na')}
               </div>
               <div className="mb-4">
-                <strong>{t('bookDetails.display.description')}:</strong> {book.description || t('common.na')}
+                <strong>{t('bookDetails.display.labels')}:</strong> {book.labels && book.labels.length > 0 ? book.labels.join(', ') : t('common.na')}
               </div>
               <div className="mb-4">
-                <strong>{t('bookDetails.display.labels')}:</strong> {book.labels && book.labels.length > 0 ? book.labels.join(', ') : t('common.na')}
+                <strong>{t('bookDetails.display.description')}:</strong>
+                <div
+                  ref={descriptionRef}
+                  onScroll={handleScroll}
+                  className={`mt-1 py-2 px-3 h-auto max-h-[30rem] overflow-y-auto whitespace-pre-wrap ${!isScrolledToBottom ? 'fade-bottom-scroll' : ''}`}
+                >
+                  {book.description || t('common.na')}
+                </div>
               </div>
             </div>
             <div className="flex justify-end mt-4">

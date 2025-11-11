@@ -172,7 +172,6 @@ const BookTable = () => {
             <th style={{padding: '0.5rem 1rem', border: '1px solid #d1d5db', cursor: 'pointer'}} onClick={() => handleSort('volume')}>{t('bookTable.header.volume')}{getSortIndicator('volume')}</th>
             <th style={{padding: '0.5rem 1rem', border: '1px solid #d1d5db', cursor: 'pointer'}} onClick={() => handleSort('publicationDate')}>Publication Date{getSortIndicator('publicationDate')}</th>
             <th style={{padding: '0.5rem 1rem', border: '1px solid #d1d5db', cursor: 'pointer'}} onClick={() => handleSort('publisher')}>Publisher{getSortIndicator('publisher')}</th>
-            <th style={{padding: '0.5rem 1rem', border: '1px solid #d1d5db'}}>{t('bookTable.header.description')}</th>
             <th style={{padding: '0.5rem 1rem', border: '1px solid #d1d5db'}}>{t('bookTable.header.labels')}</th>
             <th style={{padding: '0.5rem 1rem', border: '1px solid #d1d5db'}}>{t('bookTable.header.actions')}</th>
           </tr>
@@ -180,7 +179,7 @@ const BookTable = () => {
         <tbody>
           {books.length === 0 ? (
             <tr>
-              <td colSpan="9" style={{padding: '1rem', textAlign: 'center', color: '#6b7280'}}>
+              <td colSpan="8" style={{padding: '1rem', textAlign: 'center', color: '#6b7280'}}>
                 {t('bookTable.noBooksFound')}
               </td>
             </tr>
@@ -223,7 +222,6 @@ const BookTable = () => {
                 <td style={{padding: '0.5rem 1rem', border: '1px solid #d1d5db'}}>{book.volume || t('common.na')}</td>
                 <td style={{padding: '0.5rem 1rem', border: '1px solid #d1d5db'}}>{book.publicationDate || t('common.na')}</td>
                 <td style={{padding: '0.5rem 1rem', border: '1px solid #d1d5db'}}>{book.publisher || t('common.na')}</td>
-                <td style={{padding: '0.5rem 1rem', border: '1px solid #d1d5db'}}>{book.description || t('common.na')}</td>
                 <td style={{padding: '0.5rem 1rem', border: '1px solid #d1d5db'}}>{book.labels && book.labels.length > 0 ? book.labels.join(', ') : t('common.na')}</td>
                 <td style={{padding: '0.5rem 1rem', border: '1px solid #d1d5db'}}>
                   <div className="action-dropdown" ref={dropdownRef}>
