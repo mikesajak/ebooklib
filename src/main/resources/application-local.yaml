@@ -15,3 +15,15 @@ minio:
   access-key: minioadmin
   secret-key: minioadmin
   bucket-name: ebook-library-files
+
+preliquibase:
+  enabled: false
+
+# Debugging
+#debug: true
+#logging:
+#  level:
+#    org.springframework.jdbc.datasource.init: DEBUG
+#    org.springframework.boot.autoconfigure: DEBUG
+#    net.lbruun.springboot.preliquibase: DEBUG
+#    liquibase: TRACE

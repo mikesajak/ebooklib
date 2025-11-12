@@ -1,20 +1,21 @@
 package com.mikesajak.ebooklib.book.infrastructure.adapters.outgoing.persistence
-import org.springframework.data.domain.Page
-import org.springframework.data.domain.Pageable
-import com.mikesajak.ebooklib.series.domain.model.SeriesId
 
 import com.mikesajak.ebooklib.author.domain.model.AuthorId
 import com.mikesajak.ebooklib.book.application.ports.outgoing.BookRepositoryPort
 import com.mikesajak.ebooklib.book.domain.model.Book
 import com.mikesajak.ebooklib.book.domain.model.BookId
+import com.mikesajak.ebooklib.series.domain.model.SeriesId
 import org.springframework.context.annotation.Primary
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Repository
 import java.util.*
 
 @Repository
 @Primary
-class DBBookRepository(private val bookJpaRepository: BookJpaRepository,
-                       private val mapper: BookEntityMapper
+class BookRepositoryAdapter(
+        private val bookJpaRepository: BookJpaRepository,
+        private val mapper: BookEntityMapper
 ) : BookRepositoryPort {
 
     override fun findAll(pageable: Pageable): Page<Book> =
@@ -32,17 +33,19 @@ class DBBookRepository(private val bookJpaRepository: BookJpaRepository,
 
     override fun update(book: Book): Book {
         bookJpaRepository.findById(book.id!!.value)
-            .orElseThrow { NoSuchElementException("Book with id ${book.id.value} not found") }
+                .orElseThrow { NoSuchElementException("Book with id ${book.id.value} not found") }
         val entity = mapper.toEntity(book)
         val savedEntity = bookJpaRepository.save(entity)
         return mapper.toDomain(savedEntity)
     }
 
     override fun findByAuthorId(authorId: AuthorId, pageable: Pageable): Page<Book> =
-        bookJpaRepository.findBooksByAuthorId(authorId.value, pageable).map { bookEntity -> mapper.toDomain(bookEntity) }
+        bookJpaRepository.findBooksByAuthorId(authorId.value, pageable)
+                .map { bookEntity -> mapper.toDomain(bookEntity) }
 
     override fun findBySeriesId(seriesId: SeriesId, pageable: Pageable): Page<Book> =
-        bookJpaRepository.findBooksBySeriesId(seriesId.value, pageable).map { bookEntity -> mapper.toDomain(bookEntity) }
+        bookJpaRepository.findBooksBySeriesId(seriesId.value, pageable)
+                .map { bookEntity -> mapper.toDomain(bookEntity) }
 
     override fun delete(bookId: BookId) {
         bookJpaRepository.deleteById(bookId.value)
