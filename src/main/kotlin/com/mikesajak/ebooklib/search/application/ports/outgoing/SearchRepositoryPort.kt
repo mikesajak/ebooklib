@@ -1,9 +1,9 @@
 package com.mikesajak.ebooklib.search.application.ports.outgoing
 
 import com.mikesajak.ebooklib.book.domain.model.Book
-import org.springframework.data.domain.Page
-import org.springframework.data.domain.Pageable
+import com.mikesajak.ebooklib.common.domain.model.PaginatedResult
+import com.mikesajak.ebooklib.common.domain.model.PaginationRequest
 
 interface SearchRepositoryPort {
-    fun search(query: String, pageable: Pageable): Page<Book>
+    fun search(query: String, pagination: PaginationRequest): PaginatedResult<Book>
 }

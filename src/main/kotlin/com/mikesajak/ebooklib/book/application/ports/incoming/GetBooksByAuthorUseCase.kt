@@ -1,10 +1,10 @@
 package com.mikesajak.ebooklib.book.application.ports.incoming
-import org.springframework.data.domain.Page
-import org.springframework.data.domain.Pageable
 
 import com.mikesajak.ebooklib.author.domain.model.AuthorId
 import com.mikesajak.ebooklib.book.domain.model.Book
+import com.mikesajak.ebooklib.common.domain.model.PaginatedResult
+import com.mikesajak.ebooklib.common.domain.model.PaginationRequest
 
 interface GetBooksByAuthorUseCase {
-    fun getBooksByAuthor(authorId: AuthorId, pageable: Pageable): Page<Book>
+    fun getBooksByAuthor(authorId: AuthorId, pagination: PaginationRequest): PaginatedResult<Book>
 }

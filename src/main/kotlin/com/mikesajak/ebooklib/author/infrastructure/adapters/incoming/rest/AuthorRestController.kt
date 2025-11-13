@@ -1,8 +1,4 @@
 package com.mikesajak.ebooklib.author.infrastructure.adapters.incoming.rest
-import org.springframework.data.domain.Page
-import org.springframework.data.domain.Pageable
-import com.mikesajak.ebooklib.book.infrastructure.adapters.incoming.rest.BookRestMapper
-import com.mikesajak.ebooklib.book.infrastructure.adapters.incoming.rest.dto.BookResponseDto
 
 import com.mikesajak.ebooklib.author.application.ports.incoming.GetAuthorUseCase
 import com.mikesajak.ebooklib.author.application.ports.incoming.SaveAuthorUseCase
@@ -10,40 +6,40 @@ import com.mikesajak.ebooklib.author.domain.model.AuthorId
 import com.mikesajak.ebooklib.author.infrastructure.adapters.incoming.rest.dto.AuthorRequestDto
 import com.mikesajak.ebooklib.author.infrastructure.adapters.incoming.rest.dto.AuthorResponseDto
 import com.mikesajak.ebooklib.book.application.ports.incoming.GetBooksByAuthorUseCase
+import com.mikesajak.ebooklib.book.infrastructure.adapters.incoming.rest.BookRestMapper
+import com.mikesajak.ebooklib.book.infrastructure.adapters.incoming.rest.dto.BookResponseDto
+import com.mikesajak.ebooklib.infrastructure.incoming.rest.dto.PageResponse
+import com.mikesajak.ebooklib.infrastructure.incoming.rest.toPageResponse
+import com.mikesajak.ebooklib.infrastructure.web.toDomainPagination
+import org.springframework.data.domain.Pageable
 import org.springframework.http.ResponseEntity
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.PathVariable
-import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.RequestBody
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.bind.annotation.*
 import java.net.URI
-import java.util.UUID
+import java.util.*
 
 @RestController
 @RequestMapping("/api/authors")
 class AuthorRestController(
-    private val getAuthorUseCase: GetAuthorUseCase,
-    private val saveAuthorUseCase: SaveAuthorUseCase,
-    private val authorRestMapper: AuthorRestMapper
-    ,
-    private val getBooksByAuthorUseCase: GetBooksByAuthorUseCase,
-    private val bookRestMapper: BookRestMapper
+        private val getAuthorUseCase: GetAuthorUseCase,
+        private val saveAuthorUseCase: SaveAuthorUseCase,
+        private val authorRestMapper: AuthorRestMapper,
+        private val getBooksByAuthorUseCase: GetBooksByAuthorUseCase,
+        private val bookRestMapper: BookRestMapper
 ) {
     @GetMapping
-    fun getAllAuthors(pageable: Pageable): Page<AuthorResponseDto> =
-        getAuthorUseCase.getAllAuthors(pageable)
-            .map { author -> authorRestMapper.toResponse(author) }
+    fun getAllAuthors(pageable: Pageable): PageResponse<AuthorResponseDto> =
+        getAuthorUseCase.getAllAuthors(pageable.toDomainPagination())
+                .toPageResponse { author -> authorRestMapper.toResponse(author) }
 
     @GetMapping("/{id}")
     fun getAuthorById(@PathVariable id: UUID): AuthorResponseDto =
         authorRestMapper.toResponse(getAuthorUseCase.getAuthor(AuthorId(id)))
 
     @GetMapping("/{id}/books")
-    fun getBooksByAuthor(@PathVariable id: UUID, pageable: Pageable): Page<BookResponseDto> {
-        return getBooksByAuthorUseCase.getBooksByAuthor(AuthorId(id), pageable)
-            .map { book -> bookRestMapper.toResponse(book) }
-}
+    fun getBooksByAuthor(@PathVariable id: UUID, pageable: Pageable): PageResponse<BookResponseDto> {
+        return getBooksByAuthorUseCase.getBooksByAuthor(AuthorId(id), pageable.toDomainPagination())
+                .toPageResponse { book -> bookRestMapper.toResponse(book) }
+    }
 
     @PostMapping
     fun saveAuthor(@RequestBody authorRequestDto: AuthorRequestDto): ResponseEntity<AuthorResponseDto> {

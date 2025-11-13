@@ -7,16 +7,17 @@ import com.mikesajak.ebooklib.book.application.ports.outgoing.BookRepositoryPort
 import com.mikesajak.ebooklib.book.domain.exception.BookNotFoundException
 import com.mikesajak.ebooklib.book.domain.model.Book
 import com.mikesajak.ebooklib.book.domain.model.BookId
+import com.mikesajak.ebooklib.common.domain.model.PaginatedResult
+import com.mikesajak.ebooklib.common.domain.model.PaginationRequest
 import com.mikesajak.ebooklib.series.application.ports.incoming.GetSeriesUseCase
 import com.mikesajak.ebooklib.series.domain.model.SeriesId
-import org.springframework.data.domain.Page
-import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
 
 @Service
 class BookService(private val bookRepository: BookRepositoryPort,
                   private val getAuthorsUseCase: GetAuthorUseCase,
-                  private val getSeriesUseCase: GetSeriesUseCase) :
+                  private val getSeriesUseCase: GetSeriesUseCase
+) :
         GetBookUseCase,
         AddBookUseCase,
         UpdateBookUseCase,
@@ -29,22 +30,22 @@ class BookService(private val bookRepository: BookRepositoryPort,
         return book
     }
 
-    override fun getAllBooks(pageable: Pageable): Page<Book> {
-        return bookRepository.findAll(pageable)
+    override fun getAllBooks(pagination: PaginationRequest): PaginatedResult<Book> {
+        return bookRepository.findAll(pagination)
     }
 
     override fun addBook(book: Book): Book {
         return bookRepository.save(book)
     }
 
-    override fun getBooksByAuthor(authorId: AuthorId, pageable: Pageable): Page<Book> {
+    override fun getBooksByAuthor(authorId: AuthorId, pagination: PaginationRequest): PaginatedResult<Book> {
         getAuthorsUseCase.getAuthor(authorId)
-        return bookRepository.findByAuthorId(authorId, pageable)
+        return bookRepository.findByAuthorId(authorId, pagination)
     }
 
-    override fun getBooksOfSeries(seriesId: SeriesId, pageable: Pageable): Page<Book> {
+    override fun getBooksOfSeries(seriesId: SeriesId, pagination: PaginationRequest): PaginatedResult<Book> {
         getSeriesUseCase.getSeries(seriesId)
-        return bookRepository.findBySeriesId(seriesId, pageable)
+        return bookRepository.findBySeriesId(seriesId, pagination)
     }
 
     override fun updateBook(book: Book): Book {

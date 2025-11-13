@@ -7,7 +7,9 @@ import com.mikesajak.ebooklib.book.application.ports.incoming.UpdateBookUseCase
 import com.mikesajak.ebooklib.book.domain.model.BookId
 import com.mikesajak.ebooklib.book.infrastructure.adapters.incoming.rest.dto.BookRequestDto
 import com.mikesajak.ebooklib.book.infrastructure.adapters.incoming.rest.dto.BookResponseDto
-import org.springframework.data.domain.Page
+import com.mikesajak.ebooklib.infrastructure.incoming.rest.dto.PageResponse
+import com.mikesajak.ebooklib.infrastructure.incoming.rest.toPageResponse
+import com.mikesajak.ebooklib.infrastructure.web.toDomainPagination
 import org.springframework.data.domain.Pageable
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
@@ -17,16 +19,17 @@ import java.util.*
 @RestController
 @RequestMapping("/api/books")
 class BookMetadataController(
-    private val getBookUseCase: GetBookUseCase,
-    private val addBookUseCase: AddBookUseCase,
-    private val updateBookUseCase: UpdateBookUseCase,
-    private val deleteBookUseCase: DeleteBookUseCase,
-    private val bookRestMapper: BookRestMapper
+        private val getBookUseCase: GetBookUseCase,
+        private val addBookUseCase: AddBookUseCase,
+        private val updateBookUseCase: UpdateBookUseCase,
+        private val deleteBookUseCase: DeleteBookUseCase,
+        private val bookRestMapper: BookRestMapper
 ) {
     @GetMapping
-    fun getAllBooks(pageable: Pageable): Page<BookResponseDto> =
-        getBookUseCase.getAllBooks(pageable)
-            .map { book -> bookRestMapper.toResponse(book) }
+    fun getAllBooks(pageable: Pageable): PageResponse<BookResponseDto> {
+        return getBookUseCase.getAllBooks(pageable.toDomainPagination())
+                .toPageResponse { book -> bookRestMapper.toResponse(book) }
+    }
 
     @GetMapping("/{id}")
     fun getBookById(@PathVariable id: UUID): BookResponseDto {

@@ -1,12 +1,12 @@
 package com.mikesajak.ebooklib.author.application.ports.outgoing
-import org.springframework.data.domain.Page
-import org.springframework.data.domain.Pageable
 
 import com.mikesajak.ebooklib.author.domain.model.Author
 import com.mikesajak.ebooklib.author.domain.model.AuthorId
+import com.mikesajak.ebooklib.common.domain.model.PaginatedResult
+import com.mikesajak.ebooklib.common.domain.model.PaginationRequest
 
 interface AuthorRepositoryPort {
-    fun findAll(pageable: Pageable): Page<Author>
+    fun findAll(pagination: PaginationRequest): PaginatedResult<Author>
     fun findById(id: AuthorId): Author?
     fun save(author: Author): Author
 }

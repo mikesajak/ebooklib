@@ -1,23 +1,26 @@
 package com.mikesajak.ebooklib.series.infrastructure.adapters.outgoing.persistence
-import org.springframework.data.domain.Page
-import org.springframework.data.domain.Pageable
 
+import com.mikesajak.ebooklib.common.domain.model.PaginatedResult
+import com.mikesajak.ebooklib.common.domain.model.PaginationRequest
+import com.mikesajak.ebooklib.infrastructure.web.toDomainPage
+import com.mikesajak.ebooklib.infrastructure.web.toSpringPageable
 import com.mikesajak.ebooklib.series.application.ports.outgoing.SeriesRepositoryPort
 import com.mikesajak.ebooklib.series.domain.model.Series
 import com.mikesajak.ebooklib.series.domain.model.SeriesId
 import org.springframework.context.annotation.Primary
 import org.springframework.stereotype.Repository
-import java.util.UUID
+import java.util.*
 
 @Repository
 @Primary
 class DBSeriesRepository(
-    private val seriesJpaRepository: SeriesJpaRepository,
-    private val mapper: SeriesEntityMapper
+        private val seriesJpaRepository: SeriesJpaRepository,
+        private val mapper: SeriesEntityMapper
 ) : SeriesRepositoryPort {
 
-    override fun findAll(pageable: Pageable): Page<Series> =
-        seriesJpaRepository.findAll(pageable).map { seriesEntity -> mapper.toDomain(seriesEntity) }
+    override fun findAll(pagination: PaginationRequest): PaginatedResult<Series> =
+        seriesJpaRepository.findAll(pagination.toSpringPageable())
+                .toDomainPage { seriesEntity -> mapper.toDomain(seriesEntity) }
 
     override fun findById(id: SeriesId): Series? =
         seriesJpaRepository.findById(id.value).map { seriesEntity -> mapper.toDomain(seriesEntity) }.orElse(null)

@@ -2,8 +2,10 @@ package com.mikesajak.ebooklib.search.infrastructure.adapters.incoming.rest
 
 import com.mikesajak.ebooklib.book.infrastructure.adapters.incoming.rest.BookRestMapper
 import com.mikesajak.ebooklib.book.infrastructure.adapters.incoming.rest.dto.BookResponseDto
+import com.mikesajak.ebooklib.infrastructure.incoming.rest.dto.PageResponse
+import com.mikesajak.ebooklib.infrastructure.incoming.rest.toPageResponse
+import com.mikesajak.ebooklib.infrastructure.web.toDomainPagination
 import com.mikesajak.ebooklib.search.application.ports.incoming.SearchByRSQLUseCase
-import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.data.web.PageableDefault
 import org.springframework.web.bind.annotation.GetMapping
@@ -21,7 +23,7 @@ class SearchBooksController(
     fun search(
             @RequestParam(required = false) query: String,
             @PageableDefault(size = 10) pageable: Pageable
-    ): Page<BookResponseDto> =
-        searchByRSQLUseCase.search(query, pageable)
-                .map { book -> bookRestMapper.toResponse(book) }
+    ): PageResponse<BookResponseDto> =
+        searchByRSQLUseCase.search(query, pageable.toDomainPagination())
+                .toPageResponse { book -> bookRestMapper.toResponse(book) }
 }
