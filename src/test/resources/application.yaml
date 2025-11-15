@@ -7,18 +7,18 @@ spring:
   liquibase:
     change-log: classpath:db/changelog/db.changelog-master.yaml
     contexts: schema
-    default-schema: ${db.schema}
+    default-schema: ebooklib
   jpa:
     properties:
       hibernate:
-        default_schema: ${db.schema}
+        default_schema: ebooklib
   servlet:
     multipart:
       max-file-size: 100MB
       max-request-size: 100MB
 
 preliquibase:
-  enabled: false
+  enabled: true
 
 logging:
   level:

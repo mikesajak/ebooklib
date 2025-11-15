@@ -3,10 +3,10 @@ package com.mikesajak.ebooklib.file.application.ports.outgoing
 import java.io.InputStream
 
 data class FileMetadata(
-    val id: String,
-    val fileName: String,
-    val contentType: String,
-    val size: Long
+        val id: String,
+        val fileName: String,
+        val contentType: String,
+        val size: Long
 )
 
 interface FileStoragePort {

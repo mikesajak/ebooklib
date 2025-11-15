@@ -19,7 +19,9 @@ import software.amazon.awssdk.services.s3.S3Client
     "minio.endpoint=http://localhost:9000",
     "minio.access-key=testaccesskey",
     "minio.secret-key=testsecretkey",
-    "minio.bucket-name=test-bucket"
+    "minio.bucket-name=test-bucket,",
+    "liquibase.contexts=schema",
+    "preliquibase=true"
 ])
 @Testcontainers
 class EbooklibApplicationTests {
