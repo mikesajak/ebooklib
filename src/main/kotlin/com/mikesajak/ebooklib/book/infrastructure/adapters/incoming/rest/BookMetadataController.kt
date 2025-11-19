@@ -26,15 +26,17 @@ class BookMetadataController(
         private val bookRestMapper: BookRestMapper
 ) {
     @GetMapping
-    fun getAllBooks(pageable: Pageable): PageResponse<BookResponseDto> {
+    fun getAllBooks(pageable: Pageable,
+                    @RequestParam(name = "view", required = false, defaultValue = "COMPACT") view: BookView
+    ): PageResponse<BookResponseDto> {
         return getBookUseCase.getAllBooks(pageable.toDomainPagination())
-                .toPageResponse { book -> bookRestMapper.toResponse(book) }
+                .toPageResponse { book -> bookRestMapper.toResponse(book, view) }
     }
 
     @GetMapping("/{id}")
     fun getBookById(@PathVariable id: UUID): BookResponseDto {
         val book = getBookUseCase.getBook(BookId(id))
-        return bookRestMapper.toResponse(book)
+        return bookRestMapper.toResponse(book, BookView.FULL)
     }
 
     @PostMapping
@@ -42,14 +44,14 @@ class BookMetadataController(
         val book = bookRestMapper.toDomain(bookRequestDto)
         val savedBook = addBookUseCase.addBook(book)
         val location = URI.create("/api/books/${savedBook.id!!.value}")
-        return ResponseEntity.created(location).body(bookRestMapper.toResponse(savedBook))
+        return ResponseEntity.created(location).body(bookRestMapper.toResponse(savedBook, BookView.FULL))
     }
 
     @PutMapping("/{id}")
     fun updateBook(@PathVariable id: UUID, @RequestBody bookRequestDto: BookRequestDto): BookResponseDto {
         val book = bookRestMapper.toDomain(bookRequestDto).copy(id = BookId(id))
         val updatedBook = updateBookUseCase.updateBook(book)
-        return bookRestMapper.toResponse(updatedBook)
+        return bookRestMapper.toResponse(updatedBook, BookView.FULL)
     }
 
     @DeleteMapping("/{id}")

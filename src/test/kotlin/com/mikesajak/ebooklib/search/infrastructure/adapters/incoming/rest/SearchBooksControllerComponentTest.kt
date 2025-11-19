@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.mikesajak.ebooklib.book.domain.model.Book
 import com.mikesajak.ebooklib.book.domain.model.BookId
 import com.mikesajak.ebooklib.book.infrastructure.adapters.incoming.rest.BookRestMapper
+import com.mikesajak.ebooklib.book.infrastructure.adapters.incoming.rest.BookView
 import com.mikesajak.ebooklib.book.infrastructure.adapters.incoming.rest.dto.BookResponseDto
 import com.mikesajak.ebooklib.common.domain.model.PaginatedResult
 import com.mikesajak.ebooklib.infrastructure.exception.GlobalExceptionHandler
@@ -52,7 +53,7 @@ class SearchBooksControllerComponentTest {
             BookResponseDto(bookId1.value, "Test Book 1", emptyList(), null, null, null, null, null, null, emptyList())
 
         whenever(searchByRSQLUseCase.search(any(), any())).thenReturn(paginatedResult)
-        whenever(bookRestMapper.toResponse(book1)).thenReturn(bookResponseDto1)
+        whenever(bookRestMapper.toResponse(book1, BookView.COMPACT)).thenReturn(bookResponseDto1)
 
         // When & Then
         mockMvc.perform(get("/api/books/search")
@@ -116,7 +117,7 @@ class SearchBooksControllerComponentTest {
             BookResponseDto(bookId1.value, "Any Book 1", emptyList(), null, null, null, null, null, null, emptyList())
 
         whenever(searchByRSQLUseCase.search(any(), any())).thenReturn(paginatedResult)
-        whenever(bookRestMapper.toResponse(book1)).thenReturn(bookResponseDto1)
+        whenever(bookRestMapper.toResponse(book1, BookView.COMPACT)).thenReturn(bookResponseDto1)
 
         // When & Then
         mockMvc.perform(get("/api/books/search")

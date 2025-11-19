@@ -1,6 +1,7 @@
 package com.mikesajak.ebooklib.search.infrastructure.adapters.incoming.rest
 
 import com.mikesajak.ebooklib.book.infrastructure.adapters.incoming.rest.BookRestMapper
+import com.mikesajak.ebooklib.book.infrastructure.adapters.incoming.rest.BookView
 import com.mikesajak.ebooklib.book.infrastructure.adapters.incoming.rest.dto.BookResponseDto
 import com.mikesajak.ebooklib.infrastructure.incoming.rest.dto.PageResponse
 import com.mikesajak.ebooklib.infrastructure.incoming.rest.toPageResponse
@@ -22,8 +23,9 @@ class SearchBooksController(
     @GetMapping
     fun search(
             @RequestParam(required = false) query: String,
-            @PageableDefault(size = 10) pageable: Pageable
+            @PageableDefault(size = 10) pageable: Pageable,
+            @RequestParam(name = "view", required = false, defaultValue = "COMPACT") view: BookView
     ): PageResponse<BookResponseDto> =
         searchByRSQLUseCase.search(query, pageable.toDomainPagination())
-                .toPageResponse { book -> bookRestMapper.toResponse(book) }
+                .toPageResponse { book -> bookRestMapper.toResponse(book, view) }
 }

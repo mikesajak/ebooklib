@@ -5,6 +5,7 @@ import com.mikesajak.ebooklib.book.application.ports.incoming.GetBooksBySeriesUs
 import com.mikesajak.ebooklib.book.domain.model.Book
 import com.mikesajak.ebooklib.book.domain.model.BookId
 import com.mikesajak.ebooklib.book.infrastructure.adapters.incoming.rest.BookRestMapper
+import com.mikesajak.ebooklib.book.infrastructure.adapters.incoming.rest.BookView
 import com.mikesajak.ebooklib.book.infrastructure.adapters.incoming.rest.dto.BookResponseDto
 import com.mikesajak.ebooklib.common.domain.model.PaginatedResult
 import com.mikesajak.ebooklib.infrastructure.exception.GlobalExceptionHandler
@@ -103,26 +104,51 @@ class SeriesRestControllerComponentTest {
     fun `should return books of series`() {
         // Given
         val seriesId = SeriesId(UUID.randomUUID())
+        val series = Series(seriesId, "Test Series", null)
         val book1 =
-            Book(BookId(UUID.randomUUID()), "Book 1", emptyList(), null, null, null, null, null, null, emptyList())
+            Book(BookId(UUID.randomUUID()), "Book 1", emptyList(), null, null, null, null, series, 1, emptyList())
         val book2 =
-            Book(BookId(UUID.randomUUID()), "Book 2", emptyList(), null, null, null, null, null, null, emptyList())
+            Book(BookId(UUID.randomUUID()), "Book 2", emptyList(), null, null, null, null, series, 2, emptyList())
         val bookList = listOf(book1, book2)
         val paginatedResult = PaginatedResult(bookList, 0, 10, 2L, 1)
+        val seriesResponseDto = SeriesResponseDto(seriesId.value, "Test Series", null)
         val bookResponseDto1 =
-            BookResponseDto(book1.id!!.value, book1.title, emptyList(), null, null, null, null, null, null, emptyList())
+            BookResponseDto(book1.id!!.value,
+                            book1.title,
+                            emptyList(),
+                            seriesResponseDto,
+                            1,
+                            null,
+                            null,
+                            null,
+                            null,
+                            emptyList())
         val bookResponseDto2 =
-            BookResponseDto(book2.id!!.value, book2.title, emptyList(), null, null, null, null, null, null, emptyList())
+            BookResponseDto(book2.id!!.value,
+                            book2.title,
+                            emptyList(),
+                            seriesResponseDto,
+                            2,
+                            null,
+                            null,
+                            null,
+                            null,
+                            emptyList())
 
         whenever(getBooksBySeriesUseCase.getBooksOfSeries(any(), any())).thenReturn(paginatedResult)
-        whenever(bookRestMapper.toResponse(book1)).thenReturn(bookResponseDto1)
-        whenever(bookRestMapper.toResponse(book2)).thenReturn(bookResponseDto2)
+        whenever(bookRestMapper.toResponse(book1, BookView.BY_SERIES)).thenReturn(bookResponseDto1)
+        whenever(bookRestMapper.toResponse(book2, BookView.BY_SERIES)).thenReturn(bookResponseDto2)
 
         // When & Then
         mockMvc.perform(get("/api/series/{id}/books", seriesId.value))
                 .andExpect(status().isOk)
                 .andExpect(jsonPath("$.content.length()").value(2))
                 .andExpect(jsonPath("$.content[0].id").value(book1.id!!.value.toString()))
+                .andExpect(jsonPath("$.content[0].title").value("Book 1"))
+                .andExpect(jsonPath("$.content[0].series.id").value(seriesId.value.toString()))
+                .andExpect(jsonPath("$.content[0].volume").value(1))
+                .andExpect(jsonPath("$.content[0].authors").isEmpty)
+                .andExpect(jsonPath("$.content[0].description").doesNotExist())
                 .andExpect(jsonPath("$.content[1].id").value(book2.id!!.value.toString()))
     }
 

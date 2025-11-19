@@ -19,17 +19,60 @@ class BookRestMapper(
     private val getAuthorUseCase: GetAuthorUseCase,
     private val getSeriesUseCase: GetSeriesUseCase
 ) {
-    fun toResponse(book: Book) =
-        BookResponseDto(book.id!!.value,
-                        book.title,
-                        book.authors.map { authorRestMapper.toResponse(it) },
-                        book.series?.let { seriesRestMapper.toResponse(it) },
-                        book.volume,
-                        book.creationDate,
-                        book.publicationDate,
-                        book.publisher,
-                        book.description,
-                        book.labels)
+    fun toResponse(book: Book, view: BookView) =
+        when (view) {
+            BookView.FULL -> BookResponseDto(
+                    id = book.id!!.value,
+                    title = book.title,
+                    authors = book.authors.map { authorRestMapper.toResponse(it) },
+                    series = book.series?.let { seriesRestMapper.toResponse(it) },
+                    volume = book.volume,
+                    creationDate = book.creationDate,
+                    publicationDate = book.publicationDate,
+                    publisher = book.publisher,
+                    description = book.description,
+                    labels = book.labels
+            )
+
+            BookView.COMPACT -> BookResponseDto(
+                    id = book.id!!.value,
+                    title = book.title,
+                    authors = book.authors.map { authorRestMapper.toResponse(it) },
+                    series = book.series?.let { seriesRestMapper.toResponse(it) },
+                    volume = book.volume,
+                    creationDate = book.creationDate,
+                    publicationDate = book.publicationDate,
+                    publisher = book.publisher,
+                    description = null,
+                    labels = book.labels
+            )
+
+            BookView.BY_AUTHOR -> BookResponseDto(
+                    id = book.id!!.value,
+                    title = book.title,
+                    authors = book.authors.map { authorRestMapper.toResponse(it) },
+                    series = null,
+                    volume = null,
+                    creationDate = null,
+                    publicationDate = null,
+                    publisher = null,
+                    description = null,
+                    labels = emptyList()
+            )
+
+            BookView.BY_SERIES -> BookResponseDto(
+                    id = book.id!!.value,
+                    title = book.title,
+                    authors = emptyList(),
+                    series = book.series?.let { seriesRestMapper.toResponse(it) },
+                    volume = book.volume,
+                    creationDate = null,
+                    publicationDate = null,
+                    publisher = null,
+                    description = null,
+                    labels = emptyList()
+            )
+        }
 
     fun toDomain(bookRequestDto: BookRequestDto): Book {
         val authors = bookRequestDto.authorIds.map { authorId -> getAuthorUseCase.getAuthor(AuthorId(authorId)) }

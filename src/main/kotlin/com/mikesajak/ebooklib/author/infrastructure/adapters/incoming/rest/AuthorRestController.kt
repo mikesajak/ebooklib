@@ -7,6 +7,7 @@ import com.mikesajak.ebooklib.author.infrastructure.adapters.incoming.rest.dto.A
 import com.mikesajak.ebooklib.author.infrastructure.adapters.incoming.rest.dto.AuthorResponseDto
 import com.mikesajak.ebooklib.book.application.ports.incoming.GetBooksByAuthorUseCase
 import com.mikesajak.ebooklib.book.infrastructure.adapters.incoming.rest.BookRestMapper
+import com.mikesajak.ebooklib.book.infrastructure.adapters.incoming.rest.BookView
 import com.mikesajak.ebooklib.book.infrastructure.adapters.incoming.rest.dto.BookResponseDto
 import com.mikesajak.ebooklib.infrastructure.incoming.rest.dto.PageResponse
 import com.mikesajak.ebooklib.infrastructure.incoming.rest.toPageResponse
@@ -36,9 +37,11 @@ class AuthorRestController(
         authorRestMapper.toResponse(getAuthorUseCase.getAuthor(AuthorId(id)))
 
     @GetMapping("/{id}/books")
-    fun getBooksByAuthor(@PathVariable id: UUID, pageable: Pageable): PageResponse<BookResponseDto> {
+    fun getBooksByAuthor(@PathVariable id: UUID, pageable: Pageable,
+                         @RequestParam(name = "view", required = false, defaultValue = "BY_AUTHOR") view: BookView
+    ): PageResponse<BookResponseDto> {
         return getBooksByAuthorUseCase.getBooksByAuthor(AuthorId(id), pageable.toDomainPagination())
-                .toPageResponse { book -> bookRestMapper.toResponse(book) }
+                .toPageResponse { book -> bookRestMapper.toResponse(book, view) }
     }
 
     @PostMapping
