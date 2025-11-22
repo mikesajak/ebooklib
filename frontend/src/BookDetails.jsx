@@ -24,6 +24,8 @@ const BookDetails = () => {
   const [isCoverFileMissing, setIsCoverFileMissing] = useState(false);
   const descriptionRef = useRef(null);
   const [isScrolledToBottom, setIsScrolledToBottom] = useState(true); // Assume true initially if no scroll needed
+  const [isPreparingEdit, setIsPreparingEdit] = useState(false);
+
 
   const handleScroll = () => {
     if (descriptionRef.current) {
@@ -67,7 +69,7 @@ const BookDetails = () => {
     }));
   };
 
-  const fetchBook = async () => {
+  const fetchBook = async (isInitialLoad = false) => {
     try {
       const response = await fetch(`/api/books/${id}`);
       if (!response.ok) {
@@ -78,7 +80,9 @@ const BookDetails = () => {
     } catch (err) {
       setError(err.message);
     } finally {
-      setLoading(false);
+      if (isInitialLoad) {
+        setLoading(false);
+      }
     }
   };
 
@@ -200,8 +204,44 @@ const BookDetails = () => {
     }
   };
 
+  const fetchAuthors = async () => {
+    const response = await fetch('/api/authors');
+    if (!response.ok) {
+      throw new Error('Failed to fetch authors');
+    }
+    const data = await response.json();
+    setAuthors(data.content);
+  };
+
+  const fetchSeries = async () => {
+    const response = await fetch('/api/series');
+    if (!response.ok) {
+      throw new Error('Failed to fetch series');
+    }
+    const data = await response.json();
+    setSeries(data.content);
+  };
+
+  const handleToggleEditMode = async () => {
+    if (isEditing) {
+      setIsEditing(false);
+      return;
+    }
+
+    setIsPreparingEdit(true);
+    try {
+      await Promise.all([fetchBook(), fetchAuthors(), fetchSeries()]);
+      setIsEditing(true);
+    } catch (err) {
+      console.error("Failed to load data for editing", err);
+      setNotification({ type: 'error', message: 'Could not open edit mode. Please try again.' });
+    } finally {
+      setIsPreparingEdit(false);
+    }
+  };
+
   useEffect(() => {
-    fetchBook();
+    fetchBook(true);
   }, [id]);
 
   useEffect(() => {
@@ -218,38 +258,6 @@ const BookDetails = () => {
       setIsScrolledToBottom(scrollHeight <= clientHeight);
     }
   }, [book]);
-
-  useEffect(() => {
-    const fetchAuthors = async () => {
-      try {
-        const response = await fetch('/api/authors');
-        if (!response.ok) {
-          throw new Error('Failed to fetch authors');
-        }
-        const data = await response.json();
-        setAuthors(data.content);
-      } catch (err) {
-        console.error('Error fetching authors:', err);
-      }
-    };
-    fetchAuthors();
-  }, []);
-
-  useEffect(() => {
-    const fetchSeries = async () => {
-      try {
-        const response = await fetch('/api/series');
-        if (!response.ok) {
-          throw new Error('Failed to fetch series');
-        }
-        const data = await response.json();
-        setSeries(data.content);
-      } catch (err) {
-        console.error('Error fetching series:', err);
-      }
-    };
-    fetchSeries();
-  }, []);
 
   useEffect(() => {
     const checkCoverExistence = async () => {
@@ -530,10 +538,11 @@ const BookDetails = () => {
             </div>
             <div className="flex justify-end mt-4">
               <button
-                onClick={() => setIsEditing(!isEditing)}
+                onClick={handleToggleEditMode}
+                disabled={isPreparingEdit}
                 className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
               >
-                {isEditing ? t('common.cancel') : t('common.edit')}
+                {isPreparingEdit ? t('common.loading') : (isEditing ? t('common.cancel') : t('common.edit'))}
               </button>
             </div>
           </div>
