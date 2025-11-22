@@ -22,4 +22,6 @@ preliquibase:
 
 logging:
   level:
+    root: INFO
+    com.mikesajak.ebooklib: TRACE
     liquibase: INFO
