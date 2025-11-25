@@ -13,11 +13,11 @@ import org.springframework.stereotype.Component
 
 @Component
 class BookRestMapper(
-    private val authorRestMapper: AuthorRestMapper,
-    private val seriesRestMapper: SeriesRestMapper,
+        private val authorRestMapper: AuthorRestMapper,
+        private val seriesRestMapper: SeriesRestMapper,
 
-    private val getAuthorUseCase: GetAuthorUseCase,
-    private val getSeriesUseCase: GetSeriesUseCase
+        private val getAuthorUseCase: GetAuthorUseCase,
+        private val getSeriesUseCase: GetSeriesUseCase
 ) {
     fun toResponse(book: Book, view: BookView) =
         when (view) {
