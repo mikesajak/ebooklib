@@ -68,4 +68,13 @@ allOpen {
 tasks.withType<Test> {
     useJUnitPlatform()
 }
-tasks.named("build") { dependsOn(":frontend:copyReactBuild") }
+tasks.named("build") {
+    dependsOn(":frontend:copyReactBuild")
+}
+
+tasks.test {
+    testLogging {
+        events("PASSED", "FAILED", "SKIPPED", "STARTED")
+        showStandardStreams = true
+    }
+}
