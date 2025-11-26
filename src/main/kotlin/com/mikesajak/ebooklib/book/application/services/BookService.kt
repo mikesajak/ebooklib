@@ -14,9 +14,10 @@ import com.mikesajak.ebooklib.series.domain.model.SeriesId
 import org.springframework.stereotype.Service
 
 @Service
-class BookService(private val bookRepository: BookRepositoryPort,
-                  private val getAuthorsUseCase: GetAuthorUseCase,
-                  private val getSeriesUseCase: GetSeriesUseCase
+class BookService(
+        private val bookRepository: BookRepositoryPort,
+        private val getAuthorsUseCase: GetAuthorUseCase,
+        private val getSeriesUseCase: GetSeriesUseCase
 ) :
         GetBookUseCase,
         AddBookUseCase,

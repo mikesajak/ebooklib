@@ -1,7 +1,10 @@
 package com.mikesajak.ebooklib.opds.infrastructure.adapters.incoming.rest
 
 import com.mikesajak.ebooklib.book.domain.model.Book
+import com.mikesajak.ebooklib.book.domain.model.BookCover
+import com.mikesajak.ebooklib.book.domain.model.BookCoverMetadata
 import com.mikesajak.ebooklib.book.domain.model.BookId
+import com.mikesajak.ebooklib.book.domain.model.EbookFormatFile
 import com.mikesajak.ebooklib.opds.infrastructure.adapters.incoming.rest.dto.Contributor
 import com.mikesajak.ebooklib.opds.infrastructure.adapters.incoming.rest.dto.Link
 import com.mikesajak.ebooklib.opds.infrastructure.adapters.incoming.rest.dto.Publication
@@ -14,12 +17,32 @@ class OpdsBookMapper {
 
     private val dateFormatter = DateTimeFormatter.ISO_LOCAL_DATE
 
-    fun toPublication(book: Book): Publication {
-        return Publication(
-                metadata = toPublicationMetadata(book),
-                links = listOf(
-                        createSelfLink(book.id!!)
+    fun toPublication(book: Book, cover: BookCoverMetadata?, formats: List<EbookFormatFile>): Publication {
+        val images = cover?.let { cover ->
+            listOf(
+                Link(
+                    rel = "http://opds-spec.org/image",
+                    href = "/api/books/${book.id!!.value}/cover",
+                    type = cover.contentType
                 )
+            )
+        }
+
+        val acquisitionLinks = formats.map { format ->
+            Link(
+                rel = "http://opds-spec.org/acquisition",
+                href = "/api/books/${book.id!!.value}/formats/${format.id}",
+                type = format.contentType
+            )
+        }
+
+        val links = mutableListOf(createSelfLink(book.id!!))
+        links.addAll(acquisitionLinks)
+
+        return Publication(
+            metadata = toPublicationMetadata(book),
+            links = links,
+            images = images
         )
     }
 

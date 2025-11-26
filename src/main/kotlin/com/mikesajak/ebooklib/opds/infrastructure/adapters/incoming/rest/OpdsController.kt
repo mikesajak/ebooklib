@@ -2,13 +2,13 @@ package com.mikesajak.ebooklib.opds.infrastructure.adapters.incoming.rest
 
 import com.mikesajak.ebooklib.author.application.ports.incoming.GetAuthorUseCase
 import com.mikesajak.ebooklib.author.domain.model.AuthorId
-import com.mikesajak.ebooklib.book.application.ports.incoming.GetBookUseCase
-import com.mikesajak.ebooklib.book.application.ports.incoming.GetBooksByAuthorUseCase
-import com.mikesajak.ebooklib.book.application.ports.incoming.GetBooksBySeriesUseCase
+import com.mikesajak.ebooklib.book.application.ports.incoming.*
+import com.mikesajak.ebooklib.book.domain.model.Book
 import com.mikesajak.ebooklib.infrastructure.web.toDomainPagination
 import com.mikesajak.ebooklib.opds.infrastructure.adapters.incoming.rest.dto.Feed
 import com.mikesajak.ebooklib.opds.infrastructure.adapters.incoming.rest.dto.Link
 import com.mikesajak.ebooklib.opds.infrastructure.adapters.incoming.rest.dto.OpdsMetadata
+import com.mikesajak.ebooklib.opds.infrastructure.adapters.incoming.rest.dto.Publication
 import com.mikesajak.ebooklib.series.application.ports.incoming.GetSeriesUseCase
 import com.mikesajak.ebooklib.series.domain.model.SeriesId
 import org.springframework.data.domain.Pageable
@@ -26,6 +26,9 @@ class OpdsController(
         private val getSeriesUseCase: GetSeriesUseCase,
         private val getBooksByAuthorUseCase: GetBooksByAuthorUseCase,
         private val getBooksBySeriesUseCase: GetBooksBySeriesUseCase,
+        private val getBookCoverUseCase: GetBookCoverUseCase,
+        private val getBookEbookFormatsUseCase: ListEbookFormatsUseCase,
+
         private val opdsBookMapper: OpdsBookMapper,
         private val opdsAuthorMapper: OpdsAuthorMapper,
         private val opdsSeriesMapper: OpdsSeriesMapper
@@ -70,7 +73,7 @@ class OpdsController(
     @GetMapping("/books/all.json", produces = [OPDS_JSON_MEDIA_TYPE])
     fun getAllBooks(pageable: Pageable): Feed {
         val booksPage = getBookUseCase.getAllBooks(pageable.toDomainPagination())
-        val publications = booksPage.content.map { opdsBookMapper.toPublication(it) }
+        val publications = booksPage.content.map { publicationOf(it) }
 
         val metadata = OpdsMetadata(
                 title = "All Books",
@@ -125,7 +128,7 @@ class OpdsController(
     @GetMapping("/books/new.json", produces = [OPDS_JSON_MEDIA_TYPE])
     fun getNewBooks(pageable: Pageable): Feed {
         val booksPage = getBookUseCase.getAllBooks(pageable.toDomainPagination())
-        val publications = booksPage.content.map { opdsBookMapper.toPublication(it) }
+        val publications = booksPage.content.map { publicationOf(it) }
 
         val metadata = OpdsMetadata(
                 title = "New Books",
@@ -236,7 +239,7 @@ class OpdsController(
     fun getAuthorBooks(@PathVariable authorId: UUID, pageable: Pageable): Feed {
         val author = getAuthorUseCase.getAuthor(AuthorId(authorId))
         val booksPage = getBooksByAuthorUseCase.getBooksByAuthor(AuthorId(authorId), pageable.toDomainPagination())
-        val publications = booksPage.content.map { opdsBookMapper.toPublication(it) }
+        val publications = booksPage.content.map { publicationOf(it) }
 
         val metadata = OpdsMetadata(
                 title = "Books by ${author.firstName} ${author.lastName}",
@@ -347,7 +350,7 @@ class OpdsController(
     fun getSeriesBooks(@PathVariable seriesId: UUID, pageable: Pageable): Feed {
         val series = getSeriesUseCase.getSeries(SeriesId(seriesId))
         val booksPage = getBooksBySeriesUseCase.getBooksOfSeries(SeriesId(seriesId), pageable.toDomainPagination())
-        val publications = booksPage.content.map { opdsBookMapper.toPublication(it) }
+        val publications = booksPage.content.map { publicationOf(it) }
 
         val metadata = OpdsMetadata(
                 title = "Books in ${series.title}",
@@ -397,6 +400,13 @@ class OpdsController(
                 links = links,
                 publications = publications
         )
+    }
+
+    private fun publicationOf(book: Book): Publication {
+        val cover = book.id?.let { getBookCoverUseCase.getCoverIfExists(book.id)?.metadata }
+        val formats = book.id?.let { getBookEbookFormatsUseCase.listFormatFiles(book.id) } ?: listOf()
+
+        return opdsBookMapper.toPublication(book, cover, formats)
     }
 
     companion object {
