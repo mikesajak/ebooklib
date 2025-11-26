@@ -1,10 +1,10 @@
 package com.mikesajak.ebooklib.book.application.services
 
-import com.mikesajak.ebooklib.book.application.ports.outgoing.BookCoverRepositoryPort
+import com.mikesajak.ebooklib.book.application.ports.outgoing.BookCoverMetadataRepositoryPort
 import com.mikesajak.ebooklib.book.application.ports.outgoing.BookRepositoryPort
 import com.mikesajak.ebooklib.book.domain.exception.BookCoverNotFoundException
 import com.mikesajak.ebooklib.book.domain.exception.BookNotFoundException
-import com.mikesajak.ebooklib.book.domain.model.BookCover
+import com.mikesajak.ebooklib.book.domain.model.BookCoverMetadata
 import com.mikesajak.ebooklib.book.domain.model.BookId
 import com.mikesajak.ebooklib.file.application.ports.outgoing.FileMetadata
 import com.mikesajak.ebooklib.file.application.ports.outgoing.FileStoragePort
@@ -19,7 +19,7 @@ import java.util.*
 
 class BookCoverServiceTest {
     private val bookRepository = mockk<BookRepositoryPort>()
-    private val bookCoverRepository = mockk<BookCoverRepositoryPort>()
+    private val bookCoverRepository = mockk<BookCoverMetadataRepositoryPort>()
     private val fileStoragePort = mockk<FileStoragePort>()
 
     private val bookCoverService = BookCoverService(bookRepository, bookCoverRepository, fileStoragePort)
@@ -42,7 +42,9 @@ class BookCoverServiceTest {
         val result = bookCoverService.uploadCover(bookId, fileContent, originalFileName, contentType)
 
         // then
-        assertThat(result).isEqualTo(fileMetadata)
+        val expectedBookCoverMetadata = BookCoverMetadata(UUID.fromString(fileMetadata.id), bookId,
+                                                          fileMetadata.id, originalFileName, contentType, 4)
+        assertThat(result).isEqualTo(expectedBookCoverMetadata)
         verify { bookCoverRepository.save(any()) }
     }
 
@@ -66,21 +68,21 @@ class BookCoverServiceTest {
     fun `should get cover`() {
         // given
         val bookId = BookId(UUID.randomUUID())
-        val bookCover = BookCover(UUID.randomUUID(), bookId, "storageKey", "cover.jpg", "image/jpeg", 123)
+        val bookCoverMetadata = BookCoverMetadata(UUID.randomUUID(), bookId, "storageKey", "cover.jpg", "image/jpeg", 123)
         val inputStream = ByteArrayInputStream("test".toByteArray())
 
-        every { bookCoverRepository.findByBookId(bookId) } returns bookCover
+        every { bookCoverRepository.findByBookId(bookId) } returns bookCoverMetadata
         every { fileStoragePort.downloadFile("storageKey") } returns inputStream
 
         // when
-        val (resultStream, resultMetadata) = bookCoverService.getCover(bookId)
+        val bookCover = bookCoverService.getCover(bookId)
 
         // then
-        assertThat(resultStream).isEqualTo(inputStream)
-        assertThat(resultMetadata.id).isEqualTo(bookCover.id.toString())
-        assertThat(resultMetadata.fileName).isEqualTo(bookCover.fileName)
-        assertThat(resultMetadata.contentType).isEqualTo(bookCover.contentType)
-        assertThat(resultMetadata.size).isEqualTo(bookCover.fileSize)
+        assertThat(bookCover.inputStream).isEqualTo(inputStream)
+        assertThat(bookCover.metadata.id).isEqualTo(bookCoverMetadata.id)
+        assertThat(bookCover.metadata.fileName).isEqualTo(bookCoverMetadata.fileName)
+        assertThat(bookCover.metadata.contentType).isEqualTo(bookCoverMetadata.contentType)
+        assertThat(bookCover.metadata.fileSize).isEqualTo(bookCoverMetadata.fileSize)
     }
 
     @Test
@@ -100,18 +102,18 @@ class BookCoverServiceTest {
     fun `should delete cover`() {
         // given
         val bookId = BookId(UUID.randomUUID())
-        val bookCover = BookCover(UUID.randomUUID(), bookId, "storageKey", "cover.jpg", "image/jpeg", 123)
+        val bookCoverMetadata = BookCoverMetadata(UUID.randomUUID(), bookId, "storageKey", "cover.jpg", "image/jpeg", 123)
 
-        every { bookCoverRepository.findByBookId(bookId) } returns bookCover
+        every { bookCoverRepository.findByBookId(bookId) } returns bookCoverMetadata
         every { fileStoragePort.deleteFile("storageKey") } returns Unit
-        every { bookCoverRepository.delete(bookCover) } returns Unit
+        every { bookCoverRepository.delete(bookCoverMetadata) } returns Unit
 
         // when
         bookCoverService.deleteCover(bookId)
 
         // then
         verify { fileStoragePort.deleteFile("storageKey") }
-        verify { bookCoverRepository.delete(bookCover) }
+        verify { bookCoverRepository.delete(bookCoverMetadata) }
     }
 
     @Test

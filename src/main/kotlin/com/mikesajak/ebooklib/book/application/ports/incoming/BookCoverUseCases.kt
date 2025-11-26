@@ -1,23 +1,20 @@
 package com.mikesajak.ebooklib.book.application.ports.incoming
 
+import com.mikesajak.ebooklib.book.domain.model.BookCover
+import com.mikesajak.ebooklib.book.domain.model.BookCoverMetadata
 import com.mikesajak.ebooklib.book.domain.model.BookId
-import com.mikesajak.ebooklib.file.application.ports.outgoing.FileMetadata
-import org.springframework.core.io.Resource
 import java.io.InputStream
-import java.util.*
 
 interface UploadBookCoverUseCase {
-    fun uploadCover(bookId: BookId, fileContent: InputStream, originalFileName: String, contentType: String): FileMetadata
+    fun uploadCover(bookId: BookId, fileContent: InputStream, originalFileName: String, contentType: String): BookCoverMetadata
 }
 
 interface GetBookCoverUseCase {
-    fun getCover(bookId: BookId): Pair<InputStream, FileMetadata>
+    fun hasCover(bookId: BookId): Boolean
+    fun getCover(bookId: BookId): BookCover
+    fun getCoverIfExists(bookId: BookId): BookCover?
 }
 
 interface DeleteBookCoverUseCase {
     fun deleteCover(bookId: BookId)
-}
-
-interface HasBookCoverUseCase {
-    fun hasCover(bookId: BookId): Boolean
 }

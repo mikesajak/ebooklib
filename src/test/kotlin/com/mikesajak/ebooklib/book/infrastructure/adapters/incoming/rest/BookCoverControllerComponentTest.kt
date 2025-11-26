@@ -3,12 +3,12 @@ package com.mikesajak.ebooklib.book.infrastructure.adapters.incoming.rest
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.mikesajak.ebooklib.book.application.ports.incoming.DeleteBookCoverUseCase
 import com.mikesajak.ebooklib.book.application.ports.incoming.GetBookCoverUseCase
-import com.mikesajak.ebooklib.book.application.ports.incoming.HasBookCoverUseCase
 import com.mikesajak.ebooklib.book.application.ports.incoming.UploadBookCoverUseCase
 import com.mikesajak.ebooklib.book.domain.exception.BookCoverFileMissingException
 import com.mikesajak.ebooklib.book.domain.exception.BookNotFoundException
+import com.mikesajak.ebooklib.book.domain.model.BookCover
+import com.mikesajak.ebooklib.book.domain.model.BookCoverMetadata
 import com.mikesajak.ebooklib.book.domain.model.BookId
-import com.mikesajak.ebooklib.file.application.ports.outgoing.FileMetadata
 import org.junit.jupiter.api.Test
 import org.mockito.kotlin.any
 import org.mockito.kotlin.doNothing
@@ -42,9 +42,6 @@ class BookCoverControllerComponentTest {
     @MockitoBean
     private lateinit var deleteBookCoverUseCase: DeleteBookCoverUseCase
 
-    @MockitoBean
-    private lateinit var hasBookCoverUseCase: HasBookCoverUseCase
-
     @Test
     fun `should upload book cover`() {
         // Given
@@ -53,18 +50,24 @@ class BookCoverControllerComponentTest {
         val fileName = "cover.jpg"
         val contentType = MediaType.IMAGE_JPEG_VALUE
         val multipartFile = MockMultipartFile("file", fileName, contentType, fileContent)
-        val fileMetadata = FileMetadata("cover-id", fileName, contentType, fileContent.size.toLong())
+        val metadataId = UUID.randomUUID()
+        val bookCoverMetadata = BookCoverMetadata(metadataId,
+                                                  bookId,
+                                                  metadataId.toString(),
+                                                  fileName,
+                                                  contentType,
+                                                  fileContent.size.toLong())
 
-        whenever(uploadBookCoverUseCase.uploadCover(any(), any(), any(), any())).thenReturn(fileMetadata)
+        whenever(uploadBookCoverUseCase.uploadCover(any(), any(), any(), any())).thenReturn(bookCoverMetadata)
 
         // When & Then
         mockMvc.perform(multipart("/api/books/{bookId}/cover", bookId.value)
                                 .file(multipartFile))
                 .andExpect(status().isOk)
-                .andExpect(jsonPath("$.id").value(fileMetadata.id))
-                .andExpect(jsonPath("$.fileName").value(fileMetadata.fileName))
-                .andExpect(jsonPath("$.contentType").value(fileMetadata.contentType))
-                .andExpect(jsonPath("$.size").value(fileMetadata.size))
+                .andExpect(jsonPath("$.id").value(bookCoverMetadata.id.toString()))
+                .andExpect(jsonPath("$.fileName").value(bookCoverMetadata.fileName))
+                .andExpect(jsonPath("$.contentType").value(bookCoverMetadata.contentType))
+                .andExpect(jsonPath("$.fileSize").value(bookCoverMetadata.fileSize))
     }
 
     @Test
@@ -94,9 +97,16 @@ class BookCoverControllerComponentTest {
         val fileContent = "test image content".toByteArray()
         val fileName = "cover.jpg"
         val contentType = MediaType.IMAGE_JPEG_VALUE
-        val fileMetadata = FileMetadata("cover-id", fileName, contentType, fileContent.size.toLong())
+        val metadataId = UUID.randomUUID()
+        val bookCoverMetadata = BookCoverMetadata(metadataId,
+                                                  bookId,
+                                                  metadataId.toString(),
+                                                  fileName,
+                                                  contentType,
+                                                  fileContent.size.toLong())
 
-        whenever(getBookCoverUseCase.getCover(bookId)).thenReturn(Pair(ByteArrayInputStream(fileContent), fileMetadata))
+        whenever(getBookCoverUseCase.getCover(bookId)).thenReturn(BookCover(bookCoverMetadata,
+                                                                            ByteArrayInputStream(fileContent)))
 
         // When & Then
         mockMvc.perform(get("/api/books/{bookId}/cover", bookId.value))
@@ -158,7 +168,7 @@ class BookCoverControllerComponentTest {
     fun `should return true if book cover exists`() {
         // Given
         val bookId = BookId(UUID.randomUUID())
-        whenever(hasBookCoverUseCase.hasCover(bookId)).thenReturn(true)
+        whenever(getBookCoverUseCase.hasCover(bookId)).thenReturn(true)
 
         // When & Then
         mockMvc.perform(get("/api/books/{bookId}/cover/exists", bookId.value))
@@ -170,7 +180,7 @@ class BookCoverControllerComponentTest {
     fun `should return false if book cover does not exist`() {
         // Given
         val bookId = BookId(UUID.randomUUID())
-        whenever(hasBookCoverUseCase.hasCover(bookId)).thenReturn(false)
+        whenever(getBookCoverUseCase.hasCover(bookId)).thenReturn(false)
 
         // When & Then
         mockMvc.perform(get("/api/books/{bookId}/cover/exists", bookId.value))
@@ -182,7 +192,7 @@ class BookCoverControllerComponentTest {
     fun `should return 404 when checking cover existence for non-existent book`() {
         // Given
         val bookId = BookId(UUID.randomUUID())
-        whenever(hasBookCoverUseCase.hasCover(bookId)).thenThrow(BookNotFoundException(bookId))
+        whenever(getBookCoverUseCase.hasCover(bookId)).thenThrow(BookNotFoundException(bookId))
 
         // When & Then
         mockMvc.perform(get("/api/books/{bookId}/cover/exists", bookId.value))
