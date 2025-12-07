@@ -10,6 +10,7 @@ class RSQLSpecification<T>(
         private val searchFieldMapper: SearchFieldMapper
 ) : Specification<T> {
 
+    @Suppress("UNCHECKED_CAST")
     override fun toPredicate(root: Root<T?>,
                              query: CriteriaQuery<*>?,
                              criteriaBuilder: CriteriaBuilder
