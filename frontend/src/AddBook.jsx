@@ -2,6 +2,30 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Notification from './Notification';
 import { useTranslation } from 'react-i18next';
+import useMutation from './hooks/useMutation';
+
+const createBook = async (bookData) => {
+  const response = await fetch('/api/books', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(bookData),
+  });
+
+  if (!response.ok) {
+    let errorMessage = 'Failed to create book';
+    try {
+      const errorData = await response.json();
+      errorMessage = errorData.message || errorMessage;
+    } catch (e) {
+      // ignore if response is not json
+    }
+    throw new Error(errorMessage);
+  }
+
+  return response.json();
+}
 
 const AddBook = () => {
   const { t } = useTranslation();
@@ -18,8 +42,12 @@ const AddBook = () => {
   });
   const [authors, setAuthors] = useState([]);
   const [series, setSeries] = useState([]);
-  const [notification, setNotification] = useState(null);
-  const [isSaving, setIsSaving] = useState(false);
+
+  const { mutate, isSaving, notification, setNotification } = useMutation(createBook, {
+    onSuccess: () => {
+      navigate('/', { state: { notification: { type: 'success', message: 'Book added successfully!' } } });
+    }
+  });
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -54,42 +82,16 @@ const AddBook = () => {
     }));
   };
 
-  const handleSave = async () => {
-    setIsSaving(true);
-    try {
-      const bookData = {
-        ...book,
-        authorIds: book.authors.map(author => author.id),
-        seriesId: book.series ? book.series.id : null,
-        labels: book.labels
-      };
-      delete bookData.authors;
-      delete bookData.series;
-
-      const response = await fetch('/api/books', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(bookData),
-      });
-
-      if (!response.ok) {
-        let errorMessage = 'Failed to create book';
-        try {
-            const errorData = await response.json();
-            errorMessage = errorData.message || errorMessage;
-        } catch (e) {
-            // ignore if response is not json
-        }
-        throw new Error(errorMessage);
-      }
-
-      navigate('/', { state: { notification: { type: 'success', message: 'Book added successfully!' } } });
-    } catch (err) {
-      setNotification({ type: 'error', message: err.message });
-      setIsSaving(false);
-    }
+  const handleSave = () => {
+    const bookData = {
+      ...book,
+      authorIds: book.authors.map(author => author.id),
+      seriesId: book.series ? book.series.id : null,
+      labels: book.labels
+    };
+    delete bookData.authors;
+    delete bookData.series;
+    mutate(bookData);
   };
 
   const handleCancel = () => {

@@ -108,6 +108,18 @@
     "successMessage": "Książka dodana pomyślnie!",
     "failureMessage": "Nie udało się dodać książki"
   },
+  "addAuthor": {
+    "title": "Dodaj Nowego Autora",
+    "form": {
+      "firstName": "Imię",
+      "lastName": "Nazwisko",
+      "bio": "Biografia",
+      "birthDate": "Data Urodzenia",
+      "deathDate": "Data Śmierci"
+    },
+    "successMessage": "Autor dodany pomyślnie!",
+    "failureMessage": "Nie udało się dodać autora"
+  },
   "authorDetails": {
     "title": "Szczegóły Autora",
     "loading": "Ładowanie szczegółów autora...",
@@ -117,15 +129,15 @@
     "deathDate": "Data Śmierci",
     "booksByAuthor": "Książki tego autora",
     "noBooksFound": "Nie znaleziono książek."
-  },
-  "authorList": {
+  },  "authorList": {
     "title": "Autorzy",
     "loading": "Ładowanie autorów...",
     "noAuthorsFound": "Nie znaleziono autorów.",
     "groupBy": "Grupuj według",
     "lastName": "Nazwisko",
     "firstName": "Imię",
-    "nationality": "Narodowość"
+    "nationality": "Narodowość",
+    "addAuthor": "Dodaj Autora"
   },
   "seriesDetails": {
     "title": "Szczegóły Serii",

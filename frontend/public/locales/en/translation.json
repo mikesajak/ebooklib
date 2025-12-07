@@ -109,6 +109,18 @@
     "successMessage": "Book added successfully!",
     "failureMessage": "Failed to create book"
   },
+  "addAuthor": {
+    "title": "Add New Author",
+    "form": {
+      "firstName": "First Name",
+      "lastName": "Last Name",
+      "bio": "Biography",
+      "birthDate": "Birth Date",
+      "deathDate": "Death Date"
+    },
+    "successMessage": "Author added successfully!",
+    "failureMessage": "Failed to create author"
+  },
   "authorDetails": {
     "title": "Author Details",
     "loading": "Loading author details...",
@@ -126,7 +138,8 @@
     "groupBy": "Group by",
     "lastName": "Last Name",
     "firstName": "First Name",
-    "nationality": "Nationality"
+    "nationality": "Nationality",
+    "addAuthor": "Add Author"
   },
   "seriesDetails": {
     "title": "Series Details",

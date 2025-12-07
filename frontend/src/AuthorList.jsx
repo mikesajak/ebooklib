@@ -74,13 +74,18 @@ const AuthorList = () => {
     <div className="container mx-auto p-4" data-testid="author-list-container">
       <div className="flex justify-between items-center mb-4">
         <h1 className="text-2xl font-bold">{t('authorList.title')}</h1>
-        <div>
-          <label htmlFor="grouping-criteria" className="mr-2">{t('authorList.groupBy')}:</label>
-          <select id="grouping-criteria" value={groupingCriteria} onChange={handleGroupingChange} className="border border-gray-300 rounded p-1" data-testid="grouping-criteria-select">
-            <option value="lastName">{t('authorList.lastName')}</option>
-            <option value="firstName">{t('authorList.firstName')}</option>
-            <option value="nationality">{t('authorList.nationality')}</option>
-          </select>
+        <div className="flex items-center space-x-4">
+          <div>
+            <label htmlFor="grouping-criteria" className="mr-2">{t('authorList.groupBy')}:</label>
+            <select id="grouping-criteria" value={groupingCriteria} onChange={handleGroupingChange} className="border border-gray-300 rounded p-1" data-testid="grouping-criteria-select">
+              <option value="lastName">{t('authorList.lastName')}</option>
+              <option value="firstName">{t('authorList.firstName')}</option>
+              <option value="nationality">{t('authorList.nationality')}</option>
+            </select>
+          </div>
+          <Link to="/authors/add" className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">
+            {t('authorList.addAuthor')}
+          </Link>
         </div>
       </div>
       {authors.length === 0 ? (
