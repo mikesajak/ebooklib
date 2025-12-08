@@ -127,7 +127,7 @@ class OpdsController(
 
     @GetMapping("/books/new.json", produces = [OPDS_JSON_MEDIA_TYPE])
     fun getNewBooks(pageable: Pageable): Feed {
-        val booksPage = getBookUseCase.getAllBooks(pageable.toDomainPagination())
+        val booksPage = getBookUseCase.getNewestBooks(pageable.toDomainPagination())
         val publications = booksPage.content.map { publicationOf(it) }
 
         val metadata = OpdsMetadata(
@@ -178,6 +178,13 @@ class OpdsController(
                 links = links,
                 publications = publications
         )
+    }
+
+    @GetMapping("/books/{bookIdValue}.json", produces = [OPDS_JSON_MEDIA_TYPE])
+    fun getBook(@PathVariable bookIdValue: UUID): Publication {
+        val bookId = com.mikesajak.ebooklib.book.domain.model.BookId(bookIdValue)
+        val book = getBookUseCase.getBook(bookId)
+        return publicationOf(book)
     }
 
     @GetMapping("/authors/index.json", produces = [OPDS_JSON_MEDIA_TYPE])

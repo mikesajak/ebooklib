@@ -176,7 +176,7 @@ class OpdsControllerTest {
     @Test
     fun `getNewBooks returns 200 OK and paginated books`() {
         val paginatedBooks = PaginatedResult(listOf(book1, book2), 0, 2, 2, 1)
-        whenever(getBookUseCase.getAllBooks(any())).thenReturn(paginatedBooks)
+        whenever(getBookUseCase.getNewestBooks(any())).thenReturn(paginatedBooks)
 
         mockMvc.perform(get("/opds/v2/books/new.json?page=0&size=2"))
             .andExpect(status().isOk)

@@ -8,4 +8,5 @@ import com.mikesajak.ebooklib.common.domain.model.PaginationRequest
 interface GetBookUseCase {
     fun getBook(bookId: BookId): Book
     fun getAllBooks(pagination: PaginationRequest): PaginatedResult<Book>
+    fun getNewestBooks(pagination: PaginationRequest): PaginatedResult<Book>
 }

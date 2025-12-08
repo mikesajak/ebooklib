@@ -35,6 +35,12 @@ class BookService(
         return bookRepository.findAll(pagination)
     }
 
+    override fun getNewestBooks(pagination: PaginationRequest): PaginatedResult<Book> {
+        val sortByCreationDate = com.mikesajak.ebooklib.common.domain.model.SortOrder("creationDate", com.mikesajak.ebooklib.common.domain.model.SortDirection.DESC)
+        val newPagination = pagination.copy(sort = listOf(sortByCreationDate) + pagination.sort)
+        return bookRepository.findAll(newPagination)
+    }
+
     override fun addBook(book: Book): Book {
         return bookRepository.save(book)
     }
