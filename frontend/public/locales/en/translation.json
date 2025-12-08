@@ -139,7 +139,9 @@
     "lastName": "Last Name",
     "firstName": "First Name",
     "nationality": "Nationality",
-    "addAuthor": "Add Author"
+    "addAuthor": "Add Author",
+    "groupedView": "Grouped View",
+    "plainView": "Plain List"
   },
   "seriesDetails": {
     "title": "Series Details",
@@ -165,6 +167,15 @@
     "cancel": "Cancel",
     "edit": "Edit",
     "save": "Save",
-    "delete": "Delete"
+    "delete": "Delete",
+    "page": "Page",
+    "of": "of",
+    "total": "total",
+    "pageSize": "Page Size",
+    "previous": "Previous",
+    "next": "Next",
+    "details": "Details",
+    "actions": "Actions",
+    "loading": "Loading..."
   }
 }

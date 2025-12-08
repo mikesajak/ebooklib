@@ -137,7 +137,9 @@
     "lastName": "Nazwisko",
     "firstName": "Imię",
     "nationality": "Narodowość",
-    "addAuthor": "Dodaj Autora"
+    "addAuthor": "Dodaj Autora",
+    "groupedView": "Widok zgrupowany",
+    "plainView": "Zwykła lista"
   },
   "seriesDetails": {
     "title": "Szczegóły Serii",
@@ -163,6 +165,15 @@
     "cancel": "Anuluj",
     "edit": "Edytuj",
     "save": "Zapisz",
-    "delete": "Usuń"
+    "delete": "Usuń",
+    "page": "Strona",
+    "of": "z",
+    "total": "łącznie",
+    "pageSize": "Elementów na stronę",
+    "previous": "Poprzednia",
+    "next": "Następna",
+    "details": "Szczegóły",
+    "actions": "Akcje",
+    "loading": "Ładowanie..."
   }
 }
