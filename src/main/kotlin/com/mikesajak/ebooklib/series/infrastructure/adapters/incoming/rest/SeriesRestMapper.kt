@@ -1,6 +1,7 @@
 package com.mikesajak.ebooklib.series.infrastructure.adapters.incoming.rest
 
 import com.mikesajak.ebooklib.series.domain.model.Series
+import com.mikesajak.ebooklib.series.infrastructure.adapters.incoming.rest.dto.SeriesRequestDto
 import com.mikesajak.ebooklib.series.infrastructure.adapters.incoming.rest.dto.SeriesResponseDto
 import org.springframework.stereotype.Component
 
@@ -8,4 +9,7 @@ import org.springframework.stereotype.Component
 class SeriesRestMapper {
     fun toResponse(series: Series): SeriesResponseDto =
         SeriesResponseDto(series.id!!.value, series.title, series.description)
+
+    fun fromRequest(request: SeriesRequestDto): Series =
+        Series(null, request.title, request.description)
 }

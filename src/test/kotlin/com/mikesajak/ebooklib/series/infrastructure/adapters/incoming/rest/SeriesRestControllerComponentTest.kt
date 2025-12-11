@@ -9,6 +9,7 @@ import com.mikesajak.ebooklib.book.infrastructure.adapters.incoming.rest.BookVie
 import com.mikesajak.ebooklib.book.infrastructure.adapters.incoming.rest.dto.BookResponseDto
 import com.mikesajak.ebooklib.common.domain.model.PaginatedResult
 import com.mikesajak.ebooklib.infrastructure.exception.GlobalExceptionHandler
+import com.mikesajak.ebooklib.series.application.ports.incoming.AddSeriesUseCase
 import com.mikesajak.ebooklib.series.application.ports.incoming.GetSeriesUseCase
 import com.mikesajak.ebooklib.series.domain.exception.SeriesNotFoundException
 import com.mikesajak.ebooklib.series.domain.model.Series
@@ -43,6 +44,9 @@ class SeriesRestControllerComponentTest {
 
     @MockitoBean
     private lateinit var getBooksBySeriesUseCase: GetBooksBySeriesUseCase
+
+    @MockitoBean
+    private lateinit var addSeriesUseCase: AddSeriesUseCase
 
     @MockitoBean
     private lateinit var bookRestMapper: BookRestMapper

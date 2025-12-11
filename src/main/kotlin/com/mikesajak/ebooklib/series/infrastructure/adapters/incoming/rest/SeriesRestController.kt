@@ -7,10 +7,14 @@ import com.mikesajak.ebooklib.book.infrastructure.adapters.incoming.rest.dto.Boo
 import com.mikesajak.ebooklib.infrastructure.incoming.rest.dto.PageResponse
 import com.mikesajak.ebooklib.infrastructure.incoming.rest.toPageResponse
 import com.mikesajak.ebooklib.infrastructure.web.toDomainPagination
+import com.mikesajak.ebooklib.series.application.ports.incoming.AddSeriesUseCase
 import com.mikesajak.ebooklib.series.application.ports.incoming.GetSeriesUseCase
 import com.mikesajak.ebooklib.series.domain.model.SeriesId
+import com.mikesajak.ebooklib.series.infrastructure.adapters.incoming.rest.dto.SeriesRequestDto
 import com.mikesajak.ebooklib.series.infrastructure.adapters.incoming.rest.dto.SeriesResponseDto
+import jakarta.validation.Valid
 import org.springframework.data.domain.Pageable
+import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
 import java.util.*
 
@@ -19,9 +23,18 @@ import java.util.*
 class SeriesRestController(
         private val getSeriesUseCase: GetSeriesUseCase,
         private val getBooksBySeriesUseCase: GetBooksBySeriesUseCase,
+        private val addSeriesUseCase: AddSeriesUseCase,
         private val bookRestMapper: BookRestMapper,
         private val seriesRestMapper: SeriesRestMapper
 ) {
+
+    @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
+    fun addSeries(@Valid @RequestBody seriesRequestDto: SeriesRequestDto): SeriesResponseDto {
+        val series = seriesRestMapper.fromRequest(seriesRequestDto)
+        val savedSeries = addSeriesUseCase.addSeries(series)
+        return seriesRestMapper.toResponse(savedSeries)
+    }
 
     @GetMapping
     fun getAllSeries(pageable: Pageable): PageResponse<SeriesResponseDto> =

@@ -1,15 +1,14 @@
 package com.mikesajak.ebooklib.file.infrastructure.adapters.outgoing.persistence
 
+import com.mikesajak.ebooklib.config.BaseIntegrationTest
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.context.DynamicPropertyRegistry
 import org.springframework.test.context.DynamicPropertySource
 import org.testcontainers.containers.MinIOContainer
-import org.testcontainers.containers.PostgreSQLContainer
 import org.testcontainers.junit.jupiter.Container
 import org.testcontainers.junit.jupiter.Testcontainers
 import software.amazon.awssdk.services.s3.S3Client
@@ -19,10 +18,9 @@ import java.io.ByteArrayInputStream
 import java.nio.charset.StandardCharsets
 import java.util.*
 
-@SpringBootTest
 @ActiveProfiles("test")
 @Testcontainers
-class S3FileStorageAdapterIntegrationTest {
+class S3FileStorageAdapterIntegrationTest: BaseIntegrationTest() {
 
     @Autowired
     private lateinit var s3FileStorageAdapter: S3FileStorageAdapter
@@ -39,13 +37,6 @@ class S3FileStorageAdapterIntegrationTest {
                 .withEnv("MINIO_ROOT_USER", "minioadmin")
                 .withEnv("MINIO_ROOT_PASSWORD", "minioadmin")
 
-        @Container
-        val postgresContainer = PostgreSQLContainer<Nothing>("postgres:16-alpine").apply {
-            withDatabaseName("testdb")
-            withUsername("testuser")
-            withPassword("testpass")
-        }
-
         @JvmStatic
         @DynamicPropertySource
         fun registerProperties(registry: DynamicPropertyRegistry) {
@@ -53,10 +44,6 @@ class S3FileStorageAdapterIntegrationTest {
             registry.add("minio.access-key") { minioContainer.userName }
             registry.add("minio.secret-key") { minioContainer.password }
             registry.add("minio.bucket-name") { "test-bucket" }
-
-            registry.add("spring.datasource.url", postgresContainer::getJdbcUrl)
-            registry.add("spring.datasource.username", postgresContainer::getUsername)
-            registry.add("spring.datasource.password", postgresContainer::getPassword)
         }
     }
 
