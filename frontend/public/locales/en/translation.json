@@ -167,7 +167,10 @@
     "title": "Series",
     "loading": "Loading series...",
     "noSeriesFound": "No series found.",
-    "addSeries": "Add Series"
+    "addSeries": "Add Series",
+    "header": {
+      "title": "Title"
+    }
   },
   "common": {
     "na": "N/A",

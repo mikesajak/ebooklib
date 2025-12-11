@@ -165,7 +165,10 @@
     "title": "Serie",
     "loading": "Ładowanie serii...",
     "noSeriesFound": "Nie znaleziono serii.",
-    "addSeries": "Dodaj Serię"
+    "addSeries": "Dodaj Serię",
+    "header": {
+      "title": "Tytuł"
+    }
   },
   "common": {
     "na": "Brak",

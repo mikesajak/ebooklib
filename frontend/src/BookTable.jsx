@@ -20,8 +20,8 @@ const BookTable = () => {
   const [notification, setNotification] = useState(null);
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [bookToDelete, setBookToDelete] = useState(null);
-  const [showDropdown, setShowDropdown] = useState(null); // State to manage which dropdown is open
-  const dropdownRef = useRef(null);
+
+
 
   const fetchBooks = useCallback(async () => {
     setLoading(true);
@@ -55,23 +55,11 @@ const BookTable = () => {
     }
   }, [ready, fetchBooks]);
 
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
-        setShowDropdown(null);
-      }
-    };
 
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, [dropdownRef]);
 
   const handleDeleteClick = (book) => {
     setBookToDelete(book);
     setShowConfirmation(true);
-    setShowDropdown(null); // Close dropdown after clicking delete
   };
 
   const handleConfirmDelete = async () => {
@@ -106,9 +94,7 @@ const BookTable = () => {
     setBookToDelete(null);
   };
 
-  const toggleDropdown = (bookId) => {
-    setShowDropdown(showDropdown === bookId ? null : bookId);
-  };
+
 
   if (!ready) {
     return <div>Loading translations...</div>;
@@ -116,16 +102,16 @@ const BookTable = () => {
 
   if (loading) {
     return (
-      <div style={{padding: '1rem 2rem'}}>
-        <h1 style={{fontSize: '1.5rem', fontWeight: 'bold', marginBottom: '1rem'}}>{t('bookTable.title')}</h1>
-        <p style={{textAlign: 'center', color: '#6b7280'}}>{t('bookTable.loadingBooks')}</p>
+      <div className="container mx-auto p-4">
+        <h1 className="text-2xl font-bold mb-4">{t('bookTable.title')}</h1>
+        <p className="text-center text-gray-500">{t('bookTable.loadingBooks')}</p>
       </div>
     );
   }  if (error) {
     return (
-      <div style={{padding: '1rem 2rem'}}>
-        <h1 style={{fontSize: '1.5rem', fontWeight: 'bold', marginBottom: '1rem'}}>{t('bookTable.title')}</h1>
-        <p style={{textAlign: 'center', color: '#dc2626'}}>{t('bookTable.error')}: {error}</p>
+      <div className="container mx-auto p-4">
+        <h1 className="text-2xl font-bold mb-4">{t('bookTable.title')}</h1>
+        <p className="text-center text-red-500">{t('bookTable.error')}: {error}</p>
       </div>
     );
   }
@@ -147,159 +133,130 @@ const BookTable = () => {
   };
 
   return (
-    <div style={{padding: '1rem 2rem'}}>
-      {notification && (
-        <Notification
-          message={notification.message}
-          type={notification.type}
-          onClose={() => setNotification(null)}
-        />
-      )}
-      <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem'}}>
-        <h1 style={{fontSize: '1.5rem', fontWeight: 'bold'}}>{t('bookTable.title')}</h1>
-        <Link to="/add-book">
-          <button className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">
-            {t('bookTable.addBookButton')}
-          </button>
-        </Link>
-      </div>
-      <table style={{width: '100%', backgroundColor: 'white', border: '1px solid #d1d5db', borderCollapse: 'collapse'}}>
-        <thead>
-          <tr style={{backgroundColor: '#3b82f6', color: '#1e40af'}}>
-            <th style={{padding: '0.5rem 1rem', border: '1px solid #d1d5db', cursor: 'pointer'}} onClick={() => handleSort('title')}>{t('bookTable.header.title')}{getSortIndicator('title')}</th>
-            <th style={{padding: '0.5rem 1rem', border: '1px solid #d1d5db'}}>{t('bookTable.header.authors')}</th>
-            <th style={{padding: '0.5rem 1rem', border: '1px solid #d1d5db', width: '60px', cursor: 'pointer'}} onClick={() => handleSort('series.title')}>{t('bookTable.header.series')}{getSortIndicator('series.title')}</th>
-            <th style={{padding: '0.5rem 1rem', border: '1px solid #d1d5db', cursor: 'pointer'}} onClick={() => handleSort('volume')}>{t('bookTable.header.volume')}{getSortIndicator('volume')}</th>
-            <th style={{padding: '0.5rem 1rem', border: '1px solid #d1d5db', cursor: 'pointer'}} onClick={() => handleSort('publicationDate')}>Publication Date{getSortIndicator('publicationDate')}</th>
-            <th style={{padding: '0.5rem 1rem', border: '1px solid #d1d5db', cursor: 'pointer'}} onClick={() => handleSort('publisher')}>Publisher{getSortIndicator('publisher')}</th>
-            <th style={{padding: '0.5rem 1rem', border: '1px solid #d1d5db'}}>{t('bookTable.header.labels')}</th>
-            <th style={{padding: '0.5rem 1rem', border: '1px solid #d1d5db'}}>{t('bookTable.header.actions')}</th>
-          </tr>
-        </thead>
-        <tbody>
-          {books.length === 0 ? (
-            <tr>
-              <td colSpan="8" style={{padding: '1rem', textAlign: 'center', color: '#6b7280'}}>
-                {t('bookTable.noBooksFound')}
-              </td>
-            </tr>
-          ) : (
-            books.map((book, index) => (
-              <tr
-                key={book.id}
-                style={{backgroundColor: index % 2 === 0 ? '#f9fafb' : 'white'}}
-              >
-                <td style={{padding: '0.5rem 1rem', border: '1px solid #d1d5db'}}>
-                  <Link
-                    to={`/book/${book.id}`}
-                    className="book-link"
-                  >
-                    {book.title}
-                  </Link>
-                </td>
-                <td style={{padding: '0.5rem 1rem', border: '1px solid #d1d5db'}}>
-                  {book.authors.map((author) => (
-                    <div key={author.id} style={{marginBottom: '0.25rem'}}>
-                      ▪ <Link
-                        to={`/author/${author.id}`}
-                        className="author-link"
-                      >
-                        {author.firstName} {author.lastName}
-                      </Link>
-                    </div>
-                  ))}
-                </td>
-                <td style={{padding: '0.5rem 1rem', border: '1px solid #d1d5db', width: '60px'}}>
-                  {book.series ? (
-                    <Link
-                      to={`/series/${book.series.id}`}
-                      className="series-link"
-                    >
-                      {book.series.title}
-                    </Link>
-                  ) : t('common.na')}
-                </td>
-                <td style={{padding: '0.5rem 1rem', border: '1px solid #d1d5db'}}>{book.volume || t('common.na')}</td>
-                <td style={{padding: '0.5rem 1rem', border: '1px solid #d1d5db'}}>{book.publicationDate || t('common.na')}</td>
-                <td style={{padding: '0.5rem 1rem', border: '1px solid #d1d5db'}}>{book.publisher || t('common.na')}</td>
-                <td style={{padding: '0.5rem 1rem', border: '1px solid #d1d5db'}}>{book.labels && book.labels.length > 0 ? book.labels.join(', ') : t('common.na')}</td>
-                <td style={{padding: '0.5rem 1rem', border: '1px solid #d1d5db'}}>
-                  <div className="action-dropdown" ref={dropdownRef}>
-                    <button className="action-button" onClick={(e) => { e.stopPropagation(); toggleDropdown(book.id); }}>...</button>
-                    <div className={`action-dropdown-content ${showDropdown === book.id ? 'show' : ''}`}>
-                      <button onClick={(e) => { e.stopPropagation(); handleDeleteClick(book); }}>{t('bookTable.actions.delete')}</button>
-                    </div>
-                  </div>
-                </td>
-              </tr>
-            ))
+        <div className="container mx-auto p-4">
+          {notification && (
+            <Notification
+              message={notification.message}
+              type={notification.type}
+              onClose={() => setNotification(null)}
+            />
           )}
-        </tbody>
-      </table>
+          <div className="bg-white shadow-md rounded my-6">
+            <div className="flex justify-between items-center mb-4">
+              <h1 className="text-2xl font-bold">{t('bookTable.title')}</h1>
+              <Link to="/add-book">
+                <button className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">
+                  {t('bookTable.addBookButton')}
+                </button>
+              </Link>
+            </div>
+            <table className="min-w-full table-auto">
+              <thead>
+                <tr className="bg-gray-200 text-gray-600 uppercase text-sm leading-normal">
+                  <th className="py-3 px-6 text-left" onClick={() => handleSort('title')}>{t('bookTable.header.title')}{getSortIndicator('title')}</th>
+                  <th className="py-3 px-6 text-left">{t('bookTable.header.authors')}</th>
+                  <th className="py-3 px-6 text-left" onClick={() => handleSort('series.title')}>{t('bookTable.header.series')}{getSortIndicator('series.title')}</th>
+                  <th className="py-3 px-6 text-left" onClick={() => handleSort('volume')}>{t('bookTable.header.volume')}{getSortIndicator('volume')}</th>
+                  <th className="py-3 px-6 text-left" onClick={() => handleSort('publicationDate')}>Publication Date{getSortIndicator('publicationDate')}</th>
+                  <th className="py-3 px-6 text-left" onClick={() => handleSort('publisher')}>Publisher{getSortIndicator('publisher')}</th>
+                  <th className="py-3 px-6 text-left">{t('bookTable.header.labels')}</th>
+                  <th className="py-3 px-6 text-center">{t('bookTable.header.actions')}</th>
+                </tr>
+              </thead>
+              <tbody>
+                {books.length === 0 ? (
+                  <tr>
+                                  <td colSpan="8" className="px-6 py-4 whitespace-nowrap text-center text-sm text-gray-500">{t('bookTable.noBooksFound')}</td>
+                  </tr>
+                ) : (
+                  books.map((book, index) => (
+                    <tr key={book.id} className="border-b border-gray-200 hover:bg-gray-100">
+                      <td className="py-3 px-6 text-left whitespace-nowrap">
+                        <Link
+                          to={`/book/${book.id}`}
+                          className="book-link"
+                        >
+                          {book.title}
+                        </Link>
+                      </td>
+                      <td className="py-3 px-6 text-left whitespace-nowrap">
+                        {book.authors.map((author) => (
+                          <div key={author.id} style={{marginBottom: '0.25rem'}}>
+                            ▪ <Link
+                              to={`/author/${author.id}`}
+                              className="author-link"
+                            >
+                              {author.firstName} {author.lastName}
+                            </Link>
+                          </div>
+                        ))}
+                      </td>
+                      <td className="py-3 px-6 text-left whitespace-nowrap">
+                        {book.series ? (
+                          <Link
+                            to={`/series/${book.series.id}`}
+                            className="series-link"
+                          >
+                            {book.series.title}
+                          </Link>
+                        ) : t('common.na')}
+                      </td>
+                      <td className="py-3 px-6 text-left whitespace-nowrap">{book.volume || t('common.na')}</td>
+                      <td className="py-3 px-6 text-left whitespace-nowrap">{book.publicationDate || t('common.na')}</td>
+                      <td className="py-3 px-6 text-left whitespace-nowrap">{book.publisher || t('common.na')}</td>
+                      <td className="py-3 px-6 text-left whitespace-nowrap">{book.labels && book.labels.length > 0 ? book.labels.join(', ') : t('common.na')}</td>
+                      <td className="py-3 px-6 text-center whitespace-nowrap text-sm font-medium">
+                        <Link to={`/book/${book.id}/edit`} className="text-indigo-600 hover:text-indigo-900 mr-2">{t('common.edit')}</Link>
+                        <button onClick={() => handleDeleteClick(book)} className="text-red-600 hover:text-red-900">{t('common.delete')}</button>
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+    
+            {showConfirmation && (
+              <ConfirmationDialog
+                title={t('bookTable.deleteConfirmation.title')}
+                message={t('bookTable.deleteConfirmation.message', { bookTitle: bookToDelete?.title })}
+                onCancel={handleCancelDelete}
+                onConfirm={handleConfirmDelete}
+                confirmButtonText={t('bookTable.deleteConfirmation.delete')}
+                cancelButtonText={t('bookTable.deleteConfirmation.cancel')}
+              />
+            )}
+    
+            <div className="flex justify-between items-center p-4">
+              <div>
+                {t('common.page')} {page + 1} {t('common.of')} {totalPages} ({totalElements} {t('common.total')})
+              </div>
 
-      {showConfirmation && (
-        <ConfirmationDialog
-          title={t('bookTable.deleteConfirmation.title')}
-          message={t('bookTable.deleteConfirmation.message', { bookTitle: bookToDelete?.title })}
-          onCancel={handleCancelDelete}
-          onConfirm={handleConfirmDelete}
-          confirmButtonText={t('bookTable.deleteConfirmation.delete')}
-          cancelButtonText={t('bookTable.deleteConfirmation.cancel')}
-        />
-      )}
+              <div className="flex items-center space-x-2">
+                <label htmlFor="pageSize" className="mr-2">{t('common.pageSize')}:</label>
+                <select id="pageSize" value={size} onChange={(e) => { setSize(Number(e.target.value)); setPage(0); }} className="border border-gray-300 rounded p-1">
+                  <option value="5">5</option>
+                  <option value="10">10</option>
+                  <option value="20">20</option>
+                  <option value="50">50</option>
+                </select>
 
-      <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '1rem'}}>
-        <div>
-          {t('bookTable.itemsPerPage')}
-          <select
-            value={size}
-            onChange={(e) => {
-              setSize(Number(e.target.value));
-              setPage(0); // Reset to first page when size changes
-            }}
-            style={{marginLeft: '0.5rem', padding: '0.25rem', borderRadius: '0.25rem', border: '1px solid #d1d5db'}}
-          >
-            <option value="10">10</option>
-            <option value="20">20</option>
-            <option value="50">50</option>
-          </select>
+                <button
+                  onClick={() => setPage(page - 1)}
+                  disabled={page === 0}
+                  className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded disabled:opacity-50"us>
+                  {t('common.previous')}
+                </button>
+
+                <button
+                  onClick={() => setPage(page + 1)}
+                  disabled={page === totalPages - 1}
+                  className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded disabled:opacity-50">
+                  {t('common.next')}
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
-
-        <div>
-          <button
-            onClick={() => setPage(0)}
-            disabled={page === 0}
-            style={{padding: '0.5rem 1rem', border: '1px solid #d1d5db', borderRadius: '0.25rem', backgroundColor: '#f9fafb', cursor: page === 0 ? 'not-allowed' : 'pointer'}}
-          >
-            {t('bookTable.pagination.first')}
-          </button>
-          <button
-            onClick={() => setPage(page - 1)}
-            disabled={page === 0}
-            style={{marginLeft: '0.5rem', padding: '0.5rem 1rem', border: '1px solid #d1d5db', borderRadius: '0.25rem', backgroundColor: '#f9fafb', cursor: page === 0 ? 'not-allowed' : 'pointer'}}
-          >
-            {t('bookTable.pagination.previous')}
-          </button>
-          <span style={{margin: '0 1rem'}}>
-            {t('bookTable.pagination.pageOf', { page: page + 1, totalPages: totalPages })}
-          </span>
-          <button
-            onClick={() => setPage(page + 1)}
-            disabled={page === totalPages - 1}
-            style={{padding: '0.5rem 1rem', border: '1px solid #d1d5db', borderRadius: '0.25rem', backgroundColor: '#f9fafb', cursor: page === totalPages - 1 ? 'not-allowed' : 'pointer'}}
-          >
-            {t('bookTable.pagination.next')}
-          </button>
-          <button
-            onClick={() => setPage(totalPages - 1)}
-            disabled={page === totalPages - 1}
-            style={{marginLeft: '0.5rem', padding: '0.5rem 1rem', border: '1px solid #d1d5db', borderRadius: '0.25rem', backgroundColor: '#f9fafb', cursor: page === totalPages - 1 ? 'not-allowed' : 'pointer'}}
-          >
-            {t('bookTable.pagination.last')}
-          </button>
-        </div>
-      </div>
-    </div>
   );
 };
 

@@ -89,10 +89,9 @@ const PaginatedAuthorTable = () => {
               <td className="py-3 px-6 text-left">
                 {author.nationality}
               </td>
-              <td className="py-3 px-6 text-center">
-                <Link to={`/author/${author.id}`} className="text-blue-600 hover:text-blue-900">
-                  {t('common.details')}
-                </Link>
+              <td className="py-3 px-6 text-center whitespace-nowrap text-sm font-medium">
+                <Link to={`/author/${author.id}/edit`} className="text-indigo-600 hover:text-indigo-900 mr-2">{t('common.edit')}</Link>
+                <button onClick={() => { /* handle delete */ }} className="text-red-600 hover:text-red-900">{t('common.delete')}</button>
               </td>
             </tr>
           ))}
