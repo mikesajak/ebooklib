@@ -121,6 +121,14 @@
     "successMessage": "Author added successfully!",
     "failureMessage": "Failed to create author"
   },
+  "addSeries": {
+    "title": "Add New Series",
+    "form": {
+      "name": "Name"
+    },
+    "successMessage": "Series added successfully!",
+    "failureMessage": "Failed to create series"
+  },
   "authorDetails": {
     "title": "Author Details",
     "loading": "Loading author details...",
@@ -158,7 +166,8 @@
   "seriesList": {
     "title": "Series",
     "loading": "Loading series...",
-    "noSeriesFound": "No series found."
+    "noSeriesFound": "No series found.",
+    "addSeries": "Add Series"
   },
   "common": {
     "na": "N/A",
@@ -176,6 +185,10 @@
     "next": "Next",
     "details": "Details",
     "actions": "Actions",
-    "loading": "Loading..."
+    "loading": "Loading...",
+    "language": {
+      "en": "English",
+      "pl": "Polish"
+    }
   }
 }

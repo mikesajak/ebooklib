@@ -158,7 +158,7 @@ const BookTable = () => {
       <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem'}}>
         <h1 style={{fontSize: '1.5rem', fontWeight: 'bold'}}>{t('bookTable.title')}</h1>
         <Link to="/add-book">
-          <button style={{backgroundColor: '#22c55e', color: 'white', fontWeight: 'bold', padding: '0.5rem 1rem', borderRadius: '0.25rem'}}>
+          <button className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">
             {t('bookTable.addBookButton')}
           </button>
         </Link>

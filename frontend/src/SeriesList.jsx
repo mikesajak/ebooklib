@@ -47,7 +47,14 @@ const SeriesList = () => {
 
   return (
     <div className="container mx-auto p-4">
-      <h1 className="text-2xl font-bold mb-4">{t('seriesList.title')}</h1>
+      <div className="flex justify-between items-center mb-4">
+        <h1 className="text-2xl font-bold">{t('seriesList.title')}</h1>
+        <Link to="/series/add">
+          <button className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">
+            {t('seriesList.addSeries')}
+          </button>
+        </Link>
+      </div>
       {series.length === 0 ? (
         <p className="text-gray-500">{t('seriesList.noSeriesFound')}</p>
       ) : (

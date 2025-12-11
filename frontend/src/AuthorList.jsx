@@ -94,19 +94,21 @@ const AuthorList = () => {
           <div>
             <button
               onClick={() => setViewMode('grouped')}
-              className={`py-2 px-4 rounded-l ${viewMode === 'grouped' ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-800'}`}
+              className={`py-2 px-4 rounded-l ${viewMode === 'grouped' ? 'bg-gray-500 text-white' : 'bg-gray-200 text-gray-800'}`}
             >
               {t('authorList.groupedView')}
             </button>
             <button
               onClick={() => setViewMode('plain')}
-              className={`py-2 px-4 rounded-r ${viewMode === 'plain' ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-800'}`}
+              className={`py-2 px-4 rounded-r ${viewMode === 'plain' ? 'bg-gray-500 text-white' : 'bg-gray-200 text-gray-800'}`}
             >
               {t('authorList.plainView')}
             </button>
           </div>
-          <Link to="/authors/add" className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">
-            {t('authorList.addAuthor')}
+          <Link to="/authors/add">
+            <button className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">
+              {t('authorList.addAuthor')}
+            </button>
           </Link>
         </div>
       </div>

@@ -120,6 +120,14 @@
     "successMessage": "Autor dodany pomyślnie!",
     "failureMessage": "Nie udało się dodać autora"
   },
+  "addSeries": {
+    "title": "Dodaj Nową Serię",
+    "form": {
+      "name": "Nazwa"
+    },
+    "successMessage": "Seria dodana pomyślnie!",
+    "failureMessage": "Nie udało się dodać serii"
+  },
   "authorDetails": {
     "title": "Szczegóły Autora",
     "loading": "Ładowanie szczegółów autora...",
@@ -156,7 +164,8 @@
   "seriesList": {
     "title": "Serie",
     "loading": "Ładowanie serii...",
-    "noSeriesFound": "Nie znaleziono serii."
+    "noSeriesFound": "Nie znaleziono serii.",
+    "addSeries": "Dodaj Serię"
   },
   "common": {
     "na": "Brak",
@@ -174,6 +183,10 @@
     "next": "Następna",
     "details": "Szczegóły",
     "actions": "Akcje",
-    "loading": "Ładowanie..."
+    "loading": "Ładowanie...",
+    "language": {
+      "en": "Angielski",
+      "pl": "Polski"
+    }
   }
 }

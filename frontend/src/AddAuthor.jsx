@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import Notification from './Notification';
 import { useTranslation } from 'react-i18next';
 import useMutation from './hooks/useMutation';
+import AddPage from './AddPage';
+import Form from './Form';
 
 const createAuthor = async (authorData) => {
   const response = await fetch('/api/authors', {
@@ -64,16 +65,8 @@ const AddAuthor = () => {
   const isSaveDisabled = !isFormValid || isSaving;
 
   return (
-    <div className="container mx-auto p-4">
-      {notification && (
-        <Notification
-          message={notification.message}
-          type={notification.type}
-          onClose={() => setNotification(null)}
-        />
-      )}
-      <h1 className="text-2xl font-bold mb-4">{t('addAuthor.title')}</h1>
-      <div className="bg-white border border-gray-300 rounded p-6 shadow">
+    <AddPage title={t('addAuthor.title')} notification={notification} setNotification={setNotification}>
+      <Form onSave={handleSave} onCancel={handleCancel} isSaveDisabled={isSaveDisabled}>
         <div className="mb-4">
           <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="firstName">{t('addAuthor.form.firstName')}:</label>
           <input type="text" id="firstName" name="firstName" value={author.firstName} onChange={handleChange} className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" />
@@ -94,16 +87,8 @@ const AddAuthor = () => {
           <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="deathDate">{t('addAuthor.form.deathDate')}:</label>
           <input type="date" id="deathDate" name="deathDate" value={author.deathDate} onChange={handleChange} className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" />
         </div>
-        <div className="flex justify-end mt-4">
-          <button onClick={handleSave} disabled={isSaveDisabled} className={`font-bold py-2 px-4 rounded mr-2 ${isSaveDisabled ? 'bg-gray-400 text-white cursor-not-allowed' : 'bg-green-500 hover:bg-green-700 text-white'}`}>
-            {t('common.save')}
-          </button>
-          <button onClick={handleCancel} className="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded">
-            {t('common.cancel')}
-          </button>
-        </div>
-      </div>
-    </div>
+      </Form>
+    </AddPage>
   );
 };
 

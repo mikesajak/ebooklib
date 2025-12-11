@@ -9,6 +9,7 @@ import AuthorList from './AuthorList'
 import SeriesList from './SeriesList'
 import AddBook from './AddBook'
 import AddAuthor from './AddAuthor'
+import AddSeries from './AddSeries'
 import AppSidebar from './Sidebar'
 
 function App() {
@@ -28,6 +29,7 @@ function App() {
               <Route path="/authors" element={<AuthorList />} />
               <Route path="/authors/add" element={<AddAuthor />} />
               <Route path="/series" element={<SeriesList />} />
+              <Route path="/series/add" element={<AddSeries />} />
             </Routes>
           </main>
         </div>

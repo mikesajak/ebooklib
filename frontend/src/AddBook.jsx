@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import Notification from './Notification';
 import { useTranslation } from 'react-i18next';
 import useMutation from './hooks/useMutation';
+import AddPage from './AddPage';
+import Form from './Form';
 
 const createBook = async (bookData) => {
   const response = await fetch('/api/books', {
@@ -129,16 +130,8 @@ const AddBook = () => {
   const isSaveDisabled = !isTitleValid || isSaving;
 
   return (
-    <div className="container mx-auto p-4">
-      {notification && (
-        <Notification
-          message={notification.message}
-          type={notification.type}
-          onClose={() => setNotification(null)}
-        />
-      )}
-      <h1 className="text-2xl font-bold mb-4">{t('addBook.title')}</h1>
-      <div className="bg-white border border-gray-300 rounded p-6 shadow">
+    <AddPage title={t('addBook.title')} notification={notification} setNotification={setNotification}>
+      <Form onSave={handleSave} onCancel={handleCancel} isSaveDisabled={isSaveDisabled}>
         <div className="mb-4">
           <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="title">{t('addBook.form.title')}:</label>
           <input type="text" id="title" name="title" value={book.title} onChange={handleChange} className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" />
@@ -147,7 +140,8 @@ const AddBook = () => {
           <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="author">{t('addBook.form.author')}:</label>
           <select id="author" name="authorId" value={book.authors[0]?.id || ''} onChange={handleAuthorChange} className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
             <option value="">{t('addBook.form.selectAuthor')}</option>
-            {authors.map(author => (<option key={author.id} value={author.id}>{author.firstName} {author.lastName}</option>))}          </select>
+            {authors.map(author => (<option key={author.id} value={author.id}>{author.firstName} {author.lastName}</option>))}
+          </select>
         </div>
         <div className="mb-4">
           <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="series">{t('addBook.form.series')}:</label>
@@ -184,16 +178,8 @@ const AddBook = () => {
             placeholder={t('addBook.form.labelsPlaceholder')}
           />
         </div>
-        <div className="flex justify-end mt-4">
-          <button onClick={handleSave} disabled={isSaveDisabled} className={`font-bold py-2 px-4 rounded mr-2 ${isSaveDisabled ? 'bg-gray-400 text-white cursor-not-allowed' : 'bg-green-500 hover:bg-green-700 text-white'}`}>
-            {t('common.save')}
-          </button>
-          <button onClick={handleCancel} className="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded">
-            {t('common.cancel')}
-          </button>
-        </div>
-      </div>
-    </div>
+      </Form>
+    </AddPage>
   );
 };
 

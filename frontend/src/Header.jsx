@@ -4,7 +4,11 @@ import LanguageSelector from './LanguageSelector';
 import { useTranslation } from 'react-i18next';
 
 const Header = () => {
-  const { t } = useTranslation();
+  const { t, ready } = useTranslation();
+
+  if (!ready) {
+    return null; // Or a loading spinner
+  }
 
   return (
     <header style={{backgroundColor: 'white', color: 'black', boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)', padding: '1rem 2rem'}}>
