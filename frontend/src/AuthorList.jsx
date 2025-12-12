@@ -87,7 +87,6 @@ const AuthorList = () => {
               <select id="grouping-criteria" value={groupingCriteria} onChange={handleGroupingChange} className="border border-gray-300 rounded p-1" data-testid="grouping-criteria-select">
                 <option value="lastName">{t('authorList.lastName')}</option>
                 <option value="firstName">{t('authorList.firstName')}</option>
-                <option value="nationality">{t('authorList.nationality')}</option>
               </select>
             </div>
           )}

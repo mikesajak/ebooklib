@@ -11,13 +11,15 @@ const PaginatedAuthorTable = () => {
   const [totalElements, setTotalElements] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [sortField, setSortField] = useState('lastName'); // Default sort field
+  const [sortDirection, setSortDirection] = useState('asc'); // Default sort direction
 
   useEffect(() => {
     const fetchAuthors = async () => {
       setLoading(true);
       setError(null);
       try {
-        const response = await fetch(`/api/authors?page=${page}&size=${size}`);
+        const response = await fetch(`/api/authors?page=${page}&size=${size}&sort=${sortField},${sortDirection}`);
         if (!response.ok) {
           throw new Error('Failed to fetch authors');
         }
@@ -48,6 +50,22 @@ const PaginatedAuthorTable = () => {
     setPage(0); // Reset to first page when page size changes
   };
 
+  const getSortIndicator = (field) => {
+    if (sortField === field) {
+      return sortDirection === 'asc' ? ' ▲' : ' ▼';
+    }
+    return '';
+  };
+
+  const handleSort = (field) => {
+    if (sortField === field) {
+      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortField(field);
+      setSortDirection('asc'); // Default to ascending when changing sort field
+    }
+  };
+
   if (loading) {
     return (
       <div className="text-center text-gray-500">{t('common.loading')}</div>
@@ -71,9 +89,8 @@ const PaginatedAuthorTable = () => {
       <table className="min-w-full table-auto">
         <thead>
           <tr className="bg-gray-200 text-gray-600 uppercase text-sm leading-normal">
-            <th className="py-3 px-6 text-left">{t('authorList.firstName')}</th>
-            <th className="py-3 px-6 text-left">{t('authorList.lastName')}</th>
-            <th className="py-3 px-6 text-left">{t('authorList.nationality')}</th>
+            <th className="py-3 px-6 text-left cursor-pointer" onClick={() => handleSort('firstName')}>{t('authorList.firstName')}{getSortIndicator('firstName')}</th>
+            <th className="py-3 px-6 text-left cursor-pointer" onClick={() => handleSort('lastName')}>{t('authorList.lastName')}{getSortIndicator('lastName')}</th>
             <th className="py-3 px-6 text-center">{t('common.actions')}</th>
           </tr>
         </thead>
@@ -90,9 +107,7 @@ const PaginatedAuthorTable = () => {
                   {author.lastName}
                 </Link>
               </td>
-              <td className="py-3 px-6 text-left">
-                {author.nationality}
-              </td>
+
               <td className="py-3 px-6 text-center whitespace-nowrap text-sm font-medium">
                 <Link to={`/author/${author.id}/edit`} className="text-indigo-600 hover:text-indigo-900 mr-2">{t('common.edit')}</Link>
                 <button onClick={() => { /* handle delete */ }} className="text-red-600 hover:text-red-900">{t('common.delete')}</button>
