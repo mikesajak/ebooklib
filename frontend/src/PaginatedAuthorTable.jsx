@@ -81,10 +81,14 @@ const PaginatedAuthorTable = () => {
           {authors.map((author) => (
             <tr key={author.id} className="border-b border-gray-200 hover:bg-gray-100">
               <td className="py-3 px-6 text-left whitespace-nowrap">
-                {author.firstName}
+                <Link to={`/author/${author.id}`} className="author-link">
+                  {author.firstName}
+                </Link>
               </td>
               <td className="py-3 px-6 text-left">
-                {author.lastName}
+                <Link to={`/author/${author.id}`} className="author-link">
+                  {author.lastName}
+                </Link>
               </td>
               <td className="py-3 px-6 text-left">
                 {author.nationality}

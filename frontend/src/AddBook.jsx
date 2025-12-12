@@ -1,13 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import useMutation from './hooks/useMutation';
 import AddPage from './AddPage';
 import Form from './Form';
 
-const createBook = async (bookData) => {
-  const response = await fetch('/api/books', {
-    method: 'POST',
+const saveBook = async (bookData, isEditMode, bookId) => {
+  const method = isEditMode ? 'PUT' : 'POST';
+  const url = isEditMode ? `/api/books/${bookId}` : '/api/books';
+
+  const response = await fetch(url, {
+    method: method,
     headers: {
       'Content-Type': 'application/json',
     },
@@ -15,7 +18,7 @@ const createBook = async (bookData) => {
   });
 
   if (!response.ok) {
-    let errorMessage = 'Failed to create book';
+    let errorMessage = 'Failed to save book';
     try {
       const errorData = await response.json();
       errorMessage = errorData.message || errorMessage;
@@ -31,6 +34,8 @@ const createBook = async (bookData) => {
 const AddBook = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const { id } = useParams(); // Get book ID from URL
+  const isEditMode = !!id; // Determine if in edit mode
   const [book, setBook] = useState({
     title: '',
     authors: [],
@@ -41,14 +46,19 @@ const AddBook = () => {
     description: '',
     labels: []
   });
+  const [originalBook, setOriginalBook] = useState(null); // Store original book data for comparison
   const [authors, setAuthors] = useState([]);
   const [series, setSeries] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  const { mutate, isSaving, notification, setNotification } = useMutation(createBook, {
-    onSuccess: () => {
-      navigate('/', { state: { notification: { type: 'success', message: 'Book added successfully!' } } });
+  const { mutate, isSaving, notification, setNotification } = useMutation(
+    (bookData) => saveBook(bookData, isEditMode, id),
+    {
+      onSuccess: () => {
+        navigate('/', { state: { notification: { type: 'success', message: t(isEditMode ? 'addBook.updateSuccess' : 'addBook.addSuccess') } } });
+      }
     }
-  });
+  );
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -84,53 +94,62 @@ const AddBook = () => {
   };
 
   const handleSave = () => {
-    const bookData = {
-      ...book,
-      authorIds: book.authors.map(author => author.id),
-      seriesId: book.series ? book.series.id : null,
-      labels: book.labels
-    };
-    delete bookData.authors;
-    delete bookData.series;
+    const bookData = { ...book };
+    // Ensure authorIds is an array and seriesId is properly set for the API
+    if (bookData.authors) {
+      bookData.authorIds = bookData.authors.map(author => author.id);
+      delete bookData.authors;
+    }
+    if (bookData.series) {
+      bookData.seriesId = bookData.series.id;
+      delete bookData.series;
+    }
+
     mutate(bookData);
   };
 
   const handleCancel = () => {
-    navigate('/');
+    navigate(isEditMode ? `/book/${id}` : '/');
   };
 
-  useEffect(() => {
-    const fetchAuthors = async () => {
-      try {
-        const response = await fetch('/api/authors');
-        if (!response.ok) throw new Error('Failed to fetch authors');
-        const data = await response.json();
-        setAuthors(data.content);
-      } catch (err) {
-        console.error('Error fetching authors:', err);
-      }
-    };
-
-    const fetchSeries = async () => {
-      try {
-        const response = await fetch('/api/series');
-        if (!response.ok) throw new Error('Failed to fetch series');
-        const data = await response.json();
-        setSeries(data.content);
-      } catch (err) {
-        console.error('Error fetching series:', err);
-      }
-    };
-
-    fetchAuthors();
-    fetchSeries();
-  }, []);
-
   const isTitleValid = book.title.trim() !== '';
-  const isSaveDisabled = !isTitleValid || isSaving;
+
+  const hasChanges = () => {
+    if (!originalBook || !book) return false;
+
+    const normalize = (val) => val || '';
+
+    if (normalize(originalBook.title) !== normalize(book.title)) return true;
+    if (String(normalize(originalBook.volume)) !== String(normalize(book.volume))) return true;
+    if (normalize(originalBook.publicationDate) !== normalize(book.publicationDate)) return true;
+    if (normalize(originalBook.publisher) !== normalize(book.publisher)) return true;
+    if (normalize(originalBook.description) !== normalize(book.description)) return true;
+
+    const originalAuthorIds = originalBook.authors?.map(a => a.id).sort() || [];
+    const currentAuthorIds = book.authors?.map(a => a.id).sort() || [];
+    if (JSON.stringify(originalAuthorIds) !== JSON.stringify(currentAuthorIds)) return true;
+
+    if (normalize(originalBook.series?.id) !== normalize(book.series?.id)) return true;
+
+    const originalLabels = originalBook.labels?.sort() || [];
+    const currentLabels = book.labels?.sort() || [];
+    if (JSON.stringify(originalLabels) !== JSON.stringify(currentLabels)) return true;
+
+    return false;
+  };
+
+  const isSaveDisabled = !isTitleValid || isSaving || (isEditMode && !hasChanges());
+
+  if (loading) {
+    return (
+      <AddPage title={t(isEditMode ? 'addBook.editTitle' : 'addBook.title')} notification={notification} setNotification={setNotification}>
+        <p>{t('common.loading')}</p>
+      </AddPage>
+    );
+  }
 
   return (
-    <AddPage title={t('addBook.title')} notification={notification} setNotification={setNotification}>
+    <AddPage title={t(isEditMode ? 'addBook.editTitle' : 'addBook.title')} notification={notification} setNotification={setNotification}>
       <Form onSave={handleSave} onCancel={handleCancel} isSaveDisabled={isSaveDisabled}>
         <div className="mb-4">
           <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="title">{t('addBook.form.title')}:</label>
