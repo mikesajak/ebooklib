@@ -9,9 +9,9 @@ services:
     volumes:
       - ./data/minio:/data # Persistent storage for MinIO data
     environment:
-      MINIO_ROOT_USER: minioadmin
-      MINIO_ROOT_PASSWORD: minioadmin
-      MINIO_SERVER_URL: http://localhost:9000 # Accessible from host
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
+      MINIO_SERVER_URL: ${MINIO_SERVER_URL} # Accessible from host
     command: server /data --console-address ":9001"
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
@@ -23,9 +23,9 @@ services:
   db:
     image: postgres:16-alpine
     environment:
-      POSTGRES_DB: ebooklib_db
-      POSTGRES_USER: ebooklib_user
-      POSTGRES_PASSWORD: ebooklib_password
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     ports:
       - "5432:5432"
     volumes:
@@ -41,7 +41,7 @@ services:
     ports:
       - "8081:8081"
     environment:
-      DATABASE_URL: "postgres://ebooklib_user:ebooklib_password@db:5432/ebooklib_db?sslmode=disable"
+      DATABASE_URL: "postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}?sslmode=disable"
     depends_on:
       db:
         condition: service_healthy

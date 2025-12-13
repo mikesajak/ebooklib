@@ -9,8 +9,8 @@ services:
     volumes:
       - minio_data:/data # Persistent storage for MinIO data
     environment:
-      MINIO_ROOT_USER: minioadmin
-      MINIO_ROOT_PASSWORD: minioadmin
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
       MINIO_SERVER_URL: http://minio:9000 # Accessible from host
     command: server /data --console-address ":9001"
     healthcheck:
@@ -23,9 +23,9 @@ services:
   db:
     image: postgres:16-alpine
     environment:
-      POSTGRES_DB: ebooklib_db
-      POSTGRES_USER: ebooklib_user
-      POSTGRES_PASSWORD: ebooklib_password
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     volumes:
       - db_data:/var/lib/postgresql/data
     healthcheck:
@@ -41,12 +41,12 @@ services:
     ports:
       - "8080:8080"
     environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/ebooklib_db
-      SPRING_DATASOURCE_USERNAME: ebooklib_user
-      SPRING_DATASOURCE_PASSWORD: ebooklib_password
-      MINIO_ENDPOINT: http://minio:9000 # Accessible from within the docker-compose network
-      MINIO_ACCESS_KEY: minioadmin
-      MINIO_SECRET_KEY: minioadmin
+      SPRING_DATASOURCE_URL: ${SPRING_DATASOURCE_URL}
+      SPRING_DATASOURCE_USERNAME: ${SPRING_DATASOURCE_USERNAME}
+      SPRING_DATASOURCE_PASSWORD: ${SPRING_DATASOURCE_PASSWORD}
+      MINIO_ENDPOINT: ${MINIO_ENDPOINT} # Accessible from within the docker-compose network
+      MINIO_ACCESS_KEY: ${MINIO_ACCESS_KEY}
+      MINIO_SECRET_KEY: ${MINIO_SECRET_KEY}
     depends_on:
       minio:
         condition: service_healthy
