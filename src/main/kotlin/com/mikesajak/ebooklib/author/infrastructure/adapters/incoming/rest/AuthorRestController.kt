@@ -4,6 +4,7 @@ import com.mikesajak.ebooklib.author.application.ports.incoming.GetAuthorUseCase
 import com.mikesajak.ebooklib.author.application.ports.incoming.SaveAuthorUseCase
 import com.mikesajak.ebooklib.author.application.ports.incoming.UpdateAuthorCommand
 import com.mikesajak.ebooklib.author.application.ports.incoming.UpdateAuthorUseCase
+import com.mikesajak.ebooklib.author.application.ports.incoming.DeleteAuthorUseCase
 import com.mikesajak.ebooklib.author.domain.model.AuthorId
 import com.mikesajak.ebooklib.author.infrastructure.adapters.incoming.rest.dto.AuthorRequestDto
 import com.mikesajak.ebooklib.author.infrastructure.adapters.incoming.rest.dto.AuthorResponseDto
@@ -26,6 +27,7 @@ class AuthorRestController(
     private val getAuthorUseCase: GetAuthorUseCase,
     private val saveAuthorUseCase: SaveAuthorUseCase,
     private val updateAuthorUseCase: UpdateAuthorUseCase,
+    private val deleteAuthorUseCase: DeleteAuthorUseCase,
     private val authorRestMapper: AuthorRestMapper,
     private val getBooksByAuthorUseCase: GetBooksByAuthorUseCase,
     private val bookRestMapper: BookRestMapper
@@ -69,5 +71,11 @@ class AuthorRestController(
         )
         val updatedAuthor = updateAuthorUseCase.updateAuthor(command)
         return ResponseEntity.ok(authorRestMapper.toResponse(updatedAuthor))
+    }
+
+    @DeleteMapping("/{id}")
+    fun deleteAuthor(@PathVariable id: UUID): ResponseEntity<Void> {
+        deleteAuthorUseCase.deleteAuthor(AuthorId(id))
+        return ResponseEntity.noContent().build()
     }
 }

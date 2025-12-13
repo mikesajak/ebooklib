@@ -3,6 +3,7 @@ package com.mikesajak.ebooklib.author.infrastructure.adapters.incoming.rest
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.mikesajak.ebooklib.author.application.ports.incoming.UpdateAuthorCommand
 import com.mikesajak.ebooklib.author.application.services.AuthorService
+import com.mikesajak.ebooklib.author.application.ports.incoming.DeleteAuthorUseCase
 import com.mikesajak.ebooklib.author.domain.exception.AuthorNotFoundException
 import com.mikesajak.ebooklib.author.domain.model.Author
 import com.mikesajak.ebooklib.author.domain.model.AuthorId
@@ -17,6 +18,10 @@ import com.mikesajak.ebooklib.series.infrastructure.adapters.incoming.rest.Serie
 import org.junit.jupiter.api.Test
 import org.mockito.kotlin.any
 import org.mockito.kotlin.whenever
+import org.mockito.kotlin.verify
+import org.mockito.kotlin.eq
+import org.mockito.kotlin.doNothing
+import org.mockito.kotlin.doThrow
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
 import org.springframework.context.annotation.Import
@@ -26,6 +31,7 @@ import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.*
 import java.util.*
 
@@ -135,7 +141,7 @@ class AuthorRestControllerComponentTest(@Autowired val mockMvc: MockMvc,
                                 .content(objectMapper.writeValueAsString(authorRequest)))
                 .andExpect(status().isCreated)
                 .andExpect(header().string("Location", "/api/authors/${savedAuthor.id!!.value}"))
-                .andExpect(jsonPath("$.id").value(savedAuthor.id!!.value.toString()))
+                .andExpect(jsonPath("$.id").value(savedAuthor.id.value.toString()))
                 .andExpect(jsonPath("$.firstName").value("New"))
                 .andExpect(jsonPath("$.lastName").value("Author"))
     }
@@ -175,5 +181,35 @@ class AuthorRestControllerComponentTest(@Autowired val mockMvc: MockMvc,
             .contentType(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(authorRequest)))
             .andExpect(status().isNotFound)
+    }
+
+    @Test
+    fun `should delete author when author exists`() {
+        // given
+        val authorId = AuthorId(UUID.randomUUID())
+
+        doNothing().whenever(authorService).deleteAuthor(eq(authorId))
+
+        // when
+        mockMvc.perform(delete("/api/authors/{id}", authorId.value))
+            .andExpect(status().isNoContent)
+
+        // then
+        verify(authorService).deleteAuthor(eq(authorId))
+    }
+
+    @Test
+    fun `should return 404 when deleting non-existent author`() {
+        // given
+        val authorId = AuthorId(UUID.randomUUID())
+
+        doThrow(AuthorNotFoundException(authorId)).whenever(authorService).deleteAuthor(eq(authorId))
+
+        // when
+        mockMvc.perform(delete("/api/authors/{id}", authorId.value))
+            .andExpect(status().isNotFound)
+
+        // then
+        verify(authorService).deleteAuthor(eq(authorId))
     }
 }
