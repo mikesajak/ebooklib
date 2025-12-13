@@ -15,7 +15,7 @@ class BookEntityMapper(
         BookEntity(
                 id = book.id?.value,
                 title = book.title,
-                authors = book.authors.map { authorEntityMapper.toEntity(it) }.toSet(),
+                authors = book.authors.map { authorEntityMapper.toEntity(it) }.toMutableSet(),
                 series = book.series?.let { seriesEntityMapper.toEntity(it) },
                 volume = book.volume,
                 creationDate = book.creationDate,

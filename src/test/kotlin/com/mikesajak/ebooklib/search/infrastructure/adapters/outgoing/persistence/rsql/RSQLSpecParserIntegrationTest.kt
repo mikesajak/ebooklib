@@ -60,7 +60,7 @@ class RSQLSpecParserIntegrationTest : BaseIntegrationTest() {
 
         book1 = BookEntity(id = UUID.randomUUID(),
             title = "The Hobbit",
-            authors = setOf(author1),
+            authors = mutableSetOf(author1),
             creationDate = LocalDate.now(),
             publicationDate = LocalDate.of(1937, 9, 21),
             publisher = "Allen & Unwin",
@@ -70,7 +70,7 @@ class RSQLSpecParserIntegrationTest : BaseIntegrationTest() {
             labels = setOf("fantasy", "adventure"))
         book2 = BookEntity(id = UUID.randomUUID(),
             title = "The Lord of the Rings",
-            authors = setOf(author1, author2),
+            authors = mutableSetOf(author1, author2),
             creationDate = LocalDate.now(),
             publicationDate = LocalDate.of(1954, 7, 29),
             publisher = "Allen & Unwin",

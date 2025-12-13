@@ -6,6 +6,7 @@ build/
 !**/src/test/**/build/
 
 backlog/
+.beads/
 
 ### STS ###
 .apt_generated
@@ -28,28 +29,23 @@ out/
 !**/src/main/**/out/
 !**/src/test/**/out/
 
-### NetBeans ###
-/nbproject/private/
-/nbbuild/
-/dist/
-/nbdist/
-/.nb-gradle/
-
 ### VS Code ###
 .vscode/
 
 ### Kotlin ###
 .kotlin
--e 
+
 ### Generated frontend assets ###
 src/main/resources/static/
 
 ### DB volumes dir ###
 data/
 
-.beads/
-
+### AI agents config ###
 AGENTS.md
 GEMINI.md
+.gemini/
 .grok/
+
+### properties ###
 .env

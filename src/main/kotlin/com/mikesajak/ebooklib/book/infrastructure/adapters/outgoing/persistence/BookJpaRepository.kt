@@ -1,5 +1,7 @@
 package com.mikesajak.ebooklib.book.infrastructure.adapters.outgoing.persistence
 
+import com.mikesajak.ebooklib.author.infrastructure.adapters.outgoing.persistence.AuthorEntity
+
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor
 import org.springframework.data.jpa.repository.Query
@@ -9,6 +11,8 @@ import java.util.*
 interface BookJpaRepository
     : JpaRepository<BookEntity, UUID>,
       JpaSpecificationExecutor<BookEntity> {
+    fun findByAuthorsContaining(authorEntity: AuthorEntity): List<BookEntity>
+
     @Query("SELECT b FROM BookEntity b JOIN b.authors a WHERE a.id = :authorId")
     fun findBooksByAuthorId(@Param("authorId") authorId: UUID,
                             pageable: org.springframework.data.domain.Pageable

@@ -128,4 +128,36 @@ class AuthorServiceTest {
         verify { authorRepositoryPort.findById(authorId) }
         verify(exactly = 0) { authorRepositoryPort.save(any()) }
     }
+
+    @Test
+    fun `should delete an author by id`() {
+        // given
+        val authorId = AuthorId(UUID.randomUUID())
+
+        every { authorRepositoryPort.existsById(authorId) } returns true
+        every { authorRepositoryPort.deleteById(authorId) } returns Unit
+
+        // when
+        authorService.deleteAuthor(authorId)
+
+        // then
+        verify { authorRepositoryPort.existsById(authorId) }
+        verify { authorRepositoryPort.deleteById(authorId) }
+    }
+
+    @Test
+    fun `should throw AuthorNotFoundException when deleting non-existent author`() {
+        // given
+        val authorId = AuthorId(UUID.randomUUID())
+
+        every { authorRepositoryPort.existsById(authorId) } returns false
+
+        // when, then
+        assertThrows<AuthorNotFoundException> {
+            authorService.deleteAuthor(authorId)
+        }
+        verify { authorRepositoryPort.existsById(authorId) }
+        verify(exactly = 0) { authorRepositoryPort.deleteById(authorId) }
+    }
 }
+

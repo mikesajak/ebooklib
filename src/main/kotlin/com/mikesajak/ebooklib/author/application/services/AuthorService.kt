@@ -4,6 +4,7 @@ import com.mikesajak.ebooklib.author.application.ports.incoming.GetAuthorUseCase
 import com.mikesajak.ebooklib.author.application.ports.incoming.SaveAuthorUseCase
 import com.mikesajak.ebooklib.author.application.ports.incoming.UpdateAuthorCommand
 import com.mikesajak.ebooklib.author.application.ports.incoming.UpdateAuthorUseCase
+import com.mikesajak.ebooklib.author.application.ports.incoming.DeleteAuthorUseCase
 import com.mikesajak.ebooklib.author.application.ports.outgoing.AuthorRepositoryPort
 import com.mikesajak.ebooklib.author.domain.exception.AuthorNotFoundException
 import com.mikesajak.ebooklib.author.domain.model.Author
@@ -14,7 +15,7 @@ import org.springframework.stereotype.Service
 
 @Service
 class AuthorService(private val authorRepository: AuthorRepositoryPort)
-    : GetAuthorUseCase, SaveAuthorUseCase, UpdateAuthorUseCase {
+    : GetAuthorUseCase, SaveAuthorUseCase, UpdateAuthorUseCase, DeleteAuthorUseCase {
     override fun getAuthor(authorId: AuthorId): Author {
         val author = authorRepository.findById(authorId)
             ?: throw AuthorNotFoundException(authorId)
@@ -42,5 +43,12 @@ class AuthorService(private val authorRepository: AuthorRepositoryPort)
         )
 
         return authorRepository.save(updatedAuthor)
+    }
+
+    override fun deleteAuthor(authorId: AuthorId) {
+        if (!authorRepository.existsById(authorId)) {
+            throw AuthorNotFoundException(authorId)
+        }
+        authorRepository.deleteById(authorId)
     }
 }

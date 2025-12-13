@@ -19,7 +19,7 @@ data class BookEntity(
                 joinColumns = [JoinColumn(name = "book_id")],
                 inverseJoinColumns = [JoinColumn(name = "author_id")]
         )
-        val authors: Set<AuthorEntity> = emptySet(),
+        var authors: MutableSet<AuthorEntity> = mutableSetOf(),
         @ManyToOne
         @JoinColumn(name = "series_id")
         val series: SeriesEntity?,

@@ -9,4 +9,6 @@ interface AuthorRepositoryPort {
     fun findAll(pagination: PaginationRequest): PaginatedResult<Author>
     fun findById(id: AuthorId): Author?
     fun save(author: Author): Author
+    fun existsById(id: AuthorId): Boolean
+    fun deleteById(id: AuthorId)
 }
