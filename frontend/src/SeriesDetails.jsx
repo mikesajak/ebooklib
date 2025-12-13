@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 
 const SeriesDetails = () => {
   const { t } = useTranslation();
   const { id } = useParams();
+  const navigate = useNavigate();
   const [series, setSeries] = useState(null);
   const [books, setBooks] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -62,6 +63,14 @@ const SeriesDetails = () => {
     <div className="container mx-auto p-4">
       <h1 className="text-2xl font-bold mb-4">{t('seriesDetails.title')}</h1>
       <div className="bg-white border border-gray-300 rounded p-6 shadow mb-6">
+        <div className="flex justify-end mb-4">
+            <button
+                onClick={() => navigate(`/series/${id}/edit`)}
+                className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+            >
+                {t('common.edit')}
+            </button>
+        </div>
         <div className="mb-4">
           <strong>{t('seriesDetails.seriesTitle')}:</strong> {series.title}
         </div>
