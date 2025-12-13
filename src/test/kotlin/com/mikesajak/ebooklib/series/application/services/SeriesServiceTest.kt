@@ -4,6 +4,7 @@ import com.mikesajak.ebooklib.common.domain.model.PaginatedResult
 import com.mikesajak.ebooklib.common.domain.model.PaginationRequest
 import com.mikesajak.ebooklib.common.domain.model.SortDirection
 import com.mikesajak.ebooklib.common.domain.model.SortOrder
+import com.mikesajak.ebooklib.series.application.ports.incoming.UpdateSeriesCommand
 import com.mikesajak.ebooklib.series.application.ports.outgoing.SeriesRepositoryPort
 import com.mikesajak.ebooklib.series.domain.exception.SeriesNotFoundException
 import com.mikesajak.ebooklib.series.domain.model.Series
@@ -15,6 +16,7 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertThrows
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.mockito.kotlin.any
 import java.util.*
 
 class SeriesServiceTest {
@@ -89,5 +91,41 @@ class SeriesServiceTest {
         // Then
         assertEquals(emptyPaginatedResult, result)
         verify(exactly = 1) { seriesRepository.findAll(paginationRequest) }
+    }
+
+    @Test
+    fun `should update a series`() {
+        // Given
+        val seriesId = SeriesId(UUID.randomUUID())
+        val existingSeries = Series(seriesId, "Old Title", "Old Description")
+        val command = UpdateSeriesCommand(seriesId, "New Title", "New Description")
+        val updatedSeries = Series(seriesId, "New Title", "New Description")
+
+        every { seriesRepository.findById(seriesId) } returns existingSeries
+        every { seriesRepository.save(updatedSeries) } returns updatedSeries
+
+        // When
+        val result = seriesService.updateSeries(command)
+
+        // Then
+        assertEquals(updatedSeries, result)
+        verify(exactly = 1) { seriesRepository.findById(seriesId) }
+        verify(exactly = 1) { seriesRepository.save(updatedSeries) }
+    }
+
+    @Test
+    fun `should throw SeriesNotFoundException when updating non-existent series`() {
+        // Given
+        val seriesId = SeriesId(UUID.randomUUID())
+        val command = UpdateSeriesCommand(seriesId, "New Title", "New Description")
+
+        every { seriesRepository.findById(seriesId) } returns null
+
+        // When & Then
+        assertThrows(SeriesNotFoundException::class.java) {
+            seriesService.updateSeries(command)
+        }
+        verify(exactly = 1) { seriesRepository.findById(seriesId) }
+        verify(exactly = 0) { seriesRepository.save(any()) }
     }
 }

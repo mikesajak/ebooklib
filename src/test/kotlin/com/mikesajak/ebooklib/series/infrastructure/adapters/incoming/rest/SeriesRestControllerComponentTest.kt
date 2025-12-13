@@ -11,9 +11,12 @@ import com.mikesajak.ebooklib.common.domain.model.PaginatedResult
 import com.mikesajak.ebooklib.infrastructure.exception.GlobalExceptionHandler
 import com.mikesajak.ebooklib.series.application.ports.incoming.AddSeriesUseCase
 import com.mikesajak.ebooklib.series.application.ports.incoming.GetSeriesUseCase
+import com.mikesajak.ebooklib.series.application.ports.incoming.UpdateSeriesCommand
+import com.mikesajak.ebooklib.series.application.ports.incoming.UpdateSeriesUseCase
 import com.mikesajak.ebooklib.series.domain.exception.SeriesNotFoundException
 import com.mikesajak.ebooklib.series.domain.model.Series
 import com.mikesajak.ebooklib.series.domain.model.SeriesId
+import com.mikesajak.ebooklib.series.infrastructure.adapters.incoming.rest.dto.SeriesRequestDto
 import com.mikesajak.ebooklib.series.infrastructure.adapters.incoming.rest.dto.SeriesResponseDto
 import org.junit.jupiter.api.Test
 import org.mockito.kotlin.any
@@ -21,9 +24,11 @@ import org.mockito.kotlin.whenever
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
 import org.springframework.context.annotation.Import
+import org.springframework.http.MediaType
 import org.springframework.test.context.bean.override.mockito.MockitoBean
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import java.util.*
@@ -47,6 +52,9 @@ class SeriesRestControllerComponentTest {
 
     @MockitoBean
     private lateinit var addSeriesUseCase: AddSeriesUseCase
+
+    @MockitoBean
+    private lateinit var updateSeriesUseCase: UpdateSeriesUseCase
 
     @MockitoBean
     private lateinit var bookRestMapper: BookRestMapper
@@ -102,6 +110,42 @@ class SeriesRestControllerComponentTest {
         // When & Then
         mockMvc.perform(get("/api/series/{id}", seriesId.value))
                 .andExpect(status().isNotFound)
+    }
+
+    @Test
+    fun `should update series`() {
+        // Given
+        val seriesId = SeriesId(UUID.randomUUID())
+        val seriesRequest = SeriesRequestDto(title = "Updated Series", description = "Updated Description")
+        val updatedSeries = Series(seriesId, "Updated Series", "Updated Description")
+        val seriesResponseDto = SeriesResponseDto(seriesId.value, "Updated Series", "Updated Description")
+
+        whenever(updateSeriesUseCase.updateSeries(any())).thenReturn(updatedSeries)
+        whenever(seriesRestMapper.toResponse(updatedSeries)).thenReturn(seriesResponseDto)
+
+        // When & Then
+        mockMvc.perform(put("/api/series/{id}", seriesId.value)
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(objectMapper.writeValueAsString(seriesRequest)))
+            .andExpect(status().isOk)
+            .andExpect(jsonPath("$.id").value(seriesId.value.toString()))
+            .andExpect(jsonPath("$.title").value("Updated Series"))
+            .andExpect(jsonPath("$.description").value("Updated Description"))
+    }
+
+    @Test
+    fun `should return 404 when updating non-existent series`() {
+        // Given
+        val seriesId = SeriesId(UUID.randomUUID())
+        val seriesRequest = SeriesRequestDto(title = "Updated Series", description = "Updated Description")
+
+        whenever(updateSeriesUseCase.updateSeries(any())).thenThrow(SeriesNotFoundException(seriesId))
+
+        // When & Then
+        mockMvc.perform(put("/api/series/{id}", seriesId.value)
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(objectMapper.writeValueAsString(seriesRequest)))
+            .andExpect(status().isNotFound)
     }
 
     @Test
