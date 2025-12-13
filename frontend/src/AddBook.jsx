@@ -60,6 +60,49 @@ const AddBook = () => {
     }
   );
 
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const [authorsResponse, seriesResponse, bookResponse] = await Promise.all([
+          fetch('/api/authors'),
+          fetch('/api/series'),
+          isEditMode ? fetch(`/api/books/${id}`) : Promise.resolve(null)
+        ]);
+
+        const authorsData = await authorsResponse.json();
+        setAuthors(Array.isArray(authorsData) ? authorsData : []);
+
+        const seriesData = await seriesResponse.json();
+        setSeries(Array.isArray(seriesData) ? seriesData : []);
+
+        if (isEditMode) {
+          if (!bookResponse.ok) {
+            throw new Error('Failed to fetch book details');
+          }
+          const bookData = await bookResponse.json();
+          setBook({
+            ...bookData,
+            // Format publicationDate for input[type="date"]
+            publicationDate: bookData.publicationDate ? bookData.publicationDate.split('T')[0] : '',
+            labels: bookData.labels || []
+          });
+          setOriginalBook({
+            ...bookData,
+            publicationDate: bookData.publicationDate ? bookData.publicationDate.split('T')[0] : '',
+            labels: bookData.labels || []
+          });
+        }
+      } catch (err) {
+        setNotification({ type: 'error', message: err.message });
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [id, isEditMode, setNotification]);
+
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     if (name === 'labels') {
@@ -159,7 +202,7 @@ const AddBook = () => {
           <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="author">{t('addBook.form.author')}:</label>
           <select id="author" name="authorId" value={book.authors[0]?.id || ''} onChange={handleAuthorChange} className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
             <option value="">{t('addBook.form.selectAuthor')}</option>
-            {authors.map(author => (<option key={author.id} value={author.id}>{author.firstName} {author.lastName}</option>))}
+            {authors && authors.map(author => (<option key={author.id} value={author.id}>{author.firstName} {author.lastName}</option>))}
           </select>
         </div>
         <div className="mb-4">
@@ -171,19 +214,19 @@ const AddBook = () => {
         </div>
         <div className="mb-4">
           <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="volume">{t('addBook.form.volume')}:</label>
-          <input type="number" id="volume" name="volume" value={book.volume} onChange={handleChange} className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" />
+          <input type="number" id="volume" name="volume" value={book.volume || ''} onChange={handleChange} className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" />
         </div>
         <div className="mb-4">
           <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="publicationDate">{t('addBook.form.publicationDate')}:</label>
-          <input type="date" id="publicationDate" name="publicationDate" value={book.publicationDate} onChange={handleChange} className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" />
+          <input type="date" id="publicationDate" name="publicationDate" value={book.publicationDate || ''} onChange={handleChange} className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" />
         </div>
         <div className="mb-4">
           <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="publisher">{t('addBook.form.publisher')}:</label>
-          <input type="text" id="publisher" name="publisher" value={book.publisher} onChange={handleChange} className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" />
+          <input type="text" id="publisher" name="publisher" value={book.publisher || ''} onChange={handleChange} className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" />
         </div>
         <div className="mb-4">
           <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="description">{t('addBook.form.description')}:</label>
-          <textarea id="description" name="description" value={book.description} onChange={handleChange} className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" />
+          <textarea id="description" name="description" value={book.description || ''} onChange={handleChange} className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" />
         </div>
         <div className="mb-4">
           <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="labels">{t('addBook.form.labels')}:</label>

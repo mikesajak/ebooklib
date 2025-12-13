@@ -129,23 +129,23 @@ const AddAuthor = () => {
       <Form onSave={handleSave} onCancel={handleCancel} isSaveDisabled={isSaveDisabled}>
         <div className="mb-4">
           <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="firstName">{t('addAuthor.form.firstName')}:</label>
-          <input type="text" id="firstName" name="firstName" value={author.firstName} onChange={handleChange} className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" />
+          <input type="text" id="firstName" name="firstName" value={author.firstName || ''} onChange={handleChange} className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" />
         </div>
         <div className="mb-4">
           <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="lastName">{t('addAuthor.form.lastName')}:</label>
-          <input type="text" id="lastName" name="lastName" value={author.lastName} onChange={handleChange} className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" />
+          <input type="text" id="lastName" name="lastName" value={author.lastName || ''} onChange={handleChange} className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" />
         </div>
         <div className="mb-4">
           <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="bio">{t('addAuthor.form.bio')}:</label>
-          <textarea id="bio" name="bio" value={author.bio} onChange={handleChange} className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" />
+          <textarea id="bio" name="bio" value={author.bio || ''} onChange={handleChange} className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" />
         </div>
         <div className="mb-4">
           <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="birthDate">{t('addAuthor.form.birthDate')}:</label>
-          <input type="date" id="birthDate" name="birthDate" value={author.birthDate} onChange={handleChange} className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" />
+          <input type="date" id="birthDate" name="birthDate" value={author.birthDate || ''} onChange={handleChange} className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" />
         </div>
         <div className="mb-4">
           <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="deathDate">{t('addAuthor.form.deathDate')}:</label>
-          <input type="date" id="deathDate" name="deathDate" value={author.deathDate} onChange={handleChange} className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" />
+          <input type="date" id="deathDate" name="deathDate" value={author.deathDate || ''} onChange={handleChange} className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" />
         </div>
       </Form>
     </AddPage>

@@ -79,7 +79,8 @@
     "confirmCoverReplace": "Obraz okładki już istnieje. Czy chcesz go zastąpić?",
     "confirmCoverDelete": "Czy na pewno chcesz usunąć okładkę książki?",
     "coverFileMissing": "Znaleziono metadane okładki, ale plik brakuje w pamięci masowej. Czy chcesz usunąć metadane?",
-    "deleteCoverMetadata": "Usuń metadane okładki"
+    "deleteCoverMetadata": "Usuń metadane okładki",
+    "confirmBookDelete": "Czy na pewno chcesz usunąć tę książkę?"
   },
   "bookFormats": {
     "title": "Formaty książki",

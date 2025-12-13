@@ -63,19 +63,16 @@ const SeriesDetails = () => {
     <div className="container mx-auto p-4">
       <h1 className="text-2xl font-bold mb-4">{t('seriesDetails.title')}</h1>
       <div className="bg-white border border-gray-300 rounded p-6 shadow mb-6">
-        <div className="flex justify-end mb-4">
+        <div className="mb-4">
+          <strong>{t('seriesDetails.description')}:</strong> {series.description || t('common.na')}
+        </div>
+        <div className="flex justify-end mt-4">
             <button
                 onClick={() => navigate(`/series/${id}/edit`)}
                 className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
             >
                 {t('common.edit')}
             </button>
-        </div>
-        <div className="mb-4">
-          <strong>{t('seriesDetails.seriesTitle')}:</strong> {series.title}
-        </div>
-        <div className="mb-4">
-          <strong>{t('seriesDetails.description')}:</strong> {series.description || t('common.na')}
         </div>
       </div>
 

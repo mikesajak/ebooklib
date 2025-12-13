@@ -79,7 +79,8 @@
     "confirmCoverReplace": "A cover image already exists. Do you want to replace it?",
     "confirmCoverDelete": "Are you sure you want to delete the book cover?",
     "coverFileMissing": "Cover image metadata found, but the file is missing from storage. Do you want to delete the metadata?",
-    "deleteCoverMetadata": "Delete Cover Metadata"
+    "deleteCoverMetadata": "Delete Cover Metadata",
+    "confirmBookDelete": "Are you sure you want to delete this book?"
   },
   "bookFormats": {
     "title": "Book Formats",

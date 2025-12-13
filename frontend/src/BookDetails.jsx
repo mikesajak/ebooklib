@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import Notification from './Notification';
 import ConfirmationDialog from './ConfirmationDialog';
 import BookFormats from './BookFormats';
@@ -16,10 +16,12 @@ const BookDetails = () => {
   const [hasCover, setHasCover] = useState(false);
   const [showUploadConfirmDialog, setShowUploadConfirmDialog] = useState(false);
   const [showDeleteConfirmDialog, setShowDeleteConfirmDialog] = useState(false);
+  const [showBookDeleteConfirmDialog, setShowBookDeleteConfirmDialog] = useState(false);
   const [selectedFile, setSelectedFile] = useState(null);
   const [isCoverFileMissing, setIsCoverFileMissing] = useState(false);
   const descriptionRef = useRef(null);
   const [isScrolledToBottom, setIsScrolledToBottom] = useState(true); // Assume true initially if no scroll needed
+  const navigate = useNavigate();
 
   const handleScroll = () => {
     if (descriptionRef.current) {
@@ -124,6 +126,34 @@ const BookDetails = () => {
       setNotification({ type: 'error', message: err.message });
     }
   };
+
+  const handleBookDelete = () => {
+    setShowBookDeleteConfirmDialog(true);
+  };
+
+  const executeBookDelete = async () => {
+    setShowBookDeleteConfirmDialog(false);
+    try {
+      const response = await fetch(`/api/books/${id}`, {
+        method: 'DELETE',
+      });
+      if (!response.ok) {
+        let errorMessage = 'Failed to delete book';
+        try {
+          const errorData = await response.json();
+          errorMessage = errorData.message || errorMessage;
+        } catch (e) {
+          // ignore if response is not json
+        }
+        throw new Error(errorMessage);
+      }
+      setNotification({ type: 'success', message: 'Book deleted successfully!' });
+      navigate('/');
+    } catch (err) {
+      setNotification({ type: 'error', message: err.message });
+    }
+  };
+
 
   useEffect(() => {
     fetchBook(true);
@@ -259,9 +289,15 @@ const BookDetails = () => {
               </div>
             </div>
             <div className="flex justify-end mt-4">
-              <Link to={`/books/${book.id}/edit`} className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+              <Link to={`/books/${book.id}/edit`} className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mr-2">
                 {t('common.edit')}
               </Link>
+              <button
+                onClick={handleBookDelete}
+                className="bg-red-100 text-red-700 hover:bg-red-700 hover:text-white font-bold py-2 px-4 rounded"
+              >
+                {t('common.delete')}
+              </button>
             </div>
           </div>
           <div className="md:w-1/3 flex flex-col gap-4">
@@ -335,6 +371,14 @@ const BookDetails = () => {
           message={t('bookDetails.confirmCoverDelete')}
           onConfirm={executeCoverDelete}
           onCancel={() => setShowDeleteConfirmDialog(false)}
+        />
+      )}
+
+      {showBookDeleteConfirmDialog && (
+        <ConfirmationDialog
+          message={t('bookDetails.confirmBookDelete')}
+          onConfirm={executeBookDelete}
+          onCancel={() => setShowBookDeleteConfirmDialog(false)}
         />
       )}
     </div>
