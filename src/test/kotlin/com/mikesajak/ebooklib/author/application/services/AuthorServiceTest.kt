@@ -1,5 +1,6 @@
 package com.mikesajak.ebooklib.author.application.services
 
+import com.mikesajak.ebooklib.author.application.ports.incoming.UpdateAuthorCommand
 import com.mikesajak.ebooklib.author.application.ports.outgoing.AuthorRepositoryPort
 import com.mikesajak.ebooklib.author.domain.exception.AuthorNotFoundException
 import com.mikesajak.ebooklib.author.domain.model.Author
@@ -87,5 +88,44 @@ class AuthorServiceTest {
         // then
         assertThat(result).isEqualTo(paginatedResult)
         verify { authorRepositoryPort.findAll(pagination) }
+    }
+
+    @Test
+    fun `should update an author`() {
+        // given
+        val authorId = AuthorId(UUID.randomUUID())
+        val existingAuthor = Author(id = authorId, firstName = "Old", lastName = "Name",
+            bio = null, birthDate = null, deathDate = null)
+        val command = UpdateAuthorCommand(id = authorId, firstName = "New", lastName = "Name",
+            bio = "new bio", birthDate = null, deathDate = null)
+        val updatedAuthor = existingAuthor.copy(firstName = "New", lastName = "Name", bio = "new bio")
+
+        every { authorRepositoryPort.findById(authorId) } returns existingAuthor
+        every { authorRepositoryPort.save(updatedAuthor) } returns updatedAuthor
+
+        // when
+        val result = authorService.updateAuthor(command)
+
+        // then
+        assertThat(result).isEqualTo(updatedAuthor)
+        verify { authorRepositoryPort.findById(authorId) }
+        verify { authorRepositoryPort.save(updatedAuthor) }
+    }
+
+    @Test
+    fun `should throw AuthorNotFoundException when updating non-existent author`() {
+        // given
+        val authorId = AuthorId(UUID.randomUUID())
+        val command = UpdateAuthorCommand(id = authorId, firstName = "New", lastName = "Name",
+            bio = "new bio", birthDate = null, deathDate = null)
+
+        every { authorRepositoryPort.findById(authorId) } returns null
+
+        // when, then
+        assertThrows<AuthorNotFoundException> {
+            authorService.updateAuthor(command)
+        }
+        verify { authorRepositoryPort.findById(authorId) }
+        verify(exactly = 0) { authorRepositoryPort.save(any()) }
     }
 }

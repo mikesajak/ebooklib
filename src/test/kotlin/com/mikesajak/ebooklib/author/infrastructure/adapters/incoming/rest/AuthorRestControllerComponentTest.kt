@@ -1,6 +1,7 @@
 package com.mikesajak.ebooklib.author.infrastructure.adapters.incoming.rest
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.mikesajak.ebooklib.author.application.ports.incoming.UpdateAuthorCommand
 import com.mikesajak.ebooklib.author.application.services.AuthorService
 import com.mikesajak.ebooklib.author.domain.exception.AuthorNotFoundException
 import com.mikesajak.ebooklib.author.domain.model.Author
@@ -24,6 +25,7 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.*
 import java.util.*
 
@@ -136,5 +138,42 @@ class AuthorRestControllerComponentTest(@Autowired val mockMvc: MockMvc,
                 .andExpect(jsonPath("$.id").value(savedAuthor.id!!.value.toString()))
                 .andExpect(jsonPath("$.firstName").value("New"))
                 .andExpect(jsonPath("$.lastName").value("Author"))
+    }
+
+    @Test
+    fun `should update author`() {
+        // given
+        val authorId = AuthorId(UUID.randomUUID())
+        val authorRequest = AuthorRequestDto(firstName = "Updated", lastName = "Name", bio = "updated bio",
+            birthDate = null, deathDate = null)
+        val updatedAuthor = Author(id = authorId, firstName = "Updated", lastName = "Name", bio = "updated bio",
+            birthDate = null, deathDate = null)
+        whenever(authorService.updateAuthor(any())).thenReturn(updatedAuthor)
+
+        // when
+        mockMvc.perform(put("/api/authors/{id}", authorId.value)
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(objectMapper.writeValueAsString(authorRequest)))
+            .andExpect(status().isOk)
+            .andExpect(jsonPath("$.id").value(authorId.value.toString()))
+            .andExpect(jsonPath("$.firstName").value("Updated"))
+            .andExpect(jsonPath("$.lastName").value("Name"))
+            .andExpect(jsonPath("$.bio").value("updated bio"))
+    }
+
+    @Test
+    fun `should return 404 when updating non-existent author`() {
+        // given
+        val authorId = AuthorId(UUID.randomUUID())
+        val authorRequest = AuthorRequestDto(firstName = "Updated", lastName = "Name", bio = null,
+            birthDate = null, deathDate = null)
+
+        whenever(authorService.updateAuthor(any())).thenThrow(AuthorNotFoundException(authorId))
+
+        // when
+        mockMvc.perform(put("/api/authors/{id}", authorId.value)
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(objectMapper.writeValueAsString(authorRequest)))
+            .andExpect(status().isNotFound)
     }
 }
