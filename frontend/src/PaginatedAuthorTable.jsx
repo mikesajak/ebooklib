@@ -35,12 +35,11 @@ const PaginatedAuthorTable = () => {
     };
 
     fetchAuthors();
-  }, [page, size]);
+  }, [page, size, sortField, sortDirection]);
 
   const handlePreviousPage = () => {
     setPage(prevPage => Math.max(0, prevPage - 1));
   };
-
   const handleNextPage = () => {
     setPage(prevPage => Math.min(totalPages - 1, prevPage + 1));
   };
@@ -49,7 +48,6 @@ const PaginatedAuthorTable = () => {
     setSize(Number(event.target.value));
     setPage(0); // Reset to first page when page size changes
   };
-
   const getSortIndicator = (field) => {
     if (sortField === field) {
       return sortDirection === 'asc' ? ' ▲' : ' ▼';
@@ -65,7 +63,6 @@ const PaginatedAuthorTable = () => {
       setSortDirection('asc'); // Default to ascending when changing sort field
     }
   };
-
   if (loading) {
     return (
       <div className="text-center text-gray-500">{t('common.loading')}</div>
@@ -77,7 +74,6 @@ const PaginatedAuthorTable = () => {
       <div className="text-center text-red-500">{t('common.error')}: {error}</div>
     );
   }
-
   if (authors.length === 0) {
     return (
       <div className="text-center text-gray-500">{t('authorList.noAuthorsFound')}</div>
@@ -109,7 +105,7 @@ const PaginatedAuthorTable = () => {
               </td>
 
               <td className="py-3 px-6 text-center whitespace-nowrap text-sm font-medium">
-                <Link to={`/author/${author.id}/edit`} className="text-indigo-600 hover:text-indigo-900 mr-2">{t('common.edit')}</Link>
+                <Link to={`/authors/${author.id}/edit`} className="text-indigo-600 hover:text-indigo-900 mr-2">{t('common.edit')}</Link>
                 <button onClick={() => { /* handle delete */ }} className="text-red-600 hover:text-red-900">{t('common.delete')}</button>
               </td>
             </tr>

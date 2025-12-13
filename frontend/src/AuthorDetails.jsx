@@ -73,6 +73,11 @@ const AuthorDetails = () => {
         <div className="mb-4">
           <strong>{t('authorDetails.deathDate')}:</strong> {author.deathDate || t('common.na')}
         </div>
+        <div className="flex justify-end mt-4">
+          <Link to={`/authors/${id}/edit`} className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+            {t('common.edit')}
+          </Link>
+        </div>
       </div>
 
       <h2 className="text-xl font-semibold mb-4">{t('authorDetails.booksByAuthor')}</h2>

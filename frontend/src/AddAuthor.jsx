@@ -49,8 +49,10 @@ const AddAuthor = () => {
   const { mutate, isSaving, notification, setNotification } = useMutation(
     (authorData) => saveAuthor(authorData, isEditMode, id),
     {
-      onSuccess: () => {
-        navigate('/authors', { state: { notification: { type: 'success', message: t(isEditMode ? 'addAuthor.updateSuccess' : 'addAuthor.addSuccess') } } });
+      onSuccess: (data) => {
+        const successMessage = t(isEditMode ? 'addAuthor.updateSuccess' : 'addAuthor.addSuccess');
+        const destination = isEditMode ? `/author/${id}` : '/authors';
+        navigate(destination, { state: { notification: { type: 'success', message: successMessage } } });
       }
     }
   );

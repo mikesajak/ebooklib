@@ -106,11 +106,13 @@
       "labels": "Labels",
       "labelsPlaceholder": "Comma-separated labels (e.g. Fantasy, Adventure)"
     },
-    "successMessage": "Book added successfully!",
+    "addSuccess": "Book added successfully!",
+    "updateSuccess": "Book updated successfully!",
     "failureMessage": "Failed to create book"
   },
   "addAuthor": {
     "title": "Add New Author",
+    "editTitle": "Edit Author",
     "form": {
       "firstName": "First Name",
       "lastName": "Last Name",
@@ -118,7 +120,8 @@
       "birthDate": "Birth Date",
       "deathDate": "Death Date"
     },
-    "successMessage": "Author added successfully!",
+    "addSuccess": "Author added successfully!",
+    "updateSuccess": "Author updated successfully!",
     "failureMessage": "Failed to create author"
   },
   "addSeries": {

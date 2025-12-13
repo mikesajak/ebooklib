@@ -8,8 +8,8 @@ import PaginatedAuthorTable from './PaginatedAuthorTable';
 describe('PaginatedAuthorTable', () => {
   const mockAuthorsPage1 = {
     content: [
-      { id: '1', firstName: 'John', lastName: 'Doe', nationality: 'American' },
-      { id: '2', firstName: 'Jane', lastName: 'Smith', nationality: 'British' },
+      { id: '1', firstName: 'John', lastName: 'Doe' },
+      { id: '2', firstName: 'Jane', lastName: 'Smith' },
     ],
     totalPages: 2,
     totalElements: 3,
@@ -19,7 +19,7 @@ describe('PaginatedAuthorTable', () => {
 
   const mockAuthorsPage2 = {
     content: [
-      { id: '3', firstName: 'Peter', lastName: 'Jones', nationality: 'Canadian' },
+      { id: '3', firstName: 'Peter', lastName: 'Jones' },
     ],
     totalPages: 2,
     totalElements: 3,
@@ -78,10 +78,8 @@ describe('PaginatedAuthorTable', () => {
     await waitFor(() => {
       expect(screen.getByText('John')).toBeInTheDocument();
       expect(screen.getByText('Doe')).toBeInTheDocument();
-      expect(screen.getByText('American')).toBeInTheDocument();
       expect(screen.getByText('Jane')).toBeInTheDocument();
       expect(screen.getByText('Smith')).toBeInTheDocument();
-      expect(screen.getByText('British')).toBeInTheDocument();
     });
     expect(screen.getByText('Page 1 of 2 (3 total)')).toBeInTheDocument();
   });
@@ -102,7 +100,6 @@ describe('PaginatedAuthorTable', () => {
       expect(screen.queryByText('John')).not.toBeInTheDocument();
       expect(screen.getByText('Peter')).toBeInTheDocument();
       expect(screen.getByText('Jones')).toBeInTheDocument();
-      expect(screen.getByText('Canadian')).toBeInTheDocument();
     });
     expect(screen.getByText('Page 2 of 2 (3 total)')).toBeInTheDocument();
   });
@@ -127,9 +124,9 @@ describe('PaginatedAuthorTable', () => {
           ok: true,
           json: () => Promise.resolve({
             content: [
-              { id: '1', firstName: 'John', lastName: 'Doe', nationality: 'American' },
-              { id: '2', firstName: 'Jane', lastName: 'Smith', nationality: 'British' },
-              { id: '3', firstName: 'Peter', lastName: 'Jones', nationality: 'Canadian' },
+              { id: '1', firstName: 'John', lastName: 'Doe' },
+              { id: '2', firstName: 'Jane', lastName: 'Smith' },
+              { id: '3', firstName: 'Peter', lastName: 'Jones' },
             ],
             totalPages: 1,
             totalElements: 3,
@@ -138,13 +135,11 @@ describe('PaginatedAuthorTable', () => {
           }),
         });
       }
-      if (url.includes('page=0&size=10')) {
-        return Promise.resolve({
-          ok: true,
-          json: () => Promise.resolve(mockAuthorsPage1),
-        });
-      }
-      return Promise.reject(new Error('Unknown URL'));
+      // Default mock for initial render
+      return Promise.resolve({
+        ok: true,
+        json: () => Promise.resolve(mockAuthorsPage1),
+      });
     });
 
     renderPaginatedAuthorTable();
@@ -156,6 +151,6 @@ describe('PaginatedAuthorTable', () => {
       expect(screen.getByText('Peter')).toBeInTheDocument(); // All authors should be on one page
     });
     expect(screen.getByText('Page 1 of 1 (3 total)')).toBeInTheDocument();
-    expect(global.fetch).toHaveBeenCalledWith('/api/authors?page=0&size=5');
+    expect(global.fetch).toHaveBeenCalledWith('/api/authors?page=0&size=5&sort=lastName,asc');
   });
 });

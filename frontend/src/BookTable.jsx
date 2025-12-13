@@ -144,7 +144,7 @@ const BookTable = () => {
           <div className="bg-white shadow-md rounded my-6">
             <div className="flex justify-between items-center mb-4">
               <h1 className="text-2xl font-bold">{t('bookTable.title')}</h1>
-              <Link to="/add-book">
+              <Link to="/books/add">
                 <button className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">
                   {t('bookTable.addBookButton')}
                 </button>
@@ -206,7 +206,7 @@ const BookTable = () => {
                       <td className="py-3 px-6 text-left whitespace-nowrap">{book.publisher || t('common.na')}</td>
                       <td className="py-3 px-6 text-left whitespace-nowrap">{book.labels && book.labels.length > 0 ? book.labels.join(', ') : t('common.na')}</td>
                       <td className="py-3 px-6 text-center whitespace-nowrap text-sm font-medium">
-                        <Link to={`/book/${book.id}/edit`} className="text-indigo-600 hover:text-indigo-900 mr-2">{t('common.edit')}</Link>
+                        <Link to={`/books/${book.id}/edit`} className="text-indigo-600 hover:text-indigo-900 mr-2">{t('common.edit')}</Link>
                         <button onClick={() => handleDeleteClick(book)} className="text-red-600 hover:text-red-900">{t('common.delete')}</button>
                       </td>
                     </tr>

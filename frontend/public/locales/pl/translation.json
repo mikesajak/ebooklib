@@ -93,6 +93,7 @@
   },
   "addBook": {
     "title": "Dodaj Nową Książkę",
+    "editTitle": "Edytuj Książkę",
     "form": {
       "title": "Tytuł",
       "author": "Autor",
@@ -105,11 +106,13 @@
       "labels": "Etykiety",
       "labelsPlaceholder": "Lista etykiet, oddzielona przecinkami (e.g. Fantasy, Adventure)"
     },
-    "successMessage": "Książka dodana pomyślnie!",
+    "addSuccess": "Książka dodana pomyślnie!",
+    "updateSuccess": "Książka zaktualizowana pomyślnie!",
     "failureMessage": "Nie udało się dodać książki"
   },
   "addAuthor": {
     "title": "Dodaj Nowego Autora",
+    "editTitle": "Edytuj Autora",
     "form": {
       "firstName": "Imię",
       "lastName": "Nazwisko",
@@ -117,7 +120,8 @@
       "birthDate": "Data Urodzenia",
       "deathDate": "Data Śmierci"
     },
-    "successMessage": "Autor dodany pomyślnie!",
+    "addSuccess": "Autor dodany pomyślnie!",
+    "updateSuccess": "Autor zaktualizowany pomyślnie!",
     "failureMessage": "Nie udało się dodać autora"
   },
   "addSeries": {

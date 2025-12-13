@@ -22,13 +22,13 @@ function App() {
           <main style={{ flexGrow: 1, overflowY: 'auto', padding: '1rem' }}>
             <Routes>
               <Route path="/" element={<BookTable />} />
-              <Route path="/add-book" element={<AddBook />} />
+              <Route path="/books/add" element={<AddBook />} />
               <Route path="/book/:id" element={<BookDetails />} />
-              <Route path="/book/:id/edit" element={<AddBook />} />
+              <Route path="/books/:id/edit" element={<AddBook />} />
               <Route path="/author/:id" element={<AuthorDetails />} />
               <Route path="/authors" element={<AuthorList />} />
               <Route path="/authors/add" element={<AddAuthor />} />
-              <Route path="/author/:id/edit" element={<AddAuthor />} />
+              <Route path="/authors/:id/edit" element={<AddAuthor />} />
               <Route path="/series" element={<SeriesList />} />
               <Route path="/series/add" element={<AddSeries />} />
               <Route path="/series/:id" element={<SeriesDetails />} />

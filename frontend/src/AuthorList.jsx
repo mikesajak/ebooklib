@@ -117,10 +117,11 @@ const AuthorList = () => {
         authors.length <= AUTHOR_DISPLAY_THRESHOLD ? (
           <ul className="list-disc list-inside bg-white border border-gray-300 rounded p-4 shadow">
             {authors.map((author) => (
-              <li key={author.id} className="mb-2">
+              <li key={author.id} className="mb-2 flex justify-between items-center">
                 <Link to={`/author/${author.id}`} className="author-link">
                   {author.firstName} {author.lastName}
                 </Link>
+                <Link to={`/authors/${author.id}/edit`} className="text-indigo-600 hover:text-indigo-900">{t('common.edit')}</Link>
               </li>
             ))}
           </ul>
@@ -140,10 +141,11 @@ const AuthorList = () => {
                   {expandedLetters[letter] && (
                     <ul className="list-disc list-inside bg-white border border-gray-300 rounded p-4 shadow mt-2">
                       {groupedAuthors[letter].map((author) => (
-                        <li key={author.id} className="mb-1">
+                        <li key={author.id} className="mb-1 flex justify-between items-center">
                           <Link to={`/author/${author.id}`} className="author-link">
                             {author.firstName} {author.lastName}
                           </Link>
+                          <Link to={`/authors/${author.id}/edit`} className="text-indigo-600 hover:text-indigo-900">{t('common.edit')}</Link>
                         </li>
                       ))}
                     </ul>
