@@ -13,8 +13,8 @@ const PaginatedAuthorTable = () => {
   const [totalElements, setTotalElements] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [sortField, setSortField] = useState('lastName'); // Default sort field
-  const [sortDirection, setSortDirection] = useState('asc'); // Default sort direction
+  const [sortBy, setSortBy] = useState('lastNameAsc'); // Default sort
+  const [isDropdownOpen, setDropdownOpen] = useState(false);
 
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   const [authorToDelete, setAuthorToDelete] = useState(null);
@@ -23,11 +23,19 @@ const PaginatedAuthorTable = () => {
 
   const navigate = useNavigate();
 
+  const sortOptions = {
+    lastNameAsc: { label: t('authorList.sort.lastNameAsc'), params: 'sort=lastName,asc&sort=firstName,asc' },
+    lastNameDesc: { label: t('authorList.sort.lastNameDesc'), params: 'sort=lastName,desc&sort=firstName,desc' },
+    firstNameAsc: { label: t('authorList.sort.firstNameAsc'), params: 'sort=firstName,asc&sort=lastName,asc' },
+    firstNameDesc: { label: t('authorList.sort.firstNameDesc'), params: 'sort=firstName,desc&sort=lastName,desc' },
+  };
+
   const fetchAuthors = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
-      const response = await fetch(`/api/authors?page=${page}&size=${size}&sort=${sortField},${sortDirection}`);
+      const sortString = sortOptions[sortBy].params;
+      const response = await fetch(`/api/authors?page=${page}&size=${size}&${sortString}`);
       if (!response.ok) {
         throw new Error('Failed to fetch authors');
       }
@@ -40,7 +48,7 @@ const PaginatedAuthorTable = () => {
     } finally {
       setLoading(false);
     }
-  }, [page, size, sortField, sortDirection]);
+  }, [page, size, sortBy]);
 
   useEffect(() => {
     fetchAuthors();
@@ -58,20 +66,9 @@ const PaginatedAuthorTable = () => {
     setPage(0); // Reset to first page when page size changes
   };
 
-  const getSortIndicator = (field) => {
-    if (sortField === field) {
-      return sortDirection === 'asc' ? ' ▲' : ' ▼';
-    }
-    return '';
-  };
-
-  const handleSort = (field) => {
-    if (sortField === field) {
-      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
-    } else {
-      setSortField(field);
-      setSortDirection('asc'); // Default to ascending when changing sort field
-    }
+  const handleSortChange = (sortKey) => {
+    setSortBy(sortKey);
+    setDropdownOpen(false);
   };
 
   const openConfirmDialog = async (author) => {
@@ -143,8 +140,33 @@ const PaginatedAuthorTable = () => {
       <table className="min-w-full table-auto">
         <thead>
           <tr className="bg-gray-200 text-gray-600 uppercase text-sm leading-normal">
-            <th className="py-3 px-6 text-left cursor-pointer" onClick={() => handleSort('firstName')}>{t('authorList.firstName')}{getSortIndicator('firstName')}</th>
-            <th className="py-3 px-6 text-left cursor-pointer" onClick={() => handleSort('lastName')}>{t('authorList.lastName')}{getSortIndicator('lastName')}</th>
+            <th className="py-3 px-6 text-left">
+              <div className="relative inline-block text-left">
+                <button
+                  onClick={() => setDropdownOpen(!isDropdownOpen)}
+                  className="inline-flex justify-center w-full rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none"
+                >
+                  {sortOptions[sortBy].label}
+                  <span className="ml-2">{sortBy.includes('Asc') ? ' ▲' : ' ▼'}</span>
+                </button>
+                {isDropdownOpen && (
+                  <div className="origin-top-left absolute left-0 mt-2 w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-10">
+                    <div className="py-1" role="menu" aria-orientation="vertical" aria-labelledby="options-menu">
+                      {Object.keys(sortOptions).map(key => (
+                        <button
+                          key={key}
+                          onClick={() => handleSortChange(key)}
+                          className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                          role="menuitem"
+                        >
+                          {sortOptions[key].label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </th>
             <th className="py-3 px-6 text-center">{t('common.actions')}</th>
           </tr>
         </thead>
@@ -153,15 +175,9 @@ const PaginatedAuthorTable = () => {
             <tr key={author.id} className="border-b border-gray-200 hover:bg-gray-100">
               <td className="py-3 px-6 text-left whitespace-nowrap">
                 <Link to={`/author/${author.id}`} className="author-link">
-                  {author.firstName}
+                  {author.firstName} {author.lastName}
                 </Link>
               </td>
-              <td className="py-3 px-6 text-left">
-                <Link to={`/author/${author.id}`} className="author-link">
-                  {author.lastName}
-                </Link>
-              </td>
-
               <td className="py-3 px-6 text-center whitespace-nowrap text-sm font-medium">
                 <Link to={`/authors/${author.id}/edit`} className="text-indigo-600 hover:text-indigo-900 mr-2">{t('common.edit')}</Link>
                 <button onClick={() => openConfirmDialog(author)} className="text-red-600 hover:text-red-900">{t('common.delete')}</button>

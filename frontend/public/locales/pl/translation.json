@@ -147,12 +147,19 @@
     "loading": "Ładowanie autorów...",
     "noAuthorsFound": "Nie znaleziono autorów.",
     "groupBy": "Grupuj według",
-    "lastName": "Nazwisko",
-    "firstName": "Imię",
     "nationality": "Narodowość",
     "addAuthor": "Dodaj Autora",
     "groupedView": "Widok zgrupowany",
     "plainView": "Zwykła lista",
+    "header": {
+      "name": "Nazwa"
+    },
+    "sort": {
+      "lastNameAsc": "Nazwisko (A-Z)",
+      "lastNameDesc": "Nazwisko (Z-A)",
+      "firstNameAsc": "Imię (A-Z)",
+      "firstNameDesc": "Imię (Z-A)"
+    },
     "confirmDeleteTitle": "Potwierdź usunięcie autora",
     "confirmDeleteMessage": "Czy na pewno chcesz usunąć autora \"{{authorName}}\"? Spowoduje to usunięcie autora ze wszystkich powiązanych książek.",
     "affectedBooks": "Powiązane książki",

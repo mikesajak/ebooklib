@@ -148,12 +148,19 @@
     "loading": "Loading authors...",
     "noAuthorsFound": "No authors found.",
     "groupBy": "Group by",
-    "lastName": "Last Name",
-    "firstName": "First Name",
     "nationality": "Nationality",
     "addAuthor": "Add Author",
     "groupedView": "Grouped View",
     "plainView": "Plain List",
+    "header": {
+      "name": "Name"
+    },
+    "sort": {
+      "lastNameAsc": "Last Name (A-Z)",
+      "lastNameDesc": "Last Name (Z-A)",
+      "firstNameAsc": "First Name (A-Z)",
+      "firstNameDesc": "First Name (Z-A)"
+    },
     "confirmDeleteTitle": "Confirm Author Deletion",
     "confirmDeleteMessage": "Are you sure you want to delete the author \"{{authorName}}\"? This will remove the author from all associated books.",
     "affectedBooks": "Affected Books",
