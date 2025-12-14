@@ -1,6 +1,7 @@
 package com.mikesajak.ebooklib.author.infrastructure.adapters.outgoing.persistence
 
 import com.mikesajak.ebooklib.author.application.ports.outgoing.AuthorRepositoryPort
+import com.mikesajak.ebooklib.author.application.projection.AuthorProjection
 import com.mikesajak.ebooklib.author.domain.model.Author
 import com.mikesajak.ebooklib.author.domain.model.AuthorId
 import com.mikesajak.ebooklib.book.infrastructure.adapters.outgoing.persistence.BookEntityMapper
@@ -26,6 +27,10 @@ class DbAuthorRepository(
     override fun findAll(pagination: PaginationRequest): PaginatedResult<Author> =
         authorJpaRepository.findAll(pagination.toSpringPageable())
                 .toDomainPage { authorEntity -> mapper.toDomain(authorEntity) }
+
+    override fun findAuthorsWithBookCount(pagination: PaginationRequest): PaginatedResult<AuthorProjection> =
+        authorJpaRepository.findAuthorsWithBookCount(pagination.toSpringPageable())
+            .toDomainPage { it }
 
     override fun findById(id: AuthorId): Author? =
         authorJpaRepository.findById(id.value).map { mapper.toDomain(it) }.orElse(null)

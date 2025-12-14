@@ -34,7 +34,7 @@ class AuthorRestController(
 ) {
     @GetMapping
     fun getAllAuthors(pageable: Pageable): PageResponse<AuthorResponseDto> =
-        getAuthorUseCase.getAllAuthors(pageable.toDomainPagination())
+        getAuthorUseCase.getAuthorsWithBookCount(pageable.toDomainPagination())
             .toPageResponse { author -> authorRestMapper.toResponse(author) }
 
     @GetMapping("/{id}")

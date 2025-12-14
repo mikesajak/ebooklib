@@ -2,6 +2,7 @@ package com.mikesajak.ebooklib.author.infrastructure.adapters.incoming.rest
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.mikesajak.ebooklib.author.application.ports.incoming.UpdateAuthorCommand
+import com.mikesajak.ebooklib.author.application.projection.AuthorProjection
 import com.mikesajak.ebooklib.author.application.services.AuthorService
 import com.mikesajak.ebooklib.author.application.ports.incoming.DeleteAuthorUseCase
 import com.mikesajak.ebooklib.author.domain.exception.AuthorNotFoundException
@@ -82,14 +83,14 @@ class AuthorRestControllerComponentTest(@Autowired val mockMvc: MockMvc,
     @Test
     fun `should return all authors`() {
         // given
-        val authors = listOf(
-                Author(id = AuthorId(UUID.randomUUID()), firstName = "Test1", lastName = "Author1",
-                       bio = null, birthDate = null, deathDate = null),
-                Author(id = AuthorId(UUID.randomUUID()), firstName = "Test2", lastName = "Author2",
-                       bio = null, birthDate = null, deathDate = null)
+        val authorProjections = listOf(
+            AuthorProjection(id = UUID.randomUUID(), firstName = "Test1", lastName = "Author1",
+                bio = null, birthDate = null, deathDate = null, bookCount = 5),
+            AuthorProjection(id = UUID.randomUUID(), firstName = "Test2", lastName = "Author2",
+                bio = null, birthDate = null, deathDate = null, bookCount = 2)
         )
-        val paginatedResult = PaginatedResult(authors, 0, 10, 2, 1)
-        whenever(authorService.getAllAuthors(any())).thenReturn(paginatedResult)
+        val paginatedResult = PaginatedResult(authorProjections, 0, 10, 2, 1)
+        whenever(authorService.getAuthorsWithBookCount(any())).thenReturn(paginatedResult)
 
         // when
         mockMvc.perform(get("/api/authors"))
@@ -97,6 +98,8 @@ class AuthorRestControllerComponentTest(@Autowired val mockMvc: MockMvc,
                 .andExpect(status().isOk)
                 .andExpect(jsonPath("$.content").isArray)
                 .andExpect(jsonPath("$.content.length()").value(2))
+                .andExpect(jsonPath("$.content[0].bookCount").value(5))
+                .andExpect(jsonPath("$.content[1].bookCount").value(2))
                 .andExpect(jsonPath("$.page.number").value(0))
                 .andExpect(jsonPath("$.page.size").value(10))
                 .andExpect(jsonPath("$.page.totalElements").value(2))

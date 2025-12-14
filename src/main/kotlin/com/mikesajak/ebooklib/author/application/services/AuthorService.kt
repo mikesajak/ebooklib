@@ -6,6 +6,7 @@ import com.mikesajak.ebooklib.author.application.ports.incoming.UpdateAuthorComm
 import com.mikesajak.ebooklib.author.application.ports.incoming.UpdateAuthorUseCase
 import com.mikesajak.ebooklib.author.application.ports.incoming.DeleteAuthorUseCase
 import com.mikesajak.ebooklib.author.application.ports.outgoing.AuthorRepositoryPort
+import com.mikesajak.ebooklib.author.application.projection.AuthorProjection
 import com.mikesajak.ebooklib.author.domain.exception.AuthorNotFoundException
 import com.mikesajak.ebooklib.author.domain.model.Author
 import com.mikesajak.ebooklib.author.domain.model.AuthorId
@@ -24,6 +25,10 @@ class AuthorService(private val authorRepository: AuthorRepositoryPort)
 
     override fun getAllAuthors(pagination: PaginationRequest): PaginatedResult<Author> {
         return authorRepository.findAll(pagination)
+    }
+
+    override fun getAuthorsWithBookCount(pagination: PaginationRequest): PaginatedResult<AuthorProjection> {
+        return authorRepository.findAuthorsWithBookCount(pagination)
     }
 
     override fun saveAuthor(author: Author): Author {
