@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import ConfirmationDialog from './ConfirmationDialog';
 import Notification from './Notification';
+import Pagination from './Pagination';
 
 const PaginatedAuthorTable = () => {
   const { t } = useTranslation();
@@ -28,6 +29,8 @@ const PaginatedAuthorTable = () => {
     lastNameDesc: { label: t('authorList.sort.lastNameDesc'), params: 'sort=lastName,desc&sort=firstName,desc' },
     firstNameAsc: { label: t('authorList.sort.firstNameAsc'), params: 'sort=firstName,asc&sort=lastName,asc' },
     firstNameDesc: { label: t('authorList.sort.firstNameDesc'), params: 'sort=firstName,desc&sort=lastName,desc' },
+    bookCountAsc: { label: t('authorList.sort.bookCountAsc'), params: 'sort=bookCount,asc' },
+    bookCountDesc: { label: t('authorList.sort.bookCountDesc'), params: 'sort=bookCount,desc' },
   };
 
   const fetchAuthors = useCallback(async () => {
@@ -54,21 +57,16 @@ const PaginatedAuthorTable = () => {
     fetchAuthors();
   }, [fetchAuthors]);
 
-  const handlePreviousPage = () => {
-    setPage(prevPage => Math.max(0, prevPage - 1));
-  };
-  const handleNextPage = () => {
-    setPage(prevPage => Math.min(totalPages - 1, prevPage + 1));
-  };
 
-  const handlePageSizeChange = (event) => {
-    setSize(Number(event.target.value));
-    setPage(0); // Reset to first page when page size changes
-  };
 
   const handleSortChange = (sortKey) => {
     setSortBy(sortKey);
     setDropdownOpen(false);
+  };
+
+  const handleSimpleSort = (field) => {
+    const newSortBy = sortBy === `${field}Asc` ? `${field}Desc` : `${field}Asc`;
+    setSortBy(newSortBy);
   };
 
   const openConfirmDialog = async (author) => {
@@ -150,7 +148,7 @@ const PaginatedAuthorTable = () => {
                   <span className="ml-2">{sortBy.includes('Asc') ? ' ▲' : ' ▼'}</span>
                 </button>
                 {isDropdownOpen && (
-                  <div className="origin-top-left absolute left-0 mt-2 w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-10">
+                  <div className="origin-top-left absolute left-0 mt-2 w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-20">
                     <div className="py-1" role="menu" aria-orientation="vertical" aria-labelledby="options-menu">
                       {Object.keys(sortOptions).map(key => (
                         <button
@@ -167,6 +165,10 @@ const PaginatedAuthorTable = () => {
                 )}
               </div>
             </th>
+            <th className="py-3 px-6 text-left cursor-pointer" onClick={() => handleSimpleSort('bookCount')}>
+              {t('authorList.header.bookCount')}
+              {sortBy.startsWith('bookCount') ? (sortBy.endsWith('Asc') ? ' ▲' : ' ▼') : ''}
+            </th>
             <th className="py-3 px-6 text-center">{t('common.actions')}</th>
           </tr>
         </thead>
@@ -178,6 +180,7 @@ const PaginatedAuthorTable = () => {
                   {author.firstName} {author.lastName}
                 </Link>
               </td>
+              <td className="py-3 px-6 text-left">{author.bookCount}</td>
               <td className="py-3 px-6 text-center whitespace-nowrap text-sm font-medium">
                 <Link to={`/authors/${author.id}/edit`} className="text-indigo-600 hover:text-indigo-900 mr-2">{t('common.edit')}</Link>
                 <button onClick={() => openConfirmDialog(author)} className="text-red-600 hover:text-red-900">{t('common.delete')}</button>
@@ -187,34 +190,17 @@ const PaginatedAuthorTable = () => {
         </tbody>
       </table>
 
-      <div className="flex justify-between items-center p-4">
-        <div>
-          {t('common.page')} {page + 1} {t('common.of')} {totalPages} ({totalElements} {t('common.total')})
-        </div>
-        <div className="flex items-center space-x-2">
-          <label htmlFor="pageSize" className="mr-2">{t('common.pageSize')}:</label>
-          <select id="pageSize" value={size} onChange={handlePageSizeChange} className="border border-gray-300 rounded p-1">
-            <option value="5">5</option>
-            <option value="10">10</option>
-            <option value="20">20</option>
-            <option value="50">50</option>
-          </select>
-          <button
-            onClick={handlePreviousPage}
-            disabled={page === 0}
-            className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded disabled:opacity-50"
-          >
-            {t('common.previous')}
-          </button>
-          <button
-            onClick={handleNextPage}
-            disabled={page === totalPages - 1}
-            className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded disabled:opacity-50"
-          >
-            {t('common.next')}
-          </button>
-        </div>
-      </div>
+      <Pagination
+        page={page}
+        size={size}
+        totalPages={totalPages}
+        totalElements={totalElements}
+        onPageChange={setPage}
+        onPageSizeChange={(newSize) => {
+          setSize(newSize);
+          setPage(0); // Reset to first page when page size changes
+        }}
+      />
 
       {showConfirmDialog && authorToDelete && (
         <ConfirmationDialog

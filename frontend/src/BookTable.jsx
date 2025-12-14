@@ -3,6 +3,7 @@ import { useNavigate, Link, useLocation } from 'react-router-dom';
 import Notification from './Notification';
 import { useTranslation } from 'react-i18next';
 import ConfirmationDialog from './ConfirmationDialog';
+import Pagination from './Pagination';
 
 const BookTable = () => {
   const { t, i18n, ready } = useTranslation();
@@ -226,35 +227,17 @@ const BookTable = () => {
               />
             )}
     
-            <div className="flex justify-between items-center p-4">
-              <div>
-                {t('common.page')} {page + 1} {t('common.of')} {totalPages} ({totalElements} {t('common.total')})
-              </div>
-
-              <div className="flex items-center space-x-2">
-                <label htmlFor="pageSize" className="mr-2">{t('common.pageSize')}:</label>
-                <select id="pageSize" value={size} onChange={(e) => { setSize(Number(e.target.value)); setPage(0); }} className="border border-gray-300 rounded p-1">
-                  <option value="5">5</option>
-                  <option value="10">10</option>
-                  <option value="20">20</option>
-                  <option value="50">50</option>
-                </select>
-
-                <button
-                  onClick={() => setPage(page - 1)}
-                  disabled={page === 0}
-                  className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded disabled:opacity-50">
-                  {t('common.previous')}
-                </button>
-
-                <button
-                  onClick={() => setPage(page + 1)}
-                  disabled={page === totalPages - 1}
-                  className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded disabled:opacity-50">
-                  {t('common.next')}
-                </button>
-              </div>
-            </div>
+            <Pagination
+              page={page}
+              size={size}
+              totalPages={totalPages}
+              totalElements={totalElements}
+              onPageChange={setPage}
+              onPageSizeChange={(newSize) => {
+                setSize(newSize);
+                setPage(0); // Reset to first page when page size changes
+              }}
+            />
           </div>
         </div>
   );

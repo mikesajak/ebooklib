@@ -6,6 +6,8 @@ import PaginatedAuthorTable from './PaginatedAuthorTable';
 import ConfirmationDialog from './ConfirmationDialog';
 import Notification from './Notification';
 
+const AUTHOR_DISPLAY_THRESHOLD = 20;
+
 const AuthorList = () => {
   const { t } = useTranslation();
   const [authors, setAuthors] = useState([]);
@@ -176,7 +178,7 @@ const AuthorList = () => {
             {authors.map((author) => (
               <li key={author.id} className="mb-2 flex justify-between items-center">
                 <Link to={`/author/${author.id}`} className="author-link">
-                  {author.firstName} {author.lastName}
+                  {author.firstName} {author.lastName} ({author.bookCount})
                 </Link>
                 <div>
                   <Link to={`/authors/${author.id}/edit`} className="text-indigo-600 hover:text-indigo-900 mr-2">{t('common.edit')}</Link>
@@ -203,7 +205,7 @@ const AuthorList = () => {
                       {groupedAuthors[letter].map((author) => (
                         <li key={author.id} className="mb-1 flex justify-between items-center">
                           <Link to={`/author/${author.id}`} className="author-link">
-                            {author.firstName} {author.lastName}
+                            {author.firstName} {author.lastName} ({author.bookCount})
                           </Link>
                           <div>
                             <Link to={`/authors/${author.id}/edit`} className="text-indigo-600 hover:text-indigo-900 mr-2">{t('common.edit')}</Link>
@@ -219,7 +221,6 @@ const AuthorList = () => {
           </div>
         )
       ) : (
-        // Placeholder for PaginatedAuthorTable component
         <PaginatedAuthorTable />
       )}
 

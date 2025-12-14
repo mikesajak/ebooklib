@@ -151,8 +151,11 @@
     "addAuthor": "Dodaj Autora",
     "groupedView": "Widok zgrupowany",
     "plainView": "Zwykła lista",
+    "lastName": "Nazwisko",
+    "firstName": "Imię",
     "header": {
-      "name": "Nazwa"
+      "name": "Nazwa",
+      "bookCount": "Liczba książek"
     },
     "sort": {
       "lastNameAsc": "Nazwisko (A-Z)",

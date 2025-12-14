@@ -152,8 +152,11 @@
     "addAuthor": "Add Author",
     "groupedView": "Grouped View",
     "plainView": "Plain List",
+    "lastName": "Last Name",
+    "firstName": "First Name",
     "header": {
-      "name": "Name"
+      "name": "Name",
+      "bookCount": "Book Count"
     },
     "sort": {
       "lastNameAsc": "Last Name (A-Z)",
