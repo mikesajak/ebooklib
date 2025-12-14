@@ -168,6 +168,7 @@
     "description": "Opis",
     "booksInSeries": "Książki w tej serii",
     "noBooksFound": "Nie znaleziono książek.",
+    "volumeAndTitle": "Tom {{volume}}",
     "header": {
       "volume": "Tom",
       "title": "Tytuł"

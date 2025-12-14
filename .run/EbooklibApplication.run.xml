@@ -1,0 +1,17 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="EbooklibApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
+    <option name="ACTIVE_PROFILES" value="local" />
+    <option name="FRAME_DEACTIVATION_UPDATE_POLICY" value="UnknownPolicyInFreeMode" />
+    <module name="ebooklib.main" />
+    <option name="SPRING_BOOT_MAIN_CLASS" value="com.mikesajak.ebooklib.EbooklibApplication" />
+    <extension name="coverage">
+      <pattern>
+        <option name="PATTERN" value="com.mikesajak.ebooklib.*" />
+        <option name="ENABLED" value="true" />
+      </pattern>
+    </extension>
+    <method v="2">
+      <option name="Make" enabled="true" />
+    </method>
+  </configuration>
+</component>

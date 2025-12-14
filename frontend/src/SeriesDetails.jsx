@@ -80,26 +80,16 @@ const SeriesDetails = () => {
       {books.length === 0 ? (
         <p className="text-gray-500">{t('seriesDetails.noBooksFound')}</p>
       ) : (
-        <table className="table-fixed w-full bg-white border border-gray-300">
-          <thead>
-            <tr className="bg-gray-100">
-              <th className="py-2 px-4 border-b w-1/6">{t('seriesDetails.header.volume')}</th>
-              <th className="py-2 px-4 border-b">{t('seriesDetails.header.title')}</th>
-            </tr>
-          </thead>
-          <tbody>
-            {books.map((book) => (
-              <tr key={book.id} className="hover:bg-gray-50">
-                <td className="py-2 px-4 border-b w-16">{book.volume || '-'}</td>
-                <td className="py-2 px-4 border-b">
-                  <Link to={`/book/${book.id}`} className="book-link">
-                    {book.title}
-                  </Link>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+        <ul className="list-disc list-inside bg-white border border-gray-300 rounded p-4 shadow">
+          {books.map((book) => (
+            <li key={book.id} className="mb-2">
+              {t('seriesDetails.volumeAndTitle', { volume: book.volume || '-' })}:{' '}
+              <Link to={`/book/${book.id}`} className="book-link">
+                {book.title}
+              </Link>
+            </li>
+          ))}
+        </ul>
       )}
 
       <Link to="/" className="back-link">

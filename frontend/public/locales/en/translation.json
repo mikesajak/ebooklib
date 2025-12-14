@@ -169,6 +169,7 @@
     "description": "Description",
     "booksInSeries": "Books in this Series",
     "noBooksFound": "No books found.",
+    "volumeAndTitle": "Volume {{volume}}",
     "header": {
       "volume": "Volume",
       "title": "Title"
