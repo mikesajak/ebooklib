@@ -5,6 +5,7 @@ import { groupBy } from './grouping-utils';
 import PaginatedAuthorTable from './PaginatedAuthorTable';
 import ConfirmationDialog from './ConfirmationDialog';
 import Notification from './Notification';
+import AuthorGroupTable from './AuthorGroupTable';
 
 const AUTHOR_DISPLAY_THRESHOLD = 20;
 
@@ -174,50 +175,23 @@ const AuthorList = () => {
         <p className="text-gray-500">{t('authorList.noAuthorsFound')}</p>
       ) : viewMode === 'grouped' ? (
         authors.length <= AUTHOR_DISPLAY_THRESHOLD ? (
-          <ul className="list-disc list-inside bg-white border border-gray-300 rounded p-4 shadow">
-            {authors.map((author) => (
-              <li key={author.id} className="mb-2 flex justify-between items-center">
-                <Link to={`/author/${author.id}`} className="author-link">
-                  {author.firstName} {author.lastName} ({author.bookCount})
-                </Link>
-                <div>
-                  <Link to={`/authors/${author.id}/edit`} className="text-indigo-600 hover:text-indigo-900 mr-2">{t('common.edit')}</Link>
-                  <button onClick={() => openConfirmDialog(author)} className="text-red-600 hover:text-red-900">{t('common.delete')}</button>
-                </div>
-              </li>
-            ))}
-          </ul>
+          <AuthorGroupTable authors={authors} openConfirmDialog={openConfirmDialog} />
         ) : (
           <div>
-            {/* Alphabetic tree will be rendered here */}
-            <div>
-              {Object.keys(groupedAuthors).sort().map((letter) => (
+            {Object.keys(groupedAuthors).sort().map((letter) => (
                 <div key={letter} className="mb-2">
                   <h2
-                    className="text-xl font-semibold cursor-pointer bg-gray-200 p-2 rounded flex justify-between items-center"
-                    onClick={() => toggleLetterExpansion(letter)}
+                      className="text-xl font-semibold cursor-pointer bg-gray-200 p-2 rounded flex justify-between items-center"
+                      onClick={() => toggleLetterExpansion(letter)}
                   >
                     {letter} <span className="text-sm text-gray-500">({groupedAuthors[letter].length})</span>
                     <span>{expandedLetters[letter] ? '-' : '+'}</span>
                   </h2>
                   {expandedLetters[letter] && (
-                    <ul className="list-disc list-inside bg-white border border-gray-300 rounded p-4 shadow mt-2">
-                      {groupedAuthors[letter].map((author) => (
-                        <li key={author.id} className="mb-1 flex justify-between items-center">
-                          <Link to={`/author/${author.id}`} className="author-link">
-                            {author.firstName} {author.lastName} ({author.bookCount})
-                          </Link>
-                          <div>
-                            <Link to={`/authors/${author.id}/edit`} className="text-indigo-600 hover:text-indigo-900 mr-2">{t('common.edit')}</Link>
-                            <button onClick={() => openConfirmDialog(author)} className="text-red-600 hover:text-red-900">{t('common.delete')}</button>
-                          </div>
-                        </li>
-                      ))}
-                    </ul>
+                      <AuthorGroupTable authors={groupedAuthors[letter]} openConfirmDialog={openConfirmDialog} />
                   )}
                 </div>
-              ))}
-            </div>
+            ))}
           </div>
         )
       ) : (
