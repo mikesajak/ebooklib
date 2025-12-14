@@ -153,7 +153,14 @@
     "nationality": "Nationality",
     "addAuthor": "Add Author",
     "groupedView": "Grouped View",
-    "plainView": "Plain List"
+    "plainView": "Plain List",
+    "confirmDeleteTitle": "Confirm Author Deletion",
+    "confirmDeleteMessage": "Are you sure you want to delete the author \"{{authorName}}\"? This will remove the author from all associated books.",
+    "affectedBooks": "Affected Books",
+    "noAffectedBooks": "No books will be affected.",
+    "errorFetchingBooks": "Error fetching affected books.",
+    "authorDeleted": "Author deleted successfully!",
+    "errorDeletingAuthor": "Failed to delete author"
   },
   "seriesDetails": {
     "title": "Series Details",

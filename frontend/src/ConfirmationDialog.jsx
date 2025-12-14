@@ -15,7 +15,7 @@ const ConfirmationDialog = ({
     <div className="confirmation-dialog">
       <div className="confirmation-dialog-content">
         <h2>{title}</h2>
-        <p>{message}</p>
+        {message}
         <div className="confirmation-dialog-actions">
           <button onClick={onCancel}>{cancelButtonText || t('common.cancel')}</button>
           <button onClick={onConfirm} className="delete-button">

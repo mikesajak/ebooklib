@@ -1,8 +1,10 @@
-import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState, useEffect, useCallback } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { groupBy } from './grouping-utils';
 import PaginatedAuthorTable from './PaginatedAuthorTable';
+import ConfirmationDialog from './ConfirmationDialog';
+import Notification from './Notification';
 
 const AuthorList = () => {
   const { t } = useTranslation();
@@ -10,6 +12,13 @@ const AuthorList = () => {
   const [expandedLetters, setExpandedLetters] = useState({});
   const [groupingCriteria, setGroupingCriteria] = useState('lastName'); // Default to last name
   const [viewMode, setViewMode] = useState(() => localStorage.getItem('authorListViewMode') || 'grouped'); // 'grouped' or 'plain'
+
+  const [showConfirmDialog, setShowConfirmDialog] = useState(false);
+  const [authorToDelete, setAuthorToDelete] = useState(null);
+  const [affectedBooks, setAffectedBooks] = useState([]);
+  const [notification, setNotification] = useState({ message: '', type: '', visible: false });
+
+  const navigate = useNavigate();
 
   useEffect(() => {
     localStorage.setItem('authorListViewMode', viewMode);
@@ -26,37 +35,85 @@ const AuthorList = () => {
     setGroupingCriteria(event.target.value);
     setExpandedLetters({}); // Collapse all groups when criteria changes
   };
-  const groupedAuthors = groupBy(authors, groupingCriteria);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  const AUTHOR_DISPLAY_THRESHOLD = 25; // Define the threshold for switching between flat list and tree view
+  const fetchAuthors = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const response = await fetch('/api/authors?page=0&size=100');
+      if (!response.ok) {
+        throw new Error('Failed to fetch authors');
+      }
+      const data = await response.json();
+      const sortedAuthors = (data.content || []).sort((a, b) => {
+        if (a.lastName < b.lastName) return -1;
+        if (a.lastName > b.lastName) return 1;
+        if (a.firstName < b.firstName) return -1;
+        if (a.firstName > b.firstName) return 1;
+        return 0;
+      });
+      setAuthors(sortedAuthors);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
   useEffect(() => {
-    const fetchAuthors = async () => {
-      try {
-        const response = await fetch('/api/authors?page=0&size=100');
-        if (!response.ok) {
-          throw new Error('Failed to fetch authors');
-        }
-        const data = await response.json();
-        const sortedAuthors = (data.content || []).sort((a, b) => {
-          if (a.lastName < b.lastName) return -1;
-          if (a.lastName > b.lastName) return 1;
-          if (a.firstName < b.firstName) return -1;
-          if (a.firstName > b.firstName) return 1;
-          return 0;
-        });
-        setAuthors(sortedAuthors);
-      } catch (err) {
-        setError(err.message);
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchAuthors();
-  }, []);
+  }, [fetchAuthors]);
+
+  const openConfirmDialog = async (author) => {
+    setAuthorToDelete(author);
+    try {
+      const response = await fetch(`/api/authors/${author.id}/books`);
+      if (!response.ok) {
+        throw new Error('Failed to fetch affected books');
+      }
+      const data = await response.json();
+      setAffectedBooks(data);
+    } catch (error) {
+      console.error('Error fetching affected books:', error);
+      setAffectedBooks([]);
+      setNotification({ message: t('authorList.errorFetchingBooks'), type: 'error', visible: true });
+    }
+    setShowConfirmDialog(true);
+  };
+
+  const closeConfirmDialog = () => {
+    setShowConfirmDialog(false);
+    setAuthorToDelete(null);
+    setAffectedBooks([]);
+  };
+
+  const handleDeleteConfirmed = async () => {
+    if (authorToDelete) {
+      try {
+        const response = await fetch(`/api/authors/${authorToDelete.id}`, {
+          method: 'DELETE',
+        });
+        if (!response.ok) {
+          throw new Error('Failed to delete author');
+        }
+        setNotification({ message: t('authorList.authorDeleted'), type: 'success', visible: true });
+        closeConfirmDialog();
+        fetchAuthors(); // Refresh the author list
+      } catch (error) {
+        console.error('Error deleting author:', error);
+        setNotification({ message: `${t('authorList.errorDeletingAuthor')}: ${error.message}`, type: 'error', visible: true });
+        closeConfirmDialog();
+      }
+    }
+  };
+
+  const handleNotificationClose = () => {
+    setNotification(prev => ({ ...prev, visible: false }));
+  };
+
+  const groupedAuthors = groupBy(authors, groupingCriteria);
 
   if (loading) {
     return (
@@ -121,7 +178,10 @@ const AuthorList = () => {
                 <Link to={`/author/${author.id}`} className="author-link">
                   {author.firstName} {author.lastName}
                 </Link>
-                <Link to={`/authors/${author.id}/edit`} className="text-indigo-600 hover:text-indigo-900">{t('common.edit')}</Link>
+                <div>
+                  <Link to={`/authors/${author.id}/edit`} className="text-indigo-600 hover:text-indigo-900 mr-2">{t('common.edit')}</Link>
+                  <button onClick={() => openConfirmDialog(author)} className="text-red-600 hover:text-red-900">{t('common.delete')}</button>
+                </div>
               </li>
             ))}
           </ul>
@@ -145,7 +205,10 @@ const AuthorList = () => {
                           <Link to={`/author/${author.id}`} className="author-link">
                             {author.firstName} {author.lastName}
                           </Link>
-                          <Link to={`/authors/${author.id}/edit`} className="text-indigo-600 hover:text-indigo-900">{t('common.edit')}</Link>
+                          <div>
+                            <Link to={`/authors/${author.id}/edit`} className="text-indigo-600 hover:text-indigo-900 mr-2">{t('common.edit')}</Link>
+                            <button onClick={() => openConfirmDialog(author)} className="text-red-600 hover:text-red-900">{t('common.delete')}</button>
+                          </div>
                         </li>
                       ))}
                     </ul>
@@ -158,6 +221,42 @@ const AuthorList = () => {
       ) : (
         // Placeholder for PaginatedAuthorTable component
         <PaginatedAuthorTable />
+      )}
+
+      {showConfirmDialog && authorToDelete && (
+        <ConfirmationDialog
+          title={t('authorList.confirmDeleteTitle')}
+          message={
+            <div>
+              <p>{t('authorList.confirmDeleteMessage', { authorName: `${authorToDelete.firstName} ${authorToDelete.lastName}` })}</p>
+              {affectedBooks.length > 0 && (
+                <div className="mt-2">
+                  <p className="font-semibold">{t('authorList.affectedBooks')}:</p>
+                  <ul className="list-disc list-inside">
+                    {affectedBooks.map(book => (
+                      <li key={book.id}>{book.title}</li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+              {affectedBooks.length === 0 && (
+                <p className="mt-2">{t('authorList.noAffectedBooks')}</p>
+              )}
+            </div>
+          }
+          onConfirm={handleDeleteConfirmed}
+          onCancel={closeConfirmDialog}
+          confirmButtonText={t('common.delete')}
+          cancelButtonText={t('common.cancel')}
+        />
+      )}
+
+      {notification.visible && (
+        <Notification
+          message={notification.message}
+          type={notification.type}
+          onClose={handleNotificationClose}
+        />
       )}
     </div>
   );

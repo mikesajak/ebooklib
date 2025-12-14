@@ -152,7 +152,14 @@
     "nationality": "Narodowość",
     "addAuthor": "Dodaj Autora",
     "groupedView": "Widok zgrupowany",
-    "plainView": "Zwykła lista"
+    "plainView": "Zwykła lista",
+    "confirmDeleteTitle": "Potwierdź usunięcie autora",
+    "confirmDeleteMessage": "Czy na pewno chcesz usunąć autora \"{{authorName}}\"? Spowoduje to usunięcie autora ze wszystkich powiązanych książek.",
+    "affectedBooks": "Powiązane książki",
+    "noAffectedBooks": "Brak powiązanych książek.",
+    "errorFetchingBooks": "Błąd podczas pobierania powiązanych książek.",
+    "authorDeleted": "Autor usunięty pomyślnie!",
+    "errorDeletingAuthor": "Nie udało się usunąć autora"
   },
   "seriesDetails": {
     "title": "Szczegóły Serii",

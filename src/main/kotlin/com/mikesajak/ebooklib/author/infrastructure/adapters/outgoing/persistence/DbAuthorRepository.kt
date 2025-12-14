@@ -3,7 +3,6 @@ package com.mikesajak.ebooklib.author.infrastructure.adapters.outgoing.persisten
 import com.mikesajak.ebooklib.author.application.ports.outgoing.AuthorRepositoryPort
 import com.mikesajak.ebooklib.author.domain.model.Author
 import com.mikesajak.ebooklib.author.domain.model.AuthorId
-import com.mikesajak.ebooklib.book.infrastructure.adapters.outgoing.persistence.BookEntity
 import com.mikesajak.ebooklib.book.infrastructure.adapters.outgoing.persistence.BookEntityMapper
 import com.mikesajak.ebooklib.book.infrastructure.adapters.outgoing.persistence.BookJpaRepository
 import com.mikesajak.ebooklib.common.domain.model.PaginatedResult

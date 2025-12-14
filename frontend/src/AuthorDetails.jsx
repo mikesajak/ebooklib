@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import Notification from './Notification';
+import ConfirmationDialog from './ConfirmationDialog';
 
 const AuthorDetails = () => {
   const { t } = useTranslation();
@@ -9,6 +11,9 @@ const AuthorDetails = () => {
   const [books, setBooks] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [showDeleteConfirmDialog, setShowDeleteConfirmDialog] = useState(false);
+  const [notification, setNotification] = useState(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchAuthorAndBooks = async () => {
@@ -50,15 +55,49 @@ const AuthorDetails = () => {
       <div className="container mx-auto p-4">
         <h1 className="text-2xl font-bold mb-4">{t('authorDetails.title')}</h1>
         <p className="text-center text-red-500">{t('common.error')}: {error}</p>
-        <Link to="/" className="back-link">
+        <Link to="/authors" className="back-link">
           {t('common.backToList')}
         </Link>
       </div>
     );
   }
 
+  const handleDeleteAuthor = () => {
+    setShowDeleteConfirmDialog(true);
+  };
+
+  const executeDeleteAuthor = async () => {
+    setShowDeleteConfirmDialog(false);
+    try {
+      const response = await fetch(`/api/authors/${id}`, {
+        method: 'DELETE',
+      });
+      if (!response.ok) {
+        let errorMessage = 'Failed to delete author';
+        try {
+          const errorData = await response.json();
+          errorMessage = errorData.message || errorMessage;
+        } catch (e) {
+          // ignore if response is not json
+        }
+        throw new Error(errorMessage);
+      }
+      setNotification({ type: 'success', message: 'Author deleted successfully!' });
+      navigate('/authors');
+    } catch (err) {
+      setNotification({ type: 'error', message: err.message });
+    }
+  };
+
   return (
     <div className="container mx-auto p-4">
+      {notification && (
+        <Notification
+          message={notification.message}
+          type={notification.type}
+          onClose={() => setNotification(null)}
+        />
+      )}
       <h1 className="text-2xl font-bold mb-4">{t('authorDetails.title')}</h1>
       <div className="bg-white border border-gray-300 rounded p-6 shadow mb-6">
         <div className="mb-4">
@@ -74,9 +113,15 @@ const AuthorDetails = () => {
           <strong>{t('authorDetails.deathDate')}:</strong> {author.deathDate || t('common.na')}
         </div>
         <div className="flex justify-end mt-4">
-          <Link to={`/authors/${id}/edit`} className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+          <Link to={`/authors/${id}/edit`} className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mr-2">
             {t('common.edit')}
           </Link>
+          <button
+            onClick={handleDeleteAuthor}
+            className="bg-red-100 text-red-700 hover:bg-red-700 hover:text-white font-bold py-2 px-4 rounded"
+          >
+            {t('common.delete')}
+          </button>
         </div>
       </div>
 
@@ -95,9 +140,32 @@ const AuthorDetails = () => {
         </ul>
       )}
 
-      <Link to="/" className="back-link">
+      <Link to="/authors" className="back-link">
         {t('common.backToList')}
       </Link>
+
+      {showDeleteConfirmDialog && (
+        <ConfirmationDialog
+          message={
+            <div className="text-center">
+              <p className="mb-2">{t('authorDetails.confirmDeleteAuthor', { authorName: `${author.firstName} ${author.lastName}` })}</p>
+              {books.length > 0 && (
+                <>
+                  <p className="mb-2">{t('authorDetails.affectedBooks')}:</p>
+                  <ul className="list-disc list-inside text-left mx-auto max-w-xs">
+                    {books.map((book) => (
+                      <li key={book.id}>{book.title}</li>
+                    ))}
+                  </ul>
+                </>
+              )}
+              <p className="mt-2">{t('authorDetails.warningDeleteAuthor')}</p>
+            </div>
+          }
+          onConfirm={executeDeleteAuthor}
+          onCancel={() => setShowDeleteConfirmDialog(false)}
+        />
+      )}
     </div>
   );
 };
