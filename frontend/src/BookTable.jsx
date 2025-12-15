@@ -104,14 +104,14 @@ const BookTable = () => {
   if (loading) {
     return (
       <div className="container mx-auto p-4">
-        <h1 className="text-2xl font-bold mb-4">{t('bookTable.title')}</h1>
+        <h1 className="text-2xl font-bold">{t('bookTable.title')}</h1>
         <p className="text-center text-gray-500">{t('bookTable.loadingBooks')}</p>
       </div>
     );
   }  if (error) {
     return (
       <div className="container mx-auto p-4">
-        <h1 className="text-2xl font-bold mb-4">{t('bookTable.title')}</h1>
+        <h1 className="text-2xl font-bold">{t('bookTable.title')}</h1>
         <p className="text-center text-red-500">{t('bookTable.error')}: {error}</p>
       </div>
     );
@@ -142,15 +142,15 @@ const BookTable = () => {
               onClose={() => setNotification(null)}
             />
           )}
-          <div className="bg-white shadow-md rounded my-6">
-            <div className="flex justify-between items-center mb-4">
-              <h1 className="text-2xl font-bold">{t('bookTable.title')}</h1>
-              <Link to="/books/add">
-                <button className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">
-                  {t('bookTable.addBookButton')}
-                </button>
-              </Link>
-            </div>
+          <div className="flex justify-between items-center mb-4">
+            <h1 className="text-2xl font-bold">{t('bookTable.title')}</h1>
+            <Link to="/books/add">
+              <button className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">
+                {t('bookTable.addBookButton')}
+              </button>
+            </Link>
+          </div>
+          <div className="bg-white shadow-md rounded">
             <table className="min-w-full table-auto">
               <thead>
                 <tr className="bg-gray-200 text-gray-600 uppercase text-sm leading-normal">
