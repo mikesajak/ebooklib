@@ -11,10 +11,12 @@ import AddBook from './AddBook'
 import AddAuthor from './AddAuthor'
 import AddSeries from './AddSeries'
 import AppSidebar from './Sidebar'
+import { SearchProvider } from './SearchContext'
 
 function App() {
   return (
-    <BrowserRouter>
+    <SearchProvider>
+      <BrowserRouter>
       <div style={{ display: 'flex', flexDirection: 'column', height: '100vh' }}>
         <Header />
         <div style={{ display: 'flex', flexGrow: 1, overflow: 'hidden' }}>
@@ -37,8 +39,8 @@ function App() {
           </main>
         </div>
       </div>
-    </BrowserRouter>
-  )
-}
-
+          </BrowserRouter>
+        </SearchProvider>
+      )
+    }
 export default App

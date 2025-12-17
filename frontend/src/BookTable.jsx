@@ -2,6 +2,8 @@ import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate, Link, useLocation } from 'react-router-dom';
 import Notification from './Notification';
 import { useTranslation } from 'react-i18next';
+import { useSearch } from './SearchContext';
+import SearchBar from './SearchBar';
 import ConfirmationDialog from './ConfirmationDialog';
 import Pagination from './Pagination';
 
@@ -11,7 +13,6 @@ const BookTable = () => {
   const location = useLocation();
   const [books, setBooks] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
   const [page, setPage] = useState(0);
   const [size, setSize] = useState(10);
   const [totalPages, setTotalPages] = useState(0);
@@ -19,6 +20,7 @@ const BookTable = () => {
   const [sortField, setSortField] = useState('title'); // Default sort field
   const [sortDirection, setSortDirection] = useState('asc'); // Default sort direction
   const [notification, setNotification] = useState(null);
+  const { searchQuery } = useSearch();
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [bookToDelete, setBookToDelete] = useState(null);
 
@@ -26,8 +28,18 @@ const BookTable = () => {
 
   const fetchBooks = useCallback(async () => {
     setLoading(true);
+    setNotification(null);
     try {
-      const response = await fetch(`/api/books?page=${page}&size=${size}&sort=${sortField},${sortDirection}`);
+      const endpoint = searchQuery ? '/api/books/search' : '/api/books';
+      const params = new URLSearchParams({
+        page: page.toString(),
+        size: size.toString(),
+        sort: `${sortField},${sortDirection}`,
+      });
+      if (searchQuery) {
+        params.append('query', searchQuery);
+      }
+      const response = await fetch(`${endpoint}?${params.toString()}`);
       if (!response.ok) {
         throw new Error('Failed to fetch books');
       }
@@ -36,11 +48,11 @@ const BookTable = () => {
       setTotalPages(data.totalPages);
       setTotalElements(data.totalElements);
     } catch (err) {
-      setError(err.message);
+      setNotification({ message: `${t('bookTable.error')}: ${err.message}`, type: 'error' });
     } finally {
       setLoading(false);
     }
-  }, [page, size, sortField, sortDirection]);
+  }, [page, size, sortField, sortDirection, searchQuery, t]);
 
   useEffect(() => {
     if (location.state && location.state.notification) {
@@ -54,7 +66,7 @@ const BookTable = () => {
     if (ready) {
       fetchBooks();
     }
-  }, [ready, fetchBooks]);
+  }, [ready, fetchBooks, searchQuery]);
 
 
 
@@ -85,7 +97,6 @@ const BookTable = () => {
       // Refresh the book list by refetching
       fetchBooks();
     } catch (err) {
-      setError(err.message);
       setNotification({ message: t('bookTable.deleteFailure'), type: 'error' });
     }
   };
@@ -106,13 +117,6 @@ const BookTable = () => {
       <div className="container mx-auto p-4">
         <h1 className="text-2xl font-bold">{t('bookTable.title')}</h1>
         <p className="text-center text-gray-500">{t('bookTable.loadingBooks')}</p>
-      </div>
-    );
-  }  if (error) {
-    return (
-      <div className="container mx-auto p-4">
-        <h1 className="text-2xl font-bold">{t('bookTable.title')}</h1>
-        <p className="text-center text-red-500">{t('bookTable.error')}: {error}</p>
       </div>
     );
   }
@@ -149,6 +153,9 @@ const BookTable = () => {
                 {t('bookTable.addBookButton')}
               </button>
             </Link>
+          </div>
+          <div className="w-full mb-4">
+            <SearchBar />
           </div>
           <div className="bg-white shadow-md rounded">
             <table className="min-w-full table-auto">

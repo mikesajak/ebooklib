@@ -22,10 +22,10 @@ class SearchBooksController(
 ) {
     @GetMapping
     fun search(
-            @RequestParam(required = false) query: String,
+            @RequestParam(required = false) query: String?,
             @PageableDefault(size = 10) pageable: Pageable,
             @RequestParam(name = "view", required = false, defaultValue = "COMPACT") view: BookView
     ): PageResponse<BookResponseDto> =
-        searchByRSQLUseCase.search(query, pageable.toDomainPagination())
+        searchByRSQLUseCase.search(query ?: "", pageable.toDomainPagination())
                 .toPageResponse { book -> bookRestMapper.toResponse(book, view) }
 }
