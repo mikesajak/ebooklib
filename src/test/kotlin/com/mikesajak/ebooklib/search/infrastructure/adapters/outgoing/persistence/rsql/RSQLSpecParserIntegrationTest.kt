@@ -149,4 +149,33 @@ class RSQLSpecParserIntegrationTest : BaseIntegrationTest() {
         assertEquals(1, results.size)
         assertEquals("The Hobbit", results[0].title)
     }
+
+    @Test
+    fun `should return books with matching author name (composite)`() {
+        // Given
+        val query = "author.name=like=\"John Doe\""
+        val spec = rsqlSpecParser.parse<BookEntity>(query)
+
+        // When
+        val results = bookRepository.findAll(spec)
+
+        // Then
+        // Both books have John Doe as author
+        assertEquals(2, results.size)
+    }
+
+    @Test
+    fun `should return books with matching partial author name (composite)`() {
+        // Given
+        val query = "author.name=like=\"Jane\""
+        val spec = rsqlSpecParser.parse<BookEntity>(query)
+
+        // When
+        val results = bookRepository.findAll(spec)
+
+        // Then
+        // Only Lord of the Rings has Jane Smith
+        assertEquals(1, results.size)
+        assertEquals("The Lord of the Rings", results[0].title)
+    }
 }

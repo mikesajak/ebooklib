@@ -15,59 +15,76 @@ class RSQLSpecification<T>(
                              query: CriteriaQuery<*>?,
                              criteriaBuilder: CriteriaBuilder
     ): Predicate? {
-        val entityField = searchFieldMapper.mapToEntityField(property)
-        val path = getPath(root, entityField)
+        val mapping = searchFieldMapper.getMapping(property)
+        val expression = resolveExpression(root, mapping, criteriaBuilder)
 
         return when (operation) {
             SearchOperation.EQUAL ->
-                if (values.first() == "null") criteriaBuilder.isNull(path)
-                else criteriaBuilder.equal(path, castToRequiredType(path, values))
+                if (values.first() == "null") criteriaBuilder.isNull(expression)
+                else criteriaBuilder.equal(expression, castToRequiredType(expression, values))
 
             SearchOperation.NOT_EQUAL ->
-                if (values.first() == "null") criteriaBuilder.isNotNull(path)
-                else criteriaBuilder.notEqual(path, castToRequiredType(path, values))
+                if (values.first() == "null") criteriaBuilder.isNotNull(expression)
+                else criteriaBuilder.notEqual(expression, castToRequiredType(expression, values))
 
             SearchOperation.GREATER_THAN ->
-                criteriaBuilder.greaterThan(path as Path<Comparable<Any>>,
-                                            castToRequiredComparableType(path, values))
+                criteriaBuilder.greaterThan(expression as Expression<Comparable<Any>>,
+                                            castToRequiredComparableType(expression, values))
 
             SearchOperation.GREATER_THAN_OR_EQUAL ->
-                criteriaBuilder.greaterThanOrEqualTo(path as Path<Comparable<Any>>,
-                                                     castToRequiredComparableType(path, values))
+                criteriaBuilder.greaterThanOrEqualTo(expression as Expression<Comparable<Any>>,
+                                                     castToRequiredComparableType(expression, values))
 
             SearchOperation.LESS_THAN ->
-                criteriaBuilder.lessThan(path as Path<Comparable<Any>>,
-                                         castToRequiredComparableType(path, values))
+                criteriaBuilder.lessThan(expression as Expression<Comparable<Any>>,
+                                         castToRequiredComparableType(expression, values))
 
             SearchOperation.LESS_THAN_OR_EQUAL ->
-                criteriaBuilder.lessThanOrEqualTo(path as Path<Comparable<Any>>,
-                                                  castToRequiredComparableType(path, values))
+                criteriaBuilder.lessThanOrEqualTo(expression as Expression<Comparable<Any>>,
+                                                  castToRequiredComparableType(expression, values))
 
             SearchOperation.IN ->
-                path.`in`(values.map { castToRequiredType(path.javaType, it) })
+                expression.`in`(values.map { castToRequiredType(expression.javaType, it) })
 
             SearchOperation.NOT_IN ->
-                criteriaBuilder.not(path.`in`(values.map { castToRequiredType(path.javaType, it) }))
+                criteriaBuilder.not(expression.`in`(values.map { castToRequiredType(expression.javaType, it) }))
 
             SearchOperation.LIKE ->
-                criteriaBuilder.like(criteriaBuilder.lower(path as Path<String>),
+                criteriaBuilder.like(criteriaBuilder.lower(expression as Expression<String>),
                                      "%${values.first().lowercase()}%")
 
             SearchOperation.NOT_LIKE ->
-                criteriaBuilder.notLike(criteriaBuilder.lower(path as Path<String>),
+                criteriaBuilder.notLike(criteriaBuilder.lower(expression as Expression<String>),
                                         "%${values.first().lowercase()}%")
 
         }
     }
 
-    private fun castToRequiredType(path: Path<*>, values: List<String>) =
-        castToRequiredType(path.javaType, values.first())
+    private fun resolveExpression(root: Root<T?>, mapping: FieldMapping, cb: CriteriaBuilder): Expression<*> {
+        return when (mapping) {
+            is FieldMapping.Simple -> getPath(root, mapping.path)
+            is FieldMapping.Composite -> {
+                if (mapping.paths.isEmpty()) throw IllegalStateException("Composite mapping must have at least one path")
+                
+                val exprs = mapping.paths.map { getPath(root, it) as Expression<String> }
+                var result = exprs[0]
+                for (i in 1 until exprs.size) {
+                    val withSep = cb.concat(result, mapping.separator)
+                    result = cb.concat(withSep, exprs[i])
+                }
+                result
+            }
+        }
+    }
 
-    private fun castToRequiredComparableType(path: Path<*>, values: List<String>) =
-        castToRequiredType(path, values) as Comparable<Any>
+    private fun castToRequiredType(expression: Expression<*>, values: List<String>) =
+        castToRequiredType(expression.javaType, values.first())
 
-    private fun getPath(root: Root<T?>, entityField: String): Path<*> {
-        val parts = property.split(".")
+    private fun castToRequiredComparableType(expression: Expression<*>, values: List<String>) =
+        castToRequiredType(expression, values) as Comparable<Any>
+
+    private fun getPath(root: Root<T?>, entityFieldPath: String): Path<*> {
+        val parts = entityFieldPath.split(".")
 
         if (parts.size == 1)
             return root.get<Any>(parts[0])
@@ -78,7 +95,7 @@ class RSQLSpecification<T>(
         for (i in 0 until parts.size - 1) {
             path =
                 if (path is From<*, *>) getOrCreateJoin(path, parts[i])
-                else throw IllegalStateException("Cannot navigate thourgh non-entity property: ${parts[i]}")
+                else throw IllegalStateException("Cannot navigate through non-entity property: ${parts[i]}")
         }
         return path.get<Any>(parts.last())
     }
