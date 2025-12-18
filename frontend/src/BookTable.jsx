@@ -20,7 +20,7 @@ const BookTable = () => {
   const [sortField, setSortField] = useState('title'); // Default sort field
   const [sortDirection, setSortDirection] = useState('asc'); // Default sort direction
   const [notification, setNotification] = useState(null);
-  const { searchQuery } = useSearch();
+  const { searchQuery, refreshTrigger } = useSearch();
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [bookToDelete, setBookToDelete] = useState(null);
 
@@ -52,7 +52,7 @@ const BookTable = () => {
     } finally {
       setLoading(false);
     }
-  }, [page, size, sortField, sortDirection, searchQuery, t]);
+  }, [page, size, sortField, sortDirection, searchQuery, refreshTrigger, t]);
 
   useEffect(() => {
     if (location.state && location.state.notification) {
@@ -66,7 +66,12 @@ const BookTable = () => {
     if (ready) {
       fetchBooks();
     }
-  }, [ready, fetchBooks, searchQuery]);
+  }, [ready, fetchBooks, searchQuery, refreshTrigger]);
+
+  // Reset page to 0 when search query changes
+  useEffect(() => {
+    setPage(0);
+  }, [searchQuery]);
 
 
 
@@ -112,15 +117,6 @@ const BookTable = () => {
     return <div>Loading translations...</div>;
   }
 
-  if (loading) {
-    return (
-      <div className="container mx-auto p-4">
-        <h1 className="text-2xl font-bold">{t('bookTable.title')}</h1>
-        <p className="text-center text-gray-500">{t('bookTable.loadingBooks')}</p>
-      </div>
-    );
-  }
-
   const handleSort = (field) => {
     if (sortField === field) {
       setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
@@ -157,7 +153,11 @@ const BookTable = () => {
           <div className="w-full mb-4">
             <SearchBar />
           </div>
-          <div className="bg-white shadow-md rounded">
+          
+          {loading ? (
+            <p className="text-center text-gray-500">{t('bookTable.loadingBooks')}</p>
+          ) : (
+            <div className="bg-white shadow-md rounded">
             <table className="min-w-full table-auto">
               <thead>
                 <tr className="bg-gray-200 text-gray-600 uppercase text-sm leading-normal">
@@ -246,6 +246,7 @@ const BookTable = () => {
               }}
             />
           </div>
+          )}
         </div>
   );
 };

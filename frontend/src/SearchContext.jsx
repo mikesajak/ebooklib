@@ -7,6 +7,7 @@ const SEARCH_HISTORY_KEY = 'ebooklib_search_history';
 export const SearchProvider = ({ children }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [searchHistory, setSearchHistory] = useState([]);
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
 
   useEffect(() => {
     try {
@@ -19,9 +20,19 @@ export const SearchProvider = ({ children }) => {
     }
   }, []);
 
+  const triggerSearch = (query) => {
+    setSearchQuery(query);
+    setRefreshTrigger(prev => prev + 1);
+  };
+
   const addToHistory = (query) => {
     if (!query) return;
     setSearchHistory(prevHistory => {
+      // Avoid adding if it's the same as the most recent entry
+      if (prevHistory.length > 0 && prevHistory[0] === query) {
+        return prevHistory;
+      }
+      
       const newHistory = [query, ...prevHistory.filter(item => item !== query)].slice(0, 10);
       try {
         localStorage.setItem(SEARCH_HISTORY_KEY, JSON.stringify(newHistory));
@@ -33,7 +44,7 @@ export const SearchProvider = ({ children }) => {
   };
 
   return (
-    <SearchContext.Provider value={{ searchQuery, setSearchQuery, searchHistory, addToHistory }}>
+    <SearchContext.Provider value={{ searchQuery, setSearchQuery, searchHistory, addToHistory, refreshTrigger, triggerSearch }}>
       {children}
     </SearchContext.Provider>
   );

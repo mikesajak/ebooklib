@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useSearch } from './SearchContext';
 
 const SearchBar = () => {
-  const { searchQuery, setSearchQuery, searchHistory, addToHistory } = useSearch();
+  const { searchQuery, triggerSearch, searchHistory, addToHistory } = useSearch();
   const [localQuery, setLocalQuery] = useState(searchQuery);
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);
   const searchBarRef = useRef(null);
@@ -33,7 +33,7 @@ const SearchBar = () => {
     if (queryToSearch) {
       addToHistory(queryToSearch);
     }
-    setSearchQuery(queryToSearch);
+    triggerSearch(queryToSearch);
     setIsHistoryOpen(false);
   };
 
@@ -45,12 +45,12 @@ const SearchBar = () => {
 
   const handleClear = () => {
     setLocalQuery('');
-    setSearchQuery('');
+    triggerSearch('');
   };
 
   const handleHistoryClick = (query) => {
     setLocalQuery(query);
-    setSearchQuery(query);
+    triggerSearch(query);
     setIsHistoryOpen(false);
   };
 
