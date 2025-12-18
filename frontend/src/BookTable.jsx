@@ -30,7 +30,7 @@ const BookTable = () => {
     setLoading(true);
     setNotification(null);
     try {
-      const endpoint = searchQuery ? '/api/books/search' : '/api/books';
+      const endpoint = '/api/books/search';
       const params = new URLSearchParams({
         page: page.toString(),
         size: size.toString(),
