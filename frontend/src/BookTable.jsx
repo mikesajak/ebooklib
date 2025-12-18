@@ -45,8 +45,8 @@ const BookTable = () => {
       }
       const data = await response.json();
       setBooks(data.content || []);
-      setTotalPages(data.totalPages);
-      setTotalElements(data.totalElements);
+      setTotalPages(data.page?.totalPages || 0);
+      setTotalElements(data.page?.totalElements || 0);
     } catch (err) {
       setNotification({ message: `${t('bookTable.error')}: ${err.message}`, type: 'error' });
     } finally {
