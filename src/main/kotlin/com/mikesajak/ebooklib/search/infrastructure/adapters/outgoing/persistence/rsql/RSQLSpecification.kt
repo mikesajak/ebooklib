@@ -66,13 +66,9 @@ class RSQLSpecification<T>(
             is FieldMapping.Composite -> {
                 if (mapping.paths.isEmpty()) throw IllegalStateException("Composite mapping must have at least one path")
                 
-                val exprs = mapping.paths.map { getPath(root, it) as Expression<String> }
-                var result = exprs[0]
-                for (i in 1 until exprs.size) {
-                    val withSep = cb.concat(result, mapping.separator)
-                    result = cb.concat(withSep, exprs[i])
+                mapping.paths.map { getPath(root, it) as Expression<String> }.reduce { acc, expr ->
+                    cb.concat(cb.concat(acc, mapping.separator), expr)
                 }
-                result
             }
         }
     }

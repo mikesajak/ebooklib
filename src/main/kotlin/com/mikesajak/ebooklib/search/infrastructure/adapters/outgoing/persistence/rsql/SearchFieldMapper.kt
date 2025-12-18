@@ -20,6 +20,7 @@ class SearchFieldMapper {
             "author.bio" to FieldMapping.Simple("authors.description"),
 
             "author.name" to FieldMapping.Composite(listOf("authors.firstName", "authors.lastName"), " "),
+            "authors.name" to FieldMapping.Composite(listOf("authors.firstName", "authors.lastName"), " "),
 
             "series.name" to FieldMapping.Simple("series.name"),
             "series.volume" to FieldMapping.Simple("series.volume"),

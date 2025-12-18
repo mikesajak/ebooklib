@@ -23,8 +23,11 @@ class RSQLVisitorSpecBuilder<T>(
     }
 
     override fun visit(node: ComparisonNode, param: Void?): Specification<T> {
-        if (!searchFieldMapper.isFieldAllowed(node.selector))
-            throw IllegalArgumentException("Field '${node.selector}' is not allowed for search")
+        try {
+            searchFieldMapper.getMapping(node.selector)
+        } catch (e: IllegalArgumentException) {
+            throw IllegalArgumentException("Field '${node.selector}' is not allowed for search", e)
+        }
 
         val operation = SearchOperation.getOperator(node.operator.symbol)
             ?: throw IllegalArgumentException("Unsupported operator: ${node.operator}")
