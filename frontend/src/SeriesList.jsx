@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { useSearch } from './SearchContext';
 
 const SeriesList = () => {
   const { t, ready } = useTranslation();
@@ -13,30 +14,46 @@ const SeriesList = () => {
   const [totalElements, setTotalElements] = useState(0);
   const [sortField, setSortField] = useState('title');
   const [sortDirection, setSortDirection] = useState('asc');
+  const { searchQuery, refreshTrigger } = useSearch('series');
 
   console.log("SeriesList render. Ready:", ready, "Loading:", loading, "Error:", error);
 
   const fetchSeries = useCallback(async () => {
     setLoading(true);
     try {
-      const response = await fetch(`/api/series?page=${page}&size=${size}&sort=${sortField},${sortDirection}`);
+      const endpoint = '/api/series/search';
+      const params = new URLSearchParams({
+        page: page.toString(),
+        size: size.toString(),
+        sort: `${sortField},${sortDirection}`,
+      });
+      if (searchQuery) {
+        params.append('query', searchQuery);
+      }
+
+      const response = await fetch(`${endpoint}?${params.toString()}`);
       if (!response.ok) {
         throw new Error(`Failed to fetch series: ${response.status} ${response.statusText}`);
       }
       const data = await response.json();
       setSeries(data.content || []);
-      setTotalPages(data.totalPages);
-      setTotalElements(data.totalElements);
+      setTotalPages(data.page?.totalPages || 0);
+      setTotalElements(data.page?.totalElements || 0);
     } catch (err) {
       setError(err.message);
     } finally {
       setLoading(false);
     }
-  }, [page, size, sortField, sortDirection]);
+  }, [page, size, sortField, sortDirection, searchQuery, refreshTrigger]);
 
   useEffect(() => {
     fetchSeries();
   }, [fetchSeries]);
+
+  // Reset page to 0 when search query changes
+  useEffect(() => {
+    setPage(0);
+  }, [searchQuery]);
 
   const handleSort = (field) => {
     if (sortField === field) {
