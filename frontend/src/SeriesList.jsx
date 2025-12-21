@@ -2,6 +2,8 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useSearch } from './SearchContext';
+import SearchBar from './SearchBar';
+import Pagination from './Pagination';
 
 const SeriesList = () => {
   const { t, ready } = useTranslation();
@@ -15,6 +17,14 @@ const SeriesList = () => {
   const [sortField, setSortField] = useState('title');
   const [sortDirection, setSortDirection] = useState('asc');
   const { searchQuery, refreshTrigger } = useSearch('series');
+
+  const seriesQueryTransformer = (input) => {
+    const operatorRegex = /[=<>!();,]/;
+    if (input && !operatorRegex.test(input)) {
+      return `title=like="${input}"`;
+    }
+    return input;
+  };
 
   console.log("SeriesList render. Ready:", ready, "Loading:", loading, "Error:", error);
 
@@ -99,33 +109,52 @@ const SeriesList = () => {
           </button>
         </Link>
       </div>
+
+      <div className="w-full mb-4">
+        <SearchBar scope="series" queryTransformer={seriesQueryTransformer} />
+      </div>
+
       {series.length === 0 ? (
         <p className="text-gray-500">{t('seriesList.noSeriesFound')}</p>
       ) : (
-        <table className="min-w-full table-auto">
-          <thead>
-            <tr className="bg-gray-200 text-gray-600 uppercase text-sm leading-normal">
-              <th className="py-3 px-6 text-left" onClick={() => handleSort('title')}>{t('seriesList.header.title')}{getSortIndicator('title')}</th>
-              <th className="py-3 px-6 text-center">{t('common.actions')}</th>
-            </tr>
-          </thead>
-          <tbody>
-            {series.map((s, index) => (
-              <tr key={s.id} className={index % 2 === 0 ? 'bg-gray-50' : 'bg-white'}>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 border-b border-gray-200">
-                  <Link to={`/series/${s.id}`} className="series-link">
-                    {s.title}
-                  </Link>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium border-b border-gray-200">
-                  {/* Action buttons will go here */}
-                  <Link to={`/series/${s.id}/edit`} className="text-indigo-600 hover:text-indigo-900 mr-2">{t('common.edit')}</Link>
-                  <button onClick={() => { /* handle delete */ }} className="text-red-600 hover:text-red-900">{t('common.delete')}</button>
-                </td>
+        <div className="bg-white shadow-md rounded">
+          <table className="min-w-full table-auto">
+            <thead>
+              <tr className="bg-gray-200 text-gray-600 uppercase text-sm leading-normal">
+                <th className="py-3 px-6 text-left" onClick={() => handleSort('title')}>{t('seriesList.header.title')}{getSortIndicator('title')}</th>
+                <th className="py-3 px-6 text-center">{t('common.actions')}</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {series.map((s, index) => (
+                <tr key={s.id} className={index % 2 === 0 ? 'bg-gray-50' : 'bg-white'}>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 border-b border-gray-200">
+                    <Link to={`/series/${s.id}`} className="series-link">
+                      {s.title}
+                    </Link>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium border-b border-gray-200">
+                    {/* Action buttons will go here */}
+                    <Link to={`/series/${s.id}/edit`} className="text-indigo-600 hover:text-indigo-900 mr-2">{t('common.edit')}</Link>
+                    <button onClick={() => { /* handle delete */ }} className="text-red-600 hover:text-red-900">{t('common.delete')}</button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+
+          <Pagination
+            page={page}
+            size={size}
+            totalPages={totalPages}
+            totalElements={totalElements}
+            onPageChange={setPage}
+            onPageSizeChange={(newSize) => {
+              setSize(newSize);
+              setPage(0); // Reset to first page when page size changes
+            }}
+          />
+        </div>
       )}
     </div>
   );
