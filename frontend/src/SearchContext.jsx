@@ -1,53 +1,106 @@
-import React, { createContext, useState, useContext, useEffect } from 'react';
+import React, { createContext, useState, useContext, useEffect, useCallback } from 'react';
 
 const SearchContext = createContext();
 
-const SEARCH_HISTORY_KEY = 'ebooklib_search_history';
+const SEARCH_HISTORY_PREFIX = 'ebooklib_search_history_';
 
 export const SearchProvider = ({ children }) => {
-  const [searchQuery, setSearchQuery] = useState('');
-  const [searchHistory, setSearchHistory] = useState([]);
-  const [refreshTrigger, setRefreshTrigger] = useState(0);
+  const [scopes, setScopes] = useState({});
 
-  useEffect(() => {
-    try {
-      const storedHistory = localStorage.getItem(SEARCH_HISTORY_KEY);
-      if (storedHistory) {
-        setSearchHistory(JSON.parse(storedHistory));
+  const initScope = useCallback((scope) => {
+    setScopes(prev => {
+      if (prev[scope]) return prev;
+      
+      let history = [];
+      try {
+        const stored = localStorage.getItem(`${SEARCH_HISTORY_PREFIX}${scope}`);
+        if (stored) {
+          history = JSON.parse(stored);
+        }
+      } catch (error) {
+        console.error(`Failed to load search history for scope ${scope}`, error);
       }
-    } catch (error) {
-      console.error("Failed to load search history from localStorage", error);
-    }
+      
+      return {
+        ...prev,
+        [scope]: {
+          searchQuery: '',
+          searchHistory: history,
+          refreshTrigger: 0
+        }
+      };
+    });
   }, []);
 
-  const triggerSearch = (query) => {
-    setSearchQuery(query);
-    setRefreshTrigger(prev => prev + 1);
-  };
+  const triggerSearch = useCallback((scope, query) => {
+    setScopes(prev => ({
+      ...prev,
+      [scope]: {
+        ...prev[scope],
+        searchQuery: query,
+        refreshTrigger: (prev[scope]?.refreshTrigger || 0) + 1
+      }
+    }));
+  }, []);
 
-  const addToHistory = (query) => {
+  const addToHistory = useCallback((scope, query) => {
     if (!query) return;
-    setSearchHistory(prevHistory => {
+    
+    setScopes(prev => {
+      const scopeState = prev[scope];
+      if (!scopeState) return prev; // Should be initialized
+      
+      const prevHistory = scopeState.searchHistory;
       // Avoid adding if it's the same as the most recent entry
       if (prevHistory.length > 0 && prevHistory[0] === query) {
-        return prevHistory;
+        return prev;
       }
       
       const newHistory = [query, ...prevHistory.filter(item => item !== query)].slice(0, 10);
       try {
-        localStorage.setItem(SEARCH_HISTORY_KEY, JSON.stringify(newHistory));
+        localStorage.setItem(`${SEARCH_HISTORY_PREFIX}${scope}`, JSON.stringify(newHistory));
       } catch (error) {
-        console.error("Failed to save search history to localStorage", error);
+        console.error(`Failed to save search history for scope ${scope}`, error);
       }
-      return newHistory;
+      
+      return {
+        ...prev,
+        [scope]: {
+          ...scopeState,
+          searchHistory: newHistory
+        }
+      };
     });
-  };
+  }, []);
 
   return (
-    <SearchContext.Provider value={{ searchQuery, setSearchQuery, searchHistory, addToHistory, refreshTrigger, triggerSearch }}>
+    <SearchContext.Provider value={{ scopes, initScope, triggerSearch, addToHistory }}>
       {children}
     </SearchContext.Provider>
   );
 };
 
-export const useSearch = () => useContext(SearchContext);
+export const useSearch = (scope) => {
+  const context = useContext(SearchContext);
+  if (!context) {
+    throw new Error('useSearch must be used within a SearchProvider');
+  }
+  
+  const { scopes, initScope, triggerSearch, addToHistory } = context;
+  
+  useEffect(() => {
+    if (scope) {
+      initScope(scope);
+    }
+  }, [scope, initScope]);
+  
+  const scopeState = scopes[scope] || { searchQuery: '', searchHistory: [], refreshTrigger: 0 };
+  
+  return {
+    searchQuery: scopeState.searchQuery,
+    searchHistory: scopeState.searchHistory,
+    refreshTrigger: scopeState.refreshTrigger,
+    triggerSearch: (query) => triggerSearch(scope, query),
+    addToHistory: (query) => addToHistory(scope, query)
+  };
+};

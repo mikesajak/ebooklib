@@ -20,11 +20,17 @@ const BookTable = () => {
   const [sortField, setSortField] = useState('title'); // Default sort field
   const [sortDirection, setSortDirection] = useState('asc'); // Default sort direction
   const [notification, setNotification] = useState(null);
-  const { searchQuery, refreshTrigger } = useSearch();
+  const { searchQuery, refreshTrigger } = useSearch('books');
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [bookToDelete, setBookToDelete] = useState(null);
 
-
+  const bookQueryTransformer = (input) => {
+    const operatorRegex = /[=<>!();,]/;
+    if (input && !operatorRegex.test(input)) {
+      return `title=like="${input}"`;
+    }
+    return input;
+  };
 
   const fetchBooks = useCallback(async () => {
     setLoading(true);
@@ -151,7 +157,7 @@ const BookTable = () => {
             </Link>
           </div>
           <div className="w-full mb-4">
-            <SearchBar />
+            <SearchBar scope="books" queryTransformer={bookQueryTransformer} />
           </div>
           
           {loading ? (

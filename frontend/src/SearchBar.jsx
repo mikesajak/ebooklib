@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useSearch } from './SearchContext';
 
-const SearchBar = () => {
-  const { searchQuery, triggerSearch, searchHistory, addToHistory } = useSearch();
+const SearchBar = ({ scope, queryTransformer, placeholder = "Search..." }) => {
+  const { searchQuery, triggerSearch, searchHistory, addToHistory } = useSearch(scope);
   const [localQuery, setLocalQuery] = useState(searchQuery);
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);
   const searchBarRef = useRef(null);
@@ -24,10 +24,9 @@ const SearchBar = () => {
   }, [searchBarRef]);
 
   const handleSearch = () => {
-    const operatorRegex = /[=<>!();,]/;
     let queryToSearch = localQuery;
-    if (localQuery && !operatorRegex.test(localQuery)) {
-      queryToSearch = `title=like="${localQuery}"`;
+    if (queryTransformer) {
+      queryToSearch = queryTransformer(localQuery);
     }
     
     if (queryToSearch) {
@@ -70,7 +69,7 @@ const SearchBar = () => {
           onChange={(e) => setLocalQuery(e.target.value)}
           onKeyPress={handleKeyPress}
           onFocus={() => setIsHistoryOpen(true)}
-          placeholder="Search..."
+          placeholder={placeholder}
           className="w-full pl-10 pr-10 py-1 border rounded-l-md focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
         {localQuery && (
