@@ -20,8 +20,7 @@ import java.util.*
 class DbAuthorRepository(
         private val authorJpaRepository: AuthorJpaRepository,
         private val mapper: AuthorEntityMapper,
-        private val bookJpaRepository: BookJpaRepository,
-        private val bookEntityMapper: BookEntityMapper
+        private val bookJpaRepository: BookJpaRepository
 ) : AuthorRepositoryPort {
 
     override fun findAll(pagination: PaginationRequest): PaginatedResult<Author> =
@@ -29,7 +28,7 @@ class DbAuthorRepository(
                 .toDomainPage { authorEntity -> mapper.toDomain(authorEntity) }
 
     override fun findAuthorsWithBookCount(pagination: PaginationRequest): PaginatedResult<AuthorProjection> =
-        authorJpaRepository.findAuthorsWithBookCount(pagination.toSpringPageable())
+        authorJpaRepository.findAuthorsWithBookCount(null, pagination.toSpringPageable())
             .toDomainPage { it }
 
     override fun findById(id: AuthorId): Author? =

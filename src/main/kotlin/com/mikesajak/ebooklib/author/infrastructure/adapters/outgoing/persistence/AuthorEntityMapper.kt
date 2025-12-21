@@ -2,6 +2,7 @@ package com.mikesajak.ebooklib.author.infrastructure.adapters.outgoing.persisten
 
 import com.mikesajak.ebooklib.author.domain.model.Author
 import com.mikesajak.ebooklib.author.domain.model.AuthorId
+import com.mikesajak.ebooklib.author.application.projection.AuthorProjection
 import org.springframework.stereotype.Component
 
 @Component

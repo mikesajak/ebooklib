@@ -1,6 +1,6 @@
 package com.mikesajak.ebooklib.search.application.services
 
-import com.mikesajak.ebooklib.author.domain.model.Author
+import com.mikesajak.ebooklib.author.application.projection.AuthorProjection
 import com.mikesajak.ebooklib.common.domain.model.PaginatedResult
 import com.mikesajak.ebooklib.common.domain.model.PaginationRequest
 import com.mikesajak.ebooklib.search.application.ports.incoming.SearchAuthorsUseCase
@@ -14,7 +14,7 @@ class SearchAuthorsService(
 ) : SearchAuthorsUseCase {
 
     @Transactional(readOnly = true)
-    override fun search(query: String, pagination: PaginationRequest): PaginatedResult<Author> {
+    override fun search(query: String, pagination: PaginationRequest): PaginatedResult<AuthorProjection> {
         return searchAuthorsRepositoryPort.search(query, pagination)
     }
 }

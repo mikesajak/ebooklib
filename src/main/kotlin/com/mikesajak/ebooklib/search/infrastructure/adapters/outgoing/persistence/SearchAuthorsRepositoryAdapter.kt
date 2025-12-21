@@ -22,15 +22,14 @@ class SearchAuthorsRepositoryAdapter(
         private val mapper: AuthorEntityMapper,
         private val searchFieldMapper: AuthorSearchFieldMapper
 ) : SearchAuthorsRepositoryPort {
-    override fun search(query: String, pagination: PaginationRequest): PaginatedResult<Author> {
-        return searchEntity(query, pagination.toSpringPageable())
-                .toDomainPage { authorEntity -> mapper.toDomain(authorEntity!!) }
+    override fun search(query: String, pagination: PaginationRequest): PaginatedResult<com.mikesajak.ebooklib.author.application.projection.AuthorProjection> {
+        return searchProjection(query, pagination.toSpringPageable())
+                .toDomainPage { it }
     }
 
-    private fun searchEntity(query: String, pageable: Pageable): Page<AuthorEntity?> {
+    private fun searchProjection(query: String, pageable: Pageable): Page<com.mikesajak.ebooklib.author.application.projection.AuthorProjection> {
         val querySpec = rsqlParser.parseOrNull<AuthorEntity>(query, searchFieldMapper)
 
-        return if (querySpec == null) authorJpaRepository.findAll(pageable)
-        else authorJpaRepository.findAll(querySpec, pageable)
+        return authorJpaRepository.findAuthorsWithBookCount(querySpec, pageable)
     }
 }

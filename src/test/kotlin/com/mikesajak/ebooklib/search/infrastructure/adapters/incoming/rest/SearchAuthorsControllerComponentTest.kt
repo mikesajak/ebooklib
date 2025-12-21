@@ -1,8 +1,7 @@
 package com.mikesajak.ebooklib.search.infrastructure.adapters.incoming.rest
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.mikesajak.ebooklib.author.domain.model.Author
-import com.mikesajak.ebooklib.author.domain.model.AuthorId
+import com.mikesajak.ebooklib.author.application.projection.AuthorProjection
 import com.mikesajak.ebooklib.author.infrastructure.adapters.incoming.rest.AuthorRestMapper
 import com.mikesajak.ebooklib.author.infrastructure.adapters.incoming.rest.dto.AuthorResponseDto
 import com.mikesajak.ebooklib.common.domain.model.PaginatedResult
@@ -43,14 +42,14 @@ class SearchAuthorsControllerComponentTest {
     fun `should return paginated list of authors for valid RSQL query`() {
         // Given
         val query = "lastName==\"Doe\""
-        val authorId1 = AuthorId(UUID.randomUUID())
-        val author1 = Author(id = authorId1, firstName = "John", lastName = "Doe", bio = "Author bio", birthDate = null, deathDate = null)
-        val paginatedResult = PaginatedResult(listOf(author1), 0, 10, 1L, 1)
+        val authorId1 = UUID.randomUUID()
+        val authorProjection1 = AuthorProjection(id = authorId1, firstName = "John", lastName = "Doe", bio = "Author bio", birthDate = null, deathDate = null, bookCount = 5)
+        val paginatedResult = PaginatedResult(listOf(authorProjection1), 0, 10, 1L, 1)
         val authorResponseDto1 =
-            AuthorResponseDto(authorId1.value, "John", "Doe", "Author bio", null, null)
+            AuthorResponseDto(authorId1, "John", "Doe", "Author bio", null, null, 5)
 
         whenever(searchAuthorsUseCase.search(any(), any())).thenReturn(paginatedResult)
-        whenever(authorRestMapper.toResponse(author1)).thenReturn(authorResponseDto1)
+        whenever(authorRestMapper.toResponse(authorProjection1)).thenReturn(authorResponseDto1)
 
         // When & Then
         mockMvc.perform(get("/api/authors/search")
@@ -61,9 +60,10 @@ class SearchAuthorsControllerComponentTest {
                                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk)
                 .andExpect(jsonPath("$.content.length()").value(1))
-                .andExpect(jsonPath("$.content[0].id").value(authorId1.value.toString()))
+                .andExpect(jsonPath("$.content[0].id").value(authorId1.toString()))
                 .andExpect(jsonPath("$.content[0].firstName").value("John"))
                 .andExpect(jsonPath("$.content[0].lastName").value("Doe"))
+                .andExpect(jsonPath("$.content[0].bookCount").value(5))
                 .andExpect(jsonPath("$.page.number").value(0))
                 .andExpect(jsonPath("$.page.size").value(10))
                 .andExpect(jsonPath("$.page.totalElements").value(1))
@@ -74,7 +74,7 @@ class SearchAuthorsControllerComponentTest {
     fun `should return empty paginated list for valid RSQL query with no results`() {
         // Given
         val query = "lastName==\"NonExistent\""
-        val paginatedResult = PaginatedResult(emptyList<Author>(), 0, 10, 0L, 0)
+        val paginatedResult = PaginatedResult(emptyList<AuthorProjection>(), 0, 10, 0L, 0)
 
         whenever(searchAuthorsUseCase.search(any(), any())).thenReturn(paginatedResult)
 

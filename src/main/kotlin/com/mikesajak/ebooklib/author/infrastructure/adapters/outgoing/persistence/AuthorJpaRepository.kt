@@ -10,11 +10,15 @@ import java.util.*
 
 interface AuthorJpaRepository
     : JpaRepository<AuthorEntity, UUID>,
-      JpaSpecificationExecutor<AuthorEntity> {
+      JpaSpecificationExecutor<AuthorEntity>,
+      AuthorCustomRepository {
+
     @Query(
-        value = "SELECT new com.mikesajak.ebooklib.author.application.projection.AuthorProjection(a.id, a.firstName, a.lastName, a.bio, a.birthDate, a.deathDate, (SELECT count(b) FROM BookEntity b WHERE a MEMBER OF b.authors)) " +
+        value = "SELECT new com.mikesajak.ebooklib.author.application.projection.AuthorProjection(a.id, a.firstName, a.lastName, a.bio, a.birthDate, a.deathDate, " +
+                "(SELECT count(b) FROM BookEntity b WHERE a MEMBER OF b.authors)) " +
                 "FROM AuthorEntity a",
         countQuery = "SELECT count(a) FROM AuthorEntity a"
     )
+
     fun findAuthorsWithBookCount(pageable: Pageable): Page<AuthorProjection>
 }
