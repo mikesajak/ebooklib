@@ -7,22 +7,20 @@ import org.springframework.data.jpa.domain.Specification
 import org.springframework.stereotype.Component
 
 @Component
-class RSQLSpecParser(
-        private val searchFieldMapper: SearchFieldMapper
-) {
+class RSQLSpecParser {
     private val logger = KotlinLogging.logger {}
     private val parser = initParser()
 
-    fun <T> parse(query: String): Specification<T> {
+    fun <T> parse(query: String, searchFieldMapper: SearchFieldMapper): Specification<T> {
         val rootNode = parser.parse(query)
         return rootNode.accept(RSQLVisitorSpecBuilder(searchFieldMapper))
     }
 
-    fun <T> parseOrNull(query: String?): Specification<T>? {
+    fun <T> parseOrNull(query: String?, searchFieldMapper: SearchFieldMapper): Specification<T>? {
         if (query.isNullOrBlank()) return null
 
         return try {
-            parse(query)
+            parse(query, searchFieldMapper)
         } catch (e: Exception) {
             logger.warn("Failed to parse search query: $query", e)
             throw SearchQueryException("Failed to parse search query: ${e.message}, query: $query")

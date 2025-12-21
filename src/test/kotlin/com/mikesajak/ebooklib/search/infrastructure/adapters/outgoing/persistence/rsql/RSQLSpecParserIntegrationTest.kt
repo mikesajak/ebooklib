@@ -38,6 +38,9 @@ class RSQLSpecParserIntegrationTest : BaseIntegrationTest() {
     @Autowired
     private lateinit var rsqlSpecParser: RSQLSpecParser
 
+    @Autowired
+    private lateinit var searchFieldMapper: BookSearchFieldMapper
+
     @MockitoBean
     private lateinit var fileStoragePort: FileStoragePort
 
@@ -85,7 +88,7 @@ class RSQLSpecParserIntegrationTest : BaseIntegrationTest() {
     fun `should return books with matching title`() {
         // Given
         val query = "title==\"The Hobbit\""
-        val spec = rsqlSpecParser.parse<BookEntity>(query)
+        val spec = rsqlSpecParser.parse<BookEntity>(query, searchFieldMapper)
 
         // When
         val results = bookRepository.findAll(spec)
@@ -99,7 +102,7 @@ class RSQLSpecParserIntegrationTest : BaseIntegrationTest() {
     fun `should return books with matching author's last name`() {
         // Given
         val query = "authors.lastName==\"Smith\""
-        val spec = rsqlSpecParser.parse<BookEntity>(query)
+        val spec = rsqlSpecParser.parse<BookEntity>(query, searchFieldMapper)
 
         // When
         val results = bookRepository.findAll(spec)
@@ -113,7 +116,7 @@ class RSQLSpecParserIntegrationTest : BaseIntegrationTest() {
     fun `should handle AND operator correctly`() {
         // Given
         val query = "title==\"The Lord of the Rings\";authors.lastName==\"Doe\""
-        val spec = rsqlSpecParser.parse<BookEntity>(query)
+        val spec = rsqlSpecParser.parse<BookEntity>(query, searchFieldMapper)
 
         // When
         val results = bookRepository.findAll(spec)
@@ -127,7 +130,7 @@ class RSQLSpecParserIntegrationTest : BaseIntegrationTest() {
     fun `should handle OR operator correctly`() {
         // Given
         val query = "authors.lastName==\"Smith\",authors.lastName==\"Doe\""
-        val spec = rsqlSpecParser.parse<BookEntity>(query)
+        val spec = rsqlSpecParser.parse<BookEntity>(query, searchFieldMapper)
 
         // When
         val results = bookRepository.findAll(spec)
@@ -140,7 +143,7 @@ class RSQLSpecParserIntegrationTest : BaseIntegrationTest() {
     fun `should handle LIKE operator`() {
         // Given
         val query = "title=like=\"Hobbit\""
-        val spec: Specification<BookEntity> = rsqlSpecParser.parse(query)
+        val spec: Specification<BookEntity> = rsqlSpecParser.parse(query, searchFieldMapper)
 
         // When
         val results = bookRepository.findAll(spec)
@@ -156,7 +159,7 @@ class RSQLSpecParserIntegrationTest : BaseIntegrationTest() {
         val queries = listOf("author.name=like=\"John Doe\"", "authors.name=like=\"John Doe\"")
         
         queries.forEach { query ->
-            val spec = rsqlSpecParser.parse<BookEntity>(query)
+            val spec = rsqlSpecParser.parse<BookEntity>(query, searchFieldMapper)
 
             // When
             val results = bookRepository.findAll(spec)
@@ -171,7 +174,7 @@ class RSQLSpecParserIntegrationTest : BaseIntegrationTest() {
     fun `should return books with matching partial author name (composite)`() {
         // Given
         val query = "author.name=like=\"Jane\""
-        val spec = rsqlSpecParser.parse<BookEntity>(query)
+        val spec = rsqlSpecParser.parse<BookEntity>(query, searchFieldMapper)
 
         // When
         val results = bookRepository.findAll(spec)

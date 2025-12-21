@@ -7,8 +7,14 @@ sealed interface FieldMapping {
     data class Composite(val paths: List<String>, val separator: String = " ") : FieldMapping
 }
 
+interface SearchFieldMapper {
+    fun getMapping(domainField: String): FieldMapping
+    fun isFieldAllowed(field: String): Boolean
+    fun getAllowedFields(): Set<String>
+}
+
 @Component
-class SearchFieldMapper {
+class BookSearchFieldMapper : SearchFieldMapper {
     private val fieldMappings: Map<String, FieldMapping> = mapOf(
             "title" to FieldMapping.Simple("title"),
             "description" to FieldMapping.Simple("description"),
@@ -28,7 +34,7 @@ class SearchFieldMapper {
 
     private val allowedFields = fieldMappings.keys
 
-    fun getMapping(domainField: String): FieldMapping {
+    override fun getMapping(domainField: String): FieldMapping {
         if (!allowedFields.contains(domainField))
             throw IllegalArgumentException("Field $domainField is not allowed for search")
 
@@ -36,13 +42,7 @@ class SearchFieldMapper {
             ?: throw IllegalArgumentException("Field $domainField is not allowed for search")
     }
 
-    // Deprecated: use getMapping instead. Kept for temporary compatibility if needed, 
-    // but we are updating RSQLSpecification immediately.
-    // However, mapToEntityField returned String. Simple mapping can return string.
-    // Composite mapping cannot be represented as simple string.
-    // So I will remove mapToEntityField to force compilation error if used.
+    override fun isFieldAllowed(field: String): Boolean = allowedFields.contains(field)
 
-    fun isFieldAllowed(field: String): Boolean = allowedFields.contains(field)
-
-    fun getAllowedFields(): Set<String> = allowedFields
+    override fun getAllowedFields(): Set<String> = allowedFields
 }

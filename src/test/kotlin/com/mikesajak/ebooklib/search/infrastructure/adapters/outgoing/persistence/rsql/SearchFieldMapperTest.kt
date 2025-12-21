@@ -10,7 +10,7 @@ class SearchFieldMapperTest {
 
     @BeforeEach
     fun setUp() {
-        searchFieldMapper = SearchFieldMapper()
+        searchFieldMapper = BookSearchFieldMapper()
     }
 
     @Test
