@@ -4,10 +4,13 @@ import com.mikesajak.ebooklib.author.application.projection.AuthorProjection
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.data.jpa.repository.JpaRepository
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor
 import org.springframework.data.jpa.repository.Query
 import java.util.*
 
-interface AuthorJpaRepository : JpaRepository<AuthorEntity, UUID> {
+interface AuthorJpaRepository
+    : JpaRepository<AuthorEntity, UUID>,
+      JpaSpecificationExecutor<AuthorEntity> {
     @Query(
         value = "SELECT new com.mikesajak.ebooklib.author.application.projection.AuthorProjection(a.id, a.firstName, a.lastName, a.bio, a.birthDate, a.deathDate, (SELECT count(b) FROM BookEntity b WHERE a MEMBER OF b.authors)) " +
                 "FROM AuthorEntity a",
