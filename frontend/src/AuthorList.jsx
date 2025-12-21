@@ -6,8 +6,10 @@ import PaginatedAuthorTable from './PaginatedAuthorTable';
 import ConfirmationDialog from './ConfirmationDialog';
 import Notification from './Notification';
 import AuthorGroupTable from './AuthorGroupTable';
+import { useSearch } from './SearchContext';
+import SearchBar from './SearchBar';
 
-const AUTHOR_DISPLAY_THRESHOLD = 20;
+const AUTHOR_DISPLAY_THRESHOLD = 0;
 
 const AuthorList = () => {
   const { t } = useTranslation();
@@ -22,10 +24,32 @@ const AuthorList = () => {
   const [notification, setNotification] = useState({ message: '', type: '', visible: false });
 
   const navigate = useNavigate();
+  const { searchQuery, refreshTrigger } = useSearch('authors');
+
+  const authorQueryTransformer = (input) => {
+    const operatorRegex = /[=<>!();,]/;
+    if (input && !operatorRegex.test(input)) {
+      return `name=like="${input}"`;
+    }
+    return input;
+  };
 
   useEffect(() => {
     localStorage.setItem('authorListViewMode', viewMode);
   }, [viewMode]);
+
+  useEffect(() => {
+    if (searchQuery) {
+      // Expand only the first group when searching
+      const grouped = groupBy(authors, groupingCriteria);
+      const sortedKeys = Object.keys(grouped).sort();
+      if (sortedKeys.length > 0) {
+        setExpandedLetters({ [sortedKeys[0]]: true });
+      } else {
+        setExpandedLetters({});
+      }
+    }
+  }, [searchQuery, authors, groupingCriteria]);
 
   const toggleLetterExpansion = (letter) => {
     setExpandedLetters(prev => ({
@@ -45,7 +69,16 @@ const AuthorList = () => {
     setLoading(true);
     setError(null);
     try {
-      const response = await fetch('/api/authors?page=0&size=100');
+      const endpoint = '/api/authors/search';
+      const params = new URLSearchParams({
+        page: '0',
+        size: '100', // Still fetching 100 for grouped view
+      });
+      if (searchQuery) {
+        params.append('query', searchQuery);
+      }
+
+      const response = await fetch(`${endpoint}?${params.toString()}`);
       if (!response.ok) {
         throw new Error('Failed to fetch authors');
       }
@@ -63,7 +96,7 @@ const AuthorList = () => {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [searchQuery, refreshTrigger]);
 
   useEffect(() => {
     fetchAuthors();
@@ -171,29 +204,30 @@ const AuthorList = () => {
           </Link>
         </div>
       </div>
+
+      <div className="w-full mb-4">
+        <SearchBar scope="authors" queryTransformer={authorQueryTransformer} />
+      </div>
+
       {authors.length === 0 ? (
         <p className="text-gray-500">{t('authorList.noAuthorsFound')}</p>
       ) : viewMode === 'grouped' ? (
-        authors.length <= AUTHOR_DISPLAY_THRESHOLD ? (
-          <AuthorGroupTable authors={authors} openConfirmDialog={openConfirmDialog} />
-        ) : (
-          <div>
-            {Object.keys(groupedAuthors).sort().map((letter) => (
-                <div key={letter} className="mb-2">
-                  <h2
-                      className="text-xl font-semibold cursor-pointer bg-gray-200 p-2 rounded flex justify-between items-center"
-                      onClick={() => toggleLetterExpansion(letter)}
-                  >
-                    {letter} <span className="text-sm text-gray-500">({groupedAuthors[letter].length})</span>
-                    <span>{expandedLetters[letter] ? '-' : '+'}</span>
-                  </h2>
-                  {expandedLetters[letter] && (
-                      <AuthorGroupTable authors={groupedAuthors[letter]} openConfirmDialog={openConfirmDialog} />
-                  )}
-                </div>
-            ))}
-          </div>
-        )
+        <div>
+          {Object.keys(groupedAuthors).sort().map((letter) => (
+              <div key={letter} className="mb-2">
+                <h2
+                    className="text-xl font-semibold cursor-pointer bg-gray-200 p-2 rounded flex justify-between items-center"
+                    onClick={() => toggleLetterExpansion(letter)}
+                >
+                  {letter} <span className="text-sm text-gray-500">({groupedAuthors[letter].length})</span>
+                  <span>{expandedLetters[letter] ? '-' : '+'}</span>
+                </h2>
+                {expandedLetters[letter] && (
+                    <AuthorGroupTable authors={groupedAuthors[letter]} openConfirmDialog={openConfirmDialog} />
+                )}
+              </div>
+          ))}
+        </div>
       ) : (
         <PaginatedAuthorTable />
       )}

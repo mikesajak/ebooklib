@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import ConfirmationDialog from './ConfirmationDialog';
 import Notification from './Notification';
 import Pagination from './Pagination';
+import { useSearch } from './SearchContext';
 
 const PaginatedAuthorTable = () => {
   const { t } = useTranslation();
@@ -23,6 +24,7 @@ const PaginatedAuthorTable = () => {
   const [notification, setNotification] = useState({ message: '', type: '', visible: false });
 
   const navigate = useNavigate();
+  const { searchQuery, refreshTrigger } = useSearch('authors');
 
   const sortOptions = {
     lastNameAsc: { label: t('authorList.sort.lastNameAsc'), params: 'sort=lastName,asc&sort=firstName,asc' },
@@ -37,25 +39,38 @@ const PaginatedAuthorTable = () => {
     setLoading(true);
     setError(null);
     try {
-      const sortString = sortOptions[sortBy].params;
-      const response = await fetch(`/api/authors?page=${page}&size=${size}&${sortString}`);
+      const endpoint = '/api/authors/search';
+      const sortParams = sortOptions[sortBy].params;
+      const params = new URLSearchParams(sortParams);
+      params.append('page', page.toString());
+      params.append('size', size.toString());
+      if (searchQuery) {
+        params.append('query', searchQuery);
+      }
+
+      const response = await fetch(`${endpoint}?${params.toString()}`);
       if (!response.ok) {
         throw new Error('Failed to fetch authors');
       }
       const data = await response.json();
       setAuthors(data.content || []);
-      setTotalPages(data.totalPages);
-      setTotalElements(data.totalElements);
+      setTotalPages(data.page?.totalPages || 0);
+      setTotalElements(data.page?.totalElements || 0);
     } catch (err) {
       setError(err.message);
     } finally {
       setLoading(false);
     }
-  }, [page, size, sortBy]);
+  }, [page, size, sortBy, searchQuery, refreshTrigger]);
 
   useEffect(() => {
     fetchAuthors();
   }, [fetchAuthors]);
+
+  // Reset page to 0 when search query changes
+  useEffect(() => {
+    setPage(0);
+  }, [searchQuery]);
 
 
 

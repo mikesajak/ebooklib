@@ -4,6 +4,7 @@ import { BrowserRouter, Link } from 'react-router-dom';
 import { I18nextProvider } from 'react-i18next';
 import i18n from './i18n';
 import AuthorList from './AuthorList';
+import { SearchProvider } from './SearchContext';
 
 // Mock the PaginatedAuthorTable component
 vi.mock('./PaginatedAuthorTable', () => ({
@@ -69,9 +70,11 @@ describe('AuthorList', () => {
     localStorage.setItem('authorListViewMode', initialViewMode);
     render(
       <I18nextProvider i18n={i18n}>
-        <BrowserRouter>
-          <AuthorList />
-        </BrowserRouter>
+        <SearchProvider>
+          <BrowserRouter>
+            <AuthorList />
+          </BrowserRouter>
+        </SearchProvider>
       </I18nextProvider>
     );
   };
@@ -134,30 +137,46 @@ describe('AuthorList', () => {
 
   it('displays author data correctly in grouped view with table', async () => {
     renderAuthorList('grouped');
+    
+    // The authors are grouped by lastName first letter by default: D (Doe), S (Smith), J (Jones)
+    await waitFor(() => expect(screen.getByRole('heading', { level: 2, name: /^D/ })).toBeInTheDocument());
+    
+    // Expand groups
+    fireEvent.click(screen.getByRole('heading', { level: 2, name: /^D/ }));
+    fireEvent.click(screen.getByRole('heading', { level: 2, name: /^S/ }));
+
     await waitFor(() => expect(screen.getByText('John Doe')).toBeInTheDocument());
 
     // Expect the table headers from AuthorGroupTable
-    expect(screen.getByRole('columnheader', { name: 'Name' })).toBeInTheDocument();
-    expect(screen.getByRole('columnheader', { name: 'Book Count' })).toBeInTheDocument();
-    expect(screen.getByRole('columnheader', { name: 'Actions' })).toBeInTheDocument();
+    expect(screen.getAllByRole('columnheader', { name: 'Name' })[0]).toBeInTheDocument();
+    expect(screen.getAllByRole('columnheader', { name: 'Book Count' })[0]).toBeInTheDocument();
+    expect(screen.getAllByRole('columnheader', { name: 'Actions' })[0]).toBeInTheDocument();
 
     // Expect author data within the table
     expect(screen.getByRole('row', { name: /John Doe/i })).toBeInTheDocument();
     expect(screen.getByRole('row', { name: /Jane Smith/i })).toBeInTheDocument();
   });
 
-  it('handles edit and delete actions in grouped view', async () => {
+  it('handles edit action in grouped view', async () => {
     renderAuthorList('grouped');
+    
+    await waitFor(() => expect(screen.getByRole('heading', { level: 2, name: /^D/ })).toBeInTheDocument());
+    fireEvent.click(screen.getByRole('heading', { level: 2, name: /^D/ }));
+
     await waitFor(() => expect(screen.getByTestId('author-group-table')).toBeInTheDocument());
 
     // Test edit action (navigation)
     fireEvent.click(screen.getByTestId(`edit-author-${mockAuthors[0].id}`));
     expect(window.location.pathname).toBe(`/authors/${mockAuthors[0].id}/edit`);
+  });
 
-    // Reset history for delete test by navigating back
-    window.history.back(); // Simulate navigating back
+  it('handles delete action in grouped view', async () => {
+    renderAuthorList('grouped');
+    
+    await waitFor(() => expect(screen.getByRole('heading', { level: 2, name: /^D/ })).toBeInTheDocument());
+    fireEvent.click(screen.getByRole('heading', { level: 2, name: /^D/ }));
+
     await waitFor(() => expect(screen.getByTestId('author-group-table')).toBeInTheDocument());
-
 
     // Test delete action: clicking delete button should open ConfirmationDialog
     fireEvent.click(screen.getByTestId(`delete-author-${mockAuthors[0].id}`));
