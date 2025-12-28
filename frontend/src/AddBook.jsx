@@ -50,6 +50,7 @@ const AddBook = () => {
   const [authors, setAuthors] = useState([]);
   const [series, setSeries] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [labelsString, setLabelsString] = useState('');
 
   const { mutate, isSaving, notification, setNotification } = useMutation(
     (bookData) => saveBook(bookData, isEditMode, id),
@@ -64,16 +65,16 @@ const AddBook = () => {
     const fetchData = async () => {
       try {
         const [authorsResponse, seriesResponse, bookResponse] = await Promise.all([
-          fetch('/api/authors'),
-          fetch('/api/series'),
+          fetch('/api/authors?size=1000'),
+          fetch('/api/series?size=1000'),
           isEditMode ? fetch(`/api/books/${id}`) : Promise.resolve(null)
         ]);
 
         const authorsData = await authorsResponse.json();
-        setAuthors(Array.isArray(authorsData) ? authorsData : []);
+        setAuthors(authorsData.content || []);
 
         const seriesData = await seriesResponse.json();
-        setSeries(Array.isArray(seriesData) ? seriesData : []);
+        setSeries(seriesData.content || []);
 
         if (isEditMode) {
           if (!bookResponse.ok) {
@@ -86,6 +87,7 @@ const AddBook = () => {
             publicationDate: bookData.publicationDate ? bookData.publicationDate.split('T')[0] : '',
             labels: bookData.labels || []
           });
+          setLabelsString((bookData.labels || []).join(', '));
           setOriginalBook({
             ...bookData,
             publicationDate: bookData.publicationDate ? bookData.publicationDate.split('T')[0] : '',
@@ -106,9 +108,11 @@ const AddBook = () => {
   const handleChange = (e) => {
     const { name, value } = e.target;
     if (name === 'labels') {
+      setLabelsString(value);
+      const labelsArray = value.split(',').map(label => label.trim()).filter(label => label !== '');
       setBook(prevBook => ({
         ...prevBook,
-        labels: value.split(',').map(label => label.trim()).filter(label => label !== '')
+        labels: labelsArray
       }));
     } else {
       setBook(prevBook => ({
@@ -234,7 +238,7 @@ const AddBook = () => {
             type="text"
             id="labels"
             name="labels"
-            value={book.labels.join(', ')}
+            value={labelsString}
             onChange={handleChange}
             className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
             placeholder={t('addBook.form.labelsPlaceholder')}
