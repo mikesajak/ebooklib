@@ -46,8 +46,8 @@ const AddSeries = () => {
   const { mutate, isSaving, notification, setNotification } = useMutation(
     (seriesData) => saveSeries(seriesData, isEditMode, id),
     {
-      onSuccess: () => {
-        navigate('/series', { state: { notification: { type: 'success', message: t(isEditMode ? 'addSeries.updateSuccess' : 'addSeries.addSuccess') } } });
+      onSuccess: (savedSeries) => {
+        navigate(`/series/${savedSeries.id}`, { state: { notification: { type: 'success', message: t(isEditMode ? 'addSeries.updateSuccess' : 'addSeries.addSuccess') } } });
       }
     }
   );

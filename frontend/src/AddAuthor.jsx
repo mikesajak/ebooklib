@@ -51,8 +51,7 @@ const AddAuthor = () => {
     {
       onSuccess: (data) => {
         const successMessage = t(isEditMode ? 'addAuthor.updateSuccess' : 'addAuthor.addSuccess');
-        const destination = isEditMode ? `/author/${id}` : '/authors';
-        navigate(destination, { state: { notification: { type: 'success', message: successMessage } } });
+        navigate(`/author/${data.id}`, { state: { notification: { type: 'success', message: successMessage } } });
       }
     }
   );

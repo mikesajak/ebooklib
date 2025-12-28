@@ -56,8 +56,8 @@ const AddBook = () => {
   const { mutate, isSaving, notification, setNotification } = useMutation(
     (bookData) => saveBook(bookData, isEditMode, id),
     {
-      onSuccess: () => {
-        navigate('/', { state: { notification: { type: 'success', message: t(isEditMode ? 'addBook.updateSuccess' : 'addBook.addSuccess') } } });
+      onSuccess: (savedBook) => {
+        navigate(`/book/${savedBook.id}`, { state: { notification: { type: 'success', message: t(isEditMode ? 'addBook.updateSuccess' : 'addBook.addSuccess') } } });
       }
     }
   );
