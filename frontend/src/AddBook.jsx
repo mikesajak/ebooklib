@@ -123,12 +123,33 @@ const AddBook = () => {
     }
   };
 
-  const handleAuthorChange = (selectedAuthorId) => {
+  const handleAuthorChange = (index, selectedAuthorId) => {
     const selectedAuthor = authors.find(author => author.id === selectedAuthorId);
-    setBook(prevBook => ({
-      ...prevBook,
-      authors: selectedAuthor ? [selectedAuthor] : []
-    }));
+    setBook(prevBook => {
+      const newAuthors = [...prevBook.authors];
+      if (selectedAuthor) {
+        newAuthors[index] = selectedAuthor;
+      }
+      return { ...prevBook, authors: newAuthors };
+    });
+  };
+
+  const handleAddAuthorField = () => {
+    const lastAuthor = book.authors[book.authors.length - 1];
+    if (!lastAuthor || lastAuthor.id) {
+      setBook(prevBook => ({
+        ...prevBook,
+        authors: [...prevBook.authors, { id: '', firstName: '', lastName: '' }]
+      }));
+    }
+  };
+
+  const handleRemoveAuthorField = (index) => {
+    setBook(prevBook => {
+      const newAuthors = [...prevBook.authors];
+      newAuthors.splice(index, 1);
+      return { ...prevBook, authors: newAuthors };
+    });
   };
 
   const handleSeriesChange = (selectedSeriesId) => {
@@ -142,10 +163,9 @@ const AddBook = () => {
   const handleSave = () => {
     const bookData = { ...book };
     // Ensure authorIds is an array and seriesId is properly set for the API
-    if (bookData.authors) {
-      bookData.authorIds = bookData.authors.map(author => author.id);
-      delete bookData.authors;
-    }
+    bookData.authorIds = book.authors.map(author => author.id).filter(id => !!id);
+    delete bookData.authors;
+
     if (bookData.series) {
       bookData.seriesId = bookData.series.id;
       delete bookData.series;
@@ -170,6 +190,14 @@ const AddBook = () => {
     [series]
   );
 
+  const getFilteredAuthorOptions = (currentIndex) => {
+    const selectedIds = book.authors
+      .filter((_, i) => i !== currentIndex)
+      .map(a => a.id)
+      .filter(id => !!id);
+    return authorOptions.filter(opt => !selectedIds.includes(opt.id));
+  };
+
   const hasChanges = () => {
     if (!originalBook || !book) return false;
 
@@ -182,7 +210,7 @@ const AddBook = () => {
     if (normalize(originalBook.description) !== normalize(book.description)) return true;
 
     const originalAuthorIds = originalBook.authors?.map(a => a.id).sort() || [];
-    const currentAuthorIds = book.authors?.map(a => a.id).sort() || [];
+    const currentAuthorIds = book.authors?.filter(a => !!a.id).map(a => a.id).sort() || [];
     if (JSON.stringify(originalAuthorIds) !== JSON.stringify(currentAuthorIds)) return true;
 
     if (normalize(originalBook.series?.id) !== normalize(book.series?.id)) return true;
@@ -211,16 +239,40 @@ const AddBook = () => {
           <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="title">{t('addBook.form.title')}:</label>
           <input type="text" id="title" name="title" value={book.title} onChange={handleChange} className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" />
         </div>
+        
         <div className="mb-4">
-          <SearchableDropdown
-            id="author"
-            label={t('addBook.form.author')}
-            options={authorOptions}
-            value={book.authors[0]?.id || ''}
-            onChange={handleAuthorChange}
-            placeholder={t('addBook.form.selectAuthor')}
-          />
+          <label className="block text-gray-700 text-sm font-bold mb-2">{t('addBook.form.author')}:</label>
+          {book.authors.map((author, index) => (
+            <div key={index} className="flex mb-2 gap-2 items-start">
+              <div className="flex-grow">
+                <SearchableDropdown
+                  id={`author-${index}`}
+                  options={getFilteredAuthorOptions(index)}
+                  value={author.id}
+                  onChange={(id) => handleAuthorChange(index, id)}
+                  placeholder={t('addBook.form.selectAuthor')}
+                />
+              </div>
+              <button
+                type="button"
+                onClick={() => handleRemoveAuthorField(index)}
+                className="bg-red-100 text-red-700 hover:bg-red-700 hover:text-white font-bold py-2 px-3 rounded h-fit mt-0"
+                title={t('common.remove')}
+              >
+                ✖
+              </button>
+            </div>
+          ))}
+          <button
+            type="button"
+            onClick={handleAddAuthorField}
+            disabled={book.authors.some(a => !a.id)}
+            className="bg-blue-100 text-blue-700 hover:bg-blue-700 hover:text-white font-bold py-1 px-3 rounded text-sm disabled:opacity-50"
+          >
+            + {t('addBook.form.addAuthor')}
+          </button>
         </div>
+
         <div className="mb-4">
           <SearchableDropdown
             id="series"

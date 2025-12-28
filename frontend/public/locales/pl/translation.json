@@ -105,7 +105,8 @@
       "selectAuthor": "Wybierz autora",
       "selectSeries": "Wybierz serię",
       "labels": "Etykiety",
-      "labelsPlaceholder": "Lista etykiet, oddzielona przecinkami (e.g. Fantasy, Adventure)"
+      "labelsPlaceholder": "Lista etykiet, oddzielona przecinkami (e.g. Fantasy, Adventure)",
+      "addAuthor": "Dodaj Autora"
     },
     "addSuccess": "Książka dodana pomyślnie!",
     "updateSuccess": "Książka zaktualizowana pomyślnie!",
@@ -203,6 +204,7 @@
     "edit": "Edytuj",
     "save": "Zapisz",
     "delete": "Usuń",
+    "remove": "Usuń",
     "page": "Strona",
     "of": "z",
     "total": "łącznie",

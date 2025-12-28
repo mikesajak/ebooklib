@@ -254,7 +254,9 @@ const BookDetails = () => {
               <div className="mb-4">
                 <strong>{t('bookDetails.display.authors')}:</strong> {book.authors.map((author, index) => (
                   <span key={author.id}>
+                    <Link to={`/author/${author.id}`} className="author-link">
                       {author.firstName} {author.lastName}
+                    </Link>
                     {index < book.authors.length - 1 ? ', ' : ''}
                   </span>
                 ))}

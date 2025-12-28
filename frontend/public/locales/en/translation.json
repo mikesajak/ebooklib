@@ -105,7 +105,8 @@
       "selectAuthor": "Select an author",
       "selectSeries": "Select a series",
       "labels": "Labels",
-      "labelsPlaceholder": "Comma-separated labels (e.g. Fantasy, Adventure)"
+      "labelsPlaceholder": "Comma-separated labels (e.g. Fantasy, Adventure)",
+      "addAuthor": "Add Author"
     },
     "addSuccess": "Book added successfully!",
     "updateSuccess": "Book updated successfully!",
@@ -204,6 +205,7 @@
     "edit": "Edit",
     "save": "Save",
     "delete": "Delete",
+    "remove": "Remove",
     "page": "Page",
     "of": "of",
     "total": "total",
