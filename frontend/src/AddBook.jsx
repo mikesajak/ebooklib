@@ -156,7 +156,8 @@ const AddBook = () => {
     const selectedSeries = series.find(s => s.id === selectedSeriesId);
     setBook(prevBook => ({
       ...prevBook,
-      series: selectedSeries ? selectedSeries : null
+      series: selectedSeries ? selectedSeries : null,
+      volume: selectedSeries ? prevBook.volume : '' // Clear volume if series is removed
     }));
   };
 
@@ -285,7 +286,16 @@ const AddBook = () => {
         </div>
         <div className="mb-4">
           <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="volume">{t('addBook.form.volume')}:</label>
-          <input type="number" id="volume" name="volume" value={book.volume || ''} onChange={handleChange} className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" />
+          <input
+            type="number"
+            id="volume"
+            name="volume"
+            value={book.volume || ''}
+            onChange={handleChange}
+            disabled={!book.series}
+            className={`shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline ${!book.series ? 'bg-gray-100 cursor-not-allowed' : ''}`}
+            title={!book.series ? t('addBook.form.volumeDisabledTooltip') : ''}
+          />
         </div>
         <div className="mb-4">
           <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="publicationDate">{t('addBook.form.publicationDate')}:</label>

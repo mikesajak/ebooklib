@@ -106,7 +106,8 @@
       "selectSeries": "Wybierz serię",
       "labels": "Etykiety",
       "labelsPlaceholder": "Lista etykiet, oddzielona przecinkami (e.g. Fantasy, Adventure)",
-      "addAuthor": "Dodaj Autora"
+      "addAuthor": "Dodaj Autora",
+      "volumeDisabledTooltip": "Wybierz najpierw serię, aby odblokować numer tomu"
     },
     "addSuccess": "Książka dodana pomyślnie!",
     "updateSuccess": "Książka zaktualizowana pomyślnie!",

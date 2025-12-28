@@ -106,7 +106,8 @@
       "selectSeries": "Select a series",
       "labels": "Labels",
       "labelsPlaceholder": "Comma-separated labels (e.g. Fantasy, Adventure)",
-      "addAuthor": "Add Author"
+      "addAuthor": "Add Author",
+      "volumeDisabledTooltip": "Select a series first to enable volume number"
     },
     "addSuccess": "Book added successfully!",
     "updateSuccess": "Book updated successfully!",
