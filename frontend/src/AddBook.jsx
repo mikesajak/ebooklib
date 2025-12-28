@@ -1,9 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import useMutation from './hooks/useMutation';
 import AddPage from './AddPage';
 import Form from './Form';
+import SearchableDropdown from './SearchableDropdown';
 
 const saveBook = async (bookData, isEditMode, bookId) => {
   const method = isEditMode ? 'PUT' : 'POST';
@@ -122,8 +123,7 @@ const AddBook = () => {
     }
   };
 
-  const handleAuthorChange = (e) => {
-    const selectedAuthorId = e.target.value;
+  const handleAuthorChange = (selectedAuthorId) => {
     const selectedAuthor = authors.find(author => author.id === selectedAuthorId);
     setBook(prevBook => ({
       ...prevBook,
@@ -131,8 +131,7 @@ const AddBook = () => {
     }));
   };
 
-  const handleSeriesChange = (e) => {
-    const selectedSeriesId = e.target.value;
+  const handleSeriesChange = (selectedSeriesId) => {
     const selectedSeries = series.find(s => s.id === selectedSeriesId);
     setBook(prevBook => ({
       ...prevBook,
@@ -160,6 +159,16 @@ const AddBook = () => {
   };
 
   const isTitleValid = book.title.trim() !== '';
+
+  const authorOptions = useMemo(() =>
+    authors.map(a => ({ id: a.id, name: `${a.firstName} ${a.lastName}` })),
+    [authors]
+  );
+
+  const seriesOptions = useMemo(() =>
+    series.map(s => ({ id: s.id, name: s.title })),
+    [series]
+  );
 
   const hasChanges = () => {
     if (!originalBook || !book) return false;
@@ -203,18 +212,24 @@ const AddBook = () => {
           <input type="text" id="title" name="title" value={book.title} onChange={handleChange} className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" />
         </div>
         <div className="mb-4">
-          <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="author">{t('addBook.form.author')}:</label>
-          <select id="author" name="authorId" value={book.authors[0]?.id || ''} onChange={handleAuthorChange} className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
-            <option value="">{t('addBook.form.selectAuthor')}</option>
-            {authors && authors.map(author => (<option key={author.id} value={author.id}>{author.firstName} {author.lastName}</option>))}
-          </select>
+          <SearchableDropdown
+            id="author"
+            label={t('addBook.form.author')}
+            options={authorOptions}
+            value={book.authors[0]?.id || ''}
+            onChange={handleAuthorChange}
+            placeholder={t('addBook.form.selectAuthor')}
+          />
         </div>
         <div className="mb-4">
-          <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="series">{t('addBook.form.series')}:</label>
-          <select id="series" name="seriesId" value={book.series?.id || ''} onChange={handleSeriesChange} className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
-            <option value="">{t('addBook.form.selectSeries')}</option>
-            {series.map(s => (<option key={s.id} value={s.id}>{s.title}</option>))}
-          </select>
+          <SearchableDropdown
+            id="series"
+            label={t('addBook.form.series')}
+            options={seriesOptions}
+            value={book.series?.id || ''}
+            onChange={handleSeriesChange}
+            placeholder={t('addBook.form.selectSeries')}
+          />
         </div>
         <div className="mb-4">
           <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="volume">{t('addBook.form.volume')}:</label>
