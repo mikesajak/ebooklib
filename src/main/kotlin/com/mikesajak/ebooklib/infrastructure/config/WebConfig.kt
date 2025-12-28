@@ -1,9 +1,9 @@
 package com.mikesajak.ebooklib.infrastructure.config
 
 import org.springframework.context.annotation.Configuration
+import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
-import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.servlet.config.annotation.CorsRegistry
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer
 
@@ -18,15 +18,15 @@ class WebConfig : WebMvcConfigurer {
     }
 }
 
-@RestController
+@Controller
 class SpaController {
 
-    @GetMapping("/{path:[^\\.]*}")
+    @GetMapping("/{path:(?!api)[^\\.]*}")
     fun spa(@PathVariable path: String): String {
         return "forward:/index.html"
     }
 
-    @GetMapping("/{path:[^\\.]*}/{other:[^.]*}")
+    @GetMapping("/{path:(?!api)[^\\.]*}/{other:[^.]*}")
     fun spaNested(@PathVariable path: String, @PathVariable other: String): String {
         return "forward:/index.html"
     }

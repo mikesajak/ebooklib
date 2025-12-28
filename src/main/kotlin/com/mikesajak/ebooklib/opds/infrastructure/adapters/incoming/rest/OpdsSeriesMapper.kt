@@ -9,10 +9,10 @@ class OpdsSeriesMapper {
     fun toNavigationLink(series: Series): Link {
         val seriesBooksHref = "/opds/v2/series/${series.id!!.value}/books.json"
         return Link(
-                href = seriesBooksHref,
-                type = OpdsController.OPDS_JSON_MEDIA_TYPE,
-                rel = "subsection",
-                title = series.title
+            href = seriesBooksHref,
+            type = OpdsV2Controller.OPDS_JSON_MEDIA_TYPE,
+            rel = "subsection",
+            title = series.title
         )
     }
 }

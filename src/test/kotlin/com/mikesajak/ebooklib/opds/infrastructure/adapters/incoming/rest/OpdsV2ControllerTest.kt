@@ -31,9 +31,9 @@ import java.io.ByteArrayInputStream
 import java.time.LocalDate
 import java.util.*
 
-@WebMvcTest(OpdsController::class)
+@WebMvcTest(OpdsV2Controller::class)
 @Import(OpdsBookMapper::class, OpdsAuthorMapper::class, OpdsSeriesMapper::class)
-class OpdsControllerTest {
+class OpdsV2ControllerTest {
 
     @Autowired
     private lateinit var mockMvc: MockMvc

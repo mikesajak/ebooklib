@@ -9,10 +9,10 @@ class OpdsAuthorMapper {
     fun toNavigationLink(author: Author): Link {
         val authorBooksHref = "/opds/v2/authors/${author.id!!.value}/books.json"
         return Link(
-                href = authorBooksHref,
-                type = OpdsController.OPDS_JSON_MEDIA_TYPE,
-                rel = "subsection",
-                title = "${author.firstName} ${author.lastName}"
+            href = authorBooksHref,
+            type = OpdsV2Controller.OPDS_JSON_MEDIA_TYPE,
+            rel = "subsection",
+            title = "${author.firstName} ${author.lastName}"
         )
     }
 }
