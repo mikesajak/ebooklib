@@ -65,8 +65,8 @@ const AddBook = () => {
     const fetchData = async () => {
       try {
         const [authorsResponse, seriesResponse, bookResponse] = await Promise.all([
-          fetch('/api/authors?size=1000'),
-          fetch('/api/series?size=1000'),
+          fetch('/api/authors?size=1000&sort=firstName,asc&sort=lastName,asc'),
+          fetch('/api/series?size=1000&sort=title,asc'),
           isEditMode ? fetch(`/api/books/${id}`) : Promise.resolve(null)
         ]);
 
