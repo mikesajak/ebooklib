@@ -162,7 +162,9 @@
       "lastNameAsc": "Last Name (A-Z)",
       "lastNameDesc": "Last Name (Z-A)",
       "firstNameAsc": "First Name (A-Z)",
-      "firstNameDesc": "First Name (Z-A)"
+      "firstNameDesc": "First Name (Z-A)",
+      "bookCountAsc": "Book Count (Least)",
+      "bookCountDesc": "Book Count (Most)"
     },
     "confirmDeleteTitle": "Confirm Author Deletion",
     "confirmDeleteMessage": "Are you sure you want to delete the author \"{{authorName}}\"? This will remove the author from all associated books.",

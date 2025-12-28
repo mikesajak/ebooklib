@@ -161,7 +161,9 @@
       "lastNameAsc": "Nazwisko (A-Z)",
       "lastNameDesc": "Nazwisko (Z-A)",
       "firstNameAsc": "Imię (A-Z)",
-      "firstNameDesc": "Imię (Z-A)"
+      "firstNameDesc": "Imię (Z-A)",
+      "bookCountAsc": "Liczba książek (rosnąco)",
+      "bookCountDesc": "Liczba książek (malejąco)"
     },
     "confirmDeleteTitle": "Potwierdź usunięcie autora",
     "confirmDeleteMessage": "Czy na pewno chcesz usunąć autora \"{{authorName}}\"? Spowoduje to usunięcie autora ze wszystkich powiązanych książek.",

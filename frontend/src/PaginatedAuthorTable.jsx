@@ -35,6 +35,8 @@ const PaginatedAuthorTable = () => {
     bookCountDesc: { label: t('authorList.sort.bookCountDesc'), params: 'sort=bookCount,desc' },
   };
 
+  const nameColumnSortOptions = ['lastNameAsc', 'lastNameDesc', 'firstNameAsc', 'firstNameDesc'];
+
   const fetchAuthors = useCallback(async () => {
     setLoading(true);
     setError(null);
@@ -165,7 +167,7 @@ const PaginatedAuthorTable = () => {
                 {isDropdownOpen && (
                   <div className="origin-top-left absolute left-0 mt-2 w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-20">
                     <div className="py-1" role="menu" aria-orientation="vertical" aria-labelledby="options-menu">
-                      {Object.keys(sortOptions).map(key => (
+                      {nameColumnSortOptions.map(key => (
                         <button
                           key={key}
                           onClick={() => handleSortChange(key)}

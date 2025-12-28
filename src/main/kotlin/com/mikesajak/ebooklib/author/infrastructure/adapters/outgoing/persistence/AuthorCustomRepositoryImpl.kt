@@ -6,11 +6,13 @@ import jakarta.persistence.EntityManager
 import jakarta.persistence.PersistenceContext
 import jakarta.persistence.criteria.CriteriaBuilder
 import jakarta.persistence.criteria.CriteriaQuery
+import jakarta.persistence.criteria.Order
 import jakarta.persistence.criteria.Root
 import jakarta.persistence.criteria.Subquery
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.Pageable
+import org.springframework.data.domain.Sort
 import org.springframework.data.jpa.domain.Specification
 import org.springframework.data.jpa.repository.query.QueryUtils
 import org.springframework.stereotype.Repository
@@ -50,7 +52,14 @@ class AuthorCustomRepositoryImpl(
         applySpecification(spec, root, query, cb)
 
         if (pageable.sort.isSorted) {
-            query.orderBy(QueryUtils.toOrders(pageable.sort, root, cb))
+            val orders = pageable.sort.map { order ->
+                if (order.property == "bookCount") {
+                    if (order.isAscending) cb.asc(subquery) else cb.desc(subquery)
+                } else {
+                    QueryUtils.toOrders(Sort.by(order), root, cb)[0]
+                }
+            }.toList()
+            query.orderBy(orders)
         }
 
         val typedQuery = entityManager.createQuery(query)
