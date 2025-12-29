@@ -9,11 +9,23 @@ import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlText
 @JacksonXmlRootElement(localName = "feed", namespace = "http://www.w3.org/2005/Atom")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 data class AtomFeed(
+    @JacksonXmlProperty(isAttribute = true, localName = "xmlns:dc")
+    val dcNamespace: String = "http://purl.org/dc/terms/",
+
+    @JacksonXmlProperty(isAttribute = true, localName = "xmlns:opds")
+    val opdsNamespace: String = "http://opds-spec.org/2010/catalog",
+
     @JacksonXmlProperty(localName = "id", namespace = "http://www.w3.org/2005/Atom")
     val id: String,
 
     @JacksonXmlProperty(localName = "title", namespace = "http://www.w3.org/2005/Atom")
     val title: String,
+
+    @JacksonXmlProperty(localName = "subtitle", namespace = "http://www.w3.org/2005/Atom")
+    val subtitle: String? = null,
+
+    @JacksonXmlProperty(localName = "icon", namespace = "http://www.w3.org/2005/Atom")
+    val icon: String? = null,
 
     @JacksonXmlProperty(localName = "updated", namespace = "http://www.w3.org/2005/Atom")
     val updated: String,
@@ -61,13 +73,13 @@ data class AtomEntry(
     @JacksonXmlProperty(localName = "published", namespace = "http://www.w3.org/2005/Atom")
     val published: String? = null,
 
-    @JacksonXmlProperty(localName = "dc:language")
+    @JacksonXmlProperty(localName = "language", namespace = "http://purl.org/dc/terms/")
     val language: String? = null,
     
-    @JacksonXmlProperty(localName = "dc:publisher")
+    @JacksonXmlProperty(localName = "publisher", namespace = "http://purl.org/dc/terms/")
     val publisher: String? = null,
     
-    @JacksonXmlProperty(localName = "dc:issued")
+    @JacksonXmlProperty(localName = "issued", namespace = "http://purl.org/dc/terms/")
     val issued: String? = null
 )
 

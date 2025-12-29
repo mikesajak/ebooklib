@@ -13,12 +13,14 @@ import com.mikesajak.ebooklib.opds.infrastructure.adapters.incoming.rest.xml.dto
 import com.mikesajak.ebooklib.series.application.ports.incoming.GetSeriesUseCase
 import com.mikesajak.ebooklib.series.domain.model.SeriesId
 import org.springframework.data.domain.Pageable
+import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
-import org.springframework.http.MediaType.APPLICATION_XML_VALUE
+import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
+import java.net.URI
 import java.time.ZoneId
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
@@ -35,68 +37,72 @@ class OpdsV1Controller(
     private val opdsV1Mapper: OpdsV1Mapper
 ) {
     companion object {
-        const val OPDS_XML_MEDIA_TYPE = "application/atom+xml;profile=opds-catalog;kind=navigation"
+        const val OPDS_XML_MEDIA_TYPE = "application/atom+xml;profile=opds-catalog;type=feed;kind=navigation"
     }
 
     private val dateFormatter = DateTimeFormatter.ISO_OFFSET_DATE_TIME.withZone(ZoneId.of("UTC"))
 
-    @GetMapping("/catalog.xml", produces = [OPDS_XML_MEDIA_TYPE, APPLICATION_XML_VALUE])
+    @GetMapping
+    fun redirectRoot(): ResponseEntity<Unit> {
+        return ResponseEntity.status(HttpStatus.PERMANENT_REDIRECT)
+            .location(URI.create("/opds/v1.2/catalog.xml"))
+            .build()
+    }
+
+    @GetMapping("/catalog.xml", produces = [OPDS_XML_MEDIA_TYPE])
     fun getRootFeed(): AtomFeed {
         val updated = ZonedDateTime.now().format(dateFormatter)
 
-        val links = listOf(AtomLink(href = "/opds/v1.2/catalog.xml",
-                                    rel = "self",
-                                    type = OPDS_XML_MEDIA_TYPE),
-                           AtomLink(href = "/opds/v1.2/catalog.xml",
-                                    rel = "start",
-                                    type = OPDS_XML_MEDIA_TYPE),
-                           AtomLink(href = "/opds/v2/feed.json",
-                                    rel = "alternate",
-                                    type = OpdsV2Controller.OPDS_JSON_MEDIA_TYPE,
-                                    title = "OPDS 2.0 Catalog"))
+        val links = listOf(
+            AtomLink(href = "/opds/v1.2/catalog.xml", rel = "self", type = OPDS_XML_MEDIA_TYPE),
+            AtomLink(href = "/opds/v1.2/catalog.xml", rel = "start", type = OPDS_XML_MEDIA_TYPE),
+            AtomLink(href = "/opds/v1.2/search.xml", rel = "search", type = "application/atom+xml", title = "Search"),
+            AtomLink(href = "/opds/v2/feed.json", rel = "alternate", type = OpdsV2Controller.OPDS_JSON_MEDIA_TYPE, title = "OPDS 2.0 Catalog")
+        )
 
-        val entries = listOf(AtomEntry(id = "urn:uuid:all-books",
-                                       title = "All Books",
-                                       updated = updated,
-                                       links = listOf(AtomLink(href = "/opds/v1.2/books/all.xml",
-                                                               rel = "http://opds-spec.org/sort/new",
-                                                               type = OPDS_XML_MEDIA_TYPE)),
-                                       content = AtomContent(type = "text",
-                                                             text = "All books in the library")),
-                             AtomEntry(id = "urn:uuid:new-books",
-                                       title = "New Books",
-                                       updated = updated,
-                                       links = listOf(AtomLink(href = "/opds/v1.2/books/new.xml",
-                                                               rel = "http://opds-spec.org/sort/new",
-                                                               type = OPDS_XML_MEDIA_TYPE)),
-                                       content = AtomContent(type = "text",
-                                                             text = "Recently added books")
-                             ),
-                             AtomEntry(id = "urn:uuid:authors",
-                                       title = "Authors",
-                                       updated = updated,
-                                       links = listOf(AtomLink(href = "/opds/v1.2/authors/index.xml",
-                                                               rel = "http://opds-spec.org/sort/new", // TODO: Check if there is a better rel
-                                                               type = OPDS_XML_MEDIA_TYPE)),
-                                       content = AtomContent(type = "text",
-                                                             text = "Browse by author")),
-                             AtomEntry(id = "urn:uuid:series",
-                                       title = "Series",
-                                       updated = updated,
-                                       links = listOf(AtomLink(href = "/opds/v1.2/series/index.xml",
-                                                               rel = "http://opds-spec.org/sort/new",
-                                                               type = OPDS_XML_MEDIA_TYPE)),
-                                       content = AtomContent(type = "text",
-                                                             text = "Browse by series")))
+        val entries = listOf(
+            AtomEntry(
+                id = "urn:uuid:all-books",
+                title = "All Books",
+                updated = updated,
+                links = listOf(AtomLink(href = "/opds/v1.2/books/all.xml", rel = "subsection", type = OPDS_XML_MEDIA_TYPE)),
+                content = AtomContent(type = "text", text = "All books in the library")
+            ),
+            AtomEntry(
+                id = "urn:uuid:new-books",
+                title = "New Books",
+                updated = updated,
+                links = listOf(AtomLink(href = "/opds/v1.2/books/new.xml", rel = "http://opds-spec.org/sort/new", type = OPDS_XML_MEDIA_TYPE)),
+                content = AtomContent(type = "text", text = "Recently added books")
+            ),
+            AtomEntry(
+                id = "urn:uuid:authors",
+                title = "Authors",
+                updated = updated,
+                links = listOf(AtomLink(href = "/opds/v1.2/authors/index.xml", rel = "subsection", type = OPDS_XML_MEDIA_TYPE)),
+                content = AtomContent(type = "text", text = "Browse by author")
+            ),
+            AtomEntry(
+                id = "urn:uuid:series",
+                title = "Series",
+                updated = updated,
+                links = listOf(AtomLink(href = "/opds/v1.2/series/index.xml", rel = "subsection", type = OPDS_XML_MEDIA_TYPE)),
+                content = AtomContent(type = "text", text = "Browse by series")
+            )
+        )
 
-        return AtomFeed(id = "urn:uuid:root",
-                        title = "Ebook Library Catalog",
-                        updated = updated,
-                        links = links,
-                        entries = entries)
+        return AtomFeed(
+            id = "urn:uuid:root",
+            title = "Ebook Library Catalog",
+            subtitle = "Books in your library",
+            icon = "/favicon.ico",
+            updated = updated,
+            links = links,
+            entries = entries
+        )
     }
 
-    @GetMapping("/books/all.xml", produces = [OPDS_XML_MEDIA_TYPE, APPLICATION_XML_VALUE])
+    @GetMapping("/books/all.xml", produces = [OPDS_XML_MEDIA_TYPE])
     fun getAllBooks(pageable: Pageable): AtomFeed {
         val booksPage = getBookUseCase.getAllBooks(pageable.toDomainPagination())
         val entries = booksPage.content.map { opdsV1Mapper.toEntry(it) }
@@ -109,7 +115,7 @@ class OpdsV1Controller(
                           baseUrl = "/opds/v1.2/books/all.xml")
     }
 
-    @GetMapping("/books/new.xml", produces = [OPDS_XML_MEDIA_TYPE, APPLICATION_XML_VALUE])
+    @GetMapping("/books/new.xml", produces = [OPDS_XML_MEDIA_TYPE])
     fun getNewBooks(pageable: Pageable): AtomFeed {
         val booksPage = getBookUseCase.getNewestBooks(pageable.toDomainPagination())
         val entries = booksPage.content.map { opdsV1Mapper.toEntry(it) }
@@ -122,7 +128,7 @@ class OpdsV1Controller(
                           baseUrl = "/opds/v1.2/books/new.xml")
     }
 
-    @GetMapping("/authors/index.xml", produces = [OPDS_XML_MEDIA_TYPE, APPLICATION_XML_VALUE])
+    @GetMapping("/authors/index.xml", produces = [OPDS_XML_MEDIA_TYPE])
     fun getAuthorsIndex(pageable: Pageable): AtomFeed {
         val authorsPage = getAuthorUseCase.getAllAuthors(pageable.toDomainPagination())
         val entries = authorsPage.content.map { opdsV1Mapper.toEntry(it) }
@@ -135,7 +141,7 @@ class OpdsV1Controller(
                           baseUrl = "/opds/v1.2/authors/index.xml")
     }
 
-    @GetMapping("/authors/{authorId}/books.xml", produces = [OPDS_XML_MEDIA_TYPE, APPLICATION_XML_VALUE])
+    @GetMapping("/authors/{authorId}/books.xml", produces = [OPDS_XML_MEDIA_TYPE])
     fun getAuthorBooks(@PathVariable authorId: UUID, pageable: Pageable): AtomFeed {
         val author = getAuthorUseCase.getAuthor(AuthorId(authorId))
         val booksPage = getBooksByAuthorUseCase.getBooksByAuthor(AuthorId(authorId), pageable.toDomainPagination())
@@ -149,7 +155,7 @@ class OpdsV1Controller(
                           baseUrl = "/opds/v1.2/authors/$authorId/books.xml")
     }
 
-    @GetMapping("/series/index.xml", produces = [OPDS_XML_MEDIA_TYPE, APPLICATION_XML_VALUE])
+    @GetMapping("/series/index.xml", produces = [OPDS_XML_MEDIA_TYPE])
     fun getSeriesIndex(pageable: Pageable): AtomFeed {
         val seriesPage = getSeriesUseCase.getAllSeries(pageable.toDomainPagination())
         val entries = seriesPage.content.map { opdsV1Mapper.toEntry(it) }
@@ -162,7 +168,7 @@ class OpdsV1Controller(
                           baseUrl = "/opds/v1.2/series/index.xml")
     }
 
-    @GetMapping("/series/{seriesId}/books.xml", produces = [OPDS_XML_MEDIA_TYPE, APPLICATION_XML_VALUE])
+    @GetMapping("/series/{seriesId}/books.xml", produces = [OPDS_XML_MEDIA_TYPE])
     fun getSeriesBooks(@PathVariable seriesId: UUID, pageable: Pageable): AtomFeed {
         val series = getSeriesUseCase.getSeries(SeriesId(seriesId))
         val booksPage = getBooksBySeriesUseCase.getBooksOfSeries(SeriesId(seriesId), pageable.toDomainPagination())

@@ -60,7 +60,7 @@ class OpdsV1ControllerTest {
     @MockitoBean
     private lateinit var getBookEbookFormatsUseCase: ListEbookFormatsUseCase
 
-    private val OPDS_XML_MEDIA_TYPE = "application/atom+xml;profile=opds-catalog;kind=navigation"
+    private val OPDS_XML_MEDIA_TYPE = "application/atom+xml;profile=opds-catalog;type=feed;kind=navigation"
     private val namespaces = mapOf("atom" to "http://www.w3.org/2005/Atom")
 
     private val authorId1 = AuthorId(UUID.randomUUID())
@@ -119,8 +119,11 @@ class OpdsV1ControllerTest {
     fun `getRootFeed returns 200 OK and correct content`() {
         mockMvc.perform(get("/opds/v1.2/catalog.xml"))
             .andExpect(status().isOk)
-            .andExpect(content().contentType("application/atom+xml;profile=opds-catalog;kind=navigation"))
+            .andExpect(content().contentType(OPDS_XML_MEDIA_TYPE))
             .andExpect(xpath("/atom:feed/atom:title", namespaces).string("Ebook Library Catalog"))
+            .andExpect(xpath("/atom:feed/atom:subtitle", namespaces).string("Books in your library"))
+            .andExpect(xpath("/atom:feed/atom:icon", namespaces).string("/favicon.ico"))
+            .andExpect(xpath("/atom:feed/atom:link[@rel='search']/@href", namespaces).string("/opds/v1.2/search.xml"))
             .andExpect(xpath("/atom:feed/atom:entry", namespaces).nodeCount(4))
             .andExpect(xpath("/atom:feed/atom:entry[1]/atom:title", namespaces).string("All Books"))
             .andExpect(xpath("/atom:feed/atom:entry[1]/atom:link/@href", namespaces).string("/opds/v1.2/books/all.xml"))
@@ -139,7 +142,7 @@ class OpdsV1ControllerTest {
 
         mockMvc.perform(get("/opds/v1.2/books/all.xml?page=0&size=2"))
             .andExpect(status().isOk)
-            .andExpect(content().contentType("application/atom+xml;profile=opds-catalog;kind=navigation"))
+            .andExpect(content().contentType(OPDS_XML_MEDIA_TYPE))
             .andExpect(xpath("/atom:feed/atom:title", namespaces).string("All Books"))
             .andExpect(xpath("/atom:feed/atom:entry", namespaces).nodeCount(2))
             
@@ -166,7 +169,7 @@ class OpdsV1ControllerTest {
 
         mockMvc.perform(get("/opds/v1.2/books/new.xml?page=0&size=2"))
             .andExpect(status().isOk)
-            .andExpect(content().contentType("application/atom+xml;profile=opds-catalog;kind=navigation"))
+            .andExpect(content().contentType(OPDS_XML_MEDIA_TYPE))
             .andExpect(xpath("/atom:feed/atom:title", namespaces).string("New Books"))
             .andExpect(xpath("/atom:feed/atom:entry", namespaces).nodeCount(2))
     }
@@ -180,7 +183,7 @@ class OpdsV1ControllerTest {
 
         mockMvc.perform(get("/opds/v1.2/authors/index.xml?page=0&size=2"))
             .andExpect(status().isOk)
-            .andExpect(content().contentType("application/atom+xml;profile=opds-catalog;kind=navigation"))
+            .andExpect(content().contentType(OPDS_XML_MEDIA_TYPE))
             .andExpect(xpath("/atom:feed/atom:title", namespaces).string("Authors"))
             .andExpect(xpath("/atom:feed/atom:entry", namespaces).nodeCount(2))
             .andExpect(xpath("/atom:feed/atom:entry[1]/atom:title", namespaces).string("John Doe"))
@@ -196,7 +199,7 @@ class OpdsV1ControllerTest {
 
         mockMvc.perform(get("/opds/v1.2/authors/${authorId1.value}/books.xml?page=0&size=2"))
             .andExpect(status().isOk)
-            .andExpect(content().contentType("application/atom+xml;profile=opds-catalog;kind=navigation"))
+            .andExpect(content().contentType(OPDS_XML_MEDIA_TYPE))
             .andExpect(xpath("/atom:feed/atom:title", namespaces).string("Books by John Doe"))
             .andExpect(xpath("/atom:feed/atom:entry", namespaces).nodeCount(2))
     }
@@ -210,7 +213,7 @@ class OpdsV1ControllerTest {
 
         mockMvc.perform(get("/opds/v1.2/series/index.xml?page=0&size=2"))
             .andExpect(status().isOk)
-            .andExpect(content().contentType("application/atom+xml;profile=opds-catalog;kind=navigation"))
+            .andExpect(content().contentType(OPDS_XML_MEDIA_TYPE))
             .andExpect(xpath("/atom:feed/atom:title", namespaces).string("Series"))
             .andExpect(xpath("/atom:feed/atom:entry", namespaces).nodeCount(2))
             .andExpect(xpath("/atom:feed/atom:entry[1]/atom:title", namespaces).string("Test Series"))
@@ -226,7 +229,7 @@ class OpdsV1ControllerTest {
 
         mockMvc.perform(get("/opds/v1.2/series/${seriesId1.value}/books.xml?page=0&size=2"))
             .andExpect(status().isOk)
-            .andExpect(content().contentType("application/atom+xml;profile=opds-catalog;kind=navigation"))
+            .andExpect(content().contentType(OPDS_XML_MEDIA_TYPE))
             .andExpect(xpath("/atom:feed/atom:title", namespaces).string("Books in Test Series"))
             .andExpect(xpath("/atom:feed/atom:entry", namespaces).nodeCount(1))
     }

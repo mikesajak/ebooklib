@@ -13,10 +13,13 @@ import com.mikesajak.ebooklib.opds.infrastructure.adapters.incoming.rest.dto.Pub
 import com.mikesajak.ebooklib.series.application.ports.incoming.GetSeriesUseCase
 import com.mikesajak.ebooklib.series.domain.model.SeriesId
 import org.springframework.data.domain.Pageable
+import org.springframework.http.HttpStatus
+import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
+import java.net.URI
 import java.util.*
 
 @RestController
@@ -36,6 +39,13 @@ class OpdsV2Controller(
 ) {
     companion object {
         const val OPDS_JSON_MEDIA_TYPE = "application/opds+json"
+    }
+
+    @GetMapping
+    fun redirectRoot(): ResponseEntity<Unit> {
+        return ResponseEntity.status(HttpStatus.PERMANENT_REDIRECT)
+            .location(URI.create("/opds/v2/feed.json"))
+            .build()
     }
 
     @GetMapping("/feed.json", produces = [OPDS_JSON_MEDIA_TYPE])
