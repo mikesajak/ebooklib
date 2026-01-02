@@ -41,11 +41,22 @@ class RequestLoggingFilter(private val requestLoggingProperties: RequestLoggingP
 
         val duration = currentTimeMillis() - startTime
 
-        val headers = if (requestLoggingProperties.logHeaders) formatHeaders(request) else "disabled"
+        val requestHeaders = if (requestLoggingProperties.logHeaders) formatHeaders(request) else "disabled"
 
-        log.debug("Request: [method={}, uri={}, query={}, status={}, duration={}ms, headers={}]",
-                  request.method, request.requestURI, request.queryString, response.status, duration, headers)
+        val responseHeaders = if (requestLoggingProperties.logHeaders) formatResponseHeaders(response) else "disabled"
+
+        log.debug("Request: [method={}, uri={}, query={}, status={}, duration={}ms, requestHeaders={}, responseHeaders={}]",
+                  request.method, request.requestURI, request.queryString, response.status, duration, requestHeaders, responseHeaders)
     }
+
+    private fun formatResponseHeaders(response: HttpServletResponse): String {
+        return response.headerNames
+                .joinToString(", ") { headerName -> "$headerName=${getResponseHeaderValue(headerName, response)}" }
+    }
+
+    private fun getResponseHeaderValue(headerName: String, response: HttpServletResponse): String? =
+        if (shouldMask(headerName)) "***"
+        else response.getHeader(headerName)
 
     private fun formatHeaders(request: HttpServletRequest): String {
         return Collections.list(request.headerNames)

@@ -4,17 +4,11 @@ import com.mikesajak.ebooklib.author.application.ports.incoming.GetAuthorUseCase
 import com.mikesajak.ebooklib.author.domain.model.Author
 import com.mikesajak.ebooklib.author.domain.model.AuthorId
 import com.mikesajak.ebooklib.book.application.ports.incoming.*
-import com.mikesajak.ebooklib.book.domain.model.Book
-import com.mikesajak.ebooklib.book.domain.model.BookCover
-import com.mikesajak.ebooklib.book.domain.model.BookCoverMetadata
-import com.mikesajak.ebooklib.book.domain.model.BookId
-import com.mikesajak.ebooklib.book.domain.model.EbookFormatFile
+import com.mikesajak.ebooklib.book.domain.model.*
 import com.mikesajak.ebooklib.common.domain.model.PaginatedResult
 import com.mikesajak.ebooklib.series.application.ports.incoming.GetSeriesUseCase
 import com.mikesajak.ebooklib.series.domain.model.Series
 import com.mikesajak.ebooklib.series.domain.model.SeriesId
-import org.hamcrest.Matchers.hasSize
-import org.hamcrest.Matchers.`is`
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.mockito.kotlin.any
@@ -22,8 +16,8 @@ import org.mockito.kotlin.eq
 import org.mockito.kotlin.whenever
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
-import org.springframework.test.context.bean.override.mockito.MockitoBean
 import org.springframework.context.annotation.Import
+import org.springframework.test.context.bean.override.mockito.MockitoBean
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.*
@@ -60,7 +54,7 @@ class OpdsV1ControllerTest {
     @MockitoBean
     private lateinit var getBookEbookFormatsUseCase: ListEbookFormatsUseCase
 
-    private val OPDS_XML_MEDIA_TYPE = "application/atom+xml;profile=opds-catalog;type=feed;kind=navigation"
+    private val OPDS_XML_MEDIA_TYPE = "application/atom+xml"
     private val namespaces = mapOf("atom" to "http://www.w3.org/2005/Atom")
 
     private val authorId1 = AuthorId(UUID.randomUUID())
@@ -116,14 +110,24 @@ class OpdsV1ControllerTest {
     }
 
     @Test
+    fun `root returns content directly`() {
+        mockMvc.perform(get("/opds/v1.2"))
+            .andExpect(status().isOk)
+            .andExpect(content().contentTypeCompatibleWith(OPDS_XML_MEDIA_TYPE))
+            .andExpect(header().string("Content-Location", "/opds/v1.2/catalog.xml"))
+            .andExpect(xpath("/atom:feed/atom:title", namespaces).string("Ebook Library Catalog"))
+    }
+
+    @Test
     fun `getRootFeed returns 200 OK and correct content`() {
         mockMvc.perform(get("/opds/v1.2/catalog.xml"))
             .andExpect(status().isOk)
-            .andExpect(content().contentType(OPDS_XML_MEDIA_TYPE))
+            .andExpect(content().contentTypeCompatibleWith(OPDS_XML_MEDIA_TYPE))
             .andExpect(xpath("/atom:feed/atom:title", namespaces).string("Ebook Library Catalog"))
             .andExpect(xpath("/atom:feed/atom:subtitle", namespaces).string("Books in your library"))
             .andExpect(xpath("/atom:feed/atom:icon", namespaces).string("/favicon.ico"))
             .andExpect(xpath("/atom:feed/atom:link[@rel='search']/@href", namespaces).string("/opds/v1.2/search.xml"))
+            .andExpect(xpath("/atom:feed/atom:link[@rel='search']/@type", namespaces).string("application/opensearchdescription+xml"))
             .andExpect(xpath("/atom:feed/atom:entry", namespaces).nodeCount(4))
             .andExpect(xpath("/atom:feed/atom:entry[1]/atom:title", namespaces).string("All Books"))
             .andExpect(xpath("/atom:feed/atom:entry[1]/atom:link/@href", namespaces).string("/opds/v1.2/books/all.xml"))
@@ -136,13 +140,34 @@ class OpdsV1ControllerTest {
     }
 
     @Test
+    fun `getSearchDescription returns 200 OK and correct content`() {
+        val osNs = mapOf("os" to "http://a9.com/-/spec/opensearch/1.1/")
+        mockMvc.perform(get("/opds/v1.2/search.xml"))
+            .andExpect(status().isOk)
+            .andExpect(content().contentType("application/opensearchdescription+xml"))
+            .andExpect(xpath("/os:OpenSearchDescription/os:ShortName", osNs).string("Ebook Library"))
+            .andExpect(xpath("/os:OpenSearchDescription/os:Description", osNs).string("Search for books in the library"))
+            .andExpect(xpath("/os:OpenSearchDescription/os:Url/@template", osNs).string("/opds/v1.2/search?q={searchTerms}"))
+            .andExpect(xpath("/os:OpenSearchDescription/os:Url/@type", osNs).string("application/atom+xml"))
+    }
+
+    @Test
+    fun `search returns 200 OK and empty result`() {
+        mockMvc.perform(get("/opds/v1.2/search?q=test"))
+            .andExpect(status().isOk)
+            .andExpect(content().contentTypeCompatibleWith(OPDS_XML_MEDIA_TYPE))
+            .andExpect(xpath("/atom:feed/atom:title", namespaces).string("Search results for: test"))
+            .andExpect(xpath("/atom:feed/atom:entry", namespaces).nodeCount(0))
+    }
+
+    @Test
     fun `getAllBooks returns 200 OK and paginated books with cover and acquisition links`() {
         val paginatedBooks = PaginatedResult(listOf(book1, book2), 0, 2, 2, 1)
         whenever(getBookUseCase.getAllBooks(any())).thenReturn(paginatedBooks)
 
         mockMvc.perform(get("/opds/v1.2/books/all.xml?page=0&size=2"))
             .andExpect(status().isOk)
-            .andExpect(content().contentType(OPDS_XML_MEDIA_TYPE))
+            .andExpect(content().contentTypeCompatibleWith(OPDS_XML_MEDIA_TYPE))
             .andExpect(xpath("/atom:feed/atom:title", namespaces).string("All Books"))
             .andExpect(xpath("/atom:feed/atom:entry", namespaces).nodeCount(2))
             
@@ -169,7 +194,7 @@ class OpdsV1ControllerTest {
 
         mockMvc.perform(get("/opds/v1.2/books/new.xml?page=0&size=2"))
             .andExpect(status().isOk)
-            .andExpect(content().contentType(OPDS_XML_MEDIA_TYPE))
+            .andExpect(content().contentTypeCompatibleWith(OPDS_XML_MEDIA_TYPE))
             .andExpect(xpath("/atom:feed/atom:title", namespaces).string("New Books"))
             .andExpect(xpath("/atom:feed/atom:entry", namespaces).nodeCount(2))
     }
@@ -183,7 +208,7 @@ class OpdsV1ControllerTest {
 
         mockMvc.perform(get("/opds/v1.2/authors/index.xml?page=0&size=2"))
             .andExpect(status().isOk)
-            .andExpect(content().contentType(OPDS_XML_MEDIA_TYPE))
+            .andExpect(content().contentTypeCompatibleWith(OPDS_XML_MEDIA_TYPE))
             .andExpect(xpath("/atom:feed/atom:title", namespaces).string("Authors"))
             .andExpect(xpath("/atom:feed/atom:entry", namespaces).nodeCount(2))
             .andExpect(xpath("/atom:feed/atom:entry[1]/atom:title", namespaces).string("John Doe"))
@@ -199,7 +224,7 @@ class OpdsV1ControllerTest {
 
         mockMvc.perform(get("/opds/v1.2/authors/${authorId1.value}/books.xml?page=0&size=2"))
             .andExpect(status().isOk)
-            .andExpect(content().contentType(OPDS_XML_MEDIA_TYPE))
+            .andExpect(content().contentTypeCompatibleWith(OPDS_XML_MEDIA_TYPE))
             .andExpect(xpath("/atom:feed/atom:title", namespaces).string("Books by John Doe"))
             .andExpect(xpath("/atom:feed/atom:entry", namespaces).nodeCount(2))
     }
@@ -213,7 +238,7 @@ class OpdsV1ControllerTest {
 
         mockMvc.perform(get("/opds/v1.2/series/index.xml?page=0&size=2"))
             .andExpect(status().isOk)
-            .andExpect(content().contentType(OPDS_XML_MEDIA_TYPE))
+            .andExpect(content().contentTypeCompatibleWith(OPDS_XML_MEDIA_TYPE))
             .andExpect(xpath("/atom:feed/atom:title", namespaces).string("Series"))
             .andExpect(xpath("/atom:feed/atom:entry", namespaces).nodeCount(2))
             .andExpect(xpath("/atom:feed/atom:entry[1]/atom:title", namespaces).string("Test Series"))
@@ -229,7 +254,7 @@ class OpdsV1ControllerTest {
 
         mockMvc.perform(get("/opds/v1.2/series/${seriesId1.value}/books.xml?page=0&size=2"))
             .andExpect(status().isOk)
-            .andExpect(content().contentType(OPDS_XML_MEDIA_TYPE))
+            .andExpect(content().contentTypeCompatibleWith(OPDS_XML_MEDIA_TYPE))
             .andExpect(xpath("/atom:feed/atom:title", namespaces).string("Books in Test Series"))
             .andExpect(xpath("/atom:feed/atom:entry", namespaces).nodeCount(1))
     }

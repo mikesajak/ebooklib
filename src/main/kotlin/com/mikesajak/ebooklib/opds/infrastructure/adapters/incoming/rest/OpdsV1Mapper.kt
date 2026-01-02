@@ -7,7 +7,10 @@ import com.mikesajak.ebooklib.book.domain.model.Book
 import com.mikesajak.ebooklib.book.domain.model.BookCoverMetadata
 import com.mikesajak.ebooklib.book.domain.model.BookId
 import com.mikesajak.ebooklib.book.domain.model.EbookFormatFile
-import com.mikesajak.ebooklib.opds.infrastructure.adapters.incoming.rest.xml.dto.*
+import com.mikesajak.ebooklib.opds.infrastructure.adapters.incoming.rest.dto.AtomAuthor
+import com.mikesajak.ebooklib.opds.infrastructure.adapters.incoming.rest.dto.AtomContent
+import com.mikesajak.ebooklib.opds.infrastructure.adapters.incoming.rest.dto.AtomEntry
+import com.mikesajak.ebooklib.opds.infrastructure.adapters.incoming.rest.dto.AtomLink
 import com.mikesajak.ebooklib.series.domain.model.Series
 import org.springframework.stereotype.Component
 import java.time.ZoneId
@@ -77,8 +80,7 @@ class OpdsV1Mapper(
 
         return AtomEntry(id = "urn:uuid:$authorId",
                          title = "${author.firstName} ${author.lastName}",
-                         updated = ZonedDateTime.now()
-                                 .format(dateFormatter), // Authors don't have updated field in domain?
+                         updated = ZonedDateTime.now().format(dateFormatter), // Authors don't have updated field in domain?
                          links = links,
                          content = AtomContent(type = "text", text = "Books by ${author.firstName} ${author.lastName}"))
     }

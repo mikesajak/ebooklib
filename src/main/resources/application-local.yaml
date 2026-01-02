@@ -19,6 +19,10 @@ minio:
 preliquibase:
   enabled: false
 
+app:
+  request-logging:
+    log-headers: true
+
 # Debugging
 #debug: true
 #logging:

@@ -1,4 +1,4 @@
-package com.mikesajak.ebooklib.opds.infrastructure.adapters.incoming.rest.xml.dto
+package com.mikesajak.ebooklib.opds.infrastructure.adapters.incoming.rest.dto
 
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper
@@ -122,4 +122,31 @@ data class AtomCategory(
     
     @JacksonXmlProperty(isAttribute = true)
     val label: String? = null
+)
+
+@JacksonXmlRootElement(localName = "OpenSearchDescription", namespace = "http://a9.com/-/spec/opensearch/1.1/")
+data class OpenSearchDescription(
+    @JacksonXmlProperty(localName = "ShortName", namespace = "http://a9.com/-/spec/opensearch/1.1/")
+    val shortName: String,
+
+    @JacksonXmlProperty(localName = "Description", namespace = "http://a9.com/-/spec/opensearch/1.1/")
+    val description: String,
+
+    @JacksonXmlProperty(localName = "InputEncoding", namespace = "http://a9.com/-/spec/opensearch/1.1/")
+    val inputEncoding: String = "UTF-8",
+
+    @JacksonXmlProperty(localName = "OutputEncoding", namespace = "http://a9.com/-/spec/opensearch/1.1/")
+    val outputEncoding: String = "UTF-8",
+
+    @JacksonXmlElementWrapper(useWrapping = false)
+    @JacksonXmlProperty(localName = "Url", namespace = "http://a9.com/-/spec/opensearch/1.1/")
+    val urls: List<OpenSearchUrl>
+)
+
+data class OpenSearchUrl(
+    @JacksonXmlProperty(isAttribute = true)
+    val type: String,
+
+    @JacksonXmlProperty(isAttribute = true)
+    val template: String
 )
