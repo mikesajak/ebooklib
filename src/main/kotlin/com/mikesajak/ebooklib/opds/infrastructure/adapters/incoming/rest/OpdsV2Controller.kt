@@ -13,6 +13,8 @@ import com.mikesajak.ebooklib.opds.infrastructure.adapters.incoming.rest.dto.Pub
 import com.mikesajak.ebooklib.series.application.ports.incoming.GetSeriesUseCase
 import com.mikesajak.ebooklib.series.domain.model.SeriesId
 import org.springframework.data.domain.Pageable
+import org.springframework.data.domain.Sort
+import org.springframework.data.web.PageableDefault
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
@@ -81,7 +83,7 @@ class OpdsV2Controller(
     }
 
     @GetMapping("/books/all.json", produces = [OPDS_JSON_MEDIA_TYPE])
-    fun getAllBooks(pageable: Pageable): Feed {
+    fun getAllBooks(@PageableDefault(sort = ["title"], direction = Sort.Direction.ASC) pageable: Pageable): Feed {
         val booksPage = getBookUseCase.getAllBooks(pageable.toDomainPagination())
         val publications = booksPage.content.map { publicationOf(it) }
 

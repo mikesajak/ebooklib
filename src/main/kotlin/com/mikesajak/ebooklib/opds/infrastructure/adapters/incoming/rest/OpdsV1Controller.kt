@@ -5,27 +5,16 @@ import com.mikesajak.ebooklib.author.domain.model.AuthorId
 import com.mikesajak.ebooklib.book.application.ports.incoming.GetBookUseCase
 import com.mikesajak.ebooklib.book.application.ports.incoming.GetBooksByAuthorUseCase
 import com.mikesajak.ebooklib.book.application.ports.incoming.GetBooksBySeriesUseCase
-import com.mikesajak.ebooklib.infrastructure.web.toDomainPagination
-import com.mikesajak.ebooklib.opds.infrastructure.adapters.incoming.rest.dto.AtomAuthor
-import com.mikesajak.ebooklib.opds.infrastructure.adapters.incoming.rest.dto.AtomContent
-import com.mikesajak.ebooklib.opds.infrastructure.adapters.incoming.rest.dto.AtomEntry
-import com.mikesajak.ebooklib.opds.infrastructure.adapters.incoming.rest.dto.AtomFeed
-import com.mikesajak.ebooklib.opds.infrastructure.adapters.incoming.rest.dto.AtomLink
-import com.mikesajak.ebooklib.opds.infrastructure.adapters.incoming.rest.dto.OpenSearchDescription
-import com.mikesajak.ebooklib.opds.infrastructure.adapters.incoming.rest.dto.OpenSearchUrl
 import com.mikesajak.ebooklib.common.domain.model.PaginatedResult
+import com.mikesajak.ebooklib.infrastructure.web.toDomainPagination
+import com.mikesajak.ebooklib.opds.infrastructure.adapters.incoming.rest.dto.*
 import com.mikesajak.ebooklib.series.application.ports.incoming.GetSeriesUseCase
 import com.mikesajak.ebooklib.series.domain.model.SeriesId
 import jakarta.servlet.http.HttpServletResponse
 import org.springframework.data.domain.Pageable
-import org.springframework.http.HttpStatus
-import org.springframework.http.ResponseEntity
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.PathVariable
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RequestParam
-import org.springframework.web.bind.annotation.RestController
-import java.net.URI
+import org.springframework.data.domain.Sort
+import org.springframework.data.web.PageableDefault
+import org.springframework.web.bind.annotation.*
 import java.time.ZoneId
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
@@ -108,7 +97,7 @@ class OpdsV1Controller(
     }
 
     @GetMapping("/books/all.xml", produces = [APPLICATION_ATOM_XML])
-    fun getAllBooks(pageable: Pageable): AtomFeed {
+    fun getAllBooks(@PageableDefault(sort = ["title"], direction = Sort.Direction.ASC) pageable: Pageable): AtomFeed {
         val booksPage = getBookUseCase.getAllBooks(pageable.toDomainPagination())
         val entries = booksPage.content.map { opdsV1Mapper.toEntry(it) }
 
@@ -213,7 +202,7 @@ class OpdsV1Controller(
                                title: String,
                                updated: String,
                                entries: List<AtomEntry>,
-                               page: com.mikesajak.ebooklib.common.domain.model.PaginatedResult<T>,
+                               page: PaginatedResult<T>,
                                baseUrl: String
     ): AtomFeed {
         val links = buildList {

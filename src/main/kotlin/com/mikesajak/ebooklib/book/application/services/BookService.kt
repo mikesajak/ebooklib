@@ -9,6 +9,8 @@ import com.mikesajak.ebooklib.book.domain.model.Book
 import com.mikesajak.ebooklib.book.domain.model.BookId
 import com.mikesajak.ebooklib.common.domain.model.PaginatedResult
 import com.mikesajak.ebooklib.common.domain.model.PaginationRequest
+import com.mikesajak.ebooklib.common.domain.model.SortDirection
+import com.mikesajak.ebooklib.common.domain.model.SortOrder
 import com.mikesajak.ebooklib.series.application.ports.incoming.GetSeriesUseCase
 import com.mikesajak.ebooklib.series.domain.model.SeriesId
 import org.springframework.stereotype.Service
@@ -36,7 +38,7 @@ class BookService(
     }
 
     override fun getNewestBooks(pagination: PaginationRequest): PaginatedResult<Book> {
-        val sortByCreationDate = com.mikesajak.ebooklib.common.domain.model.SortOrder("creationDate", com.mikesajak.ebooklib.common.domain.model.SortDirection.DESC)
+        val sortByCreationDate = SortOrder("creationDate", SortDirection.DESC)
         val newPagination = pagination.copy(sort = listOf(sortByCreationDate) + pagination.sort)
         return bookRepository.findAll(newPagination)
     }
