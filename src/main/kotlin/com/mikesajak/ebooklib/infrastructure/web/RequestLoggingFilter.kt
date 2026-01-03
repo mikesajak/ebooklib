@@ -35,18 +35,20 @@ class RequestLoggingFilter(private val requestLoggingProperties: RequestLoggingP
             return
         }
 
+        val requestHeaders = if (requestLoggingProperties.logHeaders) formatHeaders(request) else "disabled"
+        log.debug("Request >>> : [method={}, uri={}, query={}, requestHeaders={}]",
+                  request.method, request.requestURI, request.queryString, requestHeaders)
+
         val startTime = currentTimeMillis()
 
         filterChain.doFilter(request, response)
 
         val duration = currentTimeMillis() - startTime
 
-        val requestHeaders = if (requestLoggingProperties.logHeaders) formatHeaders(request) else "disabled"
-
         val responseHeaders = if (requestLoggingProperties.logHeaders) formatResponseHeaders(response) else "disabled"
 
-        log.debug("Request: [method={}, uri={}, query={}, status={}, duration={}ms, requestHeaders={}, responseHeaders={}]",
-                  request.method, request.requestURI, request.queryString, response.status, duration, requestHeaders, responseHeaders)
+        log.debug("Response <<< : [method={}, uri={}, query={}, status={}, duration={}ms, responseHeaders={}]",
+                  request.method, request.requestURI, request.queryString, response.status, duration, responseHeaders)
     }
 
     private fun formatResponseHeaders(response: HttpServletResponse): String {
