@@ -7,14 +7,17 @@ import com.mikesajak.ebooklib.search.infrastructure.adapters.outgoing.persistenc
 import com.mikesajak.ebooklib.series.domain.exception.SeriesNotFoundException
 import mu.KotlinLogging
 import org.springframework.http.HttpStatus
+import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.RestControllerAdvice
 import org.springframework.web.HttpMediaTypeNotAcceptableException
 import org.springframework.web.HttpMediaTypeNotSupportedException
 import org.springframework.web.HttpRequestMethodNotSupportedException
+import org.springframework.web.context.request.async.AsyncRequestNotUsableException
 import org.springframework.web.servlet.NoHandlerFoundException
 import org.springframework.web.servlet.resource.NoResourceFoundException
+import java.io.IOException
 
 @RestControllerAdvice
 class GlobalExceptionHandler {
@@ -24,6 +27,7 @@ class GlobalExceptionHandler {
     fun handleNoHandlerFoundException(e: NoHandlerFoundException): ResponseEntity<ErrorResponse> {
         return ResponseEntity
             .status(HttpStatus.NOT_FOUND)
+            .contentType(MediaType.APPLICATION_JSON)
             .body(ErrorResponse(HttpStatus.NOT_FOUND.value(), e.message ?: "Resource not found"))
     }
 
@@ -31,6 +35,7 @@ class GlobalExceptionHandler {
     fun handleNoResourceFoundException(e: NoResourceFoundException): ResponseEntity<ErrorResponse> {
         return ResponseEntity
             .status(HttpStatus.NOT_FOUND)
+            .contentType(MediaType.APPLICATION_JSON)
             .body(ErrorResponse(HttpStatus.NOT_FOUND.value(), e.message ?: "Resource not found"))
     }
 
@@ -45,6 +50,7 @@ class GlobalExceptionHandler {
     fun handleHttpMediaTypeNotSupportedException(e: HttpMediaTypeNotSupportedException): ResponseEntity<ErrorResponse> {
         return ResponseEntity
             .status(HttpStatus.UNSUPPORTED_MEDIA_TYPE)
+            .contentType(MediaType.APPLICATION_JSON)
             .body(ErrorResponse(HttpStatus.UNSUPPORTED_MEDIA_TYPE.value(), e.message ?: "Media type not supported"))
     }
 
@@ -52,6 +58,7 @@ class GlobalExceptionHandler {
     fun handleHttpRequestMethodNotSupportedException(e: HttpRequestMethodNotSupportedException): ResponseEntity<ErrorResponse> {
         return ResponseEntity
             .status(HttpStatus.METHOD_NOT_ALLOWED)
+            .contentType(MediaType.APPLICATION_JSON)
             .body(ErrorResponse(HttpStatus.METHOD_NOT_ALLOWED.value(), e.message ?: "Method not allowed"))
     }
 
@@ -59,6 +66,7 @@ class GlobalExceptionHandler {
     fun handleBookNotFound(e: BookNotFoundException): ResponseEntity<ErrorResponse> {
         return ResponseEntity
                 .status(HttpStatus.NOT_FOUND)
+                .contentType(MediaType.APPLICATION_JSON)
                 .body(ErrorResponse(HttpStatus.NOT_FOUND.value(), e.message ?: "Book id=${e.bookId} not found"))
     }
 
@@ -67,6 +75,7 @@ class GlobalExceptionHandler {
         logger.info("Author not found: ${e.message}")
         return ResponseEntity
                 .status(HttpStatus.NOT_FOUND)
+                .contentType(MediaType.APPLICATION_JSON)
                 .body(ErrorResponse(HttpStatus.NOT_FOUND.value(), e.message ?: "Author id=${e.authorId} not found"))
     }
 
@@ -74,12 +83,14 @@ class GlobalExceptionHandler {
     fun handleSeriesNotFound(e: SeriesNotFoundException): ResponseEntity<ErrorResponse?> =
         ResponseEntity
                 .status(HttpStatus.NOT_FOUND)
+                .contentType(MediaType.APPLICATION_JSON)
                 .body(ErrorResponse(HttpStatus.NOT_FOUND.value(), e.message ?: "Series id=${e.seriesId} not found"))
 
     @ExceptionHandler(EbookFormatFileNotFoundException::class)
     fun handleEbookFormatFileNotFound(e: EbookFormatFileNotFoundException): ResponseEntity<ErrorResponse> {
         return ResponseEntity
                 .status(HttpStatus.NOT_FOUND)
+                .contentType(MediaType.APPLICATION_JSON)
                 .body(ErrorResponse(HttpStatus.NOT_FOUND.value(), e.message ?: "Ebook format file not found"))
     }
 
@@ -87,15 +98,40 @@ class GlobalExceptionHandler {
     fun handleSearchQueryException(e: SearchQueryException): ResponseEntity<ErrorResponse> {
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
+                .contentType(MediaType.APPLICATION_JSON)
                 .body(ErrorResponse(HttpStatus.BAD_REQUEST.value(), e.message ?: "Invalid search query"))
+    }
+
+    @ExceptionHandler(AsyncRequestNotUsableException::class)
+    fun handleAsyncRequestNotUsableException(e: AsyncRequestNotUsableException) {
+        logger.debug { "Async request not usable (likely client disconnected): ${e.message}" }
     }
 
     @ExceptionHandler(Exception::class)
     fun handleGeneralException(e: Exception): ResponseEntity<ErrorResponse> {
+        if (isClientAbortException(e)) {
+            logger.debug { "Client disconnected: ${e.message}" }
+            return ResponseEntity
+                .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .build()
+        }
+
         logger.error("Unexpected error occurred", e)
         return ResponseEntity
                 .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .contentType(MediaType.APPLICATION_JSON)
                 .body(ErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR.value(), "An unexpected error occurred"))
+    }
+
+    private fun isClientAbortException(e: Throwable): Boolean {
+        if (e is AsyncRequestNotUsableException) return true
+        var cause: Throwable? = e
+        while (cause != null) {
+            if (cause is IOException && cause.message?.contains("Broken pipe", ignoreCase = true) == true) return true
+            if (cause.javaClass.simpleName == "ClientAbortException") return true
+            cause = cause.cause
+        }
+        return false
     }
 }
 
