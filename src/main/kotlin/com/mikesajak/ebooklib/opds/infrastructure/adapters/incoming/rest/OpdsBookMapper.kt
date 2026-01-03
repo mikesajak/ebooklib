@@ -17,13 +17,13 @@ class OpdsBookMapper {
 
     private val dateFormatter = DateTimeFormatter.ISO_LOCAL_DATE
 
-    fun toPublication(book: Book, cover: BookCoverMetadata?, formats: List<EbookFormatFile>): Publication {
-        val images = cover?.let { cover ->
+    fun toSummaryPublication(book: Book, cover: BookCoverMetadata?, formats: List<EbookFormatFile>): Publication {
+        val images = cover?.let { coverMetadata ->
             listOf(
                 Link(
                     rel = "http://opds-spec.org/image",
                     href = "/api/books/${book.id!!.value}/cover",
-                    type = cover.contentType
+                    type = coverMetadata.contentType
                 )
             )
         }
@@ -31,7 +31,7 @@ class OpdsBookMapper {
         val acquisitionLinks = formats.map { format ->
             Link(
                 rel = "http://opds-spec.org/acquisition",
-                href = "/api/books/${book.id!!.value}/formats/${format.id}",
+                href = "/api/books/${book.id!!.value}/formats/${format.id}/download",
                 type = format.contentType
             )
         }
@@ -45,6 +45,13 @@ class OpdsBookMapper {
             images = images
         )
     }
+
+    fun toFullPublication(book: Book, cover: BookCoverMetadata?, formats: List<EbookFormatFile>): Publication {
+        return toSummaryPublication(book, cover, formats)
+    }
+
+    fun toPublication(book: Book, cover: BookCoverMetadata?, formats: List<EbookFormatFile>): Publication =
+        toFullPublication(book, cover, formats)
 
     private fun toPublicationMetadata(book: Book): PublicationMetadata {
         return PublicationMetadata(

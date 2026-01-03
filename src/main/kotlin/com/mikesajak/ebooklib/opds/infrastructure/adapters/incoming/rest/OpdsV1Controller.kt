@@ -99,7 +99,7 @@ class OpdsV1Controller(
     @GetMapping("/books/all.xml", produces = [APPLICATION_ATOM_XML])
     fun getAllBooks(@PageableDefault(sort = ["title"], direction = Sort.Direction.ASC) pageable: Pageable): AtomFeed {
         val booksPage = getBookUseCase.getAllBooks(pageable.toDomainPagination())
-        val entries = booksPage.content.map { opdsV1Mapper.toEntry(it) }
+        val entries = booksPage.content.map { opdsV1Mapper.toSummaryEntry(it) }
 
         return createFeed(id = "urn:uuid:books:all",
                           title = "All Books",
@@ -112,7 +112,7 @@ class OpdsV1Controller(
     @GetMapping("/books/new.xml", produces = [APPLICATION_ATOM_XML])
     fun getNewBooks(pageable: Pageable): AtomFeed {
         val booksPage = getBookUseCase.getNewestBooks(pageable.toDomainPagination())
-        val entries = booksPage.content.map { opdsV1Mapper.toEntry(it) }
+        val entries = booksPage.content.map { opdsV1Mapper.toSummaryEntry(it) }
 
         return createFeed(id = "urn:uuid:books:new",
                           title = "New Books",
@@ -120,6 +120,20 @@ class OpdsV1Controller(
                           entries = entries,
                           page = booksPage,
                           baseUrl = "/opds/v1.2/books/new.xml")
+    }
+
+    @GetMapping("/books/{bookId}.xml", produces = [APPLICATION_ATOM_XML])
+    fun getBook(@PathVariable bookId: UUID): AtomFeed {
+        val book = getBookUseCase.getBook(com.mikesajak.ebooklib.book.domain.model.BookId(bookId))
+        val entry = opdsV1Mapper.toFullEntry(book)
+
+        return AtomFeed(
+            id = "urn:uuid:books:$bookId",
+            title = book.title,
+            updated = ZonedDateTime.now().format(dateFormatter),
+            entries = listOf(entry),
+            links = listOf(AtomLink(href = "/opds/v1.2/books/$bookId.xml", rel = "self", type = OPDS_XML_MEDIA_TYPE))
+        )
     }
 
     @GetMapping("/authors/index.xml", produces = [APPLICATION_ATOM_XML])
@@ -139,7 +153,7 @@ class OpdsV1Controller(
     fun getAuthorBooks(@PathVariable authorId: UUID, pageable: Pageable): AtomFeed {
         val author = getAuthorUseCase.getAuthor(AuthorId(authorId))
         val booksPage = getBooksByAuthorUseCase.getBooksByAuthor(AuthorId(authorId), pageable.toDomainPagination())
-        val entries = booksPage.content.map { opdsV1Mapper.toEntry(it) }
+        val entries = booksPage.content.map { opdsV1Mapper.toSummaryEntry(it) }
 
         return createFeed(id = "urn:uuid:authors:$authorId:books",
                           title = "Books by ${author.firstName} ${author.lastName}",
@@ -166,7 +180,7 @@ class OpdsV1Controller(
     fun getSeriesBooks(@PathVariable seriesId: UUID, pageable: Pageable): AtomFeed {
         val series = getSeriesUseCase.getSeries(SeriesId(seriesId))
         val booksPage = getBooksBySeriesUseCase.getBooksOfSeries(SeriesId(seriesId), pageable.toDomainPagination())
-        val entries = booksPage.content.map { opdsV1Mapper.toEntry(it) }
+        val entries = booksPage.content.map { opdsV1Mapper.toSummaryEntry(it) }
 
         return createFeed(id = "urn:uuid:series:$seriesId:books",
                           title = "Books in ${series.title}",

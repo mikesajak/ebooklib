@@ -102,7 +102,13 @@ data class AtomLink(
     val type: String? = null,
     
     @JacksonXmlProperty(isAttribute = true)
-    val title: String? = null
+    val title: String? = null,
+
+    @JacksonXmlProperty(isAttribute = true)
+    val length: Long? = null,
+
+    @JacksonXmlProperty(isAttribute = true)
+    val mtime: String? = null
 )
 
 data class AtomContent(

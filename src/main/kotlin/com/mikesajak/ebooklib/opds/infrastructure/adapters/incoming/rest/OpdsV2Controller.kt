@@ -85,7 +85,7 @@ class OpdsV2Controller(
     @GetMapping("/books/all.json", produces = [OPDS_JSON_MEDIA_TYPE])
     fun getAllBooks(@PageableDefault(sort = ["title"], direction = Sort.Direction.ASC) pageable: Pageable): Feed {
         val booksPage = getBookUseCase.getAllBooks(pageable.toDomainPagination())
-        val publications = booksPage.content.map { publicationOf(it) }
+        val publications = booksPage.content.map { summaryPublicationOf(it) }
 
         val metadata = OpdsMetadata(title = "All Books",
                                     numberOfItems = booksPage.totalElements.toInt(),
@@ -100,7 +100,7 @@ class OpdsV2Controller(
     @GetMapping("/books/new.json", produces = [OPDS_JSON_MEDIA_TYPE])
     fun getNewBooks(pageable: Pageable): Feed {
         val booksPage = getBookUseCase.getNewestBooks(pageable.toDomainPagination())
-        val publications = booksPage.content.map { publicationOf(it) }
+        val publications = booksPage.content.map { summaryPublicationOf(it) }
 
         val metadata = OpdsMetadata(title = "New Books",
                                     numberOfItems = booksPage.totalElements.toInt(),
@@ -116,7 +116,7 @@ class OpdsV2Controller(
     fun getBook(@PathVariable bookIdValue: UUID): Publication {
         val bookId = com.mikesajak.ebooklib.book.domain.model.BookId(bookIdValue)
         val book = getBookUseCase.getBook(bookId)
-        return publicationOf(book)
+        return fullPublicationOf(book)
     }
 
     @GetMapping("/authors/index.json", produces = [OPDS_JSON_MEDIA_TYPE])
@@ -138,7 +138,7 @@ class OpdsV2Controller(
     fun getAuthorBooks(@PathVariable authorId: UUID, pageable: Pageable): Feed {
         val author = getAuthorUseCase.getAuthor(AuthorId(authorId))
         val booksPage = getBooksByAuthorUseCase.getBooksByAuthor(AuthorId(authorId), pageable.toDomainPagination())
-        val publications = booksPage.content.map { publicationOf(it) }
+        val publications = booksPage.content.map { summaryPublicationOf(it) }
 
         val metadata = OpdsMetadata(title = "Books by ${author.firstName} ${author.lastName}",
                                     numberOfItems = booksPage.totalElements.toInt(),
@@ -170,7 +170,7 @@ class OpdsV2Controller(
     fun getSeriesBooks(@PathVariable seriesId: UUID, pageable: Pageable): Feed {
         val series = getSeriesUseCase.getSeries(SeriesId(seriesId))
         val booksPage = getBooksBySeriesUseCase.getBooksOfSeries(SeriesId(seriesId), pageable.toDomainPagination())
-        val publications = booksPage.content.map { publicationOf(it) }
+        val publications = booksPage.content.map { summaryPublicationOf(it) }
 
         val metadata = OpdsMetadata(title = "Books in ${series.title}",
                                     numberOfItems = booksPage.totalElements.toInt(),
@@ -224,10 +224,21 @@ class OpdsV2Controller(
             }
         }
 
-    private fun publicationOf(book: Book): Publication {
+    private fun summaryPublicationOf(book: Book): Publication {
+        val cover = book.id?.let { getBookCoverUseCase.getCoverIfExists(book.id)?.metadata }
+        val formats = book.id?.let { getBookEbookFormatsUseCase.listFormatFiles(book.id) } ?: listOf()
+        return opdsBookMapper.toSummaryPublication(book, cover, formats)
+    }
+
+    private fun fullPublicationOf(book: Book): Publication {
         val cover = book.id?.let { getBookCoverUseCase.getCoverIfExists(book.id)?.metadata }
         val formats = book.id?.let { getBookEbookFormatsUseCase.listFormatFiles(book.id) } ?: listOf()
 
-        return opdsBookMapper.toPublication(book, cover, formats)
+        return opdsBookMapper.toFullPublication(book, cover, formats)
     }
-}
+
+        private fun publicationOf(book: Book): Publication = fullPublicationOf(book)
+
+    }
+
+    

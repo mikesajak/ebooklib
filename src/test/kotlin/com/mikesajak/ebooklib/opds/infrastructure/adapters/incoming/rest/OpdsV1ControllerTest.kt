@@ -161,7 +161,7 @@ class OpdsV1ControllerTest {
     }
 
     @Test
-    fun `getAllBooks returns 200 OK and paginated books with cover and acquisition links`() {
+    fun `getAllBooks returns 200 OK and paginated books summary with acquisition links and link to details`() {
         val paginatedBooks = PaginatedResult(listOf(book1, book2), 0, 2, 2, 1)
         whenever(getBookUseCase.getAllBooks(any())).thenReturn(paginatedBooks)
 
@@ -170,21 +170,40 @@ class OpdsV1ControllerTest {
             .andExpect(content().contentTypeCompatibleWith(OPDS_XML_MEDIA_TYPE))
             .andExpect(xpath("/atom:feed/atom:title", namespaces).string("All Books"))
             .andExpect(xpath("/atom:feed/atom:entry", namespaces).nodeCount(2))
-            
-            // Check book1
+
+            // Check book1 summary
             .andExpect(xpath("/atom:feed/atom:entry[1]/atom:title", namespaces).string(book1.title))
             .andExpect(xpath("/atom:feed/atom:entry[1]/atom:author/atom:author/atom:name", namespaces).string("John Doe"))
             .andExpect(xpath("/atom:feed/atom:entry[1]/atom:link[@rel='http://opds-spec.org/image']/@href", namespaces)
                 .string("/api/books/${book1.id!!.value}/cover"))
-             .andExpect(xpath("/atom:feed/atom:entry[1]/atom:link[@rel='http://opds-spec.org/acquisition']/@href", namespaces)
-                .string("/api/books/${book1.id.value}/formats/${book1Format1.id}"))
-             .andExpect(xpath("/atom:feed/atom:entry[1]/atom:link[@rel='http://opds-spec.org/acquisition']/@type", namespaces)
-                .string(book1Format1.contentType))
-                
-            // Check book2
+            .andExpect(xpath("/atom:feed/atom:entry[1]/atom:link[@rel='alternate']/@href", namespaces)
+                .string("/opds/v1.2/books/${book1.id.value}.xml"))
+            .andExpect(xpath("/atom:feed/atom:entry[1]/atom:link[@rel='http://opds-spec.org/acquisition']/@href", namespaces)
+                .string("/api/books/${book1.id.value}/formats/${book1Format1.id}/download"))
+            .andExpect(xpath("/atom:feed/atom:entry[1]/atom:link[@rel='http://opds-spec.org/acquisition']/@length", namespaces)
+                .string(book1Format1.fileSize.toString()))
+            .andExpect(xpath("/atom:feed/atom:entry[1]/atom:link[@rel='http://opds-spec.org/acquisition']/@mtime", namespaces)
+                .exists())
+
+            // Check book2 summary
             .andExpect(xpath("/atom:feed/atom:entry[2]/atom:title", namespaces).string(book2.title))
             .andExpect(xpath("/atom:feed/atom:entry[2]/atom:link[@rel='http://opds-spec.org/image']", namespaces).doesNotExist())
             .andExpect(xpath("/atom:feed/atom:entry[2]/atom:link[@rel='http://opds-spec.org/acquisition']", namespaces).doesNotExist())
+    }
+
+    @Test
+    fun `getBook returns 200 OK and full book entry with acquisition links`() {
+        whenever(getBookUseCase.getBook(bookId1)).thenReturn(book1)
+
+        mockMvc.perform(get("/opds/v1.2/books/${bookId1.value}.xml"))
+            .andExpect(status().isOk)
+            .andExpect(content().contentTypeCompatibleWith(OPDS_XML_MEDIA_TYPE))
+            .andExpect(xpath("/atom:feed/atom:title", namespaces).string(book1.title))
+            .andExpect(xpath("/atom:feed/atom:entry", namespaces).nodeCount(1))
+            .andExpect(xpath("/atom:feed/atom:entry[1]/atom:title", namespaces).string(book1.title))
+            .andExpect(xpath("/atom:feed/atom:entry[1]/atom:link[@rel='http://opds-spec.org/acquisition']/@href", namespaces)
+                .string("/api/books/${book1.id!!.value}/formats/${book1Format1.id}/download"))
+            .andExpect(xpath("/atom:feed/atom:entry[1]/atom:content", namespaces).exists())
     }
 
     @Test

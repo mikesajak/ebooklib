@@ -13,6 +13,7 @@ import com.mikesajak.ebooklib.opds.infrastructure.adapters.incoming.rest.dto.Ato
 import com.mikesajak.ebooklib.opds.infrastructure.adapters.incoming.rest.dto.AtomLink
 import com.mikesajak.ebooklib.series.domain.model.Series
 import org.springframework.stereotype.Component
+import java.time.LocalDate
 import java.time.ZoneId
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
@@ -25,10 +26,30 @@ class OpdsV1Mapper(
 
     private val dateFormatter = DateTimeFormatter.ISO_OFFSET_DATE_TIME.withZone(ZoneId.of("UTC"))
 
-    fun toEntry(book: Book): AtomEntry {
-
+    fun toSummaryEntry(book: Book): AtomEntry {
         val coverLinks = coverAtomLinks(book)
         val formatLinks = formatAtomLinks(book)
+        val detailLink = AtomLink(href = "/opds/v1.2/books/${book.id!!.value}.xml",
+                                  rel = "alternate",
+                                  type = OpdsV1Controller.OPDS_XML_MEDIA_TYPE)
+
+        return AtomEntry(id = "urn:uuid:${book.id.value}",
+                         title = book.title,
+                         updated = (book.creationDate?.atStartOfDay(ZoneId.of("UTC"))
+                                    ?: ZonedDateTime.now()).format(dateFormatter),
+                         author = book.authors.map { AtomAuthor(name = "${it.firstName} ${it.lastName}") },
+                         summary = book.description,
+                         links = coverLinks + formatLinks + detailLink,
+                         published = book.publicationDate?.atStartOfDay(ZoneId.of("UTC"))?.format(dateFormatter)
+        )
+    }
+
+    fun toFullEntry(book: Book): AtomEntry {
+        val coverLinks = coverAtomLinks(book)
+        val formatLinks = formatAtomLinks(book)
+        val selfLink = AtomLink(href = "/opds/v1.2/books/${book.id!!.value}.xml",
+                                rel = "self",
+                                type = OpdsV1Controller.OPDS_XML_MEDIA_TYPE)
 
         return AtomEntry(id = "urn:uuid:${book.id!!.value}",
                          title = book.title,
@@ -36,24 +57,32 @@ class OpdsV1Mapper(
                                     ?: ZonedDateTime.now()).format(dateFormatter),
                          author = book.authors.map { AtomAuthor(name = "${it.firstName} ${it.lastName}") },
                          summary = book.description,
-                         links = coverLinks + formatLinks,
+                         links = coverLinks + formatLinks + selfLink,
                          published = book.publicationDate?.atStartOfDay(ZoneId.of("UTC"))?.format(dateFormatter),
                          content = book.description?.let { AtomContent(type = "text", text = it) }
         )
     }
 
+    fun toEntry(book: Book): AtomEntry = toFullEntry(book)
+
     private fun formatAtomLinks(book: Book): List<AtomLink> {
         return book.id?.let {
             getBookEbookFormatsUseCase.listFormatFiles(book.id)
-                    .map { format -> mkFormatLink(book.id, format) }
+                    .map { format -> mkFormatLink(book.id, format, book.creationDate) }
         } ?: listOf()
     }
 
     @Suppress("HttpUrlsUsage")
-    private fun mkFormatLink(id: BookId, format: EbookFormatFile): AtomLink =
-        AtomLink(href = "/api/books/${id.value}/formats/${format.id}",
-                 rel = "http://opds-spec.org/acquisition",
-                 type = format.contentType)
+    private fun mkFormatLink(id: BookId, format: EbookFormatFile, creationDate: LocalDate?): AtomLink {
+        val mtime = (creationDate?.atStartOfDay(ZoneId.of("UTC")) ?: ZonedDateTime.now()).format(dateFormatter)
+        return AtomLink(
+            href = "/api/books/${id.value}/formats/${format.id}/download",
+            rel = "http://opds-spec.org/acquisition",
+            type = format.contentType,
+            length = format.fileSize,
+            mtime = mtime
+        )
+    }
 
     @Suppress("HttpUrlsUsage")
     private fun coverAtomLinks(book: Book): List<AtomLink> {

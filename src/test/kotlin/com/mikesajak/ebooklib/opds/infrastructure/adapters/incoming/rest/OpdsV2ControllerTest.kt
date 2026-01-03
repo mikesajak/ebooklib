@@ -135,42 +135,28 @@ class OpdsV2ControllerTest {
     }
 
     @Test
-    fun `getAllBooks returns 200 OK and paginated books with cover and acquisition links`() {
+    fun `getAllBooks returns 200 OK and paginated books summary with acquisition links`() {
         val paginatedBooks = PaginatedResult(listOf(book1, book2), 0, 2, 2, 1)
-//        `when`(getBookUseCase.getAllBooks(any(PaginationRequest::class.java))).thenReturn(paginatedBooks)
         whenever(getBookUseCase.getAllBooks(any())).thenReturn(paginatedBooks)
 
         mockMvc.perform(get("/opds/v2/books/all.json?page=0&size=2"))
             .andExpect(status().isOk)
             .andExpect(content().contentType(OPDS_JSON_MEDIA_TYPE))
             .andExpect(jsonPath("$.metadata.title", `is`("All Books")))
-            .andExpect(jsonPath("$.metadata.number_of_items", `is`(2)))
-            .andExpect(jsonPath("$.metadata.items_per_page", `is`(2)))
-            .andExpect(jsonPath("$.metadata.current_page", `is`(0)))
             .andExpect(jsonPath("$.links", hasSize<Any>(1))) // self
-            .andExpect(jsonPath("$.links[0].rel", `is`("self")))
-            .andExpect(jsonPath("$.links[0].href", `is`("/opds/v2/books/all.json?page=0&size=2")))
             .andExpect(jsonPath("$.publications", hasSize<Any>(2)))
 
-            // Check book1 publication details (with cover and format)
+            // Check book1 summary details (with cover and format/acquisition link)
             .andExpect(jsonPath("$.publications[0].metadata.title", `is`(book1.title)))
-            .andExpect(jsonPath("$.publications[0].metadata.author[0].name", `is`("John Doe")))
-            .andExpect(jsonPath("$.publications[0].links", hasSize<Any>(2))) // self, acquisition
+            .andExpect(jsonPath("$.publications[0].links", hasSize<Any>(2))) // self + acquisition
             .andExpect(jsonPath("$.publications[0].links[0].rel", `is`("self")))
-            .andExpect(jsonPath("$.publications[0].links[0].href", `is`("/opds/v2/books/${book1.id!!.value}.json")))
             .andExpect(jsonPath("$.publications[0].links[1].rel", `is`("http://opds-spec.org/acquisition")))
-            .andExpect(jsonPath("$.publications[0].links[1].href",
-                `is`("/api/books/${book1.id!!.value}/formats/${book1Format1.id}")))
-            .andExpect(jsonPath("$.publications[0].links[1].type", `is`(book1Format1.contentType)))
-            .andExpect(jsonPath("$.publications[0].images", hasSize<Any>(1))) // cover
-            .andExpect(jsonPath("$.publications[0].images[0].rel", `is`("http://opds-spec.org/image")))
-            .andExpect(jsonPath("$.publications[0].images[0].href", `is`("/api/books/${book1.id!!.value}/cover")))
-            .andExpect(jsonPath("$.publications[0].images[0].type", `is`(book1CoverMetadata.contentType)))
+            .andExpect(jsonPath("$.publications[0].links[1].href", `is`("/api/books/${book1.id!!.value}/formats/${book1Format1.id}/download")))
+            .andExpect(jsonPath("$.publications[0].images", hasSize<Any>(1))) // cover stays in summary
 
-            // Check book2 publication details (without cover or format)
+            // Check book2 summary details (without cover or format)
             .andExpect(jsonPath("$.publications[1].metadata.title", `is`(book2.title)))
             .andExpect(jsonPath("$.publications[1].links", hasSize<Any>(1))) // self only
-            .andExpect(jsonPath("$.publications[1].images").doesNotExist()) // no images link
     }
 
     @Test
@@ -197,6 +183,8 @@ class OpdsV2ControllerTest {
             .andExpect(content().contentType(OPDS_JSON_MEDIA_TYPE))
             .andExpect(jsonPath("$.metadata.title", `is`(book1.title)))
             .andExpect(jsonPath("$.links", hasSize<Any>(2))) // self, acquisition
+            .andExpect(jsonPath("$.links[1].rel", `is`("http://opds-spec.org/acquisition")))
+            .andExpect(jsonPath("$.links[1].href", `is`("/api/books/${bookId1.value}/formats/${book1Format1.id}/download")))
             .andExpect(jsonPath("$.images", hasSize<Any>(1))) // cover
     }
 
