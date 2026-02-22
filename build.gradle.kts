@@ -1,9 +1,9 @@
 plugins {
-    kotlin("jvm") version "2.1.21"
-    kotlin("plugin.spring") version "2.1.21"
-    id("org.springframework.boot") version "3.5.6"
+    kotlin("jvm") version "2.3.0"
+    kotlin("plugin.spring") version "2.3.0"
+    id("org.springframework.boot") version "3.5.9"
     id("io.spring.dependency-management") version "1.1.7"
-    kotlin("plugin.jpa") version "2.1.21"
+    kotlin("plugin.jpa") version "2.3.0"
 }
 
 group = "com.mikesajak"
@@ -11,7 +11,11 @@ version = "0.0.1-SNAPSHOT"
 description = "Ebook library"
 
 kotlin {
-    jvmToolchain(21)
+    jvmToolchain(25)
+
+    compilerOptions {
+        freeCompilerArgs.addAll("-Xjsr305=strict")
+    }
 }
 
 repositories {
@@ -53,12 +57,6 @@ dependencies {
     testImplementation("org.testcontainers:postgresql")
 }
 
-kotlin {
-    compilerOptions {
-        freeCompilerArgs.addAll("-Xjsr305=strict")
-    }
-}
-
 allOpen {
     annotation("jakarta.persistence.Entity")
     annotation("jakarta.persistence.MappedSuperclass")
@@ -69,6 +67,7 @@ allOpen {
 tasks.withType<Test> {
     useJUnitPlatform()
 }
+
 tasks.named("build") {
     dependsOn(":frontend:copyReactBuild")
 }

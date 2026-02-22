@@ -9,11 +9,11 @@ import mu.KotlinLogging
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
-import org.springframework.web.bind.annotation.ExceptionHandler
-import org.springframework.web.bind.annotation.RestControllerAdvice
 import org.springframework.web.HttpMediaTypeNotAcceptableException
 import org.springframework.web.HttpMediaTypeNotSupportedException
 import org.springframework.web.HttpRequestMethodNotSupportedException
+import org.springframework.web.bind.annotation.ExceptionHandler
+import org.springframework.web.bind.annotation.RestControllerAdvice
 import org.springframework.web.context.request.async.AsyncRequestNotUsableException
 import org.springframework.web.servlet.NoHandlerFoundException
 import org.springframework.web.servlet.resource.NoResourceFoundException
@@ -25,6 +25,7 @@ class GlobalExceptionHandler {
 
     @ExceptionHandler(NoHandlerFoundException::class)
     fun handleNoHandlerFoundException(e: NoHandlerFoundException): ResponseEntity<ErrorResponse> {
+        logger.warn { "Resource not found: ${e.message}" }
         return ResponseEntity
             .status(HttpStatus.NOT_FOUND)
             .contentType(MediaType.APPLICATION_JSON)
@@ -33,6 +34,7 @@ class GlobalExceptionHandler {
 
     @ExceptionHandler(NoResourceFoundException::class)
     fun handleNoResourceFoundException(e: NoResourceFoundException): ResponseEntity<ErrorResponse> {
+        logger.warn { "Resource not found: ${e.message}" }
         return ResponseEntity
             .status(HttpStatus.NOT_FOUND)
             .contentType(MediaType.APPLICATION_JSON)
@@ -41,6 +43,7 @@ class GlobalExceptionHandler {
 
     @ExceptionHandler(HttpMediaTypeNotAcceptableException::class)
     fun handleHttpMediaTypeNotAcceptableException(e: HttpMediaTypeNotAcceptableException): ResponseEntity<Void> {
+        logger.warn { "Media type not acceptable: ${e.message}" }
         return ResponseEntity
             .status(HttpStatus.NOT_ACCEPTABLE)
             .build()
@@ -48,6 +51,7 @@ class GlobalExceptionHandler {
 
     @ExceptionHandler(HttpMediaTypeNotSupportedException::class)
     fun handleHttpMediaTypeNotSupportedException(e: HttpMediaTypeNotSupportedException): ResponseEntity<ErrorResponse> {
+        logger.warn { "Media type not supported: ${e.message}" }
         return ResponseEntity
             .status(HttpStatus.UNSUPPORTED_MEDIA_TYPE)
             .contentType(MediaType.APPLICATION_JSON)
@@ -56,6 +60,7 @@ class GlobalExceptionHandler {
 
     @ExceptionHandler(HttpRequestMethodNotSupportedException::class)
     fun handleHttpRequestMethodNotSupportedException(e: HttpRequestMethodNotSupportedException): ResponseEntity<ErrorResponse> {
+        logger.warn { "Method not allowed: ${e.message}" }
         return ResponseEntity
             .status(HttpStatus.METHOD_NOT_ALLOWED)
             .contentType(MediaType.APPLICATION_JSON)
@@ -64,6 +69,7 @@ class GlobalExceptionHandler {
 
     @ExceptionHandler(BookNotFoundException::class)
     fun handleBookNotFound(e: BookNotFoundException): ResponseEntity<ErrorResponse> {
+        logger.info { "Book not found: id=${e.bookId}" }
         return ResponseEntity
                 .status(HttpStatus.NOT_FOUND)
                 .contentType(MediaType.APPLICATION_JSON)
@@ -72,7 +78,7 @@ class GlobalExceptionHandler {
 
     @ExceptionHandler(AuthorNotFoundException::class)
     fun handleAuthorNotFound(e: AuthorNotFoundException): ResponseEntity<ErrorResponse> {
-        logger.info("Author not found: ${e.message}")
+        logger.info { "Author not found: id=${e.authorId}" }
         return ResponseEntity
                 .status(HttpStatus.NOT_FOUND)
                 .contentType(MediaType.APPLICATION_JSON)
@@ -80,14 +86,17 @@ class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(SeriesNotFoundException::class)
-    fun handleSeriesNotFound(e: SeriesNotFoundException): ResponseEntity<ErrorResponse?> =
-        ResponseEntity
+    fun handleSeriesNotFound(e: SeriesNotFoundException): ResponseEntity<ErrorResponse?> {
+        logger.info { "Series not found: id=${e.seriesId}" }
+        return ResponseEntity
                 .status(HttpStatus.NOT_FOUND)
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(ErrorResponse(HttpStatus.NOT_FOUND.value(), e.message ?: "Series id=${e.seriesId} not found"))
+    }
 
     @ExceptionHandler(EbookFormatFileNotFoundException::class)
     fun handleEbookFormatFileNotFound(e: EbookFormatFileNotFoundException): ResponseEntity<ErrorResponse> {
+        logger.info { "Ebook format file not found: ${e.message}" }
         return ResponseEntity
                 .status(HttpStatus.NOT_FOUND)
                 .contentType(MediaType.APPLICATION_JSON)
@@ -96,6 +105,7 @@ class GlobalExceptionHandler {
 
     @ExceptionHandler(SearchQueryException::class)
     fun handleSearchQueryException(e: SearchQueryException): ResponseEntity<ErrorResponse> {
+        logger.warn { "Invalid search query: ${e.message}" }
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
                 .contentType(MediaType.APPLICATION_JSON)

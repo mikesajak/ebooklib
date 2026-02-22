@@ -44,8 +44,10 @@ data/
 ### AI agents config ###
 AGENTS.md
 GEMINI.md
+AGENTS-*.md
 .gemini/
 .grok/
+.kilocode/
 
 ### properties ###
 .env
