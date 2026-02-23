@@ -11,6 +11,8 @@ import com.mikesajak.ebooklib.book.domain.model.BookId
 import com.mikesajak.ebooklib.book.infrastructure.adapters.incoming.rest.dto.BookRequestDto
 import com.mikesajak.ebooklib.book.infrastructure.adapters.incoming.rest.dto.BookResponseDto
 import com.mikesajak.ebooklib.common.domain.model.PaginatedResult
+import com.mikesajak.ebooklib.infrastructure.exception.GlobalExceptionHandler
+import com.mikesajak.ebooklib.infrastructure.security.SecurityConfig
 import org.hamcrest.Matchers.nullValue
 import org.junit.jupiter.api.Test
 import org.mockito.kotlin.any
@@ -18,7 +20,9 @@ import org.mockito.kotlin.doNothing
 import org.mockito.kotlin.whenever
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
+import org.springframework.context.annotation.Import
 import org.springframework.http.MediaType
+import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.context.bean.override.mockito.MockitoBean
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*
@@ -26,6 +30,8 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers.*
 import java.util.*
 
 @WebMvcTest(BookMetadataController::class)
+@Import(GlobalExceptionHandler::class, SecurityConfig::class)
+@ActiveProfiles("test")
 class BookMetadataControllerComponentTest {
 
     @Autowired

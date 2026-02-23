@@ -10,6 +10,10 @@ spring:
       max-request-size: 100MB
   liquibase:
 
+app:
+  security:
+    enabled: false
+
 preliquibase:
   enabled: false
 

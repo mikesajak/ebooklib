@@ -10,6 +10,7 @@ import com.mikesajak.ebooklib.book.domain.exception.EbookFormatFileNotFoundExcep
 import com.mikesajak.ebooklib.book.domain.model.BookId
 import com.mikesajak.ebooklib.book.domain.model.EbookFormatFile
 import com.mikesajak.ebooklib.infrastructure.exception.GlobalExceptionHandler
+import com.mikesajak.ebooklib.infrastructure.security.SecurityConfig
 import org.junit.jupiter.api.Test
 import org.mockito.kotlin.any
 import org.mockito.kotlin.doNothing
@@ -18,6 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
 import org.springframework.context.annotation.Import
 import org.springframework.mock.web.MockMultipartFile
+import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.context.bean.override.mockito.MockitoBean
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*
@@ -26,7 +28,8 @@ import java.io.ByteArrayInputStream
 import java.util.*
 
 @WebMvcTest(BookFormatController::class)
-@Import(GlobalExceptionHandler::class)
+@Import(GlobalExceptionHandler::class, SecurityConfig::class)
+@ActiveProfiles("test")
 class BookFormatControllerComponentTest {
 
     @Autowired

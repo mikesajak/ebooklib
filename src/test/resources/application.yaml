@@ -6,7 +6,7 @@ spring:
     name: ebooklib
   liquibase:
     change-log: classpath:db/changelog/db.changelog-master.yaml
-    contexts: schema, test-data
+    contexts: schema
     default-schema: ebooklib
   jpa:
     properties:
@@ -16,6 +16,10 @@ spring:
     multipart:
       max-file-size: 100MB
       max-request-size: 100MB
+
+app:
+  security:
+    enabled: false
 
 preliquibase:
   enabled: true

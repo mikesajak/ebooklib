@@ -9,6 +9,8 @@ import com.mikesajak.ebooklib.common.domain.model.PaginatedResult
 import com.mikesajak.ebooklib.series.application.ports.incoming.GetSeriesUseCase
 import com.mikesajak.ebooklib.series.domain.model.Series
 import com.mikesajak.ebooklib.series.domain.model.SeriesId
+import com.mikesajak.ebooklib.infrastructure.exception.GlobalExceptionHandler
+import com.mikesajak.ebooklib.infrastructure.security.SecurityConfig
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.mockito.kotlin.any
@@ -17,6 +19,7 @@ import org.mockito.kotlin.whenever
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
 import org.springframework.context.annotation.Import
+import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.context.bean.override.mockito.MockitoBean
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
@@ -27,7 +30,8 @@ import java.util.*
 
 @Suppress("HttpUrlsUsage")
 @WebMvcTest(OpdsV1Controller::class)
-@Import(OpdsV1Mapper::class)
+@Import(OpdsV1Mapper::class, GlobalExceptionHandler::class, SecurityConfig::class)
+@ActiveProfiles("test")
 class OpdsV1ControllerTest {
 
     @Autowired

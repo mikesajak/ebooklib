@@ -13,6 +13,8 @@ import com.mikesajak.ebooklib.common.domain.model.PaginatedResult
 import com.mikesajak.ebooklib.series.application.ports.incoming.GetSeriesUseCase
 import com.mikesajak.ebooklib.series.domain.model.Series
 import com.mikesajak.ebooklib.series.domain.model.SeriesId
+import com.mikesajak.ebooklib.infrastructure.exception.GlobalExceptionHandler
+import com.mikesajak.ebooklib.infrastructure.security.SecurityConfig
 import org.hamcrest.Matchers.hasSize
 import org.hamcrest.Matchers.`is`
 import org.junit.jupiter.api.BeforeEach
@@ -22,6 +24,7 @@ import org.mockito.kotlin.eq
 import org.mockito.kotlin.whenever
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
+import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.context.bean.override.mockito.MockitoBean
 import org.springframework.context.annotation.Import
 import org.springframework.test.web.servlet.MockMvc
@@ -32,7 +35,8 @@ import java.time.LocalDate
 import java.util.*
 
 @WebMvcTest(OpdsV2Controller::class)
-@Import(OpdsBookMapper::class, OpdsAuthorMapper::class, OpdsSeriesMapper::class)
+@Import(OpdsBookMapper::class, OpdsAuthorMapper::class, OpdsSeriesMapper::class, GlobalExceptionHandler::class, SecurityConfig::class)
+@ActiveProfiles("test")
 class OpdsV2ControllerTest {
 
     @Autowired
