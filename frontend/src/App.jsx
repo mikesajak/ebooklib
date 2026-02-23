@@ -11,6 +11,7 @@ import AddBook from './AddBook'
 import AddAuthor from './AddAuthor'
 import AddSeries from './AddSeries'
 import AppSidebar from './Sidebar'
+import LoginPage from './LoginPage'
 import { SearchProvider } from './SearchContext'
 import { AuthProvider } from './AuthContext'
 
@@ -25,6 +26,7 @@ function App() {
               <AppSidebar />
               <main style={{ flexGrow: 1, overflowY: 'auto', padding: '1rem' }}>
                 <Routes>
+                  <Route path="/login" element={<LoginPage />} />
                   <Route path="/" element={<BookTable />} />
                   <Route path="/books/add" element={<AddBook />} />
                   <Route path="/book/:id" element={<BookDetails />} />

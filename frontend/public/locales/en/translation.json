@@ -198,6 +198,13 @@
       "title": "Title"
     }
   },
+  "auth": {
+    "loginTitle": "Login",
+    "username": "Username",
+    "password": "Password",
+    "loginButton": "Login",
+    "loginError": "Invalid username or password"
+  },
   "common": {
     "na": "N/A",
     "error": "Error",

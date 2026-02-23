@@ -197,6 +197,13 @@
       "title": "Tytuł"
     }
   },
+  "auth": {
+    "loginTitle": "Logowanie",
+    "username": "Użytkownik",
+    "password": "Hasło",
+    "loginButton": "Zaloguj",
+    "loginError": "Nieprawidłowa nazwa użytkownika lub hasło"
+  },
   "common": {
     "na": "Brak",
     "error": "Błąd",
