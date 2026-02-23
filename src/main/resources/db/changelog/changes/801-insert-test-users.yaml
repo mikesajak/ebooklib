@@ -1,0 +1,72 @@
+databaseChangeLog:
+  - changeSet:
+      id: 801-insert-test-users
+      author: ebooklib
+      context: test-data
+      changes:
+        - insert:
+            tableName: users
+            columns:
+              - column:
+                  name: id
+                  value: '00000000-0000-0000-0000-000000000001'
+              - column:
+                  name: username
+                  value: 'admin'
+              - column:
+                  name: password
+                  value: '$2a$10$dXJ3SW6G7P50lGmMkkmwe.20iSPlY.P.mS7K/NqV.fG9.mG7.mG7.' # 'password'
+              - column:
+                  name: enabled
+                  valueBoolean: true
+        - insert:
+            tableName: user_roles
+            columns:
+              - column:
+                  name: id
+                  value: '00000000-0000-0000-0000-000000000003'
+              - column:
+                  name: user_id
+                  value: '00000000-0000-0000-0000-000000000001'
+              - column:
+                  name: role
+                  value: 'ROLE_ADMIN'
+        - insert:
+            tableName: user_roles
+            columns:
+              - column:
+                  name: id
+                  value: '00000000-0000-0000-0000-000000000004'
+              - column:
+                  name: user_id
+                  value: '00000000-0000-0000-0000-000000000001'
+              - column:
+                  name: role
+                  value: 'ROLE_USER'
+        - insert:
+            tableName: users
+            columns:
+              - column:
+                  name: id
+                  value: '00000000-0000-0000-0000-000000000002'
+              - column:
+                  name: username
+                  value: 'user'
+              - column:
+                  name: password
+                  value: '$2a$10$dXJ3SW6G7P50lGmMkkmwe.20iSPlY.P.mS7K/NqV.fG9.mG7.mG7.' # 'password'
+              - column:
+                  name: enabled
+                  valueBoolean: true
+        - insert:
+            tableName: user_roles
+            columns:
+              - column:
+                  name: id
+                  value: '00000000-0000-0000-0000-000000000005'
+              - column:
+                  name: user_id
+                  value: '00000000-0000-0000-0000-000000000002'
+              - column:
+                  name: role
+                  value: 'ROLE_USER'

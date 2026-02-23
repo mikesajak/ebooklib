@@ -1,0 +1,59 @@
+databaseChangeLog:
+  - changeSet:
+      id: 007-create-users-table
+      author: ebooklib
+      context: schema
+      changes:
+        - createTable:
+            tableName: users
+            columns:
+              - column:
+                  name: id
+                  type: UUID
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: username
+                  type: text
+                  constraints:
+                    nullable: false
+                    unique: true
+              - column:
+                  name: password
+                  type: text
+                  constraints:
+                    nullable: false
+              - column:
+                  name: enabled
+                  type: boolean
+                  defaultValueBoolean: true
+                  constraints:
+                    nullable: false
+  - changeSet:
+      id: 008-create-user-roles-table
+      author: ebooklib
+      context: schema
+      changes:
+        - createTable:
+            tableName: user_roles
+            columns:
+              - column:
+                  name: id
+                  type: UUID
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: user_id
+                  type: UUID
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_user_roles_user_id
+                    referencedTableName: users
+                    referencedColumnNames: id
+              - column:
+                  name: role
+                  type: text
+                  constraints:
+                    nullable: false
