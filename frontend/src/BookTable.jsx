@@ -14,7 +14,7 @@ const BookTable = () => {
   const [books, setBooks] = useState([]);
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(0);
-  const [size, setSize] = useState(10);
+  const [size, setSize] = useState(() => Number(localStorage.getItem('bookListPageSize')) || 10);
   const [totalPages, setTotalPages] = useState(0);
   const [totalElements, setTotalElements] = useState(0);
   const [sortField, setSortField] = useState('title'); // Default sort field
@@ -248,6 +248,7 @@ const BookTable = () => {
               onPageChange={setPage}
               onPageSizeChange={(newSize) => {
                 setSize(newSize);
+                localStorage.setItem('bookListPageSize', newSize.toString());
                 setPage(0); // Reset to first page when page size changes
               }}
             />

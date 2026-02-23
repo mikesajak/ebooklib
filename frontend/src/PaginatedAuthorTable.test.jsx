@@ -4,6 +4,7 @@ import { BrowserRouter } from 'react-router-dom';
 import { I18nextProvider } from 'react-i18next';
 import i18n from './i18n';
 import PaginatedAuthorTable from './PaginatedAuthorTable';
+import { SearchProvider } from './SearchContext';
 
 describe('PaginatedAuthorTable', () => {
   const mockAuthorsPage1 = {
@@ -11,37 +12,48 @@ describe('PaginatedAuthorTable', () => {
       { id: '1', firstName: 'John', lastName: 'Doe' },
       { id: '2', firstName: 'Jane', lastName: 'Smith' },
     ],
-    totalPages: 2,
-    totalElements: 3,
-    number: 0, // current page (0-indexed)
-    size: 2,
+    page: {
+      totalPages: 2,
+      totalElements: 3,
+      number: 0,
+      size: 2,
+    },
   };
 
   const mockAuthorsPage2 = {
     content: [
       { id: '3', firstName: 'Peter', lastName: 'Jones' },
     ],
-    totalPages: 2,
-    totalElements: 3,
-    number: 1, // current page (0-indexed)
-    size: 2,
+    page: {
+      totalPages: 2,
+      totalElements: 3,
+      number: 1,
+      size: 2,
+    },
   };
 
   beforeEach(() => {
     global.fetch = vi.fn((url) => {
-      if (url.includes('page=0')) {
+      const urlStr = typeof url === 'string' ? url : url.url;
+      // Ensure we have an absolute URL for the URL constructor
+      const absoluteUrl = urlStr.startsWith('http') ? urlStr : `http://localhost${urlStr.startsWith('/') ? '' : '/'}${urlStr}`;
+      const urlObj = new URL(absoluteUrl);
+      const page = urlObj.searchParams.get('page');
+
+      if (urlStr.includes('/api/authors/search')) {
+        if (page === '1') {
+          return Promise.resolve({
+            ok: true,
+            json: () => Promise.resolve(mockAuthorsPage2),
+          });
+        }
+        // Default to page 0
         return Promise.resolve({
           ok: true,
           json: () => Promise.resolve(mockAuthorsPage1),
         });
       }
-      if (url.includes('page=1')) {
-        return Promise.resolve({
-          ok: true,
-          json: () => Promise.resolve(mockAuthorsPage2),
-        });
-      }
-      return Promise.reject(new Error('Unknown URL'));
+      return Promise.reject(new Error(`Unknown URL: ${urlStr}`));
     });
   });
 
@@ -52,9 +64,11 @@ describe('PaginatedAuthorTable', () => {
   const renderPaginatedAuthorTable = () => {
     render(
       <I18nextProvider i18n={i18n}>
-        <BrowserRouter>
-          <PaginatedAuthorTable />
-        </BrowserRouter>
+        <SearchProvider>
+          <BrowserRouter>
+            <PaginatedAuthorTable />
+          </BrowserRouter>
+        </SearchProvider>
       </I18nextProvider>
     );
   };
@@ -120,27 +134,31 @@ describe('PaginatedAuthorTable', () => {
   it('changes page size', async () => {
     // Mock for page size change, assuming the API would return 3 items on page 0 if size=5
     global.fetch.mockImplementation((url) => {
-      if (url.includes('size=5')) {
+      if (url.includes('/api/authors/search') && url.includes('size=5')) {
+                  return Promise.resolve({
+                    ok: true,
+                    json: () => Promise.resolve({
+                      content: [
+                        { id: '1', firstName: 'John', lastName: 'Doe' },
+                        { id: '2', firstName: 'Jane', lastName: 'Smith' },
+                        { id: '3', firstName: 'Peter', lastName: 'Jones' },
+                      ],
+                      page: {
+                        totalPages: 1,
+                        totalElements: 3,
+                        number: 0,
+                        size: 5,
+                      },
+                    }),
+                  });      }
+      // Default mock for initial render
+      if (url.includes('/api/authors/search') && url.includes('page=0')) {
         return Promise.resolve({
           ok: true,
-          json: () => Promise.resolve({
-            content: [
-              { id: '1', firstName: 'John', lastName: 'Doe' },
-              { id: '2', firstName: 'Jane', lastName: 'Smith' },
-              { id: '3', firstName: 'Peter', lastName: 'Jones' },
-            ],
-            totalPages: 1,
-            totalElements: 3,
-            number: 0,
-            size: 5,
-          }),
+          json: () => Promise.resolve(mockAuthorsPage1),
         });
       }
-      // Default mock for initial render
-      return Promise.resolve({
-        ok: true,
-        json: () => Promise.resolve(mockAuthorsPage1),
-      });
+      return Promise.reject(new Error(`Unknown URL in changes page size test: ${url}`));
     });
 
     renderPaginatedAuthorTable();
@@ -152,6 +170,7 @@ describe('PaginatedAuthorTable', () => {
       expect(screen.getByText(/Peter/i)).toBeInTheDocument(); // All authors should be on one page
     });
     expect(screen.getByText(/Page \d of \d \(\d+ total\)/)).toBeInTheDocument();
-    expect(global.fetch).toHaveBeenCalledWith('/api/authors?page=0&size=5&sort=lastName,asc&sort=firstName,asc');
+    expect(global.fetch).toHaveBeenCalledWith(expect.stringContaining('/api/authors/search'));
+    expect(global.fetch).toHaveBeenCalledWith(expect.stringContaining('size=5'));
   });
 });

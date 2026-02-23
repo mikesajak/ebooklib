@@ -11,7 +11,7 @@ const SeriesList = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [page, setPage] = useState(0);
-  const [size, setSize] = useState(10);
+  const [size, setSize] = useState(() => Number(localStorage.getItem('seriesListPageSize')) || 10);
   const [totalPages, setTotalPages] = useState(0);
   const [totalElements, setTotalElements] = useState(0);
   const [sortField, setSortField] = useState('title');
@@ -151,6 +151,7 @@ const SeriesList = () => {
             onPageChange={setPage}
             onPageSizeChange={(newSize) => {
               setSize(newSize);
+              localStorage.setItem('seriesListPageSize', newSize.toString());
               setPage(0); // Reset to first page when page size changes
             }}
           />

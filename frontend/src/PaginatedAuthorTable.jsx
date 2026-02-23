@@ -10,7 +10,7 @@ const PaginatedAuthorTable = () => {
   const { t } = useTranslation();
   const [authors, setAuthors] = useState([]);
   const [page, setPage] = useState(0);
-  const [size, setSize] = useState(10); // Default page size
+  const [size, setSize] = useState(() => Number(localStorage.getItem('authorListPageSize')) || 10); // Default page size
   const [totalPages, setTotalPages] = useState(0);
   const [totalElements, setTotalElements] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -215,6 +215,7 @@ const PaginatedAuthorTable = () => {
         onPageChange={setPage}
         onPageSizeChange={(newSize) => {
           setSize(newSize);
+          localStorage.setItem('authorListPageSize', newSize.toString());
           setPage(0); // Reset to first page when page size changes
         }}
       />
