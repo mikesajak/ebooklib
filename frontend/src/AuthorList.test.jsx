@@ -5,6 +5,7 @@ import { I18nextProvider } from 'react-i18next';
 import i18n from './i18n';
 import AuthorList from './AuthorList';
 import { SearchProvider } from './SearchContext';
+import { AuthProvider } from './AuthContext';
 
 // Mock the PaginatedAuthorTable component
 vi.mock('./PaginatedAuthorTable', () => ({
@@ -51,12 +52,19 @@ describe('AuthorList', () => {
 
   beforeEach(() => {
     // Mock fetch for the AuthorList component's initial data fetch
-    global.fetch = vi.fn(() =>
-      Promise.resolve({
+    global.fetch = vi.fn((url) => {
+      const urlStr = typeof url === 'string' ? url : url.url;
+      if (urlStr.includes('/api/me')) {
+        return Promise.resolve({
+          ok: true,
+          json: () => Promise.resolve({ username: 'test-user', roles: ['ROLE_USER'] }),
+        });
+      }
+      return Promise.resolve({
         ok: true,
         json: () => Promise.resolve({ content: mockAuthors, totalPages: 1, totalElements: mockAuthors.length }),
-      })
-    );
+      });
+    });
     // Clear localStorage before each test to ensure a clean state
     localStorage.clear();
   });
@@ -70,11 +78,13 @@ describe('AuthorList', () => {
     localStorage.setItem('authorListViewMode', initialViewMode);
     render(
       <I18nextProvider i18n={i18n}>
-        <SearchProvider>
-          <BrowserRouter>
-            <AuthorList />
-          </BrowserRouter>
-        </SearchProvider>
+        <AuthProvider>
+          <SearchProvider>
+            <BrowserRouter>
+              <AuthorList />
+            </BrowserRouter>
+          </SearchProvider>
+        </AuthProvider>
       </I18nextProvider>
     );
   };

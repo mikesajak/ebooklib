@@ -5,6 +5,7 @@ import { I18nextProvider } from 'react-i18next';
 import i18n from './i18n';
 import PaginatedAuthorTable from './PaginatedAuthorTable';
 import { SearchProvider } from './SearchContext';
+import { AuthProvider } from './AuthContext';
 
 describe('PaginatedAuthorTable', () => {
   const mockAuthorsPage1 = {
@@ -35,6 +36,14 @@ describe('PaginatedAuthorTable', () => {
   beforeEach(() => {
     global.fetch = vi.fn((url) => {
       const urlStr = typeof url === 'string' ? url : url.url;
+
+      if (urlStr.includes('/api/me')) {
+        return Promise.resolve({
+          ok: true,
+          json: () => Promise.resolve({ username: 'test-user', roles: ['ROLE_USER'] }),
+        });
+      }
+
       // Ensure we have an absolute URL for the URL constructor
       const absoluteUrl = urlStr.startsWith('http') ? urlStr : `http://localhost${urlStr.startsWith('/') ? '' : '/'}${urlStr}`;
       const urlObj = new URL(absoluteUrl);
@@ -64,11 +73,13 @@ describe('PaginatedAuthorTable', () => {
   const renderPaginatedAuthorTable = () => {
     render(
       <I18nextProvider i18n={i18n}>
-        <SearchProvider>
-          <BrowserRouter>
-            <PaginatedAuthorTable />
-          </BrowserRouter>
-        </SearchProvider>
+        <AuthProvider>
+          <SearchProvider>
+            <BrowserRouter>
+              <PaginatedAuthorTable />
+            </BrowserRouter>
+          </SearchProvider>
+        </AuthProvider>
       </I18nextProvider>
     );
   };
@@ -134,7 +145,14 @@ describe('PaginatedAuthorTable', () => {
   it('changes page size', async () => {
     // Mock for page size change, assuming the API would return 3 items on page 0 if size=5
     global.fetch.mockImplementation((url) => {
-      if (url.includes('/api/authors/search') && url.includes('size=5')) {
+      const urlStr = typeof url === 'string' ? url : url.url;
+      if (urlStr.includes('/api/me')) {
+        return Promise.resolve({
+          ok: true,
+          json: () => Promise.resolve({ username: 'test-user', roles: ['ROLE_USER'] }),
+        });
+      }
+      if (urlStr.includes('/api/authors/search') && urlStr.includes('size=5')) {
                   return Promise.resolve({
                     ok: true,
                     json: () => Promise.resolve({
