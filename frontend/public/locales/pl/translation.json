@@ -202,6 +202,7 @@
     "username": "Użytkownik",
     "password": "Hasło",
     "loginButton": "Zaloguj",
+    "logoutButton": "Wyloguj",
     "loginError": "Nieprawidłowa nazwa użytkownika lub hasło"
   },
   "common": {

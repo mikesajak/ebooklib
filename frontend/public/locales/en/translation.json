@@ -203,6 +203,7 @@
     "username": "Username",
     "password": "Password",
     "loginButton": "Login",
+    "logoutButton": "Logout",
     "loginError": "Invalid username or password"
   },
   "common": {

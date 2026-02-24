@@ -2,9 +2,11 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import LanguageSelector from './LanguageSelector';
 import { useTranslation } from 'react-i18next';
+import { useAuth } from './AuthContext';
 
 const Header = () => {
   const { t, ready } = useTranslation();
+  const { user, isAuthenticated, logout } = useAuth();
 
   if (!ready) {
     return null; // Or a loading spinner
@@ -19,6 +21,30 @@ const Header = () => {
             {t('header.title')}
           </h1>
           <div style={{display: 'flex', gap: '1rem', alignItems: 'center'}}>
+            {isAuthenticated && (
+              <div style={{display: 'flex', gap: '1rem', alignItems: 'center', marginRight: '1rem'}}>
+                <span style={{fontSize: '0.875rem', fontWeight: '500', color: '#4b5563'}}>
+                  {user?.username}
+                </span>
+                <button
+                  onClick={logout}
+                  style={{
+                    fontSize: '0.875rem',
+                    fontWeight: '600',
+                    color: '#dc2626',
+                    background: 'none',
+                    border: 'none',
+                    cursor: 'pointer',
+                    padding: '0.25rem 0.5rem',
+                    borderRadius: '0.25rem'
+                  }}
+                  onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#fee2e2'}
+                  onMouseOut={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+                >
+                  {t('auth.logoutButton')}
+                </button>
+              </div>
+            )}
             <LanguageSelector />
           </div>
         </div>

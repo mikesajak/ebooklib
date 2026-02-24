@@ -12,6 +12,7 @@ import AddAuthor from './AddAuthor'
 import AddSeries from './AddSeries'
 import AppSidebar from './Sidebar'
 import LoginPage from './LoginPage'
+import ProtectedRoute from './ProtectedRoute'
 import { SearchProvider } from './SearchContext'
 import { AuthProvider } from './AuthContext'
 
@@ -27,18 +28,18 @@ function App() {
               <main style={{ flexGrow: 1, overflowY: 'auto', padding: '1rem' }}>
                 <Routes>
                   <Route path="/login" element={<LoginPage />} />
-                  <Route path="/" element={<BookTable />} />
-                  <Route path="/books/add" element={<AddBook />} />
-                  <Route path="/book/:id" element={<BookDetails />} />
-                  <Route path="/books/:id/edit" element={<AddBook />} />
-                  <Route path="/author/:id" element={<AuthorDetails />} />
-                  <Route path="/authors" element={<AuthorList />} />
-                  <Route path="/authors/add" element={<AddAuthor />} />
-                  <Route path="/authors/:id/edit" element={<AddAuthor />} />
-                  <Route path="/series" element={<SeriesList />} />
-                  <Route path="/series/add" element={<AddSeries />} />
-                  <Route path="/series/:id" element={<SeriesDetails />} />
-                  <Route path="/series/:id/edit" element={<AddSeries />} />
+                  <Route path="/" element={<ProtectedRoute><BookTable /></ProtectedRoute>} />
+                  <Route path="/books/add" element={<ProtectedRoute><AddBook /></ProtectedRoute>} />
+                  <Route path="/book/:id" element={<ProtectedRoute><BookDetails /></ProtectedRoute>} />
+                  <Route path="/books/:id/edit" element={<ProtectedRoute><AddBook /></ProtectedRoute>} />
+                  <Route path="/author/:id" element={<ProtectedRoute><AuthorDetails /></ProtectedRoute>} />
+                  <Route path="/authors" element={<ProtectedRoute><AuthorList /></ProtectedRoute>} />
+                  <Route path="/authors/add" element={<ProtectedRoute><AddAuthor /></ProtectedRoute>} />
+                  <Route path="/authors/:id/edit" element={<ProtectedRoute><AddAuthor /></ProtectedRoute>} />
+                  <Route path="/series" element={<ProtectedRoute><SeriesList /></ProtectedRoute>} />
+                  <Route path="/series/add" element={<ProtectedRoute><AddSeries /></ProtectedRoute>} />
+                  <Route path="/series/:id" element={<ProtectedRoute><SeriesDetails /></ProtectedRoute>} />
+                  <Route path="/series/:id/edit" element={<ProtectedRoute><AddSeries /></ProtectedRoute>} />
                 </Routes>
               </main>
             </div>
