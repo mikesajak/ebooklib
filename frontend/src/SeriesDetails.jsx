@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { fetchWithCsrf } from './api';
 
 const SeriesDetails = () => {
   const { t } = useTranslation();
@@ -14,14 +15,14 @@ const SeriesDetails = () => {
   useEffect(() => {
     const fetchSeriesAndBooks = async () => {
       try {
-        const seriesResponse = await fetch(`/api/series/${id}`);
+        const seriesResponse = await fetchWithCsrf(`/api/series/${id}`);
         if (!seriesResponse.ok) {
           throw new Error('Failed to fetch series details');
         }
         const seriesData = await seriesResponse.json();
         setSeries(seriesData);
 
-        const booksResponse = await fetch(`/api/series/${id}/books?page=0&size=100`);
+        const booksResponse = await fetchWithCsrf(`/api/series/${id}/books?page=0&size=100`);
         if (!booksResponse.ok) {
           throw new Error('Failed to fetch series books');
         }

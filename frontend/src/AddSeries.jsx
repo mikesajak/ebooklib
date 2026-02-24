@@ -4,12 +4,13 @@ import { useTranslation } from 'react-i18next';
 import useMutation from './hooks/useMutation';
 import AddPage from './AddPage';
 import Form from './Form';
+import { fetchWithCsrf } from './api';
 
 const saveSeries = async (seriesData, isEditMode, seriesId) => {
   const method = isEditMode ? 'PUT' : 'POST';
   const url = isEditMode ? `/api/series/${seriesId}` : '/api/series';
 
-  const response = await fetch(url, {
+  const response = await fetchWithCsrf(url, {
     method: method,
     headers: {
       'Content-Type': 'application/json',
@@ -56,7 +57,7 @@ const AddSeries = () => {
     const fetchSeries = async () => {
       try {
         setLoading(true);
-        const response = await fetch(`/api/series/${id}`);
+        const response = await fetchWithCsrf(`/api/series/${id}`);
         if (!response.ok) {
           throw new Error('Failed to fetch series details');
         }

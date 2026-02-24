@@ -1,4 +1,5 @@
 import React, { createContext, useState, useContext, useEffect, useCallback } from 'react';
+import { fetchWithCsrf } from './api';
 
 const AuthContext = createContext();
 
@@ -10,7 +11,7 @@ export const AuthProvider = ({ children }) => {
   const checkAuth = useCallback(async () => {
     try {
       setLoading(true);
-      const response = await fetch('/api/me');
+      const response = await fetchWithCsrf('/api/me');
       if (response.ok) {
         const data = await response.json();
         setUser(data);
@@ -42,7 +43,7 @@ export const AuthProvider = ({ children }) => {
   const logout = useCallback(async () => {
     // Placeholder for actual logout implementation
     try {
-      const response = await fetch('/logout', { method: 'POST' });
+      const response = await fetchWithCsrf('/logout', { method: 'POST' });
       if (response.ok) {
         setUser(null);
         setIsAuthenticated(false);

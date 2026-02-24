@@ -8,6 +8,7 @@ import Notification from './Notification';
 import AuthorGroupTable from './AuthorGroupTable';
 import { useSearch } from './SearchContext';
 import SearchBar from './SearchBar';
+import { fetchWithCsrf } from './api';
 
 const AUTHOR_DISPLAY_THRESHOLD = 0;
 
@@ -78,7 +79,7 @@ const AuthorList = () => {
         params.append('query', searchQuery);
       }
 
-      const response = await fetch(`${endpoint}?${params.toString()}`);
+      const response = await fetchWithCsrf(`${endpoint}?${params.toString()}`);
       if (!response.ok) {
         throw new Error('Failed to fetch authors');
       }
@@ -105,7 +106,7 @@ const AuthorList = () => {
   const openConfirmDialog = async (author) => {
     setAuthorToDelete(author);
     try {
-      const response = await fetch(`/api/authors/${author.id}/books`);
+      const response = await fetchWithCsrf(`/api/authors/${author.id}/books`);
       if (!response.ok) {
         throw new Error('Failed to fetch affected books');
       }
@@ -128,7 +129,7 @@ const AuthorList = () => {
   const handleDeleteConfirmed = async () => {
     if (authorToDelete) {
       try {
-        const response = await fetch(`/api/authors/${authorToDelete.id}`, {
+        const response = await fetchWithCsrf(`/api/authors/${authorToDelete.id}`, {
           method: 'DELETE',
         });
         if (!response.ok) {

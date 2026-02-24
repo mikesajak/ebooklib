@@ -4,12 +4,13 @@ import { useTranslation } from 'react-i18next';
 import useMutation from './hooks/useMutation';
 import AddPage from './AddPage';
 import Form from './Form';
+import { fetchWithCsrf } from './api';
 
 const saveAuthor = async (authorData, isEditMode, authorId) => {
   const method = isEditMode ? 'PUT' : 'POST';
   const url = isEditMode ? `/api/authors/${authorId}` : '/api/authors';
 
-  const response = await fetch(url, {
+  const response = await fetchWithCsrf(url, {
     method: method,
     headers: {
       'Content-Type': 'application/json',
@@ -60,7 +61,7 @@ const AddAuthor = () => {
     const fetchAuthor = async () => {
       try {
         setLoading(true);
-        const response = await fetch(`/api/authors/${id}`);
+        const response = await fetchWithCsrf(`/api/authors/${id}`);
         if (!response.ok) {
           throw new Error('Failed to fetch author details');
         }

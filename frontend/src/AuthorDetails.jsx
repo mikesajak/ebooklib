@@ -3,6 +3,7 @@ import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import Notification from './Notification';
 import ConfirmationDialog from './ConfirmationDialog';
+import { fetchWithCsrf } from './api';
 
 const AuthorDetails = () => {
   const { t } = useTranslation();
@@ -18,14 +19,14 @@ const AuthorDetails = () => {
   useEffect(() => {
     const fetchAuthorAndBooks = async () => {
       try {
-        const authorResponse = await fetch(`/api/authors/${id}`);
+        const authorResponse = await fetchWithCsrf(`/api/authors/${id}`);
         if (!authorResponse.ok) {
           throw new Error('Failed to fetch author details');
         }
         const authorData = await authorResponse.json();
         setAuthor(authorData);
 
-        const booksResponse = await fetch(`/api/authors/${id}/books?page=0&size=100`);
+        const booksResponse = await fetchWithCsrf(`/api/authors/${id}/books?page=0&size=100`);
         if (!booksResponse.ok) {
           throw new Error('Failed to fetch author books');
         }
@@ -69,7 +70,7 @@ const AuthorDetails = () => {
   const executeDeleteAuthor = async () => {
     setShowDeleteConfirmDialog(false);
     try {
-      const response = await fetch(`/api/authors/${id}`, {
+      const response = await fetchWithCsrf(`/api/authors/${id}`, {
         method: 'DELETE',
       });
       if (!response.ok) {

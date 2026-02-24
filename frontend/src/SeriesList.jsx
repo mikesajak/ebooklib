@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { useSearch } from './SearchContext';
 import SearchBar from './SearchBar';
 import Pagination from './Pagination';
+import { fetchWithCsrf } from './api';
 
 const SeriesList = () => {
   const { t, ready } = useTranslation();
@@ -41,7 +42,7 @@ const SeriesList = () => {
         params.append('query', searchQuery);
       }
 
-      const response = await fetch(`${endpoint}?${params.toString()}`);
+      const response = await fetchWithCsrf(`${endpoint}?${params.toString()}`);
       if (!response.ok) {
         throw new Error(`Failed to fetch series: ${response.status} ${response.statusText}`);
       }

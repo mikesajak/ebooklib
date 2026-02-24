@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import ConfirmationDialog from './ConfirmationDialog';
+import { fetchWithCsrf } from './api';
 
 const BookFormats = ({ bookId, showNotification }) => {
   const { t } = useTranslation();
@@ -17,7 +18,7 @@ const BookFormats = ({ bookId, showNotification }) => {
 
   const fetchFormats = async () => {
     try {
-      const response = await fetch(`/api/books/${bookId}/formats`);
+      const response = await fetchWithCsrf(`/api/books/${bookId}/formats`);
       if (!response.ok) {
         throw new Error('Failed to fetch book formats');
       }
@@ -115,7 +116,7 @@ const BookFormats = ({ bookId, showNotification }) => {
     if (!formatToDelete) return;
 
     try {
-      const response = await fetch(`/api/books/${bookId}/formats/${formatToDelete.id}`, {
+      const response = await fetchWithCsrf(`/api/books/${bookId}/formats/${formatToDelete.id}`, {
         method: 'DELETE',
       });
 

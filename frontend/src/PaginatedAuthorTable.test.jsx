@@ -188,7 +188,7 @@ describe('PaginatedAuthorTable', () => {
       expect(screen.getByText(/Peter/i)).toBeInTheDocument(); // All authors should be on one page
     });
     expect(screen.getByText(/Page \d of \d \(\d+ total\)/)).toBeInTheDocument();
-    expect(global.fetch).toHaveBeenCalledWith(expect.stringContaining('/api/authors/search'));
-    expect(global.fetch).toHaveBeenCalledWith(expect.stringContaining('size=5'));
+    expect(global.fetch).toHaveBeenCalledWith(expect.stringContaining('/api/authors/search'), expect.anything());
+    expect(global.fetch).toHaveBeenCalledWith(expect.stringContaining('size=5'), expect.anything());
   });
 });

@@ -5,12 +5,13 @@ import useMutation from './hooks/useMutation';
 import AddPage from './AddPage';
 import Form from './Form';
 import SearchableDropdown from './SearchableDropdown';
+import { fetchWithCsrf } from './api';
 
 const saveBook = async (bookData, isEditMode, bookId) => {
   const method = isEditMode ? 'PUT' : 'POST';
   const url = isEditMode ? `/api/books/${bookId}` : '/api/books';
 
-  const response = await fetch(url, {
+  const response = await fetchWithCsrf(url, {
     method: method,
     headers: {
       'Content-Type': 'application/json',
@@ -66,9 +67,9 @@ const AddBook = () => {
     const fetchData = async () => {
       try {
         const [authorsResponse, seriesResponse, bookResponse] = await Promise.all([
-          fetch('/api/authors?size=1000&sort=firstName,asc&sort=lastName,asc'),
-          fetch('/api/series?size=1000&sort=title,asc'),
-          isEditMode ? fetch(`/api/books/${id}`) : Promise.resolve(null)
+          fetchWithCsrf('/api/authors?size=1000&sort=firstName,asc&sort=lastName,asc'),
+          fetchWithCsrf('/api/series?size=1000&sort=title,asc'),
+          isEditMode ? fetchWithCsrf(`/api/books/${id}`) : Promise.resolve(null)
         ]);
 
         const authorsData = await authorsResponse.json();

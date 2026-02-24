@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from './AuthContext';
+import { fetchWithCsrf } from './api';
 
 const LoginPage = () => {
   const [username, setUsername] = useState('');
@@ -27,7 +28,7 @@ const LoginPage = () => {
       params.append('username', username);
       params.append('password', password);
 
-      const response = await fetch('/login', {
+      const response = await fetchWithCsrf('/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',

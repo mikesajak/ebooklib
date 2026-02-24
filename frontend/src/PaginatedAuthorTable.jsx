@@ -5,6 +5,7 @@ import ConfirmationDialog from './ConfirmationDialog';
 import Notification from './Notification';
 import Pagination from './Pagination';
 import { useSearch } from './SearchContext';
+import { fetchWithCsrf } from './api';
 
 const PaginatedAuthorTable = () => {
   const { t } = useTranslation();
@@ -50,7 +51,7 @@ const PaginatedAuthorTable = () => {
         params.append('query', searchQuery);
       }
 
-      const response = await fetch(`${endpoint}?${params.toString()}`);
+      const response = await fetchWithCsrf(`${endpoint}?${params.toString()}`);
       if (!response.ok) {
         throw new Error('Failed to fetch authors');
       }
@@ -89,7 +90,7 @@ const PaginatedAuthorTable = () => {
   const openConfirmDialog = async (author) => {
     setAuthorToDelete(author);
     try {
-      const response = await fetch(`/api/authors/${author.id}/books`);
+      const response = await fetchWithCsrf(`/api/authors/${author.id}/books`);
       if (!response.ok) {
         throw new Error('Failed to fetch affected books');
       }
@@ -112,7 +113,7 @@ const PaginatedAuthorTable = () => {
   const handleDeleteConfirmed = async () => {
     if (authorToDelete) {
       try {
-        const response = await fetch(`/api/authors/${authorToDelete.id}`, {
+        const response = await fetchWithCsrf(`/api/authors/${authorToDelete.id}`, {
           method: 'DELETE',
         });
         if (!response.ok) {

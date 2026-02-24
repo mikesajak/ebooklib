@@ -6,6 +6,7 @@ import { useSearch } from './SearchContext';
 import SearchBar from './SearchBar';
 import ConfirmationDialog from './ConfirmationDialog';
 import Pagination from './Pagination';
+import { fetchWithCsrf } from './api';
 
 const BookTable = () => {
   const { t, i18n, ready } = useTranslation();
@@ -45,7 +46,7 @@ const BookTable = () => {
       if (searchQuery) {
         params.append('query', searchQuery);
       }
-      const response = await fetch(`${endpoint}?${params.toString()}`);
+      const response = await fetchWithCsrf(`${endpoint}?${params.toString()}`);
       if (!response.ok) {
         throw new Error('Failed to fetch books');
       }
@@ -96,7 +97,7 @@ const BookTable = () => {
 
   const deleteBook = async (bookId) => {
     try {
-      const response = await fetch(`/api/books/${bookId}`, {
+      const response = await fetchWithCsrf(`/api/books/${bookId}`, {
         method: 'DELETE',
       });
 

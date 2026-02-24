@@ -4,6 +4,7 @@ import Notification from './Notification';
 import ConfirmationDialog from './ConfirmationDialog';
 import BookFormats from './BookFormats';
 import { useTranslation } from 'react-i18next';
+import { fetchWithCsrf } from './api';
 
 const BookDetails = () => {
   const { t } = useTranslation();
@@ -34,7 +35,7 @@ const BookDetails = () => {
 
   const fetchBook = async (isInitialLoad = false) => {
     try {
-      const response = await fetch(`/api/books/${id}`);
+      const response = await fetchWithCsrf(`/api/books/${id}`);
       if (!response.ok) {
         throw new Error('Failed to fetch book details');
       }
@@ -70,7 +71,7 @@ const BookDetails = () => {
     formData.append('file', file);
 
     try {
-      const response = await fetch(`/api/books/${id}/cover`, {
+      const response = await fetchWithCsrf(`/api/books/${id}/cover`, {
         method: 'POST',
         body: formData,
       });
@@ -104,7 +105,7 @@ const BookDetails = () => {
     setShowDeleteConfirmDialog(false); // Close dialog
 
     try {
-      const response = await fetch(`/api/books/${id}/cover`, {
+      const response = await fetchWithCsrf(`/api/books/${id}/cover`, {
         method: 'DELETE',
       });
 
@@ -134,7 +135,7 @@ const BookDetails = () => {
   const executeBookDelete = async () => {
     setShowBookDeleteConfirmDialog(false);
     try {
-      const response = await fetch(`/api/books/${id}`, {
+      const response = await fetchWithCsrf(`/api/books/${id}`, {
         method: 'DELETE',
       });
       if (!response.ok) {
@@ -173,7 +174,7 @@ const BookDetails = () => {
     const checkCoverExistence = async () => {
       if (!id) return;
       try {
-        const response = await fetch(`/api/books/${id}/cover/exists`);
+        const response = await fetchWithCsrf(`/api/books/${id}/cover/exists`);
         if (!response.ok) {
           throw new Error('Failed to check cover existence');
         }
@@ -191,7 +192,7 @@ const BookDetails = () => {
     const fetchBookCover = async () => {
       if (hasCover && id) {
         try {
-          const response = await fetch(`/api/books/${id}/cover`);
+          const response = await fetchWithCsrf(`/api/books/${id}/cover`);
           if (response.status === 404) {
             setIsCoverFileMissing(true);
             setBookCoverUrl(null);
