@@ -7,8 +7,12 @@ spring:
   jpa:
     hibernate:
       ddl-auto: update # For development, automatically update schema
+    properties:
+      hibernate:
+        default_schema: ${db.schema}
   liquibase:
     contexts: schema,test-data
+    default-schema: ${db.schema}
 
 minio:
   endpoint: http://localhost:9000

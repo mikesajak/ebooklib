@@ -12,11 +12,12 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.security.web.SecurityFilterChain
 import org.springframework.security.web.authentication.HttpStatusEntryPoint
+import org.springframework.security.web.csrf.CsrfTokenRequestAttributeHandler
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository
 
 @Configuration
 @EnableWebSecurity
-class SecurityConfig {
+class SecurityConfig(private val userDetailsService: CustomUserDetailsService) {
 
     @Bean
     fun passwordEncoder(): PasswordEncoder {
@@ -26,6 +27,12 @@ class SecurityConfig {
     @Bean
     @ConditionalOnProperty(name = ["app.security.enabled"], havingValue = "true", matchIfMissing = true)
     fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
+        val requestHandler = CsrfTokenRequestAttributeHandler()
+        // set the name of the attribute the CsrfToken will be populated on
+        requestHandler.setCsrfRequestAttributeName(null)
+
+        http.userDetailsService(userDetailsService)
+
         http {
             authorizeHttpRequests {
                 authorize("/", permitAll)
@@ -60,6 +67,7 @@ class SecurityConfig {
             }
             csrf {
                 csrfTokenRepository = CookieCsrfTokenRepository.withHttpOnlyFalse()
+                csrfTokenRequestHandler = requestHandler
             }
         }
 

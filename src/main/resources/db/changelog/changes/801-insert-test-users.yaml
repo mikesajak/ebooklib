@@ -15,7 +15,7 @@ databaseChangeLog:
                   value: 'admin'
               - column:
                   name: password
-                  value: '$2a$10$dXJ3SW6G7P50lGmMkkmwe.20iSPlY.P.mS7K/NqV.fG9.mG7.mG7.' # 'password'
+                  value: '$2b$12$df3UTOOVtoF4ZVgfk7Wqo.hLgAlf8BFMi5cUKqYBg1w4HEGvI4p2O' # 'password'
               - column:
                   name: enabled
                   valueBoolean: true
@@ -54,7 +54,7 @@ databaseChangeLog:
                   value: 'user'
               - column:
                   name: password
-                  value: '$2a$10$dXJ3SW6G7P50lGmMkkmwe.20iSPlY.P.mS7K/NqV.fG9.mG7.mG7.' # 'password'
+                  value: '$2b$12$df3UTOOVtoF4ZVgfk7Wqo.hLgAlf8BFMi5cUKqYBg1w4HEGvI4p2O' # 'password'
               - column:
                   name: enabled
                   valueBoolean: true
