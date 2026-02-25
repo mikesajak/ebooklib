@@ -14,6 +14,11 @@ import org.springframework.security.web.SecurityFilterChain
 import org.springframework.security.web.authentication.HttpStatusEntryPoint
 import org.springframework.security.web.csrf.CsrfTokenRequestAttributeHandler
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository
+import org.springframework.security.web.csrf.CsrfToken
+import org.springframework.web.filter.OncePerRequestFilter
+import jakarta.servlet.FilterChain
+import jakarta.servlet.http.HttpServletRequest
+import jakarta.servlet.http.HttpServletResponse
 
 @Configuration
 @EnableWebSecurity
@@ -69,9 +74,22 @@ class SecurityConfig(private val userDetailsService: CustomUserDetailsService) {
                 csrfTokenRepository = CookieCsrfTokenRepository.withHttpOnlyFalse()
                 csrfTokenRequestHandler = requestHandler
             }
+            addFilterAfter<org.springframework.security.web.csrf.CsrfFilter>(CsrfCookieFilter())
         }
 
         return http.build()
+    }
+
+    /**
+     * Filter to ensure CSRF token is loaded and sent as a cookie.
+     * Required for SPAs where the token is deferred by default in Spring Security 6.
+     */
+    class CsrfCookieFilter : OncePerRequestFilter() {
+        override fun doFilterInternal(request: HttpServletRequest, response: HttpServletResponse, filterChain: FilterChain) {
+            val csrfToken = request.getAttribute("_csrf") as? CsrfToken
+            csrfToken?.token
+            filterChain.doFilter(request, response)
+        }
     }
 
     @Bean

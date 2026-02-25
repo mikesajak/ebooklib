@@ -6,7 +6,7 @@ spring:
     name: ebooklib
   liquibase:
     change-log: classpath:db/changelog/db.changelog-master.yaml
-    contexts: schema
+    contexts: schema,test-data
     default-schema: ebooklib
   jpa:
     properties:
