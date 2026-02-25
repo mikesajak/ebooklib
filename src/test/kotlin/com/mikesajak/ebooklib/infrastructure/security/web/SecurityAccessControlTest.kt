@@ -15,7 +15,10 @@ import software.amazon.awssdk.services.s3.S3Client
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles("test")
-@TestPropertySource(properties = ["app.security.enabled=true"])
+@TestPropertySource(properties = [
+    "app.security.enabled=true",
+    "spring.liquibase.contexts=schema,test-data"
+])
 class SecurityAccessControlTest : BaseIntegrationTest() {
 
     @Autowired

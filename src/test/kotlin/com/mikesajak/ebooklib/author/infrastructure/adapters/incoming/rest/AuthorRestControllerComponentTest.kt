@@ -42,6 +42,7 @@ import java.util.*
 @WebMvcTest(AuthorRestController::class)
 @Import(AuthorRestMapper::class, BookRestMapper::class, SeriesRestMapper::class, GlobalExceptionHandler::class, SecurityConfig::class)
 @ActiveProfiles("test")
+@org.springframework.test.context.TestPropertySource(properties = ["app.security.enabled=false"])
 class AuthorRestControllerComponentTest(@Autowired val mockMvc: MockMvc,
                                         @Autowired val objectMapper: ObjectMapper
 ) {

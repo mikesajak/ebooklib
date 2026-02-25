@@ -37,6 +37,7 @@ import java.util.*
 @WebMvcTest(OpdsV2Controller::class)
 @Import(OpdsBookMapper::class, OpdsAuthorMapper::class, OpdsSeriesMapper::class, GlobalExceptionHandler::class, SecurityConfig::class)
 @ActiveProfiles("test")
+@org.springframework.test.context.TestPropertySource(properties = ["app.security.enabled=false"])
 class OpdsV2ControllerTest {
 
     @Autowired

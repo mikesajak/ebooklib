@@ -32,6 +32,7 @@ import java.util.*
 @WebMvcTest(BookMetadataController::class)
 @Import(GlobalExceptionHandler::class, SecurityConfig::class)
 @ActiveProfiles("test")
+@org.springframework.test.context.TestPropertySource(properties = ["app.security.enabled=false"])
 class BookMetadataControllerComponentTest {
 
     @Autowired

@@ -22,7 +22,7 @@ import jakarta.servlet.http.HttpServletResponse
 
 @Configuration
 @EnableWebSecurity
-class SecurityConfig(private val userDetailsService: CustomUserDetailsService) {
+class SecurityConfig(private val userDetailsService: CustomUserDetailsService? = null) {
 
     @Bean
     fun passwordEncoder(): PasswordEncoder {
@@ -36,7 +36,7 @@ class SecurityConfig(private val userDetailsService: CustomUserDetailsService) {
         // set the name of the attribute the CsrfToken will be populated on
         requestHandler.setCsrfRequestAttributeName(null)
 
-        http.userDetailsService(userDetailsService)
+        userDetailsService?.let { http.userDetailsService(it) }
 
         http {
             authorizeHttpRequests {
