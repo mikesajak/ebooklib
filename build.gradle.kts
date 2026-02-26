@@ -39,6 +39,9 @@ dependencies {
 
     implementation("io.github.microutils:kotlin-logging-jvm:2.1.20")
 
+    implementation("org.apache.tika:tika-core:3.0.0")
+    implementation("org.apache.tika:tika-parsers-standard-package:3.0.0")
+
     implementation(platform("software.amazon.awssdk:bom:2.38.0"))
     implementation("software.amazon.awssdk:s3")
 

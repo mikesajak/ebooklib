@@ -1,0 +1,48 @@
+databaseChangeLog:
+  - changeSet:
+      id: 009-create-staged-ebook-upload-table
+      author: ebooklib
+      context: schema
+      changes:
+        - createTable:
+            tableName: staged_ebook_upload
+            columns:
+              - column:
+                  name: id
+                  type: UUID
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: file_name
+                  type: text
+                  constraints:
+                    nullable: false
+              - column:
+                  name: content_type
+                  type: text
+                  constraints:
+                    nullable: false
+              - column:
+                  name: file_size
+                  type: bigint
+                  constraints:
+                    nullable: false
+              - column:
+                  name: metadata_json
+                  type: text
+              - column:
+                  name: status
+                  type: text
+                  constraints:
+                    nullable: false
+              - column:
+                  name: created_at
+                  type: timestamp
+                  constraints:
+                    nullable: false
+              - column:
+                  name: expiry_at
+                  type: timestamp
+                  constraints:
+                    nullable: false
