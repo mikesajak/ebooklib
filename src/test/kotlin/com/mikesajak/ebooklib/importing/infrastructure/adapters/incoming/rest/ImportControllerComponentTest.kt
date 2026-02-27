@@ -1,6 +1,8 @@
 package com.mikesajak.ebooklib.importing.infrastructure.adapters.incoming.rest
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.mikesajak.ebooklib.importing.application.ports.incoming.GetStagedCoverUseCase
+import com.mikesajak.ebooklib.importing.application.ports.incoming.StagedCover
 import com.mikesajak.ebooklib.importing.application.ports.incoming.UploadToStagingUseCase
 import com.mikesajak.ebooklib.importing.domain.model.StagedEbookUpload
 import com.mikesajak.ebooklib.importing.domain.model.StagedEbookUploadId
@@ -18,9 +20,10 @@ import org.springframework.mock.web.MockMultipartFile
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.context.bean.override.mockito.MockitoBean
 import org.springframework.test.web.servlet.MockMvc
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers.*
+import java.io.ByteArrayInputStream
 import java.time.Instant
 import java.util.*
 
@@ -38,6 +41,9 @@ class ImportControllerComponentTest {
 
     @MockitoBean
     private lateinit var uploadToStagingUseCase: UploadToStagingUseCase
+
+    @MockitoBean
+    private lateinit var getStagedCoverUseCase: GetStagedCoverUseCase
 
     @Test
     fun `should upload ebook to staging`() {
@@ -98,5 +104,32 @@ class ImportControllerComponentTest {
             .param("currentBookId", currentBookId.toString()))
             .andExpect(status().isOk)
             .andExpect(jsonPath("$.id").value(stagedUpload.id.toString()))
+    }
+
+    @Test
+    fun `should serve staged cover`() {
+        // Given
+        val uploadId = UUID.randomUUID()
+        val coverData = "fake image data".toByteArray()
+        val stagedCover = StagedCover(ByteArrayInputStream(coverData), "image/jpeg")
+
+        whenever(getStagedCoverUseCase.getCover(StagedEbookUploadId(uploadId))).thenReturn(stagedCover)
+
+        // When & Then
+        mockMvc.perform(get("/api/import/staged/$uploadId/cover"))
+            .andExpect(status().isOk)
+            .andExpect(content().contentType("image/jpeg"))
+            .andExpect(content().bytes(coverData))
+    }
+
+    @Test
+    fun `should return 404 when staged cover not found`() {
+        // Given
+        val uploadId = UUID.randomUUID()
+        whenever(getStagedCoverUseCase.getCover(StagedEbookUploadId(uploadId))).thenReturn(null)
+
+        // When & Then
+        mockMvc.perform(get("/api/import/staged/$uploadId/cover"))
+            .andExpect(status().isNotFound)
     }
 }
