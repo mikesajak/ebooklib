@@ -27,11 +27,10 @@ class ImportController(
         val stagedUpload = uploadToStagingUseCase.upload(
             fileContent = file.inputStream,
             fileName = file.originalFilename ?: "untitled",
-            contentType = file.contentType ?: "application/octet-stream"
+            contentType = file.contentType ?: "application/octet-stream",
+            currentBookId = currentBookId
         )
 
-        // Note: Validation against currentBookId (Task 2.3) will be integrated here later.
-        
         return ResponseEntity.ok(importRestMapper.toResponse(stagedUpload))
     }
 }

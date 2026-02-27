@@ -1,13 +1,17 @@
 package com.mikesajak.ebooklib.importing.application.services
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.mikesajak.ebooklib.book.application.ports.incoming.GetBookUseCase
+import com.mikesajak.ebooklib.book.domain.model.BookId
 import com.mikesajak.ebooklib.file.application.ports.outgoing.FileStoragePort
 import com.mikesajak.ebooklib.importing.application.ports.incoming.EbookMetadataExtractorUseCase
 import com.mikesajak.ebooklib.importing.application.ports.incoming.UploadToStagingUseCase
 import com.mikesajak.ebooklib.importing.application.ports.outgoing.StagedEbookUploadRepositoryPort
+import com.mikesajak.ebooklib.importing.domain.model.ExtractedEbookMetadata
 import com.mikesajak.ebooklib.importing.domain.model.StagedEbookUpload
 import com.mikesajak.ebooklib.importing.domain.model.StagedEbookUploadId
 import com.mikesajak.ebooklib.importing.domain.model.StagedEbookUploadStatus
+import com.mikesajak.ebooklib.importing.domain.model.StagedUploadValidation
 import jakarta.transaction.Transactional
 import mu.KotlinLogging
 import org.springframework.stereotype.Service
@@ -24,12 +28,13 @@ private val logger = KotlinLogging.logger {}
 class UploadToStagingService(
     private val fileStoragePort: FileStoragePort,
     private val metadataExtractor: EbookMetadataExtractorUseCase,
+    private val getBookUseCase: GetBookUseCase,
     private val repository: StagedEbookUploadRepositoryPort,
     private val objectMapper: ObjectMapper
 ) : UploadToStagingUseCase {
 
-    override fun upload(fileContent: InputStream, fileName: String, contentType: String): StagedEbookUpload {
-        logger.info { "Uploading file to staging: $fileName ($contentType)" }
+    override fun upload(fileContent: InputStream, fileName: String, contentType: String, currentBookId: UUID?): StagedEbookUpload {
+        logger.info { "Uploading file to staging: $fileName ($contentType), currentBookId: $currentBookId" }
 
         // We need to read the stream twice (once for storage, once for parsing) or buffer it.
         // Given we might have large files, buffering in memory might be risky, 
@@ -53,7 +58,7 @@ class UploadToStagingService(
         val uploadId = StagedEbookUploadId(UUID.fromString(ebookMetadata.id))
 
         // 3. Handle cover if present
-        var metadataMap = mutableMapOf<String, Any?>()
+        val metadataMap = mutableMapOf<String, Any?>()
         if (extracted != null) {
             metadataMap["title"] = extracted.title
             metadataMap["authors"] = extracted.authors
@@ -75,11 +80,22 @@ class UploadToStagingService(
                     logger.warn(e) { "Failed to upload extracted cover for $fileName" }
                 }
             }
+
+            // 4. Perform validation against current book if provided
+            currentBookId?.let { bookId ->
+                try {
+                    val targetBook = getBookUseCase.getBook(BookId(bookId))
+                    val validation = validate(extracted, targetBook)
+                    metadataMap["validation"] = validation
+                } catch (e: Exception) {
+                    logger.warn(e) { "Failed to validate against book $bookId" }
+                }
+            }
         }
 
         val metadataJson = objectMapper.writeValueAsString(metadataMap)
 
-        // 4. Create and save record
+        // 5. Create and save record
         val stagedUpload = StagedEbookUpload(
             id = uploadId,
             fileName = fileName,
@@ -93,4 +109,23 @@ class UploadToStagingService(
 
         return repository.save(stagedUpload)
     }
+
+    private fun validate(extracted: ExtractedEbookMetadata, targetBook: com.mikesajak.ebooklib.book.domain.model.Book): StagedUploadValidation {
+        val titleMatch = extracted.title?.let { normalize(it) == normalize(targetBook.title) } ?: false
+        
+        val extractedAuthorsNormalized = extracted.authors.map { normalize(it) }.sorted()
+        val targetAuthorsNormalized = targetBook.authors.map { normalize(it.fullName) }.sorted()
+        
+        val authorMatch = extractedAuthorsNormalized.isNotEmpty() && targetAuthorsNormalized.isNotEmpty() &&
+                extractedAuthorsNormalized == targetAuthorsNormalized
+
+        return StagedUploadValidation(
+            titleMatch = titleMatch,
+            authorMatch = authorMatch,
+            targetBookTitle = targetBook.title,
+            targetBookAuthors = targetBook.authors.map { it.fullName }
+        )
+    }
+
+    private fun normalize(s: String): String = s.lowercase(Locale.getDefault()).trim()
 }

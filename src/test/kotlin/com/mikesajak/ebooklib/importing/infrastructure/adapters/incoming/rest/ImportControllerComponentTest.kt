@@ -9,6 +9,7 @@ import com.mikesajak.ebooklib.infrastructure.exception.GlobalExceptionHandler
 import com.mikesajak.ebooklib.infrastructure.security.SecurityConfig
 import org.junit.jupiter.api.Test
 import org.mockito.kotlin.any
+import org.mockito.kotlin.anyOrNull
 import org.mockito.kotlin.whenever
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
@@ -57,7 +58,7 @@ class ImportControllerComponentTest {
             expiryAt = Instant.now().plusSeconds(3600)
         )
 
-        whenever(uploadToStagingUseCase.upload(any(), any(), any())).thenReturn(stagedUpload)
+        whenever(uploadToStagingUseCase.upload(any(), any(), any(), anyOrNull())).thenReturn(stagedUpload)
 
         // When & Then
         mockMvc.perform(multipart("/api/import/upload")
@@ -89,7 +90,7 @@ class ImportControllerComponentTest {
             expiryAt = Instant.now().plusSeconds(3600)
         )
 
-        whenever(uploadToStagingUseCase.upload(any(), any(), any())).thenReturn(stagedUpload)
+        whenever(uploadToStagingUseCase.upload(any(), any(), any(), anyOrNull())).thenReturn(stagedUpload)
 
         // When & Then
         mockMvc.perform(multipart("/api/import/upload")
