@@ -10,7 +10,7 @@ data class FileMetadata(
 )
 
 interface FileStoragePort {
-    fun uploadFile(fileContent: InputStream, originalFileName: String, contentType: String): FileMetadata
+    fun uploadFile(fileContent: InputStream, originalFileName: String, contentType: String, folder: String? = null): FileMetadata
     fun downloadFile(fileId: String): InputStream
     fun deleteFile(fileId: String)
     fun getFileMetadata(fileId: String): FileMetadata?

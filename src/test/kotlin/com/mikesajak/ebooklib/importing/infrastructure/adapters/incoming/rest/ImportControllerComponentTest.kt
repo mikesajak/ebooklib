@@ -1,0 +1,101 @@
+package com.mikesajak.ebooklib.importing.infrastructure.adapters.incoming.rest
+
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.mikesajak.ebooklib.importing.application.ports.incoming.UploadToStagingUseCase
+import com.mikesajak.ebooklib.importing.domain.model.StagedEbookUpload
+import com.mikesajak.ebooklib.importing.domain.model.StagedEbookUploadId
+import com.mikesajak.ebooklib.importing.domain.model.StagedEbookUploadStatus
+import com.mikesajak.ebooklib.infrastructure.exception.GlobalExceptionHandler
+import com.mikesajak.ebooklib.infrastructure.security.SecurityConfig
+import org.junit.jupiter.api.Test
+import org.mockito.kotlin.any
+import org.mockito.kotlin.whenever
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
+import org.springframework.context.annotation.Import
+import org.springframework.mock.web.MockMultipartFile
+import org.springframework.test.context.ActiveProfiles
+import org.springframework.test.context.bean.override.mockito.MockitoBean
+import org.springframework.test.web.servlet.MockMvc
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
+import java.time.Instant
+import java.util.*
+
+@WebMvcTest(ImportController::class)
+@Import(GlobalExceptionHandler::class, SecurityConfig::class, ImportRestMapper::class)
+@ActiveProfiles("test")
+@org.springframework.test.context.TestPropertySource(properties = ["app.security.enabled=false"])
+class ImportControllerComponentTest {
+
+    @Autowired
+    private lateinit var mockMvc: MockMvc
+
+    @Autowired
+    private lateinit var objectMapper: ObjectMapper
+
+    @MockitoBean
+    private lateinit var uploadToStagingUseCase: UploadToStagingUseCase
+
+    @Test
+    fun `should upload ebook to staging`() {
+        // Given
+        val fileContent = "test ebook content".toByteArray()
+        val fileName = "ebook.epub"
+        val contentType = "application/epub+zip"
+        val multipartFile = MockMultipartFile("file", fileName, contentType, fileContent)
+        
+        val stagedUpload = StagedEbookUpload(
+            id = StagedEbookUploadId(UUID.randomUUID()),
+            fileName = fileName,
+            contentType = contentType,
+            fileSize = fileContent.size.toLong(),
+            metadataJson = """{"title": "Test Book", "authors": ["Author 1"]}""",
+            status = StagedEbookUploadStatus.PARSED,
+            createdAt = Instant.now(),
+            expiryAt = Instant.now().plusSeconds(3600)
+        )
+
+        whenever(uploadToStagingUseCase.upload(any(), any(), any())).thenReturn(stagedUpload)
+
+        // When & Then
+        mockMvc.perform(multipart("/api/import/upload")
+            .file(multipartFile))
+            .andExpect(status().isOk)
+            .andExpect(jsonPath("$.id").value(stagedUpload.id.toString()))
+            .andExpect(jsonPath("$.fileName").value(stagedUpload.fileName))
+            .andExpect(jsonPath("$.metadata.title").value("Test Book"))
+            .andExpect(jsonPath("$.status").value("PARSED"))
+    }
+
+    @Test
+    fun `should upload ebook to staging with currentBookId`() {
+        // Given
+        val currentBookId = UUID.randomUUID()
+        val fileContent = "test ebook content".toByteArray()
+        val fileName = "ebook.epub"
+        val contentType = "application/epub+zip"
+        val multipartFile = MockMultipartFile("file", fileName, contentType, fileContent)
+        
+        val stagedUpload = StagedEbookUpload(
+            id = StagedEbookUploadId(UUID.randomUUID()),
+            fileName = fileName,
+            contentType = contentType,
+            fileSize = fileContent.size.toLong(),
+            metadataJson = """{"title": "Test Book"}""",
+            status = StagedEbookUploadStatus.PARSED,
+            createdAt = Instant.now(),
+            expiryAt = Instant.now().plusSeconds(3600)
+        )
+
+        whenever(uploadToStagingUseCase.upload(any(), any(), any())).thenReturn(stagedUpload)
+
+        // When & Then
+        mockMvc.perform(multipart("/api/import/upload")
+            .file(multipartFile)
+            .param("currentBookId", currentBookId.toString()))
+            .andExpect(status().isOk)
+            .andExpect(jsonPath("$.id").value(stagedUpload.id.toString()))
+    }
+}

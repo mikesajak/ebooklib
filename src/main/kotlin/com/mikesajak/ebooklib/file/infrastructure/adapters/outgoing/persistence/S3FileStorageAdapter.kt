@@ -18,9 +18,9 @@ class S3FileStorageAdapter(
         private val s3Client: S3Client,
         @Value("\${minio.bucket-name:ebook-library-files}") private val bucketName: String
 ) : FileStoragePort {
-    override fun uploadFile(fileContent: InputStream, originalFileName: String, contentType: String): FileMetadata {
+    override fun uploadFile(fileContent: InputStream, originalFileName: String, contentType: String, folder: String?): FileMetadata {
         val fileId = UUID.randomUUID().toString()
-        val storageKey = fileId // Using fileId as storage key for simplicity
+        val storageKey = if (folder != null) "$folder/$fileId" else fileId
 
         val putObjectRequest = PutObjectRequest.builder()
                 .bucket(bucketName)
