@@ -1,10 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
+import { FaCheckCircle, FaExclamationCircle, FaPlusCircle } from 'react-icons/fa';
 import MergeMetadataView from './MergeMetadataView';
+import { fetchWithCsrf } from './api';
 
 const ImportReviewDialog = ({
   stagedUpload,
-  existingBook,
+  existingBook: initialExistingBook,
   authorOptions,
   seriesOptions,
   onCancel,
@@ -12,23 +14,51 @@ const ImportReviewDialog = ({
   isProcessing
 }) => {
   const { t } = useTranslation();
+  
+  const [activeMatch, setActiveMatch] = useState(initialExistingBook || null);
   const [mergedData, setMergedData] = useState(null);
+  const [isLoadingMatch, setIsLoadingMatch] = useState(false);
+
+  const candidates = stagedUpload.validation?.candidates || [];
+
+  // When a candidate is clicked, fetch its full details
+  const handleSelectCandidate = async (candidate) => {
+    if (activeMatch?.id === candidate.bookId) return;
+    
+    setIsLoadingMatch(true);
+    try {
+      const response = await fetchWithCsrf(`/api/books/${candidate.bookId}`);
+      if (response.ok) {
+        const fullBook = await response.json();
+        setActiveMatch(fullBook);
+      }
+    } catch (err) {
+      console.error("Failed to fetch candidate details:", err);
+    } finally {
+      setIsLoadingMatch(false);
+    }
+  };
+
+  const handleSelectNew = () => {
+    setActiveMatch(null);
+  };
 
   const handleConfirm = () => {
     if (mergedData) {
       onConfirm({
         ...mergedData,
-        uploadId: stagedUpload.id
+        uploadId: stagedUpload.id,
+        bookId: activeMatch?.id // Send selected bookId for update, or null for create
       });
     }
   };
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50 backdrop-blur-sm">
-      <div className="bg-white rounded-lg shadow-xl w-full max-w-4xl overflow-hidden flex flex-col max-h-[90vh]">
+      <div className="bg-white rounded-lg shadow-xl w-full max-w-5xl overflow-hidden flex flex-col max-h-[95vh]">
         <header className="px-6 py-4 bg-gray-50 border-b flex justify-between items-center">
           <h2 className="text-xl font-bold text-gray-800">
-            {existingBook ? t('import.review.titleUpdate') : t('import.review.titleNew')}
+            {activeMatch ? t('import.review.titleUpdate') : t('import.review.titleNew')}
           </h2>
           <button 
             onClick={onCancel}
@@ -41,19 +71,70 @@ const ImportReviewDialog = ({
           </button>
         </header>
 
-        <div className="flex-grow overflow-hidden p-6">
-          <div className="mb-4 text-sm text-gray-600">
-            <p>{t('import.review.intro')}</p>
-            <p className="mt-1 font-medium">{t('import.review.fileName')}: <span className="font-mono text-blue-600">{stagedUpload.fileName}</span></p>
-          </div>
+        <div className="flex-grow overflow-hidden flex flex-col md:flex-row">
+          {/* Left Panel: Candidate Selection (if not targeted) */}
+          {!initialExistingBook && candidates.length > 0 && (
+            <div className="w-full md:w-1/3 bg-gray-50 border-r border-gray-200 overflow-y-auto p-4">
+              <h3 className="text-sm font-bold text-gray-500 uppercase tracking-wider mb-4">
+                {t('import.review.statusTitle')}
+              </h3>
+              
+              <div className="space-y-3">
+                <button
+                  onClick={handleSelectNew}
+                  className={`w-full text-left p-3 rounded-lg border-2 transition-all flex items-start gap-3
+                    ${!activeMatch ? 'border-blue-500 bg-blue-50 shadow-sm' : 'border-gray-200 bg-white hover:border-gray-300'}`}
+                >
+                  <FaPlusCircle className={`mt-1 ${!activeMatch ? 'text-blue-600' : 'text-gray-400'}`} />
+                  <div>
+                    <div className="font-bold text-gray-800">{t('import.review.titleNew')}</div>
+                    <div className="text-xs text-gray-500">Create a fresh entry in the library</div>
+                  </div>
+                </button>
 
-          <MergeMetadataView 
-            stagedUpload={stagedUpload}
-            existingBook={existingBook}
-            authorOptions={authorOptions}
-            seriesOptions={seriesOptions}
-            onMergedDataChange={setMergedData}
-          />
+                <div className="relative py-2">
+                  <div className="absolute inset-0 flex items-center"><span className="w-full border-t border-gray-200"></span></div>
+                  <div className="relative flex justify-center text-xs uppercase text-gray-400 bg-gray-50 px-2">Matches Found</div>
+                </div>
+
+                {candidates.map(c => (
+                  <button
+                    key={c.bookId}
+                    onClick={() => handleSelectCandidate(c)}
+                    className={`w-full text-left p-3 rounded-lg border-2 transition-all flex items-start gap-3
+                      ${activeMatch?.id === c.bookId ? 'border-green-500 bg-green-50 shadow-sm' : 'border-gray-200 bg-white hover:border-gray-300'}`}
+                  >
+                    {c.score >= 80 ? (
+                      <FaCheckCircle className={`mt-1 ${activeMatch?.id === c.bookId ? 'text-green-600' : 'text-green-400'}`} />
+                    ) : (
+                      <FaExclamationCircle className={`mt-1 ${activeMatch?.id === c.bookId ? 'text-yellow-600' : 'text-yellow-400'}`} />
+                    )}
+                    <div className="overflow-hidden">
+                      <div className="font-bold text-gray-800 truncate" title={c.title}>{c.title}</div>
+                      <div className="text-xs text-gray-500 truncate">{c.authors.join(', ') || 'Unknown Author'}</div>
+                      <div className="mt-1 text-[10px] font-mono text-gray-400 uppercase">Match Score: {c.score}%</div>
+                    </div>
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Right Panel: Metadata Merge */}
+          <div className={`flex-grow p-6 overflow-y-auto ${isLoadingMatch ? 'opacity-50 pointer-events-none' : ''}`}>
+            <div className="mb-4 text-sm text-gray-600">
+              <p>{t('import.review.intro')}</p>
+              <p className="mt-1 font-medium">{t('import.review.fileName')}: <span className="font-mono text-blue-600">{stagedUpload.fileName}</span></p>
+            </div>
+
+            <MergeMetadataView 
+              stagedUpload={stagedUpload}
+              existingBook={activeMatch}
+              authorOptions={authorOptions}
+              seriesOptions={seriesOptions}
+              onMergedDataChange={setMergedData}
+            />
+          </div>
         </div>
 
         <footer className="px-6 py-4 bg-gray-50 border-t flex justify-end gap-3">
@@ -66,8 +147,9 @@ const ImportReviewDialog = ({
           </button>
           <button
             onClick={handleConfirm}
-            className="px-6 py-2 text-white bg-blue-600 rounded hover:bg-blue-700 font-bold shadow-md transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-            disabled={isProcessing || !mergedData}
+            className={`px-6 py-2 text-white rounded font-bold shadow-md transition-all disabled:opacity-50 disabled:cursor-not-allowed
+              ${activeMatch ? 'bg-green-600 hover:bg-green-700' : 'bg-blue-600 hover:bg-blue-700'}`}
+            disabled={isProcessing || !mergedData || isLoadingMatch}
           >
             {isProcessing ? (
               <div className="flex items-center gap-2">
@@ -78,7 +160,7 @@ const ImportReviewDialog = ({
                 {t('import.review.processing')}
               </div>
             ) : (
-              existingBook ? t('import.review.confirmUpdate') : t('import.review.confirmCreate')
+              activeMatch ? t('import.review.confirmUpdate') : t('import.review.confirmCreate')
             )}
           </button>
         </footer>
