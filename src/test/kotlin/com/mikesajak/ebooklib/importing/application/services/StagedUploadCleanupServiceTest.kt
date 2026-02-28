@@ -46,7 +46,7 @@ class StagedUploadCleanupServiceTest {
         service.cleanupExpiredUploads()
 
         // then
-        verify(exactly = 1) { fileStoragePort.deleteFile(expiredId.toString()) }
+        verify(exactly = 1) { fileStoragePort.deleteFile("staged/$expiredId") }
         verify(exactly = 1) { fileStoragePort.deleteFile(coverKey) }
         verify(exactly = 1) { repository.delete(StagedEbookUploadId(expiredId)) }
     }
@@ -58,16 +58,16 @@ class StagedUploadCleanupServiceTest {
         val upload2 = createExpiredUpload(UUID.randomUUID())
 
         every { repository.findByExpiryAtBefore(any()) } returns listOf(upload1, upload2)
-        every { fileStoragePort.deleteFile(upload1.id.toString()) } throws RuntimeException("Storage error")
-        every { fileStoragePort.deleteFile(upload2.id.toString()) } returns Unit
+        every { fileStoragePort.deleteFile("staged/${upload1.id}") } throws RuntimeException("Storage error")
+        every { fileStoragePort.deleteFile("staged/${upload2.id}") } returns Unit
         every { repository.delete(any()) } returns Unit
 
         // when
         service.cleanupExpiredUploads()
 
         // then
-        verify(exactly = 1) { fileStoragePort.deleteFile(upload1.id.toString()) }
-        verify(exactly = 1) { fileStoragePort.deleteFile(upload2.id.toString()) }
+        verify(exactly = 1) { fileStoragePort.deleteFile("staged/${upload1.id}") }
+        verify(exactly = 1) { fileStoragePort.deleteFile("staged/${upload2.id}") }
         verify(exactly = 1) { repository.delete(upload2.id) }
     }
 
