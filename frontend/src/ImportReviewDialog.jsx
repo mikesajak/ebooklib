@@ -8,6 +8,7 @@ const ImportReviewDialog = ({
   stagedUpload,
   existingBook: initialExistingBook,
   draftBook,
+  dirtyFields,
   authorOptions,
   seriesOptions,
   onCancel,
@@ -163,6 +164,7 @@ const ImportReviewDialog = ({
               stagedUpload={stagedUpload}
               existingBook={activeMatch}
               draftBook={draftBook}
+              dirtyFields={dirtyFields}
               authorOptions={authorOptions}
               seriesOptions={seriesOptions}
               onMergedDataChange={setMergedData}

@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { FaCloudUploadAlt, FaFileImport } from 'react-icons/fa';
+import { FaCloudUploadAlt, FaFileImport, FaCheckDouble, FaUserTag, FaImage, FaSearch } from 'react-icons/fa';
 import useMutation from './hooks/useMutation';
 import AddPage from './AddPage';
 import Form from './Form';
@@ -55,6 +55,15 @@ const AddBook = () => {
   const [series, setSeries] = useState([]);
   const [loading, setLoading] = useState(true);
   const [labelsString, setLabelsString] = useState('');
+  const [dirtyFields, setDirtyFields] = useState(new Set());
+
+  const markDirty = (fieldName) => {
+    setDirtyFields(prev => {
+      const next = new Set(prev);
+      next.add(fieldName);
+      return next;
+    });
+  };
 
   // Import related state
   const [isUploading, setIsUploading] = useState(false);
@@ -210,6 +219,7 @@ const AddBook = () => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
+    markDirty(name);
     if (name === 'labels') {
       setLabelsString(value);
       const labelsArray = value.split(',').map(label => label.trim()).filter(label => label !== '');
@@ -220,6 +230,7 @@ const AddBook = () => {
   };
 
   const handleAuthorChange = (index, selectedAuthorId) => {
+    markDirty('authors');
     const selectedAuthor = authors.find(author => author.id === selectedAuthorId);
     setBook(prev => {
       const newAuthors = [...prev.authors];
@@ -229,6 +240,7 @@ const AddBook = () => {
   };
 
   const handleAddAuthorField = () => {
+    markDirty('authors');
     setBook(prev => ({
       ...prev,
       authors: [...prev.authors, { id: '', firstName: '', lastName: '' }]
@@ -236,6 +248,7 @@ const AddBook = () => {
   };
 
   const handleRemoveAuthorField = (index) => {
+    markDirty('authors');
     setBook(prev => {
       const newAuthors = [...prev.authors];
       newAuthors.splice(index, 1);
@@ -244,6 +257,7 @@ const AddBook = () => {
   };
 
   const handleSeriesChange = (selectedSeriesId) => {
+    markDirty('series');
     const selectedSeries = series.find(s => s.id === selectedSeriesId);
     setBook(prev => ({
       ...prev,
@@ -331,6 +345,37 @@ const AddBook = () => {
               <p className="text-gray-500">{t('import.dropZoneSubtitle')}</p>
             </div>
           </form>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-6">
+            <div className="bg-white p-3 rounded-lg border border-blue-100 flex items-start gap-3">
+              <FaCheckDouble className="text-blue-500 mt-1" />
+              <div>
+                <h4 className="text-xs font-bold text-gray-700 uppercase">Metadata</h4>
+                <p className="text-[11px] text-gray-500">Auto-extract title, series, publisher and more.</p>
+              </div>
+            </div>
+            <div className="bg-white p-3 rounded-lg border border-blue-100 flex items-start gap-3">
+              <FaUserTag className="text-blue-500 mt-1" />
+              <div>
+                <h4 className="text-xs font-bold text-gray-700 uppercase">Authors</h4>
+                <p className="text-[11px] text-gray-500">Automatically link to existing authors.</p>
+              </div>
+            </div>
+            <div className="bg-white p-3 rounded-lg border border-blue-100 flex items-start gap-3">
+              <FaImage className="text-blue-500 mt-1" />
+              <div>
+                <h4 className="text-xs font-bold text-gray-700 uppercase">Covers</h4>
+                <p className="text-[11px] text-gray-500">Parse embedded cover images from the file.</p>
+              </div>
+            </div>
+            <div className="bg-white p-3 rounded-lg border border-blue-100 flex items-start gap-3">
+              <FaSearch className="text-blue-500 mt-1" />
+              <div>
+                <h4 className="text-xs font-bold text-gray-700 uppercase">Matching</h4>
+                <p className="text-[11px] text-gray-500">Intelligently match with existing library entries.</p>
+              </div>
+            </div>
+          </div>
         </div>
       )}
 
@@ -418,6 +463,7 @@ const AddBook = () => {
         <ImportReviewDialog
           stagedUpload={stagedUpload}
           draftBook={book}
+          dirtyFields={dirtyFields}
           authorOptions={authorOptions}
           seriesOptions={seriesOptions}
           onCancel={() => setStagedUpload(null)}

@@ -7,18 +7,19 @@ const MergeMetadataView = ({
   stagedUpload,
   existingBook,
   draftBook,
+  dirtyFields,
   authorOptions,
   seriesOptions,
   onMergedDataChange
 }) => {
   const { t } = useTranslation();
   const extracted = stagedUpload.metadata || {};
-  const validation = stagedUpload.validation || {}; // Use validation from stagedUpload root
+  const validation = stagedUpload.validation || {};
 
   const resolveInitialAuthors = () => {
-    // Priority for manual entry if it exists and has authors
     const draftAuthors = draftBook?.authors || [];
-    if (draftAuthors.length > 0 && draftAuthors.some(a => a.id || a.lastName)) {
+    // Only use draft authors if the user explicitly touched the authors field
+    if (dirtyFields?.has('authors') && draftAuthors.some(a => a.id || a.lastName)) {
       return {
         authorIds: draftAuthors.filter(a => !!a.id).map(a => a.id),
         authorNames: draftAuthors.filter(a => !a.id && (a.firstName || a.lastName)).map(a => `${a.firstName} ${a.lastName}`.trim())
@@ -32,7 +33,6 @@ const MergeMetadataView = ({
       };
     }
     
-    // Fallback to extracted names
     const extractedNames = extracted.authors || [];
     const ids = [];
     const names = [];
@@ -49,24 +49,23 @@ const MergeMetadataView = ({
 
   const initialAuthors = resolveInitialAuthors();
 
-  // Helper to determine initial source for a field
   const getInitialSource = (field) => {
-    if (draftBook && draftBook[field] && draftBook[field].toString().trim() !== '') return 'draft';
+    if (dirtyFields?.has(field)) return 'draft';
     if (extracted && extracted[field] && extracted[field].toString().trim() !== '') return 'extracted';
     if (existingBook && existingBook[field]) return 'existing';
     return 'extracted';
   };
 
   const [mergedData, setMergedData] = useState({
-    title: draftBook?.title || extracted.title || (existingBook ? existingBook.title : ''),
+    title: (dirtyFields?.has('title') ? draftBook?.title : (extracted.title || existingBook?.title || '')),
     authorIds: initialAuthors.authorIds,
     authorNames: initialAuthors.authorNames,
-    publisher: draftBook?.publisher || extracted.publisher || (existingBook ? existingBook.publisher : ''),
-    publicationDate: draftBook?.publicationDate || extracted.publicationDate || (existingBook ? (existingBook.publicationDate ? existingBook.publicationDate.split('T')[0] : '') : ''),
-    description: draftBook?.description || extracted.description || (existingBook ? existingBook.description : ''),
-    seriesId: draftBook?.series?.id || (existingBook ? existingBook.series?.id : null),
-    volume: draftBook?.volume || (existingBook ? existingBook.volume : null),
-    labels: (draftBook?.labels?.length > 0 ? draftBook.labels : (existingBook ? existingBook.labels : [])),
+    publisher: (dirtyFields?.has('publisher') ? draftBook?.publisher : (extracted.publisher || existingBook?.publisher || '')),
+    publicationDate: (dirtyFields?.has('publicationDate') ? draftBook?.publicationDate : (extracted.publicationDate || (existingBook?.publicationDate ? existingBook.publicationDate.split('T')[0] : ''))),
+    description: (dirtyFields?.has('description') ? draftBook?.description : (extracted.description || existingBook?.description || '')),
+    seriesId: (dirtyFields?.has('series') ? draftBook?.series?.id : (existingBook?.series?.id || null)),
+    volume: (dirtyFields?.has('volume') ? draftBook?.volume : (existingBook?.volume || null)),
+    labels: (dirtyFields?.has('labels') ? draftBook?.labels : (existingBook?.labels || [])),
     updateCover: false
   });
 
@@ -153,19 +152,32 @@ const MergeMetadataView = ({
     setMergedData(prev => ({ ...prev, updateCover: newValue }));
   };
 
-  const SourceButton = ({ source, label, value, field, icon: Icon, colorClass }) => {
-    if (!value && source !== 'existing') return null;
-    const isSelected = selectedSources[field] === source;
+  const MultiSourceButton = ({ sources, value, field, isSelected }) => {
+    const sourceConfigs = {
+      existing: { label: 'Library', icon: FaDatabase, colorClass: 'ring-blue-500 bg-blue-100' },
+      draft: { label: 'Form', icon: FaPencilAlt, colorClass: 'ring-yellow-500 bg-yellow-100' },
+      extracted: { label: 'File', icon: FaFileAlt, colorClass: 'ring-green-500 bg-green-100' }
+    };
+
+    const firstSource = sources[0];
+    const ringClass = isSelected ? sourceConfigs[firstSource].colorClass : 'bg-white border-gray-200 hover:border-gray-300';
 
     return (
       <div 
         className={`flex-1 p-2 rounded border cursor-pointer transition-all flex flex-col gap-1
-          ${isSelected ? `ring-2 ring-offset-1 ${colorClass} border-transparent shadow-sm` : 'bg-white border-gray-200 hover:border-gray-300'}`}
-        onClick={() => toggleField(field, source)}
+          ${isSelected ? `ring-2 ring-offset-1 ${ringClass} border-transparent shadow-sm` : 'bg-white border-gray-200 hover:border-gray-300'}`}
+        onClick={() => toggleField(field, firstSource)}
       >
-        <div className={`flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider ${isSelected ? 'text-gray-900' : 'text-gray-400'}`}>
-          <Icon className={isSelected ? '' : 'opacity-50'} />
-          {label}
+        <div className="flex flex-wrap items-center gap-2">
+          {sources.map(src => {
+            const Config = sourceConfigs[src];
+            return (
+              <div key={src} className={`flex items-center gap-1 text-[9px] font-bold uppercase tracking-wider ${isSelected ? 'text-gray-900' : 'text-gray-400'}`}>
+                <Config.icon className={isSelected ? '' : 'opacity-50'} />
+                {Config.label}
+              </div>
+            );
+          })}
         </div>
         <div className={`text-sm break-words ${!value ? 'italic text-gray-400' : 'text-gray-700'}`}>
           {value || t('common.na')}
@@ -175,34 +187,41 @@ const MergeMetadataView = ({
   };
 
   const FieldComparison = ({ label, field, existingValue, extractedValue, draftValue }) => {
+    // Determine which sources to show
+    const sourceValues = [];
+    if (existingValue || !extractedValue) sourceValues.push({ id: 'existing', value: existingValue || '' });
+    
+    // Only show draft if user actually typed it OR it's different from extracted
+    const isDraftRelevant = dirtyFields?.has(field) || (draftValue && draftValue !== extractedValue);
+    if (draftValue && isDraftRelevant) sourceValues.push({ id: 'draft', value: draftValue });
+    
+    if (extractedValue) sourceValues.push({ id: 'extracted', value: extractedValue });
+
+    // Group identical values
+    const groups = [];
+    sourceValues.forEach(sv => {
+      const normalizedValue = sv.value.toString().toLowerCase().trim();
+      const existingGroup = groups.find(g => g.value.toString().toLowerCase().trim() === normalizedValue);
+      if (existingGroup) {
+        existingGroup.sources.push(sv.id);
+      } else {
+        groups.push({ value: sv.value, sources: [sv.id] });
+      }
+    });
+
     return (
       <div className="mb-6 last:mb-2">
         <label className="block text-sm font-bold text-gray-700 mb-2">{label}</label>
         <div className="flex flex-col sm:flex-row gap-3">
-          <SourceButton 
-            source="existing" 
-            label="Library" 
-            value={existingValue} 
-            field={field} 
-            icon={FaDatabase} 
-            colorClass="bg-blue-100 ring-blue-500" 
-          />
-          <SourceButton 
-            source="draft" 
-            label="Form (Manual)" 
-            value={draftValue} 
-            field={field} 
-            icon={FaPencilAlt} 
-            colorClass="bg-yellow-100 ring-yellow-500" 
-          />
-          <SourceButton 
-            source="extracted" 
-            label="Ebook File" 
-            value={extractedValue} 
-            field={field} 
-            icon={FaFileAlt} 
-            colorClass="bg-green-100 ring-green-500" 
-          />
+          {groups.map((group, idx) => (
+            <MultiSourceButton 
+              key={idx}
+              sources={group.sources}
+              value={group.value}
+              field={field}
+              isSelected={group.sources.includes(selectedSources[field])}
+            />
+          ))}
         </div>
       </div>
     );
@@ -322,38 +341,16 @@ const MergeMetadataView = ({
         field="publicationDate" 
         existingValue={existingBook?.publicationDate} 
         extractedValue={extracted.publicationDate} 
-        draftValue={draftBook?.publicationDate}
+        draftValue={draftBook?.publicationDate} 
       />
 
-      <div className="mb-6">
-        <label className="block text-sm font-bold text-gray-700 mb-2">{t('import.review.description')}</label>
-        <div className="flex flex-col gap-3">
-          <SourceButton 
-            source="existing" 
-            label="Library" 
-            value={existingBook?.description} 
-            field="description" 
-            icon={FaDatabase} 
-            colorClass="bg-blue-100 ring-blue-500" 
-          />
-          <SourceButton 
-            source="draft" 
-            label="Form (Manual)" 
-            value={draftBook?.description} 
-            field="description" 
-            icon={FaPencilAlt} 
-            colorClass="bg-yellow-100 ring-yellow-500" 
-          />
-          <SourceButton 
-            source="extracted" 
-            label="Ebook File" 
-            value={extracted.description} 
-            field="description" 
-            icon={FaFileAlt} 
-            colorClass="bg-green-100 ring-green-500" 
-          />
-        </div>
-      </div>
+      <FieldComparison 
+        label={t('addBook.form.description')} 
+        field="description" 
+        existingValue={existingBook?.description} 
+        extractedValue={extracted.description} 
+        draftValue={draftBook?.description} 
+      />
 
       {extracted.coverStorageKey && (
         <div className="mb-4">
