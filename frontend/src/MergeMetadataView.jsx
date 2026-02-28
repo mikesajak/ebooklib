@@ -187,26 +187,43 @@ const MergeMetadataView = ({
   };
 
   const FieldComparison = ({ label, field, existingValue, extractedValue, draftValue }) => {
-    // Determine which sources to show
+    // Determine which sources to show - ORDER MATTERS HERE for stable layout
     const sourceValues = [];
-    if (existingValue || !extractedValue) sourceValues.push({ id: 'existing', value: existingValue || '' });
     
-    // Only show draft if user actually typed it OR it's different from extracted
+    // 1. Library (Existing)
+    if (existingValue || !extractedValue) {
+      sourceValues.push({ id: 'existing', value: existingValue || '' });
+    }
+    
+    // 2. Form (Draft)
     const isDraftRelevant = dirtyFields?.has(field) || (draftValue && draftValue !== extractedValue);
-    if (draftValue && isDraftRelevant) sourceValues.push({ id: 'draft', value: draftValue });
+    if (draftValue && isDraftRelevant) {
+      sourceValues.push({ id: 'draft', value: draftValue });
+    }
     
-    if (extractedValue) sourceValues.push({ id: 'extracted', value: extractedValue });
+    // 3. File (Extracted)
+    if (extractedValue) {
+      sourceValues.push({ id: 'extracted', value: extractedValue });
+    }
 
-    // Group identical values
+    // Group identical values while preserving the order of the first occurrence
     const groups = [];
     sourceValues.forEach(sv => {
-      const normalizedValue = sv.value.toString().toLowerCase().trim();
-      const existingGroup = groups.find(g => g.value.toString().toLowerCase().trim() === normalizedValue);
+      const existingGroup = groups.find(g => g.value === sv.value);
       if (existingGroup) {
         existingGroup.sources.push(sv.id);
       } else {
         groups.push({ value: sv.value, sources: [sv.id] });
       }
+    });
+
+    // Ensure the groups themselves are sorted based on the "highest priority" source in them
+    // Priority: draft > existing > extracted (Manual data is always the primary reference on the left)
+    const sourcePriority = { draft: 0, existing: 1, extracted: 2 };
+    groups.sort((a, b) => {
+      const aMin = Math.min(...a.sources.map(s => sourcePriority[s]));
+      const bMin = Math.min(...b.sources.map(s => sourcePriority[s]));
+      return aMin - bMin;
     });
 
     return (

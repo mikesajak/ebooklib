@@ -158,11 +158,11 @@ const AddBook = () => {
 
         setBook(prev => ({
           ...prev,
-          title: data.metadata.title || prev.title,
-          authors: resolvedAuthors.length > 0 ? resolvedAuthors : prev.authors,
-          publisher: data.metadata.publisher || prev.publisher,
-          publicationDate: data.metadata.publicationDate ? data.metadata.publicationDate.split('T')[0] : prev.publicationDate,
-          description: data.metadata.description || prev.description,
+          title: (!dirtyFields.has('title') && data.metadata.title) ? data.metadata.title : prev.title,
+          authors: (resolvedAuthors.length > 0 && !dirtyFields.has('authors')) ? resolvedAuthors : prev.authors,
+          publisher: (!dirtyFields.has('publisher') && data.metadata.publisher) ? data.metadata.publisher : prev.publisher,
+          publicationDate: (!dirtyFields.has('publicationDate') && data.metadata.publicationDate) ? data.metadata.publicationDate.split('T')[0] : prev.publicationDate,
+          description: (!dirtyFields.has('description') && data.metadata.description) ? data.metadata.description : prev.description,
         }));
       }
     } catch (err) {
