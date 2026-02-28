@@ -1,14 +1,23 @@
 package com.mikesajak.ebooklib.importing.infrastructure.adapters.incoming.rest
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.mikesajak.ebooklib.author.infrastructure.adapters.incoming.rest.AuthorRestMapper
+import com.mikesajak.ebooklib.book.domain.model.Book
+import com.mikesajak.ebooklib.book.infrastructure.adapters.incoming.rest.BookRestMapper
+import com.mikesajak.ebooklib.book.infrastructure.adapters.incoming.rest.BookView
+import com.mikesajak.ebooklib.book.infrastructure.adapters.incoming.rest.dto.BookResponseDto
+import com.mikesajak.ebooklib.importing.application.ports.incoming.FinalizeImportUseCase
 import com.mikesajak.ebooklib.importing.application.ports.incoming.GetStagedCoverUseCase
 import com.mikesajak.ebooklib.importing.application.ports.incoming.StagedCover
 import com.mikesajak.ebooklib.importing.application.ports.incoming.UploadToStagingUseCase
 import com.mikesajak.ebooklib.importing.domain.model.StagedEbookUpload
 import com.mikesajak.ebooklib.importing.domain.model.StagedEbookUploadId
 import com.mikesajak.ebooklib.importing.domain.model.StagedEbookUploadStatus
+import com.mikesajak.ebooklib.importing.infrastructure.adapters.incoming.rest.dto.FinalizeImportRequestDto
 import com.mikesajak.ebooklib.infrastructure.exception.GlobalExceptionHandler
 import com.mikesajak.ebooklib.infrastructure.security.SecurityConfig
+import com.mikesajak.ebooklib.series.infrastructure.adapters.incoming.rest.SeriesRestMapper
+import io.mockk.mockk
 import org.junit.jupiter.api.Test
 import org.mockito.kotlin.any
 import org.mockito.kotlin.anyOrNull
@@ -16,19 +25,28 @@ import org.mockito.kotlin.whenever
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
 import org.springframework.context.annotation.Import
+import org.springframework.http.MediaType
 import org.springframework.mock.web.MockMultipartFile
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.context.bean.override.mockito.MockitoBean
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.*
 import java.io.ByteArrayInputStream
 import java.time.Instant
 import java.util.*
 
 @WebMvcTest(ImportController::class)
-@Import(GlobalExceptionHandler::class, SecurityConfig::class, ImportRestMapper::class)
+@Import(
+    GlobalExceptionHandler::class,
+    SecurityConfig::class,
+    ImportRestMapper::class,
+    BookRestMapper::class,
+    AuthorRestMapper::class,
+    SeriesRestMapper::class
+)
 @ActiveProfiles("test")
 @org.springframework.test.context.TestPropertySource(properties = ["app.security.enabled=false"])
 class ImportControllerComponentTest {
@@ -44,6 +62,12 @@ class ImportControllerComponentTest {
 
     @MockitoBean
     private lateinit var getStagedCoverUseCase: GetStagedCoverUseCase
+
+    @MockitoBean
+    private lateinit var finalizeImportUseCase: FinalizeImportUseCase
+
+    @MockitoBean
+    private lateinit var bookRestMapper: BookRestMapper
 
     @Test
     fun `should upload ebook to staging`() {
@@ -131,5 +155,42 @@ class ImportControllerComponentTest {
         // When & Then
         mockMvc.perform(get("/api/import/staged/$uploadId/cover"))
             .andExpect(status().isNotFound)
+    }
+
+    @Test
+    fun `should finalize import`() {
+        // Given
+        val uploadId = UUID.randomUUID()
+        val bookId = UUID.randomUUID()
+        val request = FinalizeImportRequestDto(
+            uploadId = uploadId,
+            title = "Finalized Book",
+            authorIds = listOf(UUID.randomUUID())
+        )
+
+        val finalizedBook = mockk<Book>()
+        val responseDto = BookResponseDto(
+            id = bookId,
+            title = "Finalized Book",
+            authors = emptyList(),
+            series = null,
+            volume = null,
+            creationDate = null,
+            publicationDate = null,
+            publisher = null,
+            description = null,
+            labels = emptyList()
+        )
+
+        whenever(finalizeImportUseCase.finalize(any())).thenReturn(finalizedBook)
+        whenever(bookRestMapper.toResponse(finalizedBook, BookView.FULL)).thenReturn(responseDto)
+
+        // When & Then
+        mockMvc.perform(post("/api/import/finalize")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(objectMapper.writeValueAsString(request)))
+            .andExpect(status().isOk)
+            .andExpect(jsonPath("$.id").value(bookId.toString()))
+            .andExpect(jsonPath("$.title").value("Finalized Book"))
     }
 }

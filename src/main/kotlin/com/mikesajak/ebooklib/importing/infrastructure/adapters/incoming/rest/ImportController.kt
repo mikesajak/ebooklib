@@ -1,8 +1,13 @@
 package com.mikesajak.ebooklib.importing.infrastructure.adapters.incoming.rest
 
+import com.mikesajak.ebooklib.book.infrastructure.adapters.incoming.rest.BookRestMapper
+import com.mikesajak.ebooklib.book.infrastructure.adapters.incoming.rest.BookView
+import com.mikesajak.ebooklib.book.infrastructure.adapters.incoming.rest.dto.BookResponseDto
+import com.mikesajak.ebooklib.importing.application.ports.incoming.FinalizeImportUseCase
 import com.mikesajak.ebooklib.importing.application.ports.incoming.GetStagedCoverUseCase
 import com.mikesajak.ebooklib.importing.application.ports.incoming.UploadToStagingUseCase
 import com.mikesajak.ebooklib.importing.domain.model.StagedEbookUploadId
+import com.mikesajak.ebooklib.importing.infrastructure.adapters.incoming.rest.dto.FinalizeImportRequestDto
 import com.mikesajak.ebooklib.importing.infrastructure.adapters.incoming.rest.dto.StagedUploadResponseDto
 import mu.KotlinLogging
 import org.springframework.core.io.InputStreamResource
@@ -20,7 +25,9 @@ private val logger = KotlinLogging.logger {}
 class ImportController(
     private val uploadToStagingUseCase: UploadToStagingUseCase,
     private val getStagedCoverUseCase: GetStagedCoverUseCase,
-    private val importRestMapper: ImportRestMapper
+    private val finalizeImportUseCase: FinalizeImportUseCase,
+    private val importRestMapper: ImportRestMapper,
+    private val bookRestMapper: BookRestMapper
 ) {
 
     @PostMapping("/upload")
@@ -51,5 +58,15 @@ class ImportController(
             .contentType(MediaType.parseMediaType(stagedCover.contentType))
             .header(HttpHeaders.CACHE_CONTROL, "max-age=3600")
             .body(InputStreamResource(stagedCover.inputStream))
+    }
+
+    @PostMapping("/finalize")
+    fun finalizeImport(@RequestBody request: FinalizeImportRequestDto): BookResponseDto {
+        logger.info { "Finalizing import for uploadId: ${request.uploadId}" }
+
+        val command = importRestMapper.toCommand(request)
+        val finalizedBook = finalizeImportUseCase.finalize(command)
+
+        return bookRestMapper.toResponse(finalizedBook, BookView.FULL)
     }
 }
