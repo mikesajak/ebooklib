@@ -13,6 +13,12 @@ interface AddEbookFormatUseCase {
         contentType: String,
         formatType: String
     ): EbookFormatFile
+
+    fun addFormatFromStorage(
+        bookId: BookId,
+        storageKey: String,
+        formatType: String
+    ): EbookFormatFile
 }
 
 interface ListEbookFormatsUseCase {

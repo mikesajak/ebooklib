@@ -14,4 +14,5 @@ interface FileStoragePort {
     fun downloadFile(fileId: String): InputStream
     fun deleteFile(fileId: String)
     fun getFileMetadata(fileId: String): FileMetadata?
+    fun moveFile(fileId: String, newFolder: String? = null): FileMetadata
 }

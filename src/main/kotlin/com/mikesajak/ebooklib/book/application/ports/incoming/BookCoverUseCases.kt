@@ -7,6 +7,7 @@ import java.io.InputStream
 
 interface UploadBookCoverUseCase {
     fun uploadCover(bookId: BookId, fileContent: InputStream, originalFileName: String, contentType: String): BookCoverMetadata
+    fun setCoverFromStorage(bookId: BookId, storageKey: String): BookCoverMetadata
 }
 
 interface GetBookCoverUseCase {

@@ -38,12 +38,7 @@ class BookCoverService(
         bookRepository.findById(bookId) ?: throw BookNotFoundException(bookId)
 
         // 2. Check for existing cover and delete if present
-        val existingCover = bookCoverRepository.findByBookId(bookId)
-        if (existingCover != null) {
-            logger.info { "Deleting existing cover for book ${bookId.value} with storage key ${existingCover.storageKey}" }
-            fileStoragePort.deleteFile(existingCover.storageKey)
-            bookCoverRepository.delete(existingCover)
-        }
+        deleteExistingCoverIfExists(bookId)
 
         // 3. Upload new file to storage
         val fileMetadata = fileStoragePort.uploadFile(fileContent, originalFileName, contentType)
@@ -62,6 +57,45 @@ class BookCoverService(
         logger.info { "Saved new cover metadata for book ${bookId.value}" }
 
         return newBookCover
+    }
+
+    override fun setCoverFromStorage(bookId: BookId, storageKey: String): BookCoverMetadata {
+        // 1. Verify book existence
+        bookRepository.findById(bookId) ?: throw BookNotFoundException(bookId)
+
+        // 2. Check for existing cover and delete if present
+        deleteExistingCoverIfExists(bookId)
+
+        // 3. Get file metadata
+        val fileMetadata = fileStoragePort.getFileMetadata(storageKey)
+            ?: throw IllegalArgumentException("File not found in storage: $storageKey")
+
+        // 4. Save new cover metadata to DB
+        val newBookCover = BookCoverMetadata(
+            id = UUID.randomUUID(),
+            bookId = bookId,
+            storageKey = storageKey,
+            fileName = fileMetadata.fileName,
+            contentType = fileMetadata.contentType,
+            fileSize = fileMetadata.size
+        )
+        bookCoverRepository.save(newBookCover)
+        logger.info { "Saved new cover metadata (from storage) for book ${bookId.value}" }
+
+        return newBookCover
+    }
+
+    private fun deleteExistingCoverIfExists(bookId: BookId) {
+        val existingCover = bookCoverRepository.findByBookId(bookId)
+        if (existingCover != null) {
+            logger.info { "Deleting existing cover for book ${bookId.value} with storage key ${existingCover.storageKey}" }
+            try {
+                fileStoragePort.deleteFile(existingCover.storageKey)
+            } catch (e: Exception) {
+                logger.warn(e) { "Failed to delete existing cover file ${existingCover.storageKey}" }
+            }
+            bookCoverRepository.delete(existingCover)
+        }
     }
 
     override fun getCover(bookId: BookId): BookCover {

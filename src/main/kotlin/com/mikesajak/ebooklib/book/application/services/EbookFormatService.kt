@@ -57,6 +57,30 @@ class EbookFormatService(
         return savedEbookFormatFile
     }
 
+    override fun addFormatFromStorage(bookId: BookId, storageKey: String, formatType: String): EbookFormatFile {
+        // 1. Verify book existence
+        bookRepository.findById(bookId) ?: throw BookNotFoundException(bookId)
+
+        // 2. Get file metadata
+        val fileMetadata = fileStoragePort.getFileMetadata(storageKey)
+            ?: throw IllegalArgumentException("File not found in storage: $storageKey")
+
+        // 3. Save new format file metadata to DB
+        val newEbookFormatFile = EbookFormatFile(
+            id = UUID.randomUUID(),
+            bookId = bookId,
+            storageKey = storageKey,
+            fileName = fileMetadata.fileName,
+            contentType = fileMetadata.contentType,
+            fileSize = fileMetadata.size,
+            formatType = formatType
+        )
+        val savedEbookFormatFile = ebookFormatFileRepository.save(newEbookFormatFile)
+        logger.info { "Saved new ebook format file metadata (from storage) for book ${bookId.value}" }
+
+        return savedEbookFormatFile
+    }
+
     override fun listFormatFiles(bookId: BookId): List<EbookFormatFile> {
         // 1. Verify book existence
         bookRepository.findById(bookId) ?: throw BookNotFoundException(bookId)

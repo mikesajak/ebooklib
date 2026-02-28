@@ -72,7 +72,8 @@ class S3FileStorageAdapter(
             // Note: originalFileName is not stored in S3 metadata by default,
             // so we might need to store it in our DB or pass it around.
             // For now, using fileId as a placeholder for fileName if not available.
-            FileMetadata(fileId, fileId, headResponse.contentType(), headResponse.contentLength())
+            val fileName = fileId.substringAfterLast('/')
+            FileMetadata(fileId, fileName, headResponse.contentType(), headResponse.contentLength())
         } catch (e: NoSuchKeyException) {
             logger.warn { "File metadata not found for key: $fileId" }
             null
@@ -80,5 +81,25 @@ class S3FileStorageAdapter(
             logger.error(e) { "Error getting file metadata for key: $fileId" }
             null
         }
+    }
+
+    override fun moveFile(fileId: String, newFolder: String?): FileMetadata {
+        val fileName = fileId.substringAfterLast('/')
+        val newStorageKey = if (newFolder != null) "$newFolder/$fileName" else fileName
+
+        logger.info { "Moving file in S3 from $fileId to $newStorageKey" }
+
+        val copyObjectRequest = CopyObjectRequest.builder()
+            .sourceBucket(bucketName)
+            .sourceKey(fileId)
+            .destinationBucket(bucketName)
+            .destinationKey(newStorageKey)
+            .build()
+
+        s3Client.copyObject(copyObjectRequest)
+        s3Client.deleteObject(DeleteObjectRequest.builder().bucket(bucketName).key(fileId).build())
+
+        val headResponse = s3Client.headObject(HeadObjectRequest.builder().bucket(bucketName).key(newStorageKey).build())
+        return FileMetadata(newStorageKey, fileName, headResponse.contentType(), headResponse.contentLength())
     }
 }
