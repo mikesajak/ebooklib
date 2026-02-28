@@ -48,6 +48,10 @@ class BookRepositoryAdapter(
         bookJpaRepository.findBooksBySeriesId(seriesId.value, pagination.toSpringPageable())
                 .toDomainPage { bookEntity -> mapper.toDomain(bookEntity) }
 
+    override fun findByTitleContaining(title: String, pagination: PaginationRequest): PaginatedResult<Book> =
+        bookJpaRepository.findByTitleContainingIgnoreCase(title, pagination.toSpringPageable())
+                .toDomainPage { bookEntity -> mapper.toDomain(bookEntity) }
+
     override fun delete(bookId: BookId) {
         bookJpaRepository.deleteById(bookId.value)
     }

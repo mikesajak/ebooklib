@@ -4,20 +4,57 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.mikesajak.ebooklib.author.domain.model.AuthorId
 import com.mikesajak.ebooklib.book.domain.model.BookId
 import com.mikesajak.ebooklib.importing.application.ports.incoming.FinalizeImportCommand
-import com.mikesajak.ebooklib.importing.domain.model.StagedEbookUpload
-import com.mikesajak.ebooklib.importing.domain.model.StagedEbookUploadId
+import com.mikesajak.ebooklib.importing.domain.model.*
 import com.mikesajak.ebooklib.importing.infrastructure.adapters.incoming.rest.dto.FinalizeImportRequestDto
+import com.mikesajak.ebooklib.importing.infrastructure.adapters.incoming.rest.dto.MatchCandidateDto
 import com.mikesajak.ebooklib.importing.infrastructure.adapters.incoming.rest.dto.StagedUploadResponseDto
+import com.mikesajak.ebooklib.importing.infrastructure.adapters.incoming.rest.dto.StagedUploadValidationDto
 import com.mikesajak.ebooklib.series.domain.model.SeriesId
 import org.springframework.stereotype.Component
+import java.util.*
 
 @Component
 class ImportRestMapper(private val objectMapper: ObjectMapper) {
     fun toResponse(domain: StagedEbookUpload): StagedUploadResponseDto {
-        val metadataMap = domain.metadataJson?.let {
-            @Suppress("UNCHECKED_CAST")
-            objectMapper.readValue(it, Map::class.java) as Map<String, Any?>
-        } ?: emptyMap()
+        val metadataMap = try {
+            domain.metadataJson?.let {
+                @Suppress("UNCHECKED_CAST")
+                objectMapper.readValue(it, Map::class.java) as Map<String, Any?>
+            } ?: emptyMap()
+        } catch (e: Exception) {
+            emptyMap()
+        }
+
+        // Extract validation from metadataMap if present (stored as JSON in domain)
+        val validation = metadataMap["validation"]?.let { valObj ->
+            try {
+                @Suppress("UNCHECKED_CAST")
+                val valMap = valObj as? Map<String, Any?>
+                @Suppress("UNCHECKED_CAST")
+                val candidatesList = (valMap?.get("candidates") as? List<Map<String, Any?>>) ?: emptyList()
+
+                StagedUploadValidationDto(
+                    candidates = candidatesList.mapNotNull { c ->
+                        try {
+                            val bookIdStr = c["bookId"]?.toString() ?: return@mapNotNull null
+                            @Suppress("UNCHECKED_CAST")
+                            MatchCandidateDto(
+                                bookId = UUID.fromString(bookIdStr),
+                                title = c["title"]?.toString() ?: "Unknown",
+                                authors = (c["authors"] as? List<String>) ?: emptyList(),
+                                titleMatch = (c["titleMatch"] as? Boolean) ?: false,
+                                authorMatch = (c["authorMatch"] as? Boolean) ?: false,
+                                score = (c["score"] as? Number)?.toInt() ?: 0
+                            )
+                        } catch (e: Exception) {
+                            null
+                        }
+                    }
+                )
+            } catch (e: Exception) {
+                null
+            }
+        }
 
         return StagedUploadResponseDto(
             id = domain.id.toString(),
@@ -25,6 +62,7 @@ class ImportRestMapper(private val objectMapper: ObjectMapper) {
             contentType = domain.contentType,
             fileSize = domain.fileSize,
             metadata = metadataMap,
+            validation = validation,
             status = domain.status,
             createdAt = domain.createdAt,
             expiryAt = domain.expiryAt

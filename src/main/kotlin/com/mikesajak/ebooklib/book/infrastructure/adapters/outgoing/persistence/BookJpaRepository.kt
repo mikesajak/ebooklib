@@ -23,5 +23,9 @@ interface BookJpaRepository
                             pageable: org.springframework.data.domain.Pageable
     ): org.springframework.data.domain.Page<BookEntity>
 
+    fun findByTitleContainingIgnoreCase(title: String,
+                                        pageable: org.springframework.data.domain.Pageable
+    ): org.springframework.data.domain.Page<BookEntity>
+
     override fun deleteById(id: UUID)
 }

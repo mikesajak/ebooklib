@@ -2,16 +2,14 @@ package com.mikesajak.ebooklib.importing.application.services
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.mikesajak.ebooklib.book.application.ports.incoming.GetBookUseCase
+import com.mikesajak.ebooklib.book.application.ports.outgoing.BookRepositoryPort
 import com.mikesajak.ebooklib.book.domain.model.BookId
+import com.mikesajak.ebooklib.common.domain.model.PaginationRequest
 import com.mikesajak.ebooklib.file.application.ports.outgoing.FileStoragePort
 import com.mikesajak.ebooklib.importing.application.ports.incoming.EbookMetadataExtractorUseCase
 import com.mikesajak.ebooklib.importing.application.ports.incoming.UploadToStagingUseCase
 import com.mikesajak.ebooklib.importing.application.ports.outgoing.StagedEbookUploadRepositoryPort
-import com.mikesajak.ebooklib.importing.domain.model.ExtractedEbookMetadata
-import com.mikesajak.ebooklib.importing.domain.model.StagedEbookUpload
-import com.mikesajak.ebooklib.importing.domain.model.StagedEbookUploadId
-import com.mikesajak.ebooklib.importing.domain.model.StagedEbookUploadStatus
-import com.mikesajak.ebooklib.importing.domain.model.StagedUploadValidation
+import com.mikesajak.ebooklib.importing.domain.model.*
 import jakarta.transaction.Transactional
 import mu.KotlinLogging
 import org.springframework.stereotype.Service
@@ -29,6 +27,7 @@ class UploadToStagingService(
     private val fileStoragePort: FileStoragePort,
     private val metadataExtractor: EbookMetadataExtractorUseCase,
     private val getBookUseCase: GetBookUseCase,
+    private val bookRepository: BookRepositoryPort,
     private val repository: StagedEbookUploadRepositoryPort,
     private val objectMapper: ObjectMapper
 ) : UploadToStagingUseCase {
@@ -36,13 +35,6 @@ class UploadToStagingService(
     override fun upload(fileContent: InputStream, fileName: String, contentType: String, currentBookId: UUID?): StagedEbookUpload {
         logger.info { "Uploading file to staging: $fileName ($contentType), currentBookId: $currentBookId" }
 
-        // We need to read the stream twice (once for storage, once for parsing) or buffer it.
-        // Given we might have large files, buffering in memory might be risky, 
-        // but Apache Tika and S3 upload both need the stream.
-        // Let's copy the stream to a temporary byte array if it's small, or use a temporary file if it's large.
-        // For now, let's assume reasonable sizes and use a byte array for simplicity, 
-        // but in a production app we'd use a temporary file.
-        
         val fileBytes = fileContent.readAllBytes()
         
         // 1. Extract metadata
@@ -81,16 +73,21 @@ class UploadToStagingService(
                 }
             }
 
-            // 4. Perform validation against current book if provided
-            currentBookId?.let { bookId ->
+            // 4. Perform matching
+            val validation = if (currentBookId != null) {
+                // Targeted matching
                 try {
-                    val targetBook = getBookUseCase.getBook(BookId(bookId))
-                    val validation = validate(extracted, targetBook)
-                    metadataMap["validation"] = validation
+                    val targetBook = getBookUseCase.getBook(BookId(currentBookId))
+                    StagedUploadValidation(candidates = listOf(createCandidate(extracted, targetBook)))
                 } catch (e: Exception) {
-                    logger.warn(e) { "Failed to validate against book $bookId" }
+                    logger.warn(e) { "Failed to validate against book $currentBookId" }
+                    StagedUploadValidation()
                 }
+            } else {
+                // Automated global matching
+                findPotentialMatches(extracted)
             }
+            metadataMap["validation"] = validation
         }
 
         val metadataJson = objectMapper.writeValueAsString(metadataMap)
@@ -110,20 +107,44 @@ class UploadToStagingService(
         return repository.save(stagedUpload)
     }
 
-    private fun validate(extracted: ExtractedEbookMetadata, targetBook: com.mikesajak.ebooklib.book.domain.model.Book): StagedUploadValidation {
-        val titleMatch = extracted.title?.let { normalize(it) == normalize(targetBook.title) } ?: false
+    private fun findPotentialMatches(extracted: ExtractedEbookMetadata): StagedUploadValidation {
+        val title = extracted.title ?: return StagedUploadValidation()
         
-        val extractedAuthorsNormalized = extracted.authors.map { normalize(it) }.sorted()
-        val targetAuthorsNormalized = targetBook.authors.map { normalize(it.fullName) }.sorted()
+        // Search by title (partial/fuzzy via repository)
+        val searchResult = bookRepository.findByTitleContaining(title, PaginationRequest(0, 10))
+        
+        val candidates = searchResult.content.map { book ->
+            createCandidate(extracted, book)
+        }.sortedByDescending { it.score }
+
+        return StagedUploadValidation(candidates = candidates)
+    }
+
+    private fun createCandidate(extracted: ExtractedEbookMetadata, book: com.mikesajak.ebooklib.book.domain.model.Book): MatchCandidate {
+        val titleMatch = extracted.title?.let { normalize(it) == normalize(book.title) } ?: false
+        
+        val extractedAuthorsNormalized = extracted.authors.map { normalize(it) }.toSet()
+        val targetAuthorsNormalized = book.authors.map { normalize(it.fullName) }.toSet()
         
         val authorMatch = extractedAuthorsNormalized.isNotEmpty() && targetAuthorsNormalized.isNotEmpty() &&
                 extractedAuthorsNormalized == targetAuthorsNormalized
 
-        return StagedUploadValidation(
+        // Scoring: 
+        // 100 for exact title + author
+        // 80 for exact title
+        // 50 for partial title (which is what we get from repo)
+        var score = 0
+        if (titleMatch) score += 80
+        if (authorMatch) score += 20
+        if (score == 0 && extracted.title != null) score = 50 
+
+        return MatchCandidate(
+            bookId = book.id!!.value,
+            title = book.title,
+            authors = book.authors.map { it.fullName },
             titleMatch = titleMatch,
             authorMatch = authorMatch,
-            targetBookTitle = targetBook.title,
-            targetBookAuthors = targetBook.authors.map { it.fullName }
+            score = score
         )
     }
 
