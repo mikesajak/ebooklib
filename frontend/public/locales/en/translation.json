@@ -3,6 +3,7 @@
   "header": {
     "title": "Ebook Library",
     "books": "Books",
+    "import": "Import Ebook",
     "authors": "Authors",
     "series": "Series"
   },
@@ -199,6 +200,19 @@
     }
   },
   "import": {
+    "title": "Import Ebook",
+    "description": "Upload an ebook file to automatically extract metadata and add it to your library. We support EPUB, PDF, and other common formats.",
+    "dropZoneTitle": "Drop your ebook here",
+    "dropZoneSubtitle": "or click to select a file from your computer",
+    "selectButton": "Select Ebook",
+    "uploading": "Uploading and analyzing...",
+    "uploadError": "Failed to upload and analyze the ebook file.",
+    "finalizeError": "Failed to finalize the import.",
+    "success": "Successfully imported \"{{title}}\" into the library!",
+    "featureMetadata": "Automatic metadata extraction",
+    "featureCovers": "Cover image detection",
+    "featureFormats": "Multi-format support",
+    "featureMatching": "Smart matching with existing books",
     "review": {
       "titleNew": "Import New Book",
       "titleUpdate": "Update Existing Book",

@@ -2,7 +2,7 @@ import React from 'react';
 import { Sidebar, Menu, MenuItem, useProSidebar } from 'react-pro-sidebar';
 import { Link, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { FaBook, FaUsers, FaLayerGroup, FaBars } from 'react-icons/fa';
+import { FaBook, FaUsers, FaLayerGroup, FaBars, FaFileImport } from 'react-icons/fa';
 
 const AppSidebar = () => {
   const { t } = useTranslation();
@@ -49,6 +49,13 @@ const AppSidebar = () => {
           style={getActiveStyle('/')}
         >
           {t('header.books')}
+        </MenuItem>
+        <MenuItem
+          component={<Link to="/import" />}
+          icon={<FaFileImport />}
+          style={getActiveStyle('/import')}
+        >
+          {t('header.import')}
         </MenuItem>
         <MenuItem
           component={<Link to="/authors" />} 

@@ -3,6 +3,7 @@
   "header": {
     "title": "Biblioteka Ebooków",
     "books": "Książki",
+    "import": "Importuj Ebook",
     "authors": "Autorzy",
     "series": "Serie"
   },
@@ -198,6 +199,19 @@
     }
   },
   "import": {
+    "title": "Importuj Ebook",
+    "description": "Prześlij plik ebooka, aby automatycznie wyodrębnić metadane i dodać go do swojej biblioteki. Obsługujemy formaty EPUB, PDF i inne popularne rozszerzenia.",
+    "dropZoneTitle": "Przeciągnij ebooka tutaj",
+    "dropZoneSubtitle": "lub kliknij, aby wybrać plik z komputera",
+    "selectButton": "Wybierz Ebooka",
+    "uploading": "Przesyłanie i analizowanie...",
+    "uploadError": "Nie udało się przesłać i przeanalizować pliku ebooka.",
+    "finalizeError": "Nie udało się sfinalizować importu.",
+    "success": "Pomyślnie zaimportowano \"{{title}}\" do biblioteki!",
+    "featureMetadata": "Automatyczne wyodrębnianie metadanych",
+    "featureCovers": "Wykrywanie okładek",
+    "featureFormats": "Obsługa wielu formatów",
+    "featureMatching": "Inteligentne dopasowanie do istniejących książek",
     "review": {
       "titleNew": "Importuj Nową Książkę",
       "titleUpdate": "Aktualizuj Istniejącą Książkę",
