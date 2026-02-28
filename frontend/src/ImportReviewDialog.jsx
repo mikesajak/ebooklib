@@ -5,6 +5,8 @@ import MergeMetadataView from './MergeMetadataView';
 const ImportReviewDialog = ({
   stagedUpload,
   existingBook,
+  authorOptions,
+  seriesOptions,
   onCancel,
   onConfirm,
   isProcessing
@@ -48,6 +50,8 @@ const ImportReviewDialog = ({
           <MergeMetadataView 
             stagedUpload={stagedUpload}
             existingBook={existingBook}
+            authorOptions={authorOptions}
+            seriesOptions={seriesOptions}
             onMergedDataChange={setMergedData}
           />
         </div>

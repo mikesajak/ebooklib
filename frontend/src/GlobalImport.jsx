@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { FaCloudUploadAlt, FaFileImport } from 'react-icons/fa';
@@ -15,6 +15,42 @@ const GlobalImport = () => {
   const [stagedUpload, setStagedUpload] = useState(null);
   const [notification, setNotification] = useState(null);
   const [dragActive, setDragActive] = useState(false);
+
+  const [authors, setAuthors] = useState([]);
+  const [series, setSeries] = useState([]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const [authorsResponse, seriesResponse] = await Promise.all([
+          fetchWithCsrf('/api/authors?size=1000&sort=firstName,asc&sort=lastName,asc'),
+          fetchWithCsrf('/api/series?size=1000&sort=title,asc')
+        ]);
+
+        if (authorsResponse.ok) {
+          const data = await authorsResponse.json();
+          setAuthors(data.content || []);
+        }
+        if (seriesResponse.ok) {
+          const data = await seriesResponse.json();
+          setSeries(data.content || []);
+        }
+      } catch (err) {
+        console.error("Failed to fetch reference data:", err);
+      }
+    };
+    fetchData();
+  }, []);
+
+  const authorOptions = useMemo(() => 
+    authors.map(a => ({ id: a.id, name: `${a.firstName} ${a.lastName}` })), 
+    [authors]
+  );
+
+  const seriesOptions = useMemo(() => 
+    series.map(s => ({ id: s.id, name: s.title })), 
+    [series]
+  );
 
   const handleFile = async (file) => {
     if (!file) return;
@@ -182,6 +218,8 @@ const GlobalImport = () => {
       {stagedUpload && (
         <ImportReviewDialog
           stagedUpload={stagedUpload}
+          authorOptions={authorOptions}
+          seriesOptions={seriesOptions}
           onCancel={() => setStagedUpload(null)}
           onConfirm={handleFinalize}
           isProcessing={isFinalizing}

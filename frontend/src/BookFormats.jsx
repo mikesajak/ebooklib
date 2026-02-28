@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import ConfirmationDialog from './ConfirmationDialog';
 import ImportReviewDialog from './ImportReviewDialog';
@@ -18,6 +18,42 @@ const BookFormats = ({ book, showNotification, onRefreshRequested }) => {
   const [progress, setProgress] = useState(0);
   const [stagedUpload, setStagedUpload] = useState(null);
   const [isFinalizing, setIsFinalizing] = useState(false);
+
+  const [authors, setAuthors] = useState([]);
+  const [series, setSeries] = useState([]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const [authorsResponse, seriesResponse] = await Promise.all([
+          fetchWithCsrf('/api/authors?size=1000&sort=firstName,asc&sort=lastName,asc'),
+          fetchWithCsrf('/api/series?size=1000&sort=title,asc')
+        ]);
+
+        if (authorsResponse.ok) {
+          const data = await authorsResponse.json();
+          setAuthors(data.content || []);
+        }
+        if (seriesResponse.ok) {
+          const data = await seriesResponse.json();
+          setSeries(data.content || []);
+        }
+      } catch (err) {
+        console.error("Failed to fetch reference data:", err);
+      }
+    };
+    fetchData();
+  }, []);
+
+  const authorOptions = useMemo(() => 
+    authors.map(a => ({ id: a.id, name: `${a.firstName} ${a.lastName}` })), 
+    [authors]
+  );
+
+  const seriesOptions = useMemo(() => 
+    series.map(s => ({ id: s.id, name: s.title })), 
+    [series]
+  );
 
   const fetchFormats = async () => {
     try {
@@ -217,6 +253,8 @@ const BookFormats = ({ book, showNotification, onRefreshRequested }) => {
         <ImportReviewDialog
           stagedUpload={stagedUpload}
           existingBook={book}
+          authorOptions={authorOptions}
+          seriesOptions={seriesOptions}
           onCancel={() => setStagedUpload(null)}
           onConfirm={handleFinalize}
           isProcessing={isFinalizing}
