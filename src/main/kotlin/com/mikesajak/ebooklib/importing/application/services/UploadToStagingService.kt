@@ -2,6 +2,7 @@ package com.mikesajak.ebooklib.importing.application.services
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.mikesajak.ebooklib.book.application.ports.incoming.GetBookUseCase
+import com.mikesajak.ebooklib.book.application.ports.incoming.ListEbookFormatsUseCase
 import com.mikesajak.ebooklib.book.application.ports.outgoing.BookRepositoryPort
 import com.mikesajak.ebooklib.book.domain.model.BookId
 import com.mikesajak.ebooklib.common.domain.model.PaginationRequest
@@ -27,6 +28,7 @@ class UploadToStagingService(
     private val fileStoragePort: FileStoragePort,
     private val metadataExtractor: EbookMetadataExtractorUseCase,
     private val getBookUseCase: GetBookUseCase,
+    private val listEbookFormatsUseCase: ListEbookFormatsUseCase,
     private val bookRepository: BookRepositoryPort,
     private val repository: StagedEbookUploadRepositoryPort,
     private val objectMapper: ObjectMapper
@@ -78,14 +80,14 @@ class UploadToStagingService(
                 // Targeted matching
                 try {
                     val targetBook = getBookUseCase.getBook(BookId(currentBookId))
-                    StagedUploadValidation(candidates = listOf(createCandidate(extracted, targetBook)))
+                    StagedUploadValidation(candidates = listOf(createCandidate(extracted, targetBook, ebookMetadata.size, fileName)))
                 } catch (e: Exception) {
                     logger.warn(e) { "Failed to validate against book $currentBookId" }
                     StagedUploadValidation()
                 }
             } else {
                 // Automated global matching
-                findPotentialMatches(extracted)
+                findPotentialMatches(extracted, ebookMetadata.size, fileName)
             }
             metadataMap["validation"] = validation
         }
@@ -107,20 +109,25 @@ class UploadToStagingService(
         return repository.save(stagedUpload)
     }
 
-    private fun findPotentialMatches(extracted: ExtractedEbookMetadata): StagedUploadValidation {
+    private fun findPotentialMatches(extracted: ExtractedEbookMetadata, fileSize: Long, fileName: String): StagedUploadValidation {
         val title = extracted.title ?: return StagedUploadValidation()
         
         // Search by title (partial/fuzzy via repository)
         val searchResult = bookRepository.findByTitleContaining(title, PaginationRequest(0, 10))
         
         val candidates = searchResult.content.map { book ->
-            createCandidate(extracted, book)
+            createCandidate(extracted, book, fileSize, fileName)
         }.sortedByDescending { it.score }
 
         return StagedUploadValidation(candidates = candidates)
     }
 
-    private fun createCandidate(extracted: ExtractedEbookMetadata, book: com.mikesajak.ebooklib.book.domain.model.Book): MatchCandidate {
+    private fun createCandidate(
+        extracted: ExtractedEbookMetadata, 
+        book: com.mikesajak.ebooklib.book.domain.model.Book,
+        uploadedSize: Long,
+        uploadedName: String
+    ): MatchCandidate {
         val titleMatch = extracted.title?.let { normalize(it) == normalize(book.title) } ?: false
         
         val extractedAuthorsNormalized = extracted.authors.map { normalize(it) }.toSet()
@@ -129,21 +136,23 @@ class UploadToStagingService(
         val authorMatch = extractedAuthorsNormalized.isNotEmpty() && targetAuthorsNormalized.isNotEmpty() &&
                 extractedAuthorsNormalized == targetAuthorsNormalized
 
-        // Scoring: 
-        // 100 for exact title + author
-        // 80 for exact title
-        // 50 for partial title (which is what we get from repo)
+        // Duplicate format check
+        val existingFormats = listEbookFormatsUseCase.listFormatFiles(book.id!!)
+        val isDuplicate = existingFormats.any { it.fileSize == uploadedSize || it.fileName == uploadedName }
+
+        // Scoring
         var score = 0
         if (titleMatch) score += 80
         if (authorMatch) score += 20
         if (score == 0 && extracted.title != null) score = 50 
 
         return MatchCandidate(
-            bookId = book.id!!.value,
+            bookId = book.id.value,
             title = book.title,
             authors = book.authors.map { it.fullName },
             titleMatch = titleMatch,
             authorMatch = authorMatch,
+            duplicateFormat = isDuplicate,
             score = score
         )
     }

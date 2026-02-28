@@ -12,5 +12,6 @@ data class MatchCandidate(
     val authors: List<String>,
     val titleMatch: Boolean,
     val authorMatch: Boolean,
+    val duplicateFormat: Boolean = false,
     val score: Int = 0
 )
