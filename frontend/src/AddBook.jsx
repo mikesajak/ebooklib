@@ -417,6 +417,7 @@ const AddBook = () => {
       {stagedUpload && (
         <ImportReviewDialog
           stagedUpload={stagedUpload}
+          draftBook={book}
           authorOptions={authorOptions}
           seriesOptions={seriesOptions}
           onCancel={() => setStagedUpload(null)}

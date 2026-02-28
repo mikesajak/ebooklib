@@ -7,6 +7,7 @@ import { fetchWithCsrf } from './api';
 const ImportReviewDialog = ({
   stagedUpload,
   existingBook: initialExistingBook,
+  draftBook,
   authorOptions,
   seriesOptions,
   onCancel,
@@ -161,6 +162,7 @@ const ImportReviewDialog = ({
             <MergeMetadataView 
               stagedUpload={stagedUpload}
               existingBook={activeMatch}
+              draftBook={draftBook}
               authorOptions={authorOptions}
               seriesOptions={seriesOptions}
               onMergedDataChange={setMergedData}
