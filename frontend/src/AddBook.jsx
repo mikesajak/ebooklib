@@ -1,10 +1,13 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { FaCloudUploadAlt, FaFileImport } from 'react-icons/fa';
 import useMutation from './hooks/useMutation';
 import AddPage from './AddPage';
 import Form from './Form';
 import SearchableDropdown from './SearchableDropdown';
+import Notification from './Notification';
+import ImportReviewDialog from './ImportReviewDialog';
 import { fetchWithCsrf } from './api';
 
 const saveBook = async (bookData, isEditMode, bookId) => {
@@ -24,9 +27,7 @@ const saveBook = async (bookData, isEditMode, bookId) => {
     try {
       const errorData = await response.json();
       errorMessage = errorData.message || errorMessage;
-    } catch (e) {
-      // ignore if response is not json
-    }
+    } catch (e) {}
     throw new Error(errorMessage);
   }
 
@@ -36,8 +37,9 @@ const saveBook = async (bookData, isEditMode, bookId) => {
 const AddBook = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const { id } = useParams(); // Get book ID from URL
-  const isEditMode = !!id; // Determine if in edit mode
+  const { id } = useParams();
+  const isEditMode = !!id;
+
   const [book, setBook] = useState({
     title: '',
     authors: [],
@@ -48,17 +50,30 @@ const AddBook = () => {
     description: '',
     labels: []
   });
-  const [originalBook, setOriginalBook] = useState(null); // Store original book data for comparison
+  const [originalBook, setOriginalBook] = useState(null);
   const [authors, setAuthors] = useState([]);
   const [series, setSeries] = useState([]);
   const [loading, setLoading] = useState(true);
   const [labelsString, setLabelsString] = useState('');
 
+  // Import related state
+  const [isUploading, setIsUploading] = useState(false);
+  const [dragActive, setDragActive] = useState(false);
+  const [stagedUpload, setStagedUpload] = useState(null);
+  const [isFinalizing, setIsFinalizing] = useState(false);
+
   const { mutate, isSaving, notification, setNotification } = useMutation(
     (bookData) => saveBook(bookData, isEditMode, id),
     {
       onSuccess: (savedBook) => {
-        navigate(`/book/${savedBook.id}`, { state: { notification: { type: 'success', message: t(isEditMode ? 'addBook.updateSuccess' : 'addBook.addSuccess') } } });
+        navigate(`/book/${savedBook.id}`, { 
+          state: { 
+            notification: { 
+              type: 'success', 
+              message: t(isEditMode ? 'addBook.updateSuccess' : 'addBook.addSuccess') 
+            } 
+          } 
+        });
       }
     }
   );
@@ -78,23 +93,17 @@ const AddBook = () => {
         const seriesData = await seriesResponse.json();
         setSeries(seriesData.content || []);
 
-        if (isEditMode) {
-          if (!bookResponse.ok) {
-            throw new Error('Failed to fetch book details');
-          }
+        if (isEditMode && bookResponse) {
+          if (!bookResponse.ok) throw new Error('Failed to fetch book details');
           const bookData = await bookResponse.json();
-          setBook({
+          const initialBook = {
             ...bookData,
-            // Format publicationDate for input[type="date"]
             publicationDate: bookData.publicationDate ? bookData.publicationDate.split('T')[0] : '',
             labels: bookData.labels || []
-          });
+          };
+          setBook(initialBook);
           setLabelsString((bookData.labels || []).join(', '));
-          setOriginalBook({
-            ...bookData,
-            publicationDate: bookData.publicationDate ? bookData.publicationDate.split('T')[0] : '',
-            labels: bookData.labels || []
-          });
+          setOriginalBook(initialBook);
         }
       } catch (err) {
         setNotification({ type: 'error', message: err.message });
@@ -102,141 +111,204 @@ const AddBook = () => {
         setLoading(false);
       }
     };
-
     fetchData();
   }, [id, isEditMode, setNotification]);
 
+  const handleFile = async (file) => {
+    if (!file) return;
+    setIsUploading(true);
+    setNotification(null);
+
+    const formData = new FormData();
+    formData.append('file', file);
+
+    try {
+      const response = await fetchWithCsrf('/api/import/upload', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!response.ok) throw new Error(t('import.uploadError'));
+
+      const data = await response.json();
+      setStagedUpload(data);
+      
+      // Auto-populate form from extracted metadata
+      if (data.metadata) {
+        setBook(prev => ({
+          ...prev,
+          title: data.metadata.title || prev.title,
+          publisher: data.metadata.publisher || prev.publisher,
+          publicationDate: data.metadata.publicationDate ? data.metadata.publicationDate.split('T')[0] : prev.publicationDate,
+          description: data.metadata.description || prev.description,
+        }));
+      }
+    } catch (err) {
+      setNotification({ type: 'error', message: err.message });
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
+  const onFileSelect = (e) => {
+    if (e.target.files && e.target.files[0]) handleFile(e.target.files[0]);
+  };
+
+  const handleDrag = (e) => {
+    e.preventDefault(); e.stopPropagation();
+    if (e.type === "dragenter" || e.type === "dragover") setDragActive(true);
+    else if (e.type === "dragleave") setDragActive(false);
+  };
+
+  const handleDrop = (e) => {
+    e.preventDefault(); e.stopPropagation();
+    setDragActive(false);
+    if (e.dataTransfer.files && e.dataTransfer.files[0]) handleFile(e.dataTransfer.files[0]);
+  };
+
+  const handleFinalize = async (mergedData) => {
+    setIsFinalizing(true);
+    try {
+      const response = await fetchWithCsrf('/api/import/finalize', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(mergedData),
+      });
+
+      if (!response.ok) throw new Error(t('import.finalizeError'));
+
+      const finalizedBook = await response.json();
+      navigate(`/book/${finalizedBook.id}`, { 
+        state: { notification: { type: 'success', message: t('import.success', { title: finalizedBook.title }) } } 
+      });
+    } catch (err) {
+      setNotification({ type: 'error', message: err.message });
+      setIsFinalizing(false);
+    }
+  };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     if (name === 'labels') {
       setLabelsString(value);
       const labelsArray = value.split(',').map(label => label.trim()).filter(label => label !== '');
-      setBook(prevBook => ({
-        ...prevBook,
-        labels: labelsArray
-      }));
+      setBook(prev => ({ ...prev, labels: labelsArray }));
     } else {
-      setBook(prevBook => ({
-        ...prevBook,
-        [name]: value
-      }));
+      setBook(prev => ({ ...prev, [name]: value }));
     }
   };
 
   const handleAuthorChange = (index, selectedAuthorId) => {
     const selectedAuthor = authors.find(author => author.id === selectedAuthorId);
-    setBook(prevBook => {
-      const newAuthors = [...prevBook.authors];
-      if (selectedAuthor) {
-        newAuthors[index] = selectedAuthor;
-      }
-      return { ...prevBook, authors: newAuthors };
+    setBook(prev => {
+      const newAuthors = [...prev.authors];
+      if (selectedAuthor) newAuthors[index] = selectedAuthor;
+      return { ...prev, authors: newAuthors };
     });
   };
 
   const handleAddAuthorField = () => {
-    const lastAuthor = book.authors[book.authors.length - 1];
-    if (!lastAuthor || lastAuthor.id) {
-      setBook(prevBook => ({
-        ...prevBook,
-        authors: [...prevBook.authors, { id: '', firstName: '', lastName: '' }]
-      }));
-    }
+    setBook(prev => ({
+      ...prev,
+      authors: [...prev.authors, { id: '', firstName: '', lastName: '' }]
+    }));
   };
 
   const handleRemoveAuthorField = (index) => {
-    setBook(prevBook => {
-      const newAuthors = [...prevBook.authors];
+    setBook(prev => {
+      const newAuthors = [...prev.authors];
       newAuthors.splice(index, 1);
-      return { ...prevBook, authors: newAuthors };
+      return { ...prev, authors: newAuthors };
     });
   };
 
   const handleSeriesChange = (selectedSeriesId) => {
     const selectedSeries = series.find(s => s.id === selectedSeriesId);
-    setBook(prevBook => ({
-      ...prevBook,
-      series: selectedSeries ? selectedSeries : null,
-      volume: selectedSeries ? prevBook.volume : '' // Clear volume if series is removed
+    setBook(prev => ({
+      ...prev,
+      series: selectedSeries || null,
+      volume: selectedSeries ? prev.volume : ''
     }));
   };
 
   const handleSave = () => {
     const bookData = { ...book };
-    // Ensure authorIds is an array and seriesId is properly set for the API
-    bookData.authorIds = book.authors.map(author => author.id).filter(id => !!id);
+    bookData.authorIds = book.authors.map(a => a.id).filter(id => !!id);
     delete bookData.authors;
-
     if (bookData.series) {
       bookData.seriesId = bookData.series.id;
       delete bookData.series;
     }
-
     mutate(bookData);
   };
 
-  const handleCancel = () => {
-    navigate(isEditMode ? `/book/${id}` : '/');
-  };
-
-  const isTitleValid = book.title.trim() !== '';
-
-  const authorOptions = useMemo(() =>
-    authors.map(a => ({ id: a.id, name: `${a.firstName} ${a.lastName}` })),
-    [authors]
-  );
-
-  const seriesOptions = useMemo(() =>
-    series.map(s => ({ id: s.id, name: s.title })),
-    [series]
-  );
+  const authorOptions = useMemo(() => authors.map(a => ({ id: a.id, name: `${a.firstName} ${a.lastName}` })), [authors]);
+  const seriesOptions = useMemo(() => series.map(s => ({ id: s.id, name: s.title })), [series]);
 
   const getFilteredAuthorOptions = (currentIndex) => {
-    const selectedIds = book.authors
-      .filter((_, i) => i !== currentIndex)
-      .map(a => a.id)
-      .filter(id => !!id);
+    const selectedIds = book.authors.filter((_, i) => i !== currentIndex).map(a => a.id).filter(id => !!id);
     return authorOptions.filter(opt => !selectedIds.includes(opt.id));
   };
 
   const hasChanges = () => {
     if (!originalBook || !book) return false;
-
     const normalize = (val) => val || '';
-
     if (normalize(originalBook.title) !== normalize(book.title)) return true;
     if (String(normalize(originalBook.volume)) !== String(normalize(book.volume))) return true;
     if (normalize(originalBook.publicationDate) !== normalize(book.publicationDate)) return true;
     if (normalize(originalBook.publisher) !== normalize(book.publisher)) return true;
     if (normalize(originalBook.description) !== normalize(book.description)) return true;
-
-    const originalAuthorIds = originalBook.authors?.map(a => a.id).sort() || [];
-    const currentAuthorIds = book.authors?.filter(a => !!a.id).map(a => a.id).sort() || [];
-    if (JSON.stringify(originalAuthorIds) !== JSON.stringify(currentAuthorIds)) return true;
-
+    const originalAuthorIds = originalBook.authors?.map(a => a.id).sort().join(',') || '';
+    const currentAuthorIds = book.authors?.filter(a => !!a.id).map(a => a.id).sort().join(',') || '';
+    if (originalAuthorIds !== currentAuthorIds) return true;
     if (normalize(originalBook.series?.id) !== normalize(book.series?.id)) return true;
-
-    const originalLabels = originalBook.labels?.sort() || [];
-    const currentLabels = book.labels?.sort() || [];
-    if (JSON.stringify(originalLabels) !== JSON.stringify(currentLabels)) return true;
-
+    const originalLabels = originalBook.labels?.sort().join(',') || '';
+    const currentLabels = book.labels?.sort().join(',') || '';
+    if (originalLabels !== currentLabels) return true;
     return false;
   };
 
-  const isSaveDisabled = !isTitleValid || isSaving || (isEditMode && !hasChanges());
-
-  if (loading) {
-    return (
-      <AddPage title={t(isEditMode ? 'addBook.editTitle' : 'addBook.title')} notification={notification} setNotification={setNotification}>
-        <p>{t('common.loading')}</p>
-      </AddPage>
-    );
-  }
+  if (loading) return <AddPage title={t(isEditMode ? 'addBook.editTitle' : 'addBook.title')}><p>{t('common.loading')}</p></AddPage>;
 
   return (
     <AddPage title={t(isEditMode ? 'addBook.editTitle' : 'addBook.title')} notification={notification} setNotification={setNotification}>
-      <Form onSave={handleSave} onCancel={handleCancel} isSaveDisabled={isSaveDisabled}>
+      
+      {!isEditMode && (
+        <div className="mb-8 bg-blue-50 p-6 rounded-xl border border-blue-100 shadow-sm">
+          <div className="flex items-center gap-3 mb-4">
+            <FaFileImport className="text-2xl text-blue-600" />
+            <h2 className="text-lg font-bold text-gray-800">{t('import.title')}</h2>
+          </div>
+          
+          <form 
+            className={`relative group border-2 border-dashed rounded-xl p-8 transition-all flex flex-col items-center justify-center text-center
+              ${dragActive ? 'border-blue-500 bg-blue-100' : 'border-blue-200 bg-white hover:border-blue-400'}`}
+            onDragEnter={handleDrag}
+            onDragLeave={handleDrag}
+            onDragOver={handleDrag}
+            onDrop={handleDrop}
+          >
+            <input
+              type="file"
+              id="file-upload"
+              className="absolute inset-0 w-full h-full opacity-0 cursor-pointer disabled:cursor-not-allowed"
+              onChange={onFileSelect}
+              accept=".epub,.pdf,.mobi,.azw3"
+              disabled={isUploading}
+            />
+            
+            <FaCloudUploadAlt className={`text-4xl mb-2 ${isUploading ? 'animate-bounce text-blue-600' : 'text-blue-400'}`} />
+            <div className="text-sm">
+              <p className="font-bold text-gray-700">
+                {isUploading ? t('import.uploading') : t('import.dropZoneTitle')}
+              </p>
+              <p className="text-gray-500">{t('import.dropZoneSubtitle')}</p>
+            </div>
+          </form>
+        </div>
+      )}
+
+      <Form onSave={handleSave} onCancel={() => navigate(isEditMode ? `/book/${id}` : '/')} isSaveDisabled={!book.title.trim() || isSaving || (isEditMode && !hasChanges())}>
         <div className="mb-4">
           <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="title">{t('addBook.form.title')}:</label>
           <input type="text" id="title" name="title" value={book.title} onChange={handleChange} className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" />
@@ -255,24 +327,10 @@ const AddBook = () => {
                   placeholder={t('addBook.form.selectAuthor')}
                 />
               </div>
-              <button
-                type="button"
-                onClick={() => handleRemoveAuthorField(index)}
-                className="bg-red-100 text-red-700 hover:bg-red-700 hover:text-white font-bold py-2 px-3 rounded h-fit mt-0"
-                title={t('common.remove')}
-              >
-                ✖
-              </button>
+              <button type="button" onClick={() => handleRemoveAuthorField(index)} className="bg-red-100 text-red-700 hover:bg-red-700 hover:text-white font-bold py-2 px-3 rounded h-fit">✖</button>
             </div>
           ))}
-          <button
-            type="button"
-            onClick={handleAddAuthorField}
-            disabled={book.authors.some(a => !a.id)}
-            className="bg-blue-100 text-blue-700 hover:bg-blue-700 hover:text-white font-bold py-1 px-3 rounded text-sm disabled:opacity-50"
-          >
-            + {t('addBook.form.addAuthor')}
-          </button>
+          <button type="button" onClick={handleAddAuthorField} className="bg-blue-100 text-blue-700 hover:bg-blue-700 hover:text-white font-bold py-1 px-3 rounded text-sm">+ {t('addBook.form.addAuthor')}</button>
         </div>
 
         <div className="mb-4">
@@ -287,16 +345,7 @@ const AddBook = () => {
         </div>
         <div className="mb-4">
           <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="volume">{t('addBook.form.volume')}:</label>
-          <input
-            type="number"
-            id="volume"
-            name="volume"
-            value={book.volume || ''}
-            onChange={handleChange}
-            disabled={!book.series}
-            className={`shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline ${!book.series ? 'bg-gray-100 cursor-not-allowed' : ''}`}
-            title={!book.series ? t('addBook.form.volumeDisabledTooltip') : ''}
-          />
+          <input type="number" id="volume" name="volume" value={book.volume || ''} onChange={handleChange} disabled={!book.series} className={`shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline ${!book.series ? 'bg-gray-100 cursor-not-allowed' : ''}`} />
         </div>
         <div className="mb-4">
           <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="publicationDate">{t('addBook.form.publicationDate')}:</label>
@@ -312,17 +361,20 @@ const AddBook = () => {
         </div>
         <div className="mb-4">
           <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="labels">{t('addBook.form.labels')}:</label>
-          <input
-            type="text"
-            id="labels"
-            name="labels"
-            value={labelsString}
-            onChange={handleChange}
-            className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-            placeholder={t('addBook.form.labelsPlaceholder')}
-          />
+          <input type="text" id="labels" name="labels" value={labelsString} onChange={handleChange} className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" placeholder={t('addBook.form.labelsPlaceholder')} />
         </div>
       </Form>
+
+      {stagedUpload && (
+        <ImportReviewDialog
+          stagedUpload={stagedUpload}
+          authorOptions={authorOptions}
+          seriesOptions={seriesOptions}
+          onCancel={() => setStagedUpload(null)}
+          onConfirm={handleFinalize}
+          isProcessing={isFinalizing}
+        />
+      )}
     </AddPage>
   );
 };
