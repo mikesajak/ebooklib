@@ -165,7 +165,7 @@ const MergeMetadataView = ({
     return (
       <div 
         className={`flex-1 p-2 rounded border cursor-pointer transition-all flex flex-col gap-1
-          ${isSelected ? `ring-2 ring-offset-1 ${ringClass} border-transparent shadow-sm` : 'bg-white border-gray-200 hover:border-gray-300'}`}
+          ${isSelected ? `ring-2 ring-inset ${ringClass} border-transparent shadow-sm` : 'bg-white border-gray-200 hover:border-gray-300'}`}
         onClick={() => toggleField(field, firstSource)}
       >
         <div className="flex flex-wrap items-center gap-2">
@@ -245,7 +245,7 @@ const MergeMetadataView = ({
   };
 
   return (
-    <div className="merge-metadata-view max-h-[65vh] overflow-y-auto pr-3 custom-scrollbar">
+    <div className="merge-metadata-view max-h-[65vh] overflow-y-auto px-4 pr-3 custom-scrollbar">
       <div className="mb-6 p-4 bg-indigo-50 border-l-4 border-indigo-500 rounded-r-lg shadow-sm text-sm">
         <h4 className="font-bold text-indigo-900 mb-1">{t('import.review.statusTitle')}</h4>
         {existingBook ? (
