@@ -15,5 +15,6 @@ data class FinalizeImportRequestDto(
     val seriesId: UUID? = null,
     val volume: Int? = null,
     val labels: List<String> = emptyList(),
-    val updateCover: Boolean = false
+    val updateCover: Boolean = false,
+    val skipFormatLink: Boolean = false
 )

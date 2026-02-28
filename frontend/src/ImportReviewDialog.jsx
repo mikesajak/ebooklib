@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { FaCheckCircle, FaExclamationCircle, FaPlusCircle } from 'react-icons/fa';
+import { FaCheckCircle, FaExclamationCircle, FaPlusCircle, FaCopy } from 'react-icons/fa';
 import MergeMetadataView from './MergeMetadataView';
 import { fetchWithCsrf } from './api';
 
@@ -18,13 +18,18 @@ const ImportReviewDialog = ({
   const [activeMatch, setActiveMatch] = useState(initialExistingBook || null);
   const [mergedData, setMergedData] = useState(null);
   const [isLoadingMatch, setIsLoadingMatch] = useState(false);
+  const [confirmDuplicate, setConfirmDuplicate] = useState(false);
 
   const candidates = stagedUpload.validation?.candidates || [];
+  
+  // Find duplicate flag for current active match
+  const isDuplicate = activeMatch && candidates.find(c => c.bookId === activeMatch.id)?.duplicateFormat;
 
   // When a candidate is clicked, fetch its full details
   const handleSelectCandidate = async (candidate) => {
     if (activeMatch?.id === candidate.bookId) return;
     
+    setConfirmDuplicate(false); // Reset duplicate confirmation when switching
     setIsLoadingMatch(true);
     try {
       const response = await fetchWithCsrf(`/api/books/${candidate.bookId}`);
@@ -48,7 +53,8 @@ const ImportReviewDialog = ({
       onConfirm({
         ...mergedData,
         uploadId: stagedUpload.id,
-        bookId: activeMatch?.id // Send selected bookId for update, or null for create
+        bookId: activeMatch?.id, // Send selected bookId for update, or null for create
+        skipFormatLink: isDuplicate && !confirmDuplicate // Skip file if duplicate but checkbox not checked
       });
     }
   };
@@ -127,6 +133,31 @@ const ImportReviewDialog = ({
               <p className="mt-1 font-medium">{t('import.review.fileName')}: <span className="font-mono text-blue-600">{stagedUpload.fileName}</span></p>
             </div>
 
+            {isDuplicate && (
+              <div className="mb-6 p-4 bg-red-50 border-2 border-red-200 rounded-lg animate-pulse">
+                <div className="flex items-start gap-3">
+                  <FaCopy className="text-red-600 text-xl mt-1" />
+                  <div>
+                    <h4 className="font-bold text-red-800 uppercase text-xs tracking-wider">Potential Duplicate Detected</h4>
+                    <p className="text-sm text-red-700">
+                      This book already has a format with the same file name or size. Adding it again might create a duplicate.
+                    </p>
+                    <label className="mt-3 flex items-center gap-2 cursor-pointer group">
+                      <input 
+                        type="checkbox" 
+                        checked={confirmDuplicate} 
+                        onChange={(e) => setConfirmDuplicate(e.target.checked)}
+                        className="w-4 h-4 text-red-600 border-red-300 rounded focus:ring-red-500"
+                      />
+                      <span className="text-sm font-bold text-red-800 group-hover:text-red-900 transition-colors">
+                        Yes, I am sure I want to add this potential duplicate
+                      </span>
+                    </label>
+                  </div>
+                </div>
+              </div>
+            )}
+
             <MergeMetadataView 
               stagedUpload={stagedUpload}
               existingBook={activeMatch}
@@ -160,7 +191,9 @@ const ImportReviewDialog = ({
                 {t('import.review.processing')}
               </div>
             ) : (
-              activeMatch ? t('import.review.confirmUpdate') : t('import.review.confirmCreate')
+              activeMatch 
+                ? (isDuplicate && !confirmDuplicate ? "Update Metadata Only" : t('import.review.confirmUpdate'))
+                : t('import.review.confirmCreate')
             )}
           </button>
         </footer>

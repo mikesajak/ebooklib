@@ -44,6 +44,7 @@ class ImportRestMapper(private val objectMapper: ObjectMapper) {
                                 authors = (c["authors"] as? List<String>) ?: emptyList(),
                                 titleMatch = (c["titleMatch"] as? Boolean) ?: false,
                                 authorMatch = (c["authorMatch"] as? Boolean) ?: false,
+                                duplicateFormat = (c["duplicateFormat"] as? Boolean) ?: false,
                                 score = (c["score"] as? Number)?.toInt() ?: 0
                             )
                         } catch (e: Exception) {
@@ -82,7 +83,8 @@ class ImportRestMapper(private val objectMapper: ObjectMapper) {
             seriesId = request.seriesId?.let { SeriesId(it) },
             volume = request.volume,
             labels = request.labels,
-            updateCover = request.updateCover
+            updateCover = request.updateCover,
+            skipFormatLink = request.skipFormatLink
         )
     }
 }

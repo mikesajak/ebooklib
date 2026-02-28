@@ -40,7 +40,7 @@ class FinalizeImportService(
 ) : FinalizeImportUseCase {
 
     override fun finalize(command: FinalizeImportCommand): Book {
-        logger.info { "Finalizing import for uploadId: ${command.uploadId}, bookId: ${command.bookId}" }
+        logger.info { "Finalizing import for uploadId: ${command.uploadId}, bookId: ${command.bookId}, skipFormat: ${command.skipFormatLink}" }
 
         val stagedUpload = stagedRepository.findById(command.uploadId)
             ?: throw IllegalArgumentException("Staged upload not found: ${command.uploadId}")
@@ -55,12 +55,16 @@ class FinalizeImportService(
             createNewBook(command, allAuthors)
         }
 
-        // 3. Promote Ebook File
-        val promotedFile = fileStoragePort.moveFile("staged/${stagedUpload.id}", null) 
-        
-        // 4. Link Format to Book
-        val formatType = extractFormatType(stagedUpload.fileName)
-        addEbookFormatUseCase.addFormatFromStorage(book.id!!, promotedFile.id, formatType)
+        // 3. Promote Ebook File (Only if not skipped)
+        if (!command.skipFormatLink) {
+            val promotedFile = fileStoragePort.moveFile("staged/${stagedUpload.id}", null) 
+            
+            // 4. Link Format to Book
+            val formatType = extractFormatType(stagedUpload.fileName)
+            addEbookFormatUseCase.addFormatFromStorage(book.id!!, promotedFile.id, formatType)
+        } else {
+            logger.info { "Skipping format linking for book ${book.id} as requested (duplicate detected)" }
+        }
 
         // 5. Handle Cover Promotion
         if (command.updateCover) {
@@ -87,7 +91,6 @@ class FinalizeImportService(
         val authorsFromNames = command.authorNames.map { name ->
             val (firstName, lastName) = splitAuthorName(name)
             
-            // "Find or Create" logic to prevent duplicates
             val existingAuthor = authorRepository.findByName(firstName, lastName)
             if (existingAuthor != null) {
                 logger.info { "Matched existing author by name: $name" }
@@ -98,7 +101,6 @@ class FinalizeImportService(
             }
         }
         
-        // Combine and ensure distinctness by ID (if an author was passed by both name and ID accidentally)
         return (existingAuthorsByDirectId + authorsFromNames).distinctBy { it.id }
     }
 
