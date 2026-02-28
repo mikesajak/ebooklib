@@ -13,6 +13,9 @@ spring:
 app:
   security:
     enabled: false
+  import:
+    cleanup:
+      cron: "0 0 * * * *"
 
 preliquibase:
   enabled: false
