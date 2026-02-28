@@ -153,7 +153,7 @@ const BookTable = () => {
           <div className="flex justify-between items-center mb-4">
             <h1 className="text-2xl font-bold">{t('bookTable.title')}</h1>
             <div className="flex gap-2">
-              <Link to="/import">
+              <Link to="/books/add">
                 <button className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded flex items-center gap-2">
                   <FaFileImport />
                   {t('header.import')}

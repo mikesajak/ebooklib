@@ -10,7 +10,6 @@ import SeriesList from './SeriesList'
 import AddBook from './AddBook'
 import AddAuthor from './AddAuthor'
 import AddSeries from './AddSeries'
-import GlobalImport from './GlobalImport'
 import AppSidebar from './Sidebar'
 import LoginPage from './LoginPage'
 import ProtectedRoute from './ProtectedRoute'
@@ -30,7 +29,6 @@ function App() {
                 <Routes>
                   <Route path="/login" element={<LoginPage />} />
                   <Route path="/" element={<ProtectedRoute><BookTable /></ProtectedRoute>} />
-                  <Route path="/import" element={<ProtectedRoute><GlobalImport /></ProtectedRoute>} />
                   <Route path="/books/add" element={<ProtectedRoute><AddBook /></ProtectedRoute>} />
                   <Route path="/book/:id" element={<ProtectedRoute><BookDetails /></ProtectedRoute>} />
                   <Route path="/books/:id/edit" element={<ProtectedRoute><AddBook /></ProtectedRoute>} />
