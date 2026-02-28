@@ -75,6 +75,7 @@ class ImportRestMapper(private val objectMapper: ObjectMapper) {
             bookId = request.bookId?.let { BookId(it) },
             title = request.title,
             authorIds = request.authorIds.map { AuthorId(it) },
+            authorNames = request.authorNames,
             publisher = request.publisher,
             publicationDate = request.publicationDate,
             description = request.description,

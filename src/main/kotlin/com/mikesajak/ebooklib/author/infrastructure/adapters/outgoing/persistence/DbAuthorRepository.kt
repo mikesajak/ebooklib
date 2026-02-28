@@ -34,6 +34,10 @@ class DbAuthorRepository(
     override fun findById(id: AuthorId): Author? =
         authorJpaRepository.findById(id.value).map { mapper.toDomain(it) }.orElse(null)
 
+    override fun findByName(firstName: String, lastName: String): Author? =
+        authorJpaRepository.findByFirstNameIgnoreCaseAndLastNameIgnoreCase(firstName, lastName)
+            ?.let { mapper.toDomain(it) }
+
     override fun save(author: Author): Author {
         val entity = mapper.toEntity(author)
         val entityToSave = if (entity.id == null) entity.copy(id = UUID.randomUUID()) else entity

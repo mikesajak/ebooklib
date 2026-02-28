@@ -13,9 +13,35 @@ const MergeMetadataView = ({
   const extracted = stagedUpload.metadata || {};
   const validation = extracted.validation || {};
 
+  const resolveInitialAuthors = () => {
+    if (existingBook) {
+      return {
+        authorIds: existingBook.authors.map(a => a.id),
+        authorNames: []
+      };
+    }
+    
+    // For new books, try to resolve extracted names to existing IDs
+    const extractedNames = extracted.authors || [];
+    const ids = [];
+    const names = [];
+    
+    extractedNames.forEach(name => {
+      const normalizedName = name.toLowerCase().trim();
+      const match = authorOptions.find(opt => opt.name.toLowerCase().trim() === normalizedName);
+      if (match) ids.push(match.id);
+      else names.push(name);
+    });
+    
+    return { authorIds: ids, authorNames: names };
+  };
+
+  const initialAuthors = resolveInitialAuthors();
+
   const [mergedData, setMergedData] = useState({
     title: extracted.title || (existingBook ? existingBook.title : ''),
-    authorIds: existingBook ? existingBook.authors.map(a => a.id) : [],
+    authorIds: initialAuthors.authorIds,
+    authorNames: initialAuthors.authorNames,
     publisher: extracted.publisher || (existingBook ? existingBook.publisher : ''),
     publicationDate: extracted.publicationDate || (existingBook ? (existingBook.publicationDate ? existingBook.publicationDate.split('T')[0] : '') : ''),
     description: extracted.description || (existingBook ? existingBook.description : ''),
@@ -73,6 +99,14 @@ const MergeMetadataView = ({
       const newAuthorIds = [...prev.authorIds];
       newAuthorIds.splice(index, 1);
       return { ...prev, authorIds: newAuthorIds };
+    });
+  };
+
+  const handleRemoveNewAuthor = (index) => {
+    setMergedData(prev => {
+      const newNames = [...prev.authorNames];
+      newNames.splice(index, 1);
+      return { ...prev, authorNames: newNames };
     });
   };
 
@@ -162,8 +196,27 @@ const MergeMetadataView = ({
           </div>
           <div className="flex-[2]">
             <div className="text-xs text-gray-500 uppercase mb-2">{t('import.review.assignedAuthors')}</div>
+            
+            {/* New Authors from file */}
+            {mergedData.authorNames.map((name, index) => (
+              <div key={`new-${index}`} className="flex mb-2 gap-2 items-center bg-green-50 p-2 rounded border border-green-200">
+                <div className="flex-grow text-sm font-medium text-green-800">
+                  <span className="text-xs bg-green-200 px-1 rounded mr-2 uppercase tracking-tighter">New</span>
+                  {name}
+                </div>
+                <button
+                  type="button"
+                  onClick={() => handleRemoveNewAuthor(index)}
+                  className="text-red-500 hover:text-red-700"
+                >
+                  ✖
+                </button>
+              </div>
+            ))}
+
+            {/* Existing Authors */}
             {mergedData.authorIds.map((authorId, index) => (
-              <div key={index} className="flex mb-2 gap-2 items-start">
+              <div key={`existing-${index}`} className="flex mb-2 gap-2 items-start">
                 <div className="flex-grow">
                   <SearchableDropdown
                     id={`author-${index}`}

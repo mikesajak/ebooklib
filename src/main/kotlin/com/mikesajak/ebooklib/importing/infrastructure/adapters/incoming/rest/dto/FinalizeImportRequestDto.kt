@@ -8,6 +8,7 @@ data class FinalizeImportRequestDto(
     val bookId: UUID? = null,
     val title: String,
     val authorIds: List<UUID>,
+    val authorNames: List<String> = emptyList(),
     val publisher: String? = null,
     val publicationDate: LocalDate? = null,
     val description: String? = null,

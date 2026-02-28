@@ -12,6 +12,7 @@ data class FinalizeImportCommand(
     val bookId: BookId? = null,
     val title: String,
     val authorIds: List<AuthorId>,
+    val authorNames: List<String> = emptyList(), // Names of new authors to be created
     val publisher: String? = null,
     val publicationDate: LocalDate? = null,
     val description: String? = null,

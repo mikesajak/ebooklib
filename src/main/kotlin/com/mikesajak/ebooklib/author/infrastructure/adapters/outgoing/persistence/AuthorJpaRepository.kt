@@ -21,4 +21,6 @@ interface AuthorJpaRepository
     )
 
     fun findAuthorsWithBookCount(pageable: Pageable): Page<AuthorProjection>
+
+    fun findByFirstNameIgnoreCaseAndLastNameIgnoreCase(firstName: String, lastName: String): AuthorEntity?
 }

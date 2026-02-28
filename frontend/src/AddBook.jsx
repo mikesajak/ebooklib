@@ -135,9 +135,22 @@ const AddBook = () => {
       
       // Auto-populate form from extracted metadata
       if (data.metadata) {
+        // Intelligent Author Mapping
+        const extractedAuthorNames = data.metadata.authors || [];
+        const resolvedAuthors = extractedAuthorNames.map(name => {
+          const normalizedName = name.toLowerCase().trim();
+          // Find existing author that matches the extracted name (simple heuristic)
+          const match = authors.find(a => 
+            `${a.firstName} ${a.lastName}`.toLowerCase().trim() === normalizedName ||
+            `${a.lastName} ${a.firstName}`.toLowerCase().trim() === normalizedName
+          );
+          return match || { id: '', firstName: '', lastName: name }; // Fallback to raw name if no ID match
+        });
+
         setBook(prev => ({
           ...prev,
           title: data.metadata.title || prev.title,
+          authors: resolvedAuthors.length > 0 ? resolvedAuthors : prev.authors,
           publisher: data.metadata.publisher || prev.publisher,
           publicationDate: data.metadata.publicationDate ? data.metadata.publicationDate.split('T')[0] : prev.publicationDate,
           description: data.metadata.description || prev.description,
@@ -169,10 +182,18 @@ const AddBook = () => {
   const handleFinalize = async (mergedData) => {
     setIsFinalizing(true);
     try {
+      // Split authors into IDs and Names for the backend
+      const authorIds = mergedData.authorIds?.filter(id => !!id) || [];
+      const authorNames = mergedData.authorNames || [];
+
       const response = await fetchWithCsrf('/api/import/finalize', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(mergedData),
+        body: JSON.stringify({
+          ...mergedData,
+          authorIds: authorIds,
+          authorNames: authorNames
+        }),
       });
 
       if (!response.ok) throw new Error(t('import.finalizeError'));
@@ -233,7 +254,12 @@ const AddBook = () => {
 
   const handleSave = () => {
     const bookData = { ...book };
-    bookData.authorIds = book.authors.map(a => a.id).filter(id => !!id);
+    
+    // Split authors into existing IDs and new names
+    bookData.authorIds = book.authors.filter(a => !!a.id).map(a => a.id);
+    bookData.authorNames = book.authors.filter(a => !a.id && (a.firstName || a.lastName))
+                                     .map(a => `${a.firstName} ${a.lastName}`.trim());
+    
     delete bookData.authors;
     if (bookData.series) {
       bookData.seriesId = bookData.series.id;

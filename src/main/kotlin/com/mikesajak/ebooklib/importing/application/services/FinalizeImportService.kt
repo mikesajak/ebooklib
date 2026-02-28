@@ -2,6 +2,9 @@ package com.mikesajak.ebooklib.importing.application.services
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.mikesajak.ebooklib.author.application.ports.incoming.GetAuthorUseCase
+import com.mikesajak.ebooklib.author.application.ports.incoming.SaveAuthorUseCase
+import com.mikesajak.ebooklib.author.application.ports.outgoing.AuthorRepositoryPort
+import com.mikesajak.ebooklib.author.domain.model.Author
 import com.mikesajak.ebooklib.book.application.ports.incoming.AddBookUseCase
 import com.mikesajak.ebooklib.book.application.ports.incoming.AddEbookFormatUseCase
 import com.mikesajak.ebooklib.book.application.ports.incoming.GetBookUseCase
@@ -28,6 +31,8 @@ class FinalizeImportService(
     private val addBookUseCase: AddBookUseCase,
     private val updateBookUseCase: UpdateBookUseCase,
     private val getAuthorUseCase: GetAuthorUseCase,
+    private val saveAuthorUseCase: SaveAuthorUseCase,
+    private val authorRepository: AuthorRepositoryPort,
     private val getSeriesUseCase: GetSeriesUseCase,
     private val addEbookFormatUseCase: AddEbookFormatUseCase,
     private val uploadBookCoverUseCase: UploadBookCoverUseCase,
@@ -40,21 +45,24 @@ class FinalizeImportService(
         val stagedUpload = stagedRepository.findById(command.uploadId)
             ?: throw IllegalArgumentException("Staged upload not found: ${command.uploadId}")
 
-        // 1. Create or Update Book
+        // 1. Resolve all authors (existing + new)
+        val allAuthors = resolveAuthors(command)
+
+        // 2. Create or Update Book
         val book = if (command.bookId != null) {
-            updateExistingBook(command)
+            updateExistingBook(command, allAuthors)
         } else {
-            createNewBook(command)
+            createNewBook(command, allAuthors)
         }
 
-        // 2. Promote Ebook File
-        val promotedFile = fileStoragePort.moveFile("staged/${stagedUpload.id}", null) // move to root/library
+        // 3. Promote Ebook File
+        val promotedFile = fileStoragePort.moveFile("staged/${stagedUpload.id}", null) 
         
-        // 3. Link Format to Book
+        // 4. Link Format to Book
         val formatType = extractFormatType(stagedUpload.fileName)
         addEbookFormatUseCase.addFormatFromStorage(book.id!!, promotedFile.id, formatType)
 
-        // 4. Handle Cover Promotion
+        // 5. Handle Cover Promotion
         if (command.updateCover) {
             val metadataMap = stagedUpload.metadataJson?.let {
                 @Suppress("UNCHECKED_CAST")
@@ -67,14 +75,43 @@ class FinalizeImportService(
             }
         }
 
-        // 5. Cleanup Staging Record
+        // 6. Cleanup Staging Record
         stagedRepository.delete(command.uploadId)
 
         return getBookUseCase.getBook(book.id!!)
     }
 
-    private fun createNewBook(command: FinalizeImportCommand): Book {
-        val authors = command.authorIds.map { getAuthorUseCase.getAuthor(it) }
+    private fun resolveAuthors(command: FinalizeImportCommand): List<Author> {
+        val existingAuthorsByDirectId = command.authorIds.map { getAuthorUseCase.getAuthor(it) }
+        
+        val authorsFromNames = command.authorNames.map { name ->
+            val (firstName, lastName) = splitAuthorName(name)
+            
+            // "Find or Create" logic to prevent duplicates
+            val existingAuthor = authorRepository.findByName(firstName, lastName)
+            if (existingAuthor != null) {
+                logger.info { "Matched existing author by name: $name" }
+                existingAuthor
+            } else {
+                logger.info { "Creating new author from import: $name" }
+                saveAuthorUseCase.saveAuthor(Author(null, firstName, lastName, null, null, null))
+            }
+        }
+        
+        // Combine and ensure distinctness by ID (if an author was passed by both name and ID accidentally)
+        return (existingAuthorsByDirectId + authorsFromNames).distinctBy { it.id }
+    }
+
+    private fun splitAuthorName(fullName: String): Pair<String, String> {
+        val parts = fullName.trim().split(" ")
+        return if (parts.size > 1) {
+            Pair(parts.first(), parts.drop(1).joinToString(" "))
+        } else {
+            Pair("", fullName)
+        }
+    }
+
+    private fun createNewBook(command: FinalizeImportCommand, authors: List<Author>): Book {
         val series = command.seriesId?.let { getSeriesUseCase.getSeries(it) }
         
         val newBook = Book(
@@ -92,9 +129,8 @@ class FinalizeImportService(
         return addBookUseCase.addBook(newBook)
     }
 
-    private fun updateExistingBook(command: FinalizeImportCommand): Book {
+    private fun updateExistingBook(command: FinalizeImportCommand, authors: List<Author>): Book {
         val existingBook = getBookUseCase.getBook(command.bookId!!)
-        val authors = command.authorIds.map { getAuthorUseCase.getAuthor(it) }
         val series = command.seriesId?.let { getSeriesUseCase.getSeries(it) }
 
         val updatedBook = existingBook.copy(
