@@ -53,7 +53,7 @@ const AppSidebar = () => {
         <MenuItem
           component={<Link to="/import" />}
           icon={<FaFileImport />}
-          style={getActiveStyle('/import')}
+          style={{ ...getActiveStyle('/import'), marginLeft: '0.6rem' }}
         >
           {t('header.import')}
         </MenuItem>

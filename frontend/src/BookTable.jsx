@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate, Link, useLocation } from 'react-router-dom';
+import { FaFileImport } from 'react-icons/fa';
 import Notification from './Notification';
 import { useTranslation } from 'react-i18next';
 import { useSearch } from './SearchContext';
@@ -151,11 +152,19 @@ const BookTable = () => {
           )}
           <div className="flex justify-between items-center mb-4">
             <h1 className="text-2xl font-bold">{t('bookTable.title')}</h1>
-            <Link to="/books/add">
-              <button className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">
-                {t('bookTable.addBookButton')}
-              </button>
-            </Link>
+            <div className="flex gap-2">
+              <Link to="/import">
+                <button className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded flex items-center gap-2">
+                  <FaFileImport />
+                  {t('header.import')}
+                </button>
+              </Link>
+              <Link to="/books/add">
+                <button className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">
+                  {t('bookTable.addBookButton')}
+                </button>
+              </Link>
+            </div>
           </div>
           <div className="w-full mb-4">
             <SearchBar scope="books" queryTransformer={bookQueryTransformer} />
