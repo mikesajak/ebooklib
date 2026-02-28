@@ -351,7 +351,11 @@ const BookDetails = () => {
                 )}
               </div>
             </div>
-            <BookFormats bookId={id} showNotification={setNotification} />
+            <BookFormats 
+              book={book} 
+              showNotification={setNotification} 
+              onRefreshRequested={() => fetchBook()}
+            />
           </div>
         </div>
       <Link to="/" className="back-link">

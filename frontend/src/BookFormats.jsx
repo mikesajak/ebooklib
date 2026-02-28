@@ -1,10 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import ConfirmationDialog from './ConfirmationDialog';
+import ImportReviewDialog from './ImportReviewDialog';
 import { fetchWithCsrf } from './api';
 
-const BookFormats = ({ bookId, showNotification }) => {
+const BookFormats = ({ book, showNotification, onRefreshRequested }) => {
   const { t } = useTranslation();
+  const bookId = book.id;
   const [formats, setFormats] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -14,7 +16,8 @@ const BookFormats = ({ bookId, showNotification }) => {
 
   const [uploading, setUploading] = useState(false);
   const [progress, setProgress] = useState(0);
-  const [uploadError, setUploadError] = useState(null);
+  const [stagedUpload, setStagedUpload] = useState(null);
+  const [isFinalizing, setIsFinalizing] = useState(false);
 
   const fetchFormats = async () => {
     try {
@@ -46,64 +49,76 @@ const BookFormats = ({ bookId, showNotification }) => {
 
   const handleFileChange = async (event) => {
     const file = event.target.files[0];
-    if (!file) {
-      return;
-    }
-
-    const fileExtension = file.name.split('.').pop();
-    if (!fileExtension) {
-      showNotification({ type: 'error', message: 'Could not determine file type.' });
-      return;
-    }
+    if (!file) return;
 
     setUploading(true);
     setProgress(0);
-    setUploadError(null);
 
     const formData = new FormData();
     formData.append('file', file);
-    formData.append('formatType', fileExtension);
 
     const xhr = new XMLHttpRequest();
+    xhr.open('POST', `/api/import/upload?currentBookId=${bookId}`);
 
-    xhr.open('POST', `/api/books/${bookId}/formats`);
-
-    xhr.upload.onprogress = (event) => {
-      if (event.lengthComputable) {
-        const percentCompleted = Math.round((event.loaded * 100) / event.total);
-        setProgress(percentCompleted);
+    // Progress tracking
+    xhr.upload.onprogress = (e) => {
+      if (e.lengthComputable) {
+        setProgress(Math.round((e.loaded * 100) / e.total));
       }
     };
 
     xhr.onload = () => {
       setUploading(false);
       if (xhr.status >= 200 && xhr.status < 300) {
-        showNotification({ type: 'success', message: 'File uploaded successfully!' });
-        fetchFormats();
+        try {
+          const data = JSON.parse(xhr.responseText);
+          setStagedUpload(data);
+        } catch (e) {
+          showNotification({ type: 'error', message: 'Failed to parse upload response' });
+        }
       } else {
         let errorMessage = 'Failed to upload file';
         try {
           const errorData = JSON.parse(xhr.responseText);
           errorMessage = errorData.message || errorMessage;
-        } catch (e) {
-          // ignore if response is not json
-        }
-        setUploadError(errorMessage);
+        } catch (e) {}
         showNotification({ type: 'error', message: errorMessage });
       }
     };
 
     xhr.onerror = () => {
       setUploading(false);
-      setUploadError('Network error occurred during upload.');
       showNotification({ type: 'error', message: 'Network error occurred during upload.' });
     };
 
     xhr.send(formData);
+    if (fileInputRef.current) fileInputRef.current.value = '';
+  };
 
-    // Reset the file input
-    if (fileInputRef.current) {
-      fileInputRef.current.value = '';
+  const handleFinalize = async (mergedData) => {
+    setIsFinalizing(true);
+    try {
+      const response = await fetchWithCsrf('/api/import/finalize', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          ...mergedData,
+          bookId: bookId // Ensure we are targeting this book
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error(t('import.finalizeError'));
+      }
+
+      showNotification({ type: 'success', message: t('import.success', { title: book.title }) });
+      setStagedUpload(null);
+      fetchFormats();
+      if (onRefreshRequested) onRefreshRequested();
+    } catch (err) {
+      showNotification({ type: 'error', message: err.message });
+    } finally {
+      setIsFinalizing(false);
     }
   };
 
@@ -186,6 +201,7 @@ const BookFormats = ({ bookId, showNotification }) => {
           ref={fileInputRef}
           className="hidden"
           onChange={handleFileChange}
+          accept=".epub,.pdf,.mobi,.azw3"
         />
         <button
           type="button"
@@ -196,6 +212,17 @@ const BookFormats = ({ bookId, showNotification }) => {
           {t('bookFormats.upload')}
         </button>
       </div>
+
+      {stagedUpload && (
+        <ImportReviewDialog
+          stagedUpload={stagedUpload}
+          existingBook={book}
+          onCancel={() => setStagedUpload(null)}
+          onConfirm={handleFinalize}
+          isProcessing={isFinalizing}
+        />
+      )}
+
       {showDeleteConfirmDialog && (
         <ConfirmationDialog
           message={t('bookFormats.deleteConfirmation.message', { formatType: formatToDelete?.formatType })}
