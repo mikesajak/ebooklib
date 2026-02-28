@@ -197,6 +197,26 @@
       "title": "Tytuł"
     }
   },
+  "import": {
+    "review": {
+      "titleNew": "Importuj Nową Książkę",
+      "titleUpdate": "Aktualizuj Istniejącą Książkę",
+      "intro": "Przejrzyj metadane wyekstrahowane z pliku. Możesz zachować dane z biblioteki lub użyć nowych wartości znalezionych w ebooku.",
+      "fileName": "Plik",
+      "existingValue": "Dane w Bibliotece",
+      "extractedValue": "Wyekstrahowano z Pliku",
+      "statusTitle": "Wynik Analizy",
+      "statusMatch": "Wyekstrahowane metadane pasują do tej książki. Możesz bezpiecznie dodać ten format.",
+      "statusMismatch": "Wyekstrahowane metadane (Tytuł/Autor) różnią się od danych w bibliotece. Proszę o uważne sprawdzenie.",
+      "statusNewBook": "To wygląda na nową książkę. Możesz utworzyć nową pozycję w bibliotece.",
+      "description": "Opis / Podsumowanie",
+      "authorNote": "Autorzy są dopasowywani do istniejących rekordów. Wybór konkretnych autorów odbywa się w ostatnim kroku lub pozostaje bez zmian.",
+      "useExtractedCover": "Użyj wyekstrahowanej okładki zamiast obecnej",
+      "confirmCreate": "Utwórz Książkę i Importuj",
+      "confirmUpdate": "Aktualizuj i Dodaj Format",
+      "processing": "Przetwarzanie Importu..."
+    }
+  },
   "auth": {
     "loginTitle": "Logowanie",
     "username": "Użytkownik",

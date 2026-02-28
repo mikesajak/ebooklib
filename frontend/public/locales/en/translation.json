@@ -198,6 +198,26 @@
       "title": "Title"
     }
   },
+  "import": {
+    "review": {
+      "titleNew": "Import New Book",
+      "titleUpdate": "Update Existing Book",
+      "intro": "Review the metadata extracted from your file. You can choose to keep existing library data or use the new values found in the ebook.",
+      "fileName": "File",
+      "existingValue": "Current Library Data",
+      "extractedValue": "Extracted from File",
+      "statusTitle": "Analysis Result",
+      "statusMatch": "Extracted metadata matches this book. You can safely add this format.",
+      "statusMismatch": "Extracted metadata (Title/Author) differs from this book record. Please review carefully.",
+      "statusNewBook": "This looks like a new book. You can create a new record in the library.",
+      "description": "Description / Summary",
+      "authorNote": "Authors are matched by existing records. Selection of specific authors is handled in the final step or kept as is.",
+      "useExtractedCover": "Use extracted cover image instead of current one",
+      "confirmCreate": "Create Book & Import",
+      "confirmUpdate": "Update & Add Format",
+      "processing": "Processing Import..."
+    }
+  },
   "auth": {
     "loginTitle": "Login",
     "username": "Username",
