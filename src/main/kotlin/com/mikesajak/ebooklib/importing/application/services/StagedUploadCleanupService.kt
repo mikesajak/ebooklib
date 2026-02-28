@@ -44,7 +44,7 @@ class StagedUploadCleanupService(
 
         // 1. Delete main ebook file
         try {
-            fileStoragePort.deleteFile(upload.id.toString())
+            fileStoragePort.deleteFile("staged/${upload.id}")
         } catch (e: Exception) {
             logger.warn { "Failed to delete staged file ${upload.id} from storage: ${e.message}" }
         }

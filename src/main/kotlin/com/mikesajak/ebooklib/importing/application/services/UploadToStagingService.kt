@@ -55,7 +55,7 @@ class UploadToStagingService(
 
         // 2. Upload ebook to storage
         val ebookMetadata = fileStoragePort.uploadFile(ByteArrayInputStream(fileBytes), fileName, contentType, "staged")
-        val uploadId = StagedEbookUploadId(UUID.fromString(ebookMetadata.id))
+        val uploadId = StagedEbookUploadId(UUID.fromString(ebookMetadata.id.substringAfterLast('/')))
 
         // 3. Handle cover if present
         val metadataMap = mutableMapOf<String, Any?>()

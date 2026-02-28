@@ -42,7 +42,7 @@ class S3FileStorageAdapter(
         val headResponse = s3Client.headObject(headObjectRequest)
         val fileSize = headResponse.contentLength()
 
-        return FileMetadata(fileId, originalFileName, contentType, fileSize)
+        return FileMetadata(storageKey, originalFileName, contentType, fileSize)
     }
 
     override fun downloadFile(fileId: String): InputStream {

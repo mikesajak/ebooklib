@@ -48,7 +48,7 @@ class FinalizeImportService(
         }
 
         // 2. Promote Ebook File
-        val promotedFile = fileStoragePort.moveFile(stagedUpload.id.toString(), null) // move to root/library
+        val promotedFile = fileStoragePort.moveFile("staged/${stagedUpload.id}", null) // move to root/library
         
         // 3. Link Format to Book
         val formatType = extractFormatType(stagedUpload.fileName)
