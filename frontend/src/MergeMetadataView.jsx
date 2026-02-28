@@ -1,19 +1,30 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
+import { FaDatabase, FaFileAlt, FaPencilAlt } from 'react-icons/fa';
 import SearchableDropdown from './SearchableDropdown';
 
 const MergeMetadataView = ({
   stagedUpload,
   existingBook,
+  draftBook,
   authorOptions,
   seriesOptions,
   onMergedDataChange
 }) => {
   const { t } = useTranslation();
   const extracted = stagedUpload.metadata || {};
-  const validation = extracted.validation || {};
+  const validation = stagedUpload.validation || {}; // Use validation from stagedUpload root
 
   const resolveInitialAuthors = () => {
+    // Priority for manual entry if it exists and has authors
+    const draftAuthors = draftBook?.authors || [];
+    if (draftAuthors.length > 0 && draftAuthors.some(a => a.id || a.lastName)) {
+      return {
+        authorIds: draftAuthors.filter(a => !!a.id).map(a => a.id),
+        authorNames: draftAuthors.filter(a => !a.id && (a.firstName || a.lastName)).map(a => `${a.firstName} ${a.lastName}`.trim())
+      };
+    }
+
     if (existingBook) {
       return {
         authorIds: existingBook.authors.map(a => a.id),
@@ -21,7 +32,7 @@ const MergeMetadataView = ({
       };
     }
     
-    // For new books, try to resolve extracted names to existing IDs
+    // Fallback to extracted names
     const extractedNames = extracted.authors || [];
     const ids = [];
     const names = [];
@@ -38,24 +49,32 @@ const MergeMetadataView = ({
 
   const initialAuthors = resolveInitialAuthors();
 
+  // Helper to determine initial source for a field
+  const getInitialSource = (field) => {
+    if (draftBook && draftBook[field] && draftBook[field].toString().trim() !== '') return 'draft';
+    if (extracted && extracted[field] && extracted[field].toString().trim() !== '') return 'extracted';
+    if (existingBook && existingBook[field]) return 'existing';
+    return 'extracted';
+  };
+
   const [mergedData, setMergedData] = useState({
-    title: extracted.title || (existingBook ? existingBook.title : ''),
+    title: draftBook?.title || extracted.title || (existingBook ? existingBook.title : ''),
     authorIds: initialAuthors.authorIds,
     authorNames: initialAuthors.authorNames,
-    publisher: extracted.publisher || (existingBook ? existingBook.publisher : ''),
-    publicationDate: extracted.publicationDate || (existingBook ? (existingBook.publicationDate ? existingBook.publicationDate.split('T')[0] : '') : ''),
-    description: extracted.description || (existingBook ? existingBook.description : ''),
-    seriesId: existingBook ? existingBook.series?.id : null,
-    volume: existingBook ? existingBook.volume : null,
-    labels: existingBook ? existingBook.labels : [],
+    publisher: draftBook?.publisher || extracted.publisher || (existingBook ? existingBook.publisher : ''),
+    publicationDate: draftBook?.publicationDate || extracted.publicationDate || (existingBook ? (existingBook.publicationDate ? existingBook.publicationDate.split('T')[0] : '') : ''),
+    description: draftBook?.description || extracted.description || (existingBook ? existingBook.description : ''),
+    seriesId: draftBook?.series?.id || (existingBook ? existingBook.series?.id : null),
+    volume: draftBook?.volume || (existingBook ? existingBook.volume : null),
+    labels: (draftBook?.labels?.length > 0 ? draftBook.labels : (existingBook ? existingBook.labels : [])),
     updateCover: false
   });
 
-  const [selectedSources, setSelectedIds] = useState({
-    title: extracted.title && (!existingBook || extracted.title !== existingBook.title) ? 'extracted' : 'existing',
-    publisher: extracted.publisher && (!existingBook || extracted.publisher !== existingBook.publisher) ? 'extracted' : 'existing',
-    publicationDate: extracted.publicationDate && (!existingBook || extracted.publicationDate !== existingBook.publicationDate) ? 'extracted' : 'existing',
-    description: extracted.description && (!existingBook || extracted.description !== existingBook.description) ? 'extracted' : 'existing',
+  const [selectedSources, setSelectedSources] = useState({
+    title: getInitialSource('title'),
+    publisher: getInitialSource('publisher'),
+    publicationDate: getInitialSource('publicationDate'),
+    description: getInitialSource('description'),
     cover: false
   });
 
@@ -64,11 +83,13 @@ const MergeMetadataView = ({
   }, [mergedData, onMergedDataChange]);
 
   const toggleField = (field, source) => {
-    setSelectedIds(prev => ({ ...prev, [field]: source }));
+    setSelectedSources(prev => ({ ...prev, [field]: source }));
     
     let value;
     if (source === 'extracted') {
       value = extracted[field];
+    } else if (source === 'draft') {
+      value = draftBook ? (field === 'series' ? draftBook.series?.id : draftBook[field]) : '';
     } else {
       value = existingBook ? existingBook[field] : '';
       if (field === 'publicationDate' && value) value = value.split('T')[0];
@@ -128,53 +149,84 @@ const MergeMetadataView = ({
 
   const handleCoverToggle = () => {
     const newValue = !selectedSources.cover;
-    setSelectedIds(prev => ({ ...prev, cover: newValue }));
+    setSelectedSources(prev => ({ ...prev, cover: newValue }));
     setMergedData(prev => ({ ...prev, updateCover: newValue }));
   };
 
-  const FieldComparison = ({ label, field, existingValue, extractedValue }) => {
-    const currentSource = selectedSources[field];
+  const SourceButton = ({ source, label, value, field, icon: Icon, colorClass }) => {
+    if (!value && source !== 'existing') return null;
+    const isSelected = selectedSources[field] === source;
 
     return (
-      <div className="mb-4 border-b pb-2">
-        <label className="block text-sm font-bold text-gray-700 mb-1">{label}</label>
-        <div className="flex gap-4">
-          <div 
-            className={`flex-1 p-2 rounded border cursor-pointer transition-colors ${currentSource === 'existing' ? 'bg-blue-100 border-blue-500' : 'bg-gray-50 border-gray-200'}`}
-            onClick={() => toggleField(field, 'existing')}
-          >
-            <div className="text-xs text-gray-500 uppercase">{t('import.review.existingValue')}</div>
-            <div className={`${!existingValue ? 'italic text-gray-400' : ''}`}>
-              {existingValue || t('common.na')}
-            </div>
-          </div>
+      <div 
+        className={`flex-1 p-2 rounded border cursor-pointer transition-all flex flex-col gap-1
+          ${isSelected ? `ring-2 ring-offset-1 ${colorClass} border-transparent shadow-sm` : 'bg-white border-gray-200 hover:border-gray-300'}`}
+        onClick={() => toggleField(field, source)}
+      >
+        <div className={`flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider ${isSelected ? 'text-gray-900' : 'text-gray-400'}`}>
+          <Icon className={isSelected ? '' : 'opacity-50'} />
+          {label}
+        </div>
+        <div className={`text-sm break-words ${!value ? 'italic text-gray-400' : 'text-gray-700'}`}>
+          {value || t('common.na')}
+        </div>
+      </div>
+    );
+  };
 
-          {extractedValue && (
-            <div 
-              className={`flex-1 p-2 rounded border cursor-pointer transition-colors ${currentSource === 'extracted' ? 'bg-green-100 border-green-500' : 'bg-gray-50 border-gray-200'}`}
-              onClick={() => toggleField(field, 'extracted')}
-            >
-              <div className="text-xs text-gray-500 uppercase">{t('import.review.extractedValue')}</div>
-              <div>{extractedValue}</div>
-            </div>
-          )}
+  const FieldComparison = ({ label, field, existingValue, extractedValue, draftValue }) => {
+    return (
+      <div className="mb-6 last:mb-2">
+        <label className="block text-sm font-bold text-gray-700 mb-2">{label}</label>
+        <div className="flex flex-col sm:flex-row gap-3">
+          <SourceButton 
+            source="existing" 
+            label="Library" 
+            value={existingValue} 
+            field={field} 
+            icon={FaDatabase} 
+            colorClass="bg-blue-100 ring-blue-500" 
+          />
+          <SourceButton 
+            source="draft" 
+            label="Form (Manual)" 
+            value={draftValue} 
+            field={field} 
+            icon={FaPencilAlt} 
+            colorClass="bg-yellow-100 ring-yellow-500" 
+          />
+          <SourceButton 
+            source="extracted" 
+            label="Ebook File" 
+            value={extractedValue} 
+            field={field} 
+            icon={FaFileAlt} 
+            colorClass="bg-green-100 ring-green-500" 
+          />
         </div>
       </div>
     );
   };
 
   return (
-    <div className="merge-metadata-view max-h-[60vh] overflow-y-auto pr-2">
-      <div className="mb-6 p-3 bg-yellow-50 border-l-4 border-yellow-400 text-sm">
-        <p className="font-bold">{t('import.review.statusTitle')}:</p>
+    <div className="merge-metadata-view max-h-[65vh] overflow-y-auto pr-3 custom-scrollbar">
+      <div className="mb-6 p-4 bg-indigo-50 border-l-4 border-indigo-500 rounded-r-lg shadow-sm text-sm">
+        <h4 className="font-bold text-indigo-900 mb-1">{t('import.review.statusTitle')}</h4>
         {existingBook ? (
-          <p>
-            {validation.titleMatch && validation.authorMatch 
-              ? t('import.review.statusMatch') 
-              : t('import.review.statusMismatch')}
-          </p>
+          <div className="flex items-center gap-2 text-indigo-800">
+            <FaDatabase />
+            <span>
+              Matching with: <span className="font-bold">{existingBook.title}</span>
+              {validation.titleMatch && validation.authorMatch 
+                ? ` (${t('import.review.statusMatch')})` 
+                : ` (${t('import.review.statusMismatch')})`}
+            </span>
+          </div>
         ) : (
-          <p>{t('import.review.statusNewBook')}</p>
+          <div className="flex items-center gap-2 text-indigo-800">
+            <FaPencilAlt />
+            <span>{t('import.review.statusNewBook')}</span>
+          </div>
         )}
       </div>
 
@@ -183,40 +235,33 @@ const MergeMetadataView = ({
         field="title" 
         existingValue={existingBook?.title} 
         extractedValue={extracted.title} 
+        draftValue={draftBook?.title}
       />
 
-      <div className="mb-4 border-b pb-4">
+      <div className="mb-6 pb-2">
         <label className="block text-sm font-bold text-gray-700 mb-2">{t('addBook.form.author')}</label>
-        <div className="flex flex-col md:flex-row gap-4">
-          <div className="flex-1">
-            <div className="text-xs text-gray-500 uppercase mb-2">{t('import.review.extractedValue')}</div>
-            <div className="p-2 bg-gray-50 rounded border border-gray-200 min-h-[40px]">
-              {extracted.authors?.join(', ') || t('common.na')}
-            </div>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 bg-gray-50 p-3 rounded-lg border border-gray-200">
+          <div className="flex flex-col gap-1">
+            <div className="text-[10px] font-bold text-gray-400 uppercase flex items-center gap-1"><FaFileAlt /> Extracted</div>
+            <div className="text-sm text-gray-600">{extracted.authors?.join(', ') || t('common.na')}</div>
           </div>
-          <div className="flex-[2]">
-            <div className="text-xs text-gray-500 uppercase mb-2">{t('import.review.assignedAuthors')}</div>
+          <div className="lg:col-span-2">
+            <div className="text-[10px] font-bold text-gray-400 uppercase mb-2 flex items-center gap-1"><FaPencilAlt /> Final Assigned List</div>
             
-            {/* New Authors from file */}
+            {/* New Authors */}
             {mergedData.authorNames.map((name, index) => (
-              <div key={`new-${index}`} className="flex mb-2 gap-2 items-center bg-green-50 p-2 rounded border border-green-200">
+              <div key={`new-${index}`} className="flex mb-2 gap-2 items-center bg-green-50 p-2 rounded border border-green-200 shadow-sm animate-fade-in">
                 <div className="flex-grow text-sm font-medium text-green-800">
-                  <span className="text-xs bg-green-200 px-1 rounded mr-2 uppercase tracking-tighter">New</span>
+                  <span className="text-[9px] bg-green-200 px-1 rounded mr-2 uppercase font-bold">New</span>
                   {name}
                 </div>
-                <button
-                  type="button"
-                  onClick={() => handleRemoveNewAuthor(index)}
-                  className="text-red-500 hover:text-red-700"
-                >
-                  ✖
-                </button>
+                <button type="button" onClick={() => handleRemoveNewAuthor(index)} className="text-red-400 hover:text-red-600 transition-colors">✖</button>
               </div>
             ))}
 
             {/* Existing Authors */}
             {mergedData.authorIds.map((authorId, index) => (
-              <div key={`existing-${index}`} className="flex mb-2 gap-2 items-start">
+              <div key={`existing-${index}`} className="flex mb-2 gap-2 items-start animate-fade-in">
                 <div className="flex-grow">
                   <SearchableDropdown
                     id={`author-${index}`}
@@ -226,19 +271,13 @@ const MergeMetadataView = ({
                     placeholder={t('addBook.form.selectAuthor')}
                   />
                 </div>
-                <button
-                  type="button"
-                  onClick={() => handleRemoveAuthorField(index)}
-                  className="bg-red-100 text-red-700 hover:bg-red-700 hover:text-white font-bold py-2 px-3 rounded h-fit"
-                >
-                  ✖
-                </button>
+                <button type="button" onClick={() => handleRemoveAuthorField(index)} className="bg-red-50 text-red-400 hover:bg-red-500 hover:text-white font-bold py-2 px-3 rounded h-fit transition-colors">✖</button>
               </div>
             ))}
             <button
               type="button"
               onClick={handleAddAuthorField}
-              className="bg-blue-100 text-blue-700 hover:bg-blue-700 hover:text-white font-bold py-1 px-3 rounded text-sm"
+              className="mt-1 bg-white text-indigo-600 hover:bg-indigo-600 hover:text-white border border-indigo-200 font-bold py-1.5 px-4 rounded-full text-xs transition-all shadow-sm flex items-center gap-1 w-fit"
             >
               + {t('addBook.form.addAuthor')}
             </button>
@@ -246,9 +285,9 @@ const MergeMetadataView = ({
         </div>
       </div>
 
-      <div className="mb-4 border-b pb-4">
+      <div className="mb-6">
         <label className="block text-sm font-bold text-gray-700 mb-2">{t('addBook.form.series')}</label>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-gray-50 p-3 rounded-lg border border-gray-200">
           <SearchableDropdown
             id="series"
             options={seriesOptions}
@@ -256,15 +295,16 @@ const MergeMetadataView = ({
             onChange={handleSeriesChange}
             placeholder={t('addBook.form.selectSeries')}
           />
-          <div>
+          <div className="relative">
             <input
               type="number"
               value={mergedData.volume || ''}
               onChange={handleVolumeChange}
               disabled={!mergedData.seriesId}
               placeholder={t('addBook.form.volume')}
-              className={`shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline ${!mergedData.seriesId ? 'bg-gray-100 cursor-not-allowed' : ''}`}
+              className={`shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline ${!mergedData.seriesId ? 'bg-gray-100 cursor-not-allowed' : 'bg-white'}`}
             />
+            {!mergedData.seriesId && <div className="absolute inset-0 bg-gray-100 opacity-20 cursor-not-allowed"></div>}
           </div>
         </div>
       </div>
@@ -274,6 +314,7 @@ const MergeMetadataView = ({
         field="publisher" 
         existingValue={existingBook?.publisher} 
         extractedValue={extracted.publisher} 
+        draftValue={draftBook?.publisher}
       />
 
       <FieldComparison 
@@ -281,48 +322,58 @@ const MergeMetadataView = ({
         field="publicationDate" 
         existingValue={existingBook?.publicationDate} 
         extractedValue={extracted.publicationDate} 
+        draftValue={draftBook?.publicationDate}
       />
 
-      <div className="mb-4 border-b pb-2">
-        <label className="block text-sm font-bold text-gray-700 mb-1">{t('import.review.description')}</label>
-        <div className="flex flex-col gap-2">
-          {existingBook?.description && (
-            <div 
-              className={`p-2 rounded border cursor-pointer text-sm ${selectedSources.description === 'existing' ? 'bg-blue-100 border-blue-500' : 'bg-gray-50 border-gray-200'}`}
-              onClick={() => toggleField('description', 'existing')}
-            >
-              <div className="text-xs text-gray-500 uppercase mb-1">{t('import.review.existingValue')}</div>
-              <div className="line-clamp-3">{existingBook.description}</div>
-            </div>
-          )}
-          {extracted.description && (
-            <div 
-              className={`p-2 rounded border cursor-pointer text-sm ${selectedSources.description === 'extracted' ? 'bg-green-100 border-green-500' : 'bg-gray-50 border-gray-200'}`}
-              onClick={() => toggleField('description', 'extracted')}
-            >
-              <div className="text-xs text-gray-500 uppercase mb-1">{t('import.review.extractedValue')}</div>
-              <div className="line-clamp-3">{extracted.description}</div>
-            </div>
-          )}
+      <div className="mb-6">
+        <label className="block text-sm font-bold text-gray-700 mb-2">{t('import.review.description')}</label>
+        <div className="flex flex-col gap-3">
+          <SourceButton 
+            source="existing" 
+            label="Library" 
+            value={existingBook?.description} 
+            field="description" 
+            icon={FaDatabase} 
+            colorClass="bg-blue-100 ring-blue-500" 
+          />
+          <SourceButton 
+            source="draft" 
+            label="Form (Manual)" 
+            value={draftBook?.description} 
+            field="description" 
+            icon={FaPencilAlt} 
+            colorClass="bg-yellow-100 ring-yellow-500" 
+          />
+          <SourceButton 
+            source="extracted" 
+            label="Ebook File" 
+            value={extracted.description} 
+            field="description" 
+            icon={FaFileAlt} 
+            colorClass="bg-green-100 ring-green-500" 
+          />
         </div>
       </div>
 
       {extracted.coverStorageKey && (
         <div className="mb-4">
-          <label className="flex items-center gap-2 cursor-pointer p-3 bg-green-50 rounded border border-green-200">
+          <label className="flex items-center gap-2 cursor-pointer p-4 bg-green-50 rounded-xl border-2 border-green-200 hover:bg-green-100 transition-colors shadow-sm group">
             <input 
               type="checkbox" 
               checked={selectedSources.cover} 
               onChange={handleCoverToggle}
-              className="w-5 h-5 text-green-600"
+              className="w-6 h-6 text-green-600 rounded-lg focus:ring-green-500 transition-all"
             />
-            <div>
-              <span className="font-bold text-gray-700">{t('import.review.useExtractedCover')}</span>
-              <div className="mt-2">
+            <div className="flex-grow flex items-center justify-between">
+              <div>
+                <span className="font-extrabold text-green-900">{t('import.review.useExtractedCover')}</span>
+                <p className="text-xs text-green-700 mt-0.5">Replace current cover with image from ebook file</p>
+              </div>
+              <div className="p-1 bg-white rounded-lg border border-green-300 shadow-inner group-hover:scale-105 transition-transform">
                 <img 
                   src={`/api/import/staged/${stagedUpload.id}/cover`} 
                   alt="Extracted Cover" 
-                  className="h-32 object-contain rounded shadow-sm border bg-white"
+                  className="h-24 w-16 object-cover rounded shadow-sm"
                 />
               </div>
             </div>
