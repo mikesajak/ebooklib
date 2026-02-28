@@ -101,6 +101,54 @@ class ImportControllerComponentTest {
     }
 
     @Test
+    fun `should upload ebook and return match candidates`() {
+        // Given
+        val fileContent = "test ebook content".toByteArray()
+        val fileName = "ebook.epub"
+        val contentType = "application/epub+zip"
+        val multipartFile = MockMultipartFile("file", fileName, contentType, fileContent)
+        val matchingBookId = UUID.randomUUID()
+
+        val stagedUpload = StagedEbookUpload(
+            id = StagedEbookUploadId(UUID.randomUUID()),
+            fileName = fileName,
+            contentType = contentType,
+            fileSize = fileContent.size.toLong(),
+            metadataJson = """
+                {
+                  "title": "Hobbit",
+                  "validation": {
+                    "candidates": [
+                      {
+                        "bookId": "$matchingBookId",
+                        "title": "The Hobbit",
+                        "authors": ["J.R.R. Tolkien"],
+                        "titleMatch": false,
+                        "authorMatch": false,
+                        "score": 50
+                      }
+                    ]
+                  }
+                }
+            """.trimIndent(),
+            status = StagedEbookUploadStatus.PARSED,
+            createdAt = Instant.now(),
+            expiryAt = Instant.now().plusSeconds(3600)
+        )
+
+        whenever(uploadToStagingUseCase.upload(any(), any(), any(), anyOrNull())).thenReturn(stagedUpload)
+
+        // When & Then
+        mockMvc.perform(multipart("/api/import/upload")
+            .file(multipartFile))
+            .andExpect(status().isOk)
+            .andExpect(jsonPath("$.validation.candidates").isArray)
+            .andExpect(jsonPath("$.validation.candidates[0].bookId").value(matchingBookId.toString()))
+            .andExpect(jsonPath("$.validation.candidates[0].title").value("The Hobbit"))
+            .andExpect(jsonPath("$.validation.candidates[0].score").value(50))
+    }
+
+    @Test
     fun `should upload ebook to staging with currentBookId`() {
         // Given
         val currentBookId = UUID.randomUUID()
