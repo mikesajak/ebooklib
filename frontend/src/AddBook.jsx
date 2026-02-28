@@ -273,7 +273,7 @@ const AddBook = () => {
   return (
     <AddPage title={t(isEditMode ? 'addBook.editTitle' : 'addBook.title')} notification={notification} setNotification={setNotification}>
       
-      {!isEditMode && (
+      {!isEditMode && !stagedUpload && (
         <div className="mb-8 bg-blue-50 p-6 rounded-xl border border-blue-100 shadow-sm">
           <div className="flex items-center gap-3 mb-4">
             <FaFileImport className="text-2xl text-blue-600" />
@@ -305,6 +305,29 @@ const AddBook = () => {
               <p className="text-gray-500">{t('import.dropZoneSubtitle')}</p>
             </div>
           </form>
+        </div>
+      )}
+
+      {!isEditMode && stagedUpload && (
+        <div className="mb-8 bg-green-50 p-4 rounded-lg border border-green-200 flex justify-between items-center shadow-sm animate-fade-in">
+          <div className="flex items-center gap-3">
+            <div className="bg-green-500 text-white p-2 rounded-full">
+              <FaFileImport />
+            </div>
+            <div>
+              <p className="font-bold text-green-800">File attached: {stagedUpload.fileName}</p>
+              <p className="text-xs text-green-600">Form populated from extracted metadata. You can still review and edit below.</p>
+            </div>
+          </div>
+          <button 
+            onClick={() => {
+              setStagedUpload(null);
+              // We don't reset the form fields so the user doesn't lose manual edits
+            }}
+            className="text-sm bg-white hover:bg-red-50 text-red-600 border border-red-200 px-3 py-1 rounded shadow-sm transition-colors"
+          >
+            Remove file
+          </button>
         </div>
       )}
 
