@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { FaTools, FaTrashAlt, FaShieldAlt, FaHdd, FaInbox } from 'react-icons/fa';
+import { FaTools, FaTrashAlt, FaShieldAlt, FaHdd, FaInbox, FaSync, FaCheckCircle, FaExclamationCircle } from 'react-icons/fa';
 import { fetchWithCsrf } from './api';
 import Notification from './Notification';
 import ConfirmationDialog from './ConfirmationDialog';
@@ -11,7 +11,11 @@ const MaintenancePanel = () => {
   const [notification, setNotification] = useState(null);
   const [showPurgeConfirm, setShowPurgeConfirm] = useState(false);
   const [stagingStats, setStagingStats] = useState(null);
-  const [loadingStats, setLoadingStats] = useState(true);
+  const [loadingStaging, setLoadingStaging] = useState(true);
+
+  // Scan related state
+  const [scanStats, setScanStats] = useState(null);
+  const [isStartingScan, setIsStartingScan] = useState(false);
 
   const fetchStagingStats = async () => {
     try {
@@ -23,13 +27,35 @@ const MaintenancePanel = () => {
     } catch (err) {
       console.error('Failed to fetch staging stats', err);
     } finally {
-      setLoadingStats(false);
+      setLoadingStaging(false);
+    }
+  };
+
+  const fetchScanStats = async () => {
+    try {
+      const response = await fetch('/api/admin/maintenance/storage-scan/stats');
+      if (response.ok) {
+        const data = await response.json();
+        setScanStats(data);
+      }
+    } catch (err) {
+      console.error('Failed to fetch scan stats', err);
     }
   };
 
   useEffect(() => {
     fetchStagingStats();
+    fetchScanStats();
   }, []);
+
+  // Polling for scan status
+  useEffect(() => {
+    let interval;
+    if (scanStats?.status === 'RUNNING') {
+      interval = setInterval(fetchScanStats, 2000);
+    }
+    return () => clearInterval(interval);
+  }, [scanStats?.status]);
 
   const handlePurgeStaging = async () => {
     setIsPurging(true);
@@ -50,14 +76,37 @@ const MaintenancePanel = () => {
         setNotification({ type: 'error', message: t('admin.maintenance.staging.failure') });
       }
     } catch (err) {
-      console.error('Failed to purge staging', err);
       setNotification({ type: 'error', message: t('admin.maintenance.staging.failure') });
     } finally {
       setIsPurging(false);
     }
   };
 
+  const handleStartScan = async () => {
+    setIsStartingScan(true);
+    try {
+      const response = await fetchWithCsrf('/api/admin/maintenance/storage-scan', {
+        method: 'POST',
+      });
+      if (response.ok) {
+        fetchScanStats();
+      }
+    } catch (err) {
+      console.error('Failed to start scan', err);
+    } finally {
+      setIsStartingScan(false);
+    }
+  };
+
   const hasExpiredItems = stagingStats?.expiredItems > 0;
+  const isScanRunning = scanStats?.status === 'RUNNING';
+
+  const formatLastScan = () => {
+    if (!scanStats || scanStats.status === 'IDLE') return t('admin.maintenance.scan.statusIdle');
+    if (scanStats.status === 'FAILED') return t('admin.maintenance.scan.statusFailed', { error: scanStats.error });
+    const date = scanStats.finishedAt || scanStats.startedAt;
+    return t('admin.maintenance.scan.statusCompleted', { date: new Date(date).toLocaleString() });
+  };
 
   return (
     <div className="max-w-5xl mx-auto px-4 py-8">
@@ -81,6 +130,7 @@ const MaintenancePanel = () => {
       </div>
 
       <div className="grid grid-cols-1 gap-8">
+        {/* Staging Cleanup Card */}
         <div className="bg-white rounded-[2.5rem] border border-gray-100 shadow-2xl shadow-gray-200/50 p-8 animate-fade-in relative overflow-hidden group">
           <div className="absolute -right-4 -top-4 opacity-5 transform group-hover:scale-110 transition-transform duration-700">
             <FaInbox size={160} />
@@ -104,12 +154,12 @@ const MaintenancePanel = () => {
                 <div className="flex flex-wrap gap-4">
                   <div className="bg-gray-50 px-4 py-3 rounded-2xl border border-gray-100 min-w-[140px]">
                     <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">{t('admin.maintenance.staging.totalItems')}</p>
-                    <p className="text-xl font-black text-gray-700">{loadingStats ? '...' : stagingStats?.totalItems || 0}</p>
+                    <p className="text-xl font-black text-gray-700">{loadingStaging ? '...' : stagingStats?.totalItems || 0}</p>
                   </div>
                   <div className={`px-4 py-3 rounded-2xl border min-w-[140px] transition-all ${hasExpiredItems ? 'bg-amber-50 border-amber-100 animate-pulse-slow' : 'bg-gray-50 border-gray-100'}`}>
                     <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">{t('admin.maintenance.staging.expiredItems')}</p>
                     <p className={`text-xl font-black ${hasExpiredItems ? 'text-amber-600' : 'text-gray-700'}`}>
-                      {loadingStats ? '...' : stagingStats?.expiredItems || 0}
+                      {loadingStaging ? '...' : stagingStats?.expiredItems || 0}
                     </p>
                   </div>
                 </div>
@@ -137,26 +187,102 @@ const MaintenancePanel = () => {
           </div>
         </div>
 
-        <div className="bg-white rounded-[2.5rem] border border-gray-100 shadow-2xl shadow-gray-200/50 p-8 animate-fade-in [animation-delay:100ms] opacity-50 relative overflow-hidden">
-          <div className="absolute inset-0 bg-gray-50/50 backdrop-blur-[1px] flex items-center justify-center z-10">
-            <div className="bg-white px-4 py-2 rounded-full border border-gray-200 shadow-sm flex items-center gap-2">
-              <FaShieldAlt className="text-indigo-600" />
-              <span className="text-[10px] font-black uppercase tracking-widest text-gray-500">Coming in TASK-250</span>
-            </div>
+        {/* Deep Storage Scan Card */}
+        <div className="bg-white rounded-[2.5rem] border border-gray-100 shadow-2xl shadow-gray-200/50 p-8 animate-fade-in [animation-delay:100ms] relative overflow-hidden group">
+          <div className="absolute -right-4 -top-4 opacity-5 transform group-hover:scale-110 transition-transform duration-700">
+            <FaHdd size={160} />
           </div>
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-            <div className="flex items-start gap-4 text-gray-400">
-              <div className="p-4 rounded-2xl bg-gray-50">
-                <FaHdd size={24} />
+
+          <div className="flex flex-col gap-8 relative z-10">
+            <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-8">
+              <div className="flex items-start gap-6">
+                <div className={`p-4 rounded-3xl shadow-inner ${isScanRunning ? 'bg-indigo-600 text-white animate-pulse' : 'bg-indigo-50 text-indigo-600'}`}>
+                  <FaSync size={32} className={isScanRunning ? 'animate-spin' : ''} />
+                </div>
+                <div className="space-y-2">
+                  <h2 className="text-2xl font-black text-gray-800 tracking-tight mb-1">
+                    {t('admin.maintenance.scan.title')}
+                  </h2>
+                  <p className="text-sm font-bold text-gray-400 max-w-md leading-relaxed">
+                    {t('admin.maintenance.scan.description')}
+                  </p>
+                  <p className="text-[10px] font-black text-indigo-400 uppercase tracking-widest">{formatLastScan()}</p>
+                </div>
               </div>
-              <div>
-                <h2 className="text-xl font-black tracking-tight mb-1">Deep Storage Scan</h2>
-                <p className="text-sm font-bold max-w-md">Perform a full verification of the physical storage against database records.</p>
-              </div>
+
+              <button
+                onClick={handleStartScan}
+                disabled={isScanRunning || isStartingScan}
+                className={`flex items-center justify-center gap-3 px-10 py-5 rounded-2xl font-black text-sm uppercase tracking-wider transition-all transform active:scale-95 shadow-xl ${
+                  isScanRunning || isStartingScan
+                    ? 'bg-gray-100 text-gray-400 cursor-not-allowed shadow-none' 
+                    : 'bg-indigo-600 text-white shadow-indigo-100 hover:bg-indigo-700 hover:-translate-y-1'
+                }`}
+              >
+                {isStartingScan ? (
+                  <div className="animate-spin h-5 w-5 border-2 border-white/30 border-t-white rounded-full"></div>
+                ) : (
+                  <>
+                    <FaSync />
+                    {isScanRunning ? t('admin.maintenance.scan.running') : t('admin.maintenance.scan.button')}
+                  </>
+                )}
+              </button>
             </div>
-            <button disabled className="px-8 py-4 bg-gray-100 text-gray-400 rounded-2xl font-black text-sm uppercase tracking-wider cursor-not-allowed">
-              Start Scan
-            </button>
+
+            {/* Scan Progress & Results */}
+            {(isScanRunning || (scanStats?.status === 'COMPLETED')) && (
+              <div className="mt-4 p-6 bg-gray-50 rounded-[2rem] border border-gray-100 animate-fade-in">
+                <div className="flex flex-col md:flex-row justify-between items-center gap-6">
+                  <div className="w-full md:w-1/2">
+                    <div className="flex justify-between items-center mb-2">
+                      <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">{t('admin.maintenance.scan.progress')}</span>
+                      <span className="text-sm font-black text-indigo-600">{scanStats.progressPercent}%</span>
+                    </div>
+                    <div className="h-3 bg-white rounded-full overflow-hidden border border-gray-200">
+                      <div 
+                        className="h-full bg-indigo-600 rounded-full transition-all duration-500"
+                        style={{ width: `${scanStats.progressPercent}%` }}
+                      ></div>
+                    </div>
+                  </div>
+
+                  <div className="flex gap-8">
+                    <div className="text-center">
+                      <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">{t('admin.maintenance.scan.totalScanned')}</p>
+                      <p className="text-xl font-black text-gray-700">{scanStats.totalFilesScanned}</p>
+                    </div>
+                    <div className="text-center">
+                      <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">{t('admin.maintenance.scan.orphansFound')}</p>
+                      <p className={`text-xl font-black ${scanStats.orphanedFilesFound > 0 ? 'text-rose-600' : 'text-green-600'}`}>
+                        {scanStats.orphanedFilesFound}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                {scanStats.status === 'COMPLETED' && scanStats.orphanedFilesFound === 0 && (
+                  <div className="mt-6 flex items-center gap-2 text-green-600 text-xs font-bold justify-center">
+                    <FaCheckCircle /> {t('admin.maintenance.scan.noOrphans')}
+                  </div>
+                )}
+
+                {scanStats.status === 'COMPLETED' && scanStats.orphanedFilesFound > 0 && (
+                  <div className="mt-6 p-4 bg-rose-50 border border-rose-100 rounded-2xl">
+                    <div className="flex items-center gap-2 text-rose-600 text-xs font-black uppercase tracking-widest mb-3">
+                      <FaExclamationCircle /> {t('admin.maintenance.scan.results')}
+                    </div>
+                    <div className="max-h-40 overflow-y-auto space-y-1 pr-2 custom-scrollbar">
+                      {scanStats.orphanedFileKeys.map(key => (
+                        <div key={key} className="text-[10px] font-mono text-rose-800 bg-white/50 px-2 py-1 rounded border border-rose-100/50">
+                          {key}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         </div>
       </div>

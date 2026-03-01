@@ -302,6 +302,21 @@
         "failure": "Failed to clean up staging area.",
         "totalItems": "Total Items",
         "expiredItems": "Ready for Cleanup"
+      },
+      "scan": {
+        "title": "Deep Storage Scan",
+        "description": "Perform a full verification of the physical storage against database records to find orphaned files.",
+        "button": "Start Deep Scan",
+        "running": "Scanning...",
+        "statusIdle": "Last scan: Never",
+        "statusCompleted": "Last scan: {{date}}",
+        "statusFailed": "Last scan failed: {{error}}",
+        "results": "Scan Results",
+        "totalScanned": "Files Scanned",
+        "orphansFound": "Orphans Found",
+        "estimatedWarning": "Note: Counts are based on DB records. Perform a Deep Scan for verified physical status.",
+        "progress": "Scan Progress",
+        "noOrphans": "No orphaned files found. Storage is healthy!"
       }
     },
     "settings": {

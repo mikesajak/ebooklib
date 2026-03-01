@@ -301,6 +301,21 @@
         "failure": "Nie udało się wyczyścić plików tymczasowych.",
         "totalItems": "Wszystkie pliki",
         "expiredItems": "Gotowe do usunięcia"
+      },
+      "scan": {
+        "title": "Głębokie Skanowanie Magazynu",
+        "description": "Wykonaj pełną weryfikację fizycznego magazynu (S3) z rekordami w bazie danych, aby znaleźć osierocone pliki.",
+        "button": "Rozpocznij Skanowanie",
+        "running": "Skanowanie...",
+        "statusIdle": "Ostatni skan: Nigdy",
+        "statusCompleted": "Ostatni skan: {{date}}",
+        "statusFailed": "Ostatni skan nieudany: {{error}}",
+        "results": "Wyniki Skanowania",
+        "totalScanned": "Zeskanowane Pliki",
+        "orphansFound": "Osierocone Pliki",
+        "estimatedWarning": "Uwaga: Liczniki bazują na rekordach DB. Wykonaj Głębokie Skanowanie, aby zweryfikować stan fizyczny.",
+        "progress": "Postęp Skanowania",
+        "noOrphans": "Nie znaleziono osieroconych plików. Magazyn jest zdrowy!"
       }
     },
     "settings": {
