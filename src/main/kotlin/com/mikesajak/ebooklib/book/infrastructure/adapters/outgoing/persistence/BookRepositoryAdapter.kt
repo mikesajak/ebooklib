@@ -55,4 +55,6 @@ class BookRepositoryAdapter(
     override fun delete(bookId: BookId) {
         bookJpaRepository.deleteById(bookId.value)
     }
+
+    override fun count(): Long = bookJpaRepository.count()
 }

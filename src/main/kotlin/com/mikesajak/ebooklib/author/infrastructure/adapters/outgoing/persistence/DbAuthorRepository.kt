@@ -4,7 +4,6 @@ import com.mikesajak.ebooklib.author.application.ports.outgoing.AuthorRepository
 import com.mikesajak.ebooklib.author.application.projection.AuthorProjection
 import com.mikesajak.ebooklib.author.domain.model.Author
 import com.mikesajak.ebooklib.author.domain.model.AuthorId
-import com.mikesajak.ebooklib.book.infrastructure.adapters.outgoing.persistence.BookEntityMapper
 import com.mikesajak.ebooklib.book.infrastructure.adapters.outgoing.persistence.BookJpaRepository
 import com.mikesajak.ebooklib.common.domain.model.PaginatedResult
 import com.mikesajak.ebooklib.common.domain.model.PaginationRequest
@@ -62,4 +61,6 @@ class DbAuthorRepository(
 
         authorJpaRepository.deleteById(id.value)
     }
+
+    override fun count(): Long = authorJpaRepository.count()
 }

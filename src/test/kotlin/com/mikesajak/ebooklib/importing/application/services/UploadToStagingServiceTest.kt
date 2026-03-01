@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.mikesajak.ebooklib.author.domain.model.Author
 import com.mikesajak.ebooklib.book.application.ports.incoming.GetBookUseCase
+import com.mikesajak.ebooklib.book.application.ports.incoming.ListEbookFormatsUseCase
 import com.mikesajak.ebooklib.book.application.ports.outgoing.BookRepositoryPort
 import com.mikesajak.ebooklib.book.domain.model.Book
 import com.mikesajak.ebooklib.book.domain.model.BookId
@@ -12,7 +13,9 @@ import com.mikesajak.ebooklib.file.application.ports.outgoing.FileMetadata
 import com.mikesajak.ebooklib.file.application.ports.outgoing.FileStoragePort
 import com.mikesajak.ebooklib.importing.application.ports.incoming.EbookMetadataExtractorUseCase
 import com.mikesajak.ebooklib.importing.application.ports.outgoing.StagedEbookUploadRepositoryPort
-import com.mikesajak.ebooklib.importing.domain.model.*
+import com.mikesajak.ebooklib.importing.domain.model.ExtractedCoverImage
+import com.mikesajak.ebooklib.importing.domain.model.ExtractedEbookMetadata
+import com.mikesajak.ebooklib.importing.domain.model.StagedEbookUploadStatus
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
@@ -26,11 +29,15 @@ class UploadToStagingServiceTest {
     private val fileStoragePort = mockk<FileStoragePort>()
     private val metadataExtractor = mockk<EbookMetadataExtractorUseCase>()
     private val getBookUseCase = mockk<GetBookUseCase>()
+    private val listEbookFormatsUseCase = mockk<ListEbookFormatsUseCase>()
     private val bookRepository = mockk<BookRepositoryPort>()
     private val repository = mockk<StagedEbookUploadRepositoryPort>()
     private val objectMapper: ObjectMapper = jacksonObjectMapper()
 
-    private val service = UploadToStagingService(fileStoragePort, metadataExtractor, getBookUseCase, bookRepository, repository, objectMapper)
+    private val service = UploadToStagingService(
+        fileStoragePort, metadataExtractor, getBookUseCase, listEbookFormatsUseCase,
+        bookRepository, repository, objectMapper
+    )
 
     @Test
     fun `should upload and parse ebook`() {

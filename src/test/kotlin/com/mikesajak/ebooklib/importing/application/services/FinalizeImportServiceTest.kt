@@ -3,13 +3,11 @@ package com.mikesajak.ebooklib.importing.application.services
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.mikesajak.ebooklib.author.application.ports.incoming.GetAuthorUseCase
+import com.mikesajak.ebooklib.author.application.ports.incoming.SaveAuthorUseCase
+import com.mikesajak.ebooklib.author.application.ports.outgoing.AuthorRepositoryPort
 import com.mikesajak.ebooklib.author.domain.model.Author
 import com.mikesajak.ebooklib.author.domain.model.AuthorId
-import com.mikesajak.ebooklib.book.application.ports.incoming.AddBookUseCase
-import com.mikesajak.ebooklib.book.application.ports.incoming.AddEbookFormatUseCase
-import com.mikesajak.ebooklib.book.application.ports.incoming.GetBookUseCase
-import com.mikesajak.ebooklib.book.application.ports.incoming.UpdateBookUseCase
-import com.mikesajak.ebooklib.book.application.ports.incoming.UploadBookCoverUseCase
+import com.mikesajak.ebooklib.book.application.ports.incoming.*
 import com.mikesajak.ebooklib.book.domain.model.Book
 import com.mikesajak.ebooklib.book.domain.model.BookId
 import com.mikesajak.ebooklib.file.application.ports.outgoing.FileMetadata
@@ -36,6 +34,8 @@ class FinalizeImportServiceTest {
     private val addBookUseCase = mockk<AddBookUseCase>()
     private val updateBookUseCase = mockk<UpdateBookUseCase>()
     private val getAuthorUseCase = mockk<GetAuthorUseCase>()
+    private val saveAuthorUseCase = mockk<SaveAuthorUseCase>()
+    private val authorRepository = mockk<AuthorRepositoryPort>()
     private val getSeriesUseCase = mockk<GetSeriesUseCase>()
     private val addEbookFormatUseCase = mockk<AddEbookFormatUseCase>()
     private val uploadBookCoverUseCase = mockk<UploadBookCoverUseCase>()
@@ -43,8 +43,8 @@ class FinalizeImportServiceTest {
 
     private val service = FinalizeImportService(
         stagedRepository, fileStoragePort, getBookUseCase, addBookUseCase,
-        updateBookUseCase, getAuthorUseCase, getSeriesUseCase,
-        addEbookFormatUseCase, uploadBookCoverUseCase, objectMapper
+        updateBookUseCase, getAuthorUseCase, saveAuthorUseCase, authorRepository,
+        getSeriesUseCase, addEbookFormatUseCase, uploadBookCoverUseCase, objectMapper
     )
 
     @Test

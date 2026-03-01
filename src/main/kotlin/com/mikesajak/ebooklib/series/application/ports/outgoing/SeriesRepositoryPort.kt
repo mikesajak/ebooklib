@@ -9,4 +9,5 @@ interface SeriesRepositoryPort {
     fun findAll(pagination: PaginationRequest): PaginatedResult<Series>
     fun findById(id: SeriesId): Series?
     fun save(series: Series): Series
+    fun count(): Long
 }

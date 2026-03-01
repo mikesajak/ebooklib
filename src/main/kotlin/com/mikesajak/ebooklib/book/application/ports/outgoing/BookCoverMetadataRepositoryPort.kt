@@ -8,4 +8,5 @@ interface BookCoverMetadataRepositoryPort {
     fun save(bookCover: BookCoverMetadata): BookCoverMetadata
     fun delete(bookCover: BookCoverMetadata)
     fun existsByBookId(bookId: BookId): Boolean
+    fun count(): Long
 }

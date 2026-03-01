@@ -14,4 +14,5 @@ interface AuthorRepositoryPort {
     fun save(author: Author): Author
     fun existsById(id: AuthorId): Boolean
     fun deleteById(id: AuthorId)
+    fun count(): Long
 }

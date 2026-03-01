@@ -16,4 +16,5 @@ interface BookRepositoryPort {
     fun findByAuthorId(authorId: AuthorId, pagination: PaginationRequest): PaginatedResult<Book>
     fun findBySeriesId(seriesId: SeriesId, pagination: PaginationRequest): PaginatedResult<Book>
     fun findByTitleContaining(title: String, pagination: PaginationRequest): PaginatedResult<Book>
+    fun count(): Long
 }

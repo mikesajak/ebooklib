@@ -25,6 +25,8 @@ class BookCoverMetadataRepositoryAdapter(
         return bookCoverJpaRepository.existsByBookId(bookId.value)
     }
 
+    override fun count(): Long = bookCoverJpaRepository.count()
+
     private fun BookCoverEntity.toDomain(): BookCoverMetadata {
         return BookCoverMetadata(
                 id = this.id,

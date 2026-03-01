@@ -31,4 +31,6 @@ class DBSeriesRepository(
         val savedEntity = seriesJpaRepository.save(entityToSave)
         return mapper.toDomain(savedEntity)
     }
+
+    override fun count(): Long = seriesJpaRepository.count()
 }

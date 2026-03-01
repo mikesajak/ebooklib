@@ -4,7 +4,7 @@ import com.mikesajak.ebooklib.book.application.ports.outgoing.EbookFormatFileRep
 import com.mikesajak.ebooklib.book.domain.model.BookId
 import com.mikesajak.ebooklib.book.domain.model.EbookFormatFile
 import org.springframework.stereotype.Component
-import java.util.UUID
+import java.util.*
 
 @Component
 class EbookFormatFileJpaRepositoryAdapter(
@@ -25,6 +25,8 @@ class EbookFormatFileJpaRepositoryAdapter(
     override fun delete(ebookFormatFile: EbookFormatFile) {
         ebookFormatFileJpaRepository.delete(ebookFormatFile.toEntity())
     }
+
+    override fun count(): Long = ebookFormatFileJpaRepository.count()
 
     private fun EbookFormatFileEntity.toDomain(): EbookFormatFile {
         return EbookFormatFile(
