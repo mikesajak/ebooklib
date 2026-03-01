@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { FaLayerGroup, FaInfoCircle, FaPencilAlt } from 'react-icons/fa';
 import useMutation from './hooks/useMutation';
 import AddPage from './AddPage';
 import Form from './Form';
@@ -43,6 +44,15 @@ const AddSeries = () => {
   });
   const [originalSeries, setOriginalSeries] = useState(null); // Store original series data for comparison
   const [loading, setLoading] = useState(true);
+  const [dirtyFields, setDirtyFields] = useState(new Set());
+
+  const markDirty = (fieldName) => {
+    setDirtyFields(prev => {
+      const next = new Set(prev);
+      next.add(fieldName);
+      return next;
+    });
+  };
 
   const { mutate, isSaving, notification, setNotification } = useMutation(
     (seriesData) => saveSeries(seriesData, isEditMode, id),
@@ -76,10 +86,11 @@ const AddSeries = () => {
     } else {
       setLoading(false); // No need to load if not in edit mode
     }
-  }, [id, isEditMode]);
+  }, [id, isEditMode, setNotification]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
+    markDirty(name);
     setSeries(prevSeries => ({
       ...prevSeries,
       [name]: value
@@ -109,6 +120,22 @@ const AddSeries = () => {
 
   const isSaveDisabled = !isFormValid || isSaving || (isEditMode && !hasChanges());
 
+  const SectionHeader = ({ icon: Icon, title, description }) => (
+    <div className="mb-4">
+      <div className="flex items-center gap-2 text-amber-900 mb-1">
+        <Icon className="text-amber-500" />
+        <h3 className="font-extrabold uppercase text-xs tracking-widest">{title}</h3>
+      </div>
+      {description && <p className="text-xs text-gray-500">{description}</p>}
+    </div>
+  );
+
+  const InputCard = ({ children, isDirty }) => (
+    <div className={`p-4 rounded-xl border-2 transition-all shadow-sm mb-6 ${isDirty ? 'bg-yellow-50 border-yellow-200 ring-1 ring-yellow-100' : 'bg-white border-gray-100'}`}>
+      {children}
+    </div>
+  );
+
   if (loading) {
     return (
       <AddPage title={t(isEditMode ? 'addSeries.editTitle' : 'addSeries.title')} notification={notification} setNotification={setNotification}>
@@ -120,14 +147,29 @@ const AddSeries = () => {
   return (
     <AddPage title={t(isEditMode ? 'addSeries.editTitle' : 'addSeries.title')} notification={notification} setNotification={setNotification}>
       <Form onSave={handleSave} onCancel={handleCancel} isSaveDisabled={isSaveDisabled}>
-        <div className="mb-4">
-          <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="title">{t('addSeries.form.title')}:</label>
-          <input type="text" id="title" name="title" value={series.title} onChange={handleChange} className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" />
-        </div>
-        <div className="mb-4">
-          <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="description">{t('addSeries.form.description')}:</label>
-          <textarea id="description" name="description" value={series.description} onChange={handleChange} className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" />
-        </div>
+        
+        <SectionHeader icon={FaLayerGroup} title="Series Information" description="Basic details for the series." />
+        <InputCard isDirty={dirtyFields.has('title') || dirtyFields.has('description')}>
+          <div className="mb-6">
+            <div className="flex items-center gap-2 mb-2">
+              <label className="block text-gray-700 text-sm font-bold" htmlFor="title">
+                {t('addSeries.form.title')}
+              </label>
+              {dirtyFields.has('title') && <FaPencilAlt className="text-yellow-600 text-[10px]" />}
+            </div>
+            <input type="text" id="title" name="title" value={series.title || ''} onChange={handleChange} className={`shadow-sm appearance-none border rounded-lg w-full py-2.5 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-amber-500 transition-all ${dirtyFields.has('title') ? 'border-yellow-300' : 'border-gray-300'}`} />
+          </div>
+
+          <div>
+            <div className="flex items-center gap-2 mb-2">
+              <label className="block text-gray-700 text-sm font-bold" htmlFor="description">
+                {t('addSeries.form.description')}
+              </label>
+              {dirtyFields.has('description') && <FaPencilAlt className="text-yellow-600 text-[10px]" />}
+            </div>
+            <textarea id="description" name="description" value={series.description || ''} onChange={handleChange} rows="4" className={`shadow-sm appearance-none border rounded-lg w-full py-2.5 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-amber-500 transition-all ${dirtyFields.has('description') ? 'border-yellow-300' : 'border-gray-300'}`} />
+          </div>
+        </InputCard>
       </Form>
     </AddPage>
   );

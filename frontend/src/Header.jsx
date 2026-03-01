@@ -3,49 +3,52 @@ import { Link } from 'react-router-dom';
 import LanguageSelector from './LanguageSelector';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from './AuthContext';
+import { FaUserCircle, FaSignOutAlt } from 'react-icons/fa';
 
 const Header = () => {
   const { t, ready } = useTranslation();
   const { user, isAuthenticated, logout } = useAuth();
 
   if (!ready) {
-    return null; // Or a loading spinner
+    return null;
   }
 
   return (
-    <header style={{backgroundColor: 'white', color: 'black', boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)', padding: '1rem 2rem'}}>
-      <nav style={{}}>
-        <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
-          <h1 style={{fontSize: '1.25rem', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '0.5rem'}}>
-            <img src="/assets/book.jpg" alt="Ebook Library Icon" style={{height: '2em', width: 'auto'}} />
-            {t('header.title')}
-          </h1>
-          <div style={{display: 'flex', gap: '1rem', alignItems: 'center'}}>
+    <header className="bg-white border-b border-gray-100 shadow-sm sticky top-0 z-40 px-6 py-3">
+      <nav className="container mx-auto max-w-7xl">
+        <div className="flex justify-between items-center">
+          <Link to="/" className="flex items-center gap-3 group">
+            <div className="bg-indigo-50 p-1.5 rounded-lg group-hover:bg-indigo-100 transition-colors">
+              <img src="/assets/book.jpg" alt="Logo" className="h-8 w-auto mix-blend-multiply" />
+            </div>
+            <span className="text-xl font-black text-gray-800 tracking-tight">
+              Ebook<span className="text-indigo-600">Lib</span>
+            </span>
+          </Link>
+
+          <div className="flex items-center gap-6">
             {isAuthenticated && (
-              <div style={{display: 'flex', gap: '1rem', alignItems: 'center', marginRight: '1rem'}}>
-                <span style={{fontSize: '0.875rem', fontWeight: '500', color: '#4b5563'}}>
-                  {user?.username}
-                </span>
+              <div className="flex items-center gap-4 bg-gray-50 px-4 py-1.5 rounded-full border border-gray-100 shadow-inner">
+                <div className="flex items-center gap-2">
+                  <FaUserCircle className="text-gray-400 text-lg" />
+                  <span className="text-sm font-bold text-gray-700">
+                    {user?.username}
+                  </span>
+                </div>
+                <div className="w-px h-4 bg-gray-200"></div>
                 <button
                   onClick={logout}
-                  style={{
-                    fontSize: '0.875rem',
-                    fontWeight: '600',
-                    color: '#dc2626',
-                    background: 'none',
-                    border: 'none',
-                    cursor: 'pointer',
-                    padding: '0.25rem 0.5rem',
-                    borderRadius: '0.25rem'
-                  }}
-                  onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#fee2e2'}
-                  onMouseOut={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+                  className="flex items-center gap-1.5 text-xs font-black text-red-500 hover:text-red-700 uppercase tracking-wider transition-colors"
+                  title={t('auth.logoutButton')}
                 >
-                  {t('auth.logoutButton')}
+                  <FaSignOutAlt />
+                  <span className="hidden sm:inline">{t('auth.logoutButton')}</span>
                 </button>
               </div>
             )}
-            <LanguageSelector />
+            <div className="bg-gray-50 rounded-xl p-1 border border-gray-100">
+              <LanguageSelector />
+            </div>
           </div>
         </div>
       </nav>

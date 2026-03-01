@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { FaLayerGroup, FaPlus, FaEdit, FaTrash } from 'react-icons/fa';
 import { useSearch } from './SearchContext';
 import SearchBar from './SearchBar';
 import Pagination from './Pagination';
@@ -26,8 +27,6 @@ const SeriesList = () => {
     }
     return input;
   };
-
-  console.log("SeriesList render. Ready:", ready, "Loading:", loading, "Error:", error);
 
   const fetchSeries = useCallback(async () => {
     setLoading(true);
@@ -75,24 +74,6 @@ const SeriesList = () => {
     }
   };
 
-  if (loading || !ready) {
-    return (
-      <div className="container mx-auto p-4">
-        <h1 className="text-2xl font-bold mb-4">{t('seriesList.title')}</h1>
-        <p className="text-center text-gray-500">{t('seriesList.loading')}</p>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="container mx-auto p-4">
-        <h1 className="text-2xl font-bold mb-4">{t('seriesList.title')}</h1>
-        <p className="text-center text-red-500">{t('common.error')}: {error}</p>
-      </div>
-    );
-  }
-
   const getSortIndicator = (field) => {
     if (sortField === field) {
       return sortDirection === 'asc' ? ' ▲' : ' ▼';
@@ -100,50 +81,100 @@ const SeriesList = () => {
     return '';
   };
 
+  if (!ready) {
+    return <div className="container mx-auto p-4 text-center text-gray-500">Loading translations...</div>;
+  }
+
   return (
-    <div className="container mx-auto p-4">
-      <div className="flex justify-between items-center mb-4">
-        <h1 className="text-2xl font-bold">{t('seriesList.title')}</h1>
+    <div className="container mx-auto p-4 max-w-7xl">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
+        <div className="flex items-center gap-3">
+          <div className="bg-amber-600 text-white p-3 rounded-xl shadow-md">
+            <FaLayerGroup className="text-xl" />
+          </div>
+          <div>
+            <h1 className="text-2xl font-extrabold text-gray-900 tracking-tight">{t('seriesList.title')}</h1>
+            <p className="text-xs text-gray-500 font-medium">{totalElements} series in collection</p>
+          </div>
+        </div>
+
         <Link to="/series/add">
-          <button className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">
+          <button className="bg-green-600 hover:bg-green-700 text-white font-bold py-2.5 px-6 rounded-xl shadow-md hover:shadow-lg transition-all flex items-center gap-2 transform hover:-translate-y-0.5 active:translate-y-0">
+            <FaPlus />
             {t('seriesList.addSeries')}
           </button>
         </Link>
       </div>
 
-      <div className="w-full mb-4">
+      <div className="w-full mb-6">
         <SearchBar scope="series" queryTransformer={seriesQueryTransformer} />
       </div>
 
-      {series.length === 0 ? (
-        <p className="text-gray-500">{t('seriesList.noSeriesFound')}</p>
-      ) : (
-        <div className="bg-white shadow-md rounded">
+      <div className="bg-white shadow-xl rounded-2xl overflow-hidden border border-gray-100">
+        <div className="overflow-x-auto">
           <table className="min-w-full table-auto">
             <thead>
-              <tr className="bg-gray-200 text-gray-600 uppercase text-sm leading-normal">
-                <th className="py-3 px-6 text-left" onClick={() => handleSort('title')}>{t('seriesList.header.title')}{getSortIndicator('title')}</th>
-                <th className="py-3 px-6 text-center">{t('common.actions')}</th>
+              <tr className="bg-gray-50 border-b border-gray-200 text-gray-600 uppercase text-[10px] font-black tracking-widest">
+                <th className="py-4 px-6 text-left cursor-pointer hover:text-amber-600 transition-colors" onClick={() => handleSort('title')}>
+                  {t('seriesList.header.title')}{getSortIndicator('title')}
+                </th>
+                <th className="py-4 px-6 text-center">{t('common.actions')}</th>
               </tr>
             </thead>
-            <tbody>
-              {series.map((s, index) => (
-                <tr key={s.id} className={index % 2 === 0 ? 'bg-gray-50' : 'bg-white'}>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 border-b border-gray-200">
-                    <Link to={`/series/${s.id}`} className="series-link">
-                      {s.title}
-                    </Link>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium border-b border-gray-200">
-                    {/* Action buttons will go here */}
-                    <Link to={`/series/${s.id}/edit`} className="text-indigo-600 hover:text-indigo-900 mr-2">{t('common.edit')}</Link>
-                    <button onClick={() => { /* handle delete */ }} className="text-red-600 hover:text-red-900">{t('common.delete')}</button>
+            <tbody className="divide-y divide-gray-100">
+              {loading ? (
+                <tr>
+                  <td colSpan="2" className="px-6 py-12 whitespace-nowrap text-center text-sm text-gray-400 italic">
+                    <div className="flex flex-col items-center gap-2">
+                      <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-amber-600"></div>
+                      {t('seriesList.loading')}
+                    </div>
                   </td>
                 </tr>
-              ))}
+              ) : error ? (
+                <tr>
+                  <td colSpan="2" className="px-6 py-12 whitespace-nowrap text-center text-red-500 italic">
+                    {t('common.error')}: {error}
+                  </td>
+                </tr>
+              ) : series.length === 0 ? (
+                <tr>
+                  <td colSpan="2" className="px-6 py-12 whitespace-nowrap text-center text-sm text-gray-400 italic">{t('seriesList.noSeriesFound')}</td>
+                </tr>
+              ) : (
+                series.map((s) => (
+                  <tr key={s.id} className="hover:bg-amber-50/50 transition-colors group">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                      <Link to={`/series/${s.id}`} className="series-link group-hover:text-amber-700">
+                        {s.title}
+                      </Link>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-center">
+                      <div className="flex justify-center gap-2">
+                        <Link 
+                          to={`/series/${s.id}/edit`} 
+                          className="bg-white p-2 text-indigo-600 hover:bg-indigo-600 hover:text-white rounded-lg border border-indigo-100 shadow-sm transition-all"
+                          title={t('common.edit')}
+                        >
+                          <FaEdit />
+                        </Link>
+                        <button 
+                          onClick={() => { /* handle delete */ }} 
+                          className="bg-white p-2 text-red-600 hover:bg-red-600 hover:text-white rounded-lg border border-red-100 shadow-sm transition-all"
+                          title={t('common.delete')}
+                        >
+                          <FaTrash />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
+        </div>
 
+        <div className="bg-gray-50 border-t border-gray-100 p-4">
           <Pagination
             page={page}
             size={size}
@@ -155,9 +186,10 @@ const SeriesList = () => {
               localStorage.setItem('seriesListPageSize', newSize.toString());
               setPage(0); // Reset to first page when page size changes
             }}
+            theme="amber"
           />
         </div>
-      )}
+      </div>
     </div>
   );
 };

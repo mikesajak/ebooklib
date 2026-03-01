@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate, Link, useLocation } from 'react-router-dom';
+import { FaBook, FaPlus, FaEdit, FaTrash } from 'react-icons/fa';
 import Notification from './Notification';
 import { useTranslation } from 'react-i18next';
 import { useSearch } from './SearchContext';
@@ -9,7 +10,7 @@ import Pagination from './Pagination';
 import { fetchWithCsrf } from './api';
 
 const BookTable = () => {
-  const { t, i18n, ready } = useTranslation();
+  const { t, ready } = useTranslation();
   const navigate = useNavigate();
   const location = useLocation();
   const [books, setBooks] = useState([]);
@@ -80,8 +81,6 @@ const BookTable = () => {
     setPage(0);
   }, [searchQuery]);
 
-
-
   const handleDeleteClick = (book) => {
     setBookToDelete(book);
     setShowConfirmation(true);
@@ -118,10 +117,8 @@ const BookTable = () => {
     setBookToDelete(null);
   };
 
-
-
   if (!ready) {
-    return <div>Loading translations...</div>;
+    return <div className="container mx-auto p-4 text-center text-gray-500">Loading translations...</div>;
   }
 
   const handleSort = (field) => {
@@ -141,121 +138,166 @@ const BookTable = () => {
   };
 
   return (
-        <div className="container mx-auto p-4">
-          {notification && (
-            <Notification
-              message={notification.message}
-              type={notification.type}
-              onClose={() => setNotification(null)}
-            />
-          )}
-          <div className="flex justify-between items-center mb-4">
-            <h1 className="text-2xl font-bold">{t('bookTable.title')}</h1>
-            <Link to="/books/add">
-              <button className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">
-                {t('bookTable.addBookButton')}
-              </button>
-            </Link>
+    <div className="container mx-auto p-4 max-w-7xl">
+      {notification && (
+        <Notification
+          message={notification.message}
+          type={notification.type}
+          onClose={() => setNotification(null)}
+        />
+      )}
+      
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
+        <div className="flex items-center gap-3">
+          <div className="bg-indigo-600 text-white p-3 rounded-xl shadow-md">
+            <FaBook className="text-xl" />
           </div>
-          <div className="w-full mb-4">
-            <SearchBar scope="books" queryTransformer={bookQueryTransformer} />
+          <div>
+            <h1 className="text-2xl font-extrabold text-gray-900 tracking-tight">{t('bookTable.title')}</h1>
+            <p className="text-xs text-gray-500 font-medium">{totalElements} books in library</p>
           </div>
-          
-          {loading ? (
-            <p className="text-center text-gray-500">{t('bookTable.loadingBooks')}</p>
-          ) : (
-            <div className="bg-white shadow-md rounded">
-            <table className="min-w-full table-auto">
-              <thead>
-                <tr className="bg-gray-200 text-gray-600 uppercase text-sm leading-normal">
-                  <th className="py-3 px-6 text-left" onClick={() => handleSort('title')}>{t('bookTable.header.title')}{getSortIndicator('title')}</th>
-                  <th className="py-3 px-6 text-left">{t('bookTable.header.authors')}</th>
-                  <th className="py-3 px-6 text-left" onClick={() => handleSort('series.title')}>{t('bookTable.header.series')}{getSortIndicator('series.title')}</th>
-                  <th className="py-3 px-6 text-left" onClick={() => handleSort('volume')}>{t('bookTable.header.volume')}{getSortIndicator('volume')}</th>
-                  <th className="py-3 px-6 text-left" onClick={() => handleSort('publicationDate')}>Publication Date{getSortIndicator('publicationDate')}</th>
-                  <th className="py-3 px-6 text-left" onClick={() => handleSort('publisher')}>Publisher{getSortIndicator('publisher')}</th>
-                  <th className="py-3 px-6 text-left">{t('bookTable.header.labels')}</th>
-                  <th className="py-3 px-6 text-center">{t('bookTable.header.actions')}</th>
-                </tr>
-              </thead>
-              <tbody>
-                {books.length === 0 ? (
-                  <tr>
-                                  <td colSpan="8" className="px-6 py-4 whitespace-nowrap text-center text-sm text-gray-500">{t('bookTable.noBooksFound')}</td>
-                  </tr>
-                ) : (
-                  books.map((book, index) => (
-                    <tr key={book.id} className="border-b border-gray-200 hover:bg-gray-100">
-                      <td className="py-3 px-6 text-left whitespace-nowrap">
-                        <Link
-                          to={`/book/${book.id}`}
-                          className="book-link"
-                        >
-                          {book.title}
-                        </Link>
-                      </td>
-                      <td className="py-3 px-6 text-left whitespace-nowrap">
-                        {book.authors.map((author) => (
-                          <div key={author.id} style={{marginBottom: '0.25rem'}}>
-                            ▪ <Link
-                              to={`/author/${author.id}`}
-                              className="author-link"
-                            >
-                              {author.firstName} {author.lastName}
-                            </Link>
-                          </div>
-                        ))}
-                      </td>
-                      <td className="py-3 px-6 text-left whitespace-nowrap">
-                        {book.series ? (
-                          <Link
-                            to={`/series/${book.series.id}`}
-                            className="series-link"
-                          >
-                            {book.series.title}
-                          </Link>
-                        ) : t('common.na')}
-                      </td>
-                      <td className="py-3 px-6 text-left whitespace-nowrap">{book.volume || t('common.na')}</td>
-                      <td className="py-3 px-6 text-left whitespace-nowrap">{book.publicationDate || t('common.na')}</td>
-                      <td className="py-3 px-6 text-left whitespace-nowrap">{book.publisher || t('common.na')}</td>
-                      <td className="py-3 px-6 text-left whitespace-nowrap">{book.labels && book.labels.length > 0 ? book.labels.join(', ') : t('common.na')}</td>
-                      <td className="py-3 px-6 text-center whitespace-nowrap text-sm font-medium">
-                        <Link to={`/books/${book.id}/edit`} className="text-indigo-600 hover:text-indigo-900 mr-2">{t('common.edit')}</Link>
-                        <button onClick={() => handleDeleteClick(book)} className="text-red-600 hover:text-red-900">{t('common.delete')}</button>
-                      </td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
-    
-            {showConfirmation && (
-              <ConfirmationDialog
-                title={t('bookTable.deleteConfirmation.title')}
-                message={t('bookTable.deleteConfirmation.message', { bookTitle: bookToDelete?.title })}
-                onCancel={handleCancelDelete}
-                onConfirm={handleConfirmDelete}
-                confirmButtonText={t('bookTable.deleteConfirmation.delete')}
-                cancelButtonText={t('bookTable.deleteConfirmation.cancel')}
-              />
-            )}
-    
-            <Pagination
-              page={page}
-              size={size}
-              totalPages={totalPages}
-              totalElements={totalElements}
-              onPageChange={setPage}
-              onPageSizeChange={(newSize) => {
-                setSize(newSize);
-                localStorage.setItem('bookListPageSize', newSize.toString());
-                setPage(0); // Reset to first page when page size changes
-              }}
-            />
-          </div>
-          )}
         </div>
+        
+        <Link to="/books/add">
+          <button className="bg-green-600 hover:bg-green-700 text-white font-bold py-2.5 px-6 rounded-xl shadow-md hover:shadow-lg transition-all flex items-center gap-2 transform hover:-translate-y-0.5 active:translate-y-0">
+            <FaPlus />
+            {t('bookTable.addBookButton')}
+          </button>
+        </Link>
+      </div>
+
+      <div className="w-full mb-6">
+        <SearchBar scope="books" queryTransformer={bookQueryTransformer} />
+      </div>
+      
+      <div className="bg-white shadow-xl rounded-2xl overflow-hidden border border-gray-100">
+        <div className="overflow-x-auto">
+          <table className="min-w-full table-auto">
+            <thead>
+              <tr className="bg-gray-50 border-b border-gray-200 text-gray-600 uppercase text-[10px] font-black tracking-widest">
+                <th className="py-4 px-6 text-left cursor-pointer hover:text-indigo-600 transition-colors" onClick={() => handleSort('title')}>
+                  {t('bookTable.header.title')}{getSortIndicator('title')}
+                </th>
+                <th className="py-4 px-6 text-left">{t('bookTable.header.authors')}</th>
+                <th className="py-4 px-6 text-left cursor-pointer hover:text-indigo-600 transition-colors" onClick={() => handleSort('series.title')}>
+                  {t('bookTable.header.series')}{getSortIndicator('series.title')}
+                </th>
+                <th className="py-4 px-6 text-left cursor-pointer hover:text-indigo-600 transition-colors" onClick={() => handleSort('volume')}>
+                  {t('bookTable.header.volume')}{getSortIndicator('volume')}
+                </th>
+                <th className="py-4 px-6 text-left cursor-pointer hover:text-indigo-600 transition-colors" onClick={() => handleSort('publicationDate')}>
+                  Publication Date{getSortIndicator('publicationDate')}
+                </th>
+                <th className="py-4 px-6 text-left cursor-pointer hover:text-indigo-600 transition-colors" onClick={() => handleSort('publisher')}>
+                  Publisher{getSortIndicator('publisher')}
+                </th>
+                <th className="py-4 px-6 text-left">{t('bookTable.header.labels')}</th>
+                <th className="py-4 px-6 text-center">{t('bookTable.header.actions')}</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-100">
+              {loading ? (
+                <tr>
+                  <td colSpan="8" className="px-6 py-12 whitespace-nowrap text-center text-sm text-gray-400 italic">
+                    <div className="flex flex-col items-center gap-2">
+                      <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-indigo-600"></div>
+                      {t('bookTable.loadingBooks')}
+                    </div>
+                  </td>
+                </tr>
+              ) : books.length === 0 ? (
+                <tr>
+                  <td colSpan="8" className="px-6 py-12 whitespace-nowrap text-center text-sm text-gray-400 italic">{t('bookTable.noBooksFound')}</td>
+                </tr>
+              ) : (
+                books.map((book) => (
+                  <tr key={book.id} className="hover:bg-indigo-50/50 transition-colors group">
+                    <td className="py-4 px-6 text-left">
+                      <Link to={`/book/${book.id}`} className="book-link group-hover:text-indigo-700">
+                        {book.title}
+                      </Link>
+                    </td>
+                    <td className="py-4 px-6 text-left whitespace-nowrap">
+                      {book.authors.map((author) => (
+                        <div key={author.id} className="text-xs mb-1 last:mb-0">
+                          <Link to={`/author/${author.id}`} className="author-link hover:underline">
+                            {author.firstName} {author.lastName}
+                          </Link>
+                        </div>
+                      ))}
+                    </td>
+                    <td className="py-4 px-6 text-left whitespace-nowrap text-sm text-gray-600">
+                      {book.series ? (
+                        <Link to={`/series/${book.series.id}`} className="series-link hover:underline">
+                          {book.series.title}
+                        </Link>
+                      ) : <span className="text-gray-300 italic">{t('common.na')}</span>}
+                    </td>
+                    <td className="py-4 px-6 text-left text-sm text-gray-600">{book.volume || <span className="text-gray-300">−</span>}</td>
+                    <td className="py-4 px-6 text-left text-sm text-gray-600 whitespace-nowrap">{book.publicationDate || <span className="text-gray-300">−</span>}</td>
+                    <td className="py-4 px-6 text-left text-sm text-gray-600">{book.publisher || <span className="text-gray-300">−</span>}</td>
+                    <td className="py-4 px-6 text-left">
+                      <div className="flex flex-wrap gap-1">
+                        {book.labels && book.labels.length > 0 ? book.labels.map(label => (
+                          <span key={label} className="bg-gray-100 text-gray-600 text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-tighter border border-gray-200">
+                            {label}
+                          </span>
+                        )) : <span className="text-gray-300 text-sm">−</span>}
+                      </div>
+                    </td>
+                    <td className="py-4 px-6 text-center whitespace-nowrap">
+                      <div className="flex justify-center gap-2">
+                        <Link 
+                          to={`/books/${book.id}/edit`} 
+                          className="bg-white p-2 text-indigo-600 hover:bg-indigo-600 hover:text-white rounded-lg border border-indigo-100 shadow-sm transition-all"
+                          title={t('common.edit')}
+                        >
+                          <FaEdit />
+                        </Link>
+                        <button 
+                          onClick={() => handleDeleteClick(book)} 
+                          className="bg-white p-2 text-red-600 hover:bg-red-600 hover:text-white rounded-lg border border-red-100 shadow-sm transition-all"
+                          title={t('common.delete')}
+                        >
+                          <FaTrash />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+
+        {showConfirmation && (
+          <ConfirmationDialog
+            title={t('bookTable.deleteConfirmation.title')}
+            message={t('bookTable.deleteConfirmation.message', { bookTitle: bookToDelete?.title })}
+            onCancel={handleCancelDelete}
+            onConfirm={handleConfirmDelete}
+            confirmButtonText={t('bookTable.deleteConfirmation.delete')}
+            cancelButtonText={t('bookTable.deleteConfirmation.cancel')}
+          />
+        )}
+
+        <div className="bg-gray-50 border-t border-gray-100 p-4">
+          <Pagination
+            page={page}
+            size={size}
+            totalPages={totalPages}
+            totalElements={totalElements}
+            onPageChange={setPage}
+            onPageSizeChange={(newSize) => {
+              setSize(newSize);
+              localStorage.setItem('bookListPageSize', newSize.toString());
+              setPage(0); // Reset to first page when page size changes
+            }}
+            theme="indigo"
+          />
+        </div>
+      </div>
+    </div>
   );
 };
 

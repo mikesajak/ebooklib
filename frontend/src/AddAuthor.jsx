@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { FaUserTag, FaInfoCircle, FaPencilAlt } from 'react-icons/fa';
 import useMutation from './hooks/useMutation';
 import AddPage from './AddPage';
 import Form from './Form';
@@ -46,6 +47,15 @@ const AddAuthor = () => {
   });
   const [originalAuthor, setOriginalAuthor] = useState(null); // Store original author data for comparison
   const [loading, setLoading] = useState(true);
+  const [dirtyFields, setDirtyFields] = useState(new Set());
+
+  const markDirty = (fieldName) => {
+    setDirtyFields(prev => {
+      const next = new Set(prev);
+      next.add(fieldName);
+      return next;
+    });
+  };
 
   const { mutate, isSaving, notification, setNotification } = useMutation(
     (authorData) => saveAuthor(authorData, isEditMode, id),
@@ -80,10 +90,11 @@ const AddAuthor = () => {
     } else {
       setLoading(false); // No need to load if not in edit mode
     }
-  }, [id, isEditMode]);
+  }, [id, isEditMode, setNotification]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
+    markDirty(name);
     setAuthor(prevAuthor => ({
       ...prevAuthor,
       [name]: value
@@ -116,6 +127,22 @@ const AddAuthor = () => {
 
   const isSaveDisabled = !isFormValid || isSaving || (isEditMode && !hasChanges());
 
+  const SectionHeader = ({ icon: Icon, title, description }) => (
+    <div className="mb-4">
+      <div className="flex items-center gap-2 text-emerald-900 mb-1">
+        <Icon className="text-emerald-500" />
+        <h3 className="font-extrabold uppercase text-xs tracking-widest">{title}</h3>
+      </div>
+      {description && <p className="text-xs text-gray-500">{description}</p>}
+    </div>
+  );
+
+  const InputCard = ({ children, isDirty }) => (
+    <div className={`p-4 rounded-xl border-2 transition-all shadow-sm mb-6 ${isDirty ? 'bg-yellow-50 border-yellow-200 ring-1 ring-yellow-100' : 'bg-white border-gray-100'}`}>
+      {children}
+    </div>
+  );
+
   if (loading) {
     return (
       <AddPage title={t(isEditMode ? 'addAuthor.editTitle' : 'addAuthor.title')} notification={notification} setNotification={setNotification}>
@@ -127,26 +154,58 @@ const AddAuthor = () => {
   return (
     <AddPage title={t(isEditMode ? 'addAuthor.editTitle' : 'addAuthor.title')} notification={notification} setNotification={setNotification}>
       <Form onSave={handleSave} onCancel={handleCancel} isSaveDisabled={isSaveDisabled}>
-        <div className="mb-4">
-          <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="firstName">{t('addAuthor.form.firstName')}:</label>
-          <input type="text" id="firstName" name="firstName" value={author.firstName || ''} onChange={handleChange} className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" />
-        </div>
-        <div className="mb-4">
-          <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="lastName">{t('addAuthor.form.lastName')}:</label>
-          <input type="text" id="lastName" name="lastName" value={author.lastName || ''} onChange={handleChange} className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" />
-        </div>
-        <div className="mb-4">
-          <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="bio">{t('addAuthor.form.bio')}:</label>
-          <textarea id="bio" name="bio" value={author.bio || ''} onChange={handleChange} className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" />
-        </div>
-        <div className="mb-4">
-          <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="birthDate">{t('addAuthor.form.birthDate')}:</label>
-          <input type="date" id="birthDate" name="birthDate" value={author.birthDate || ''} onChange={handleChange} className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" />
-        </div>
-        <div className="mb-4">
-          <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="deathDate">{t('addAuthor.form.deathDate')}:</label>
-          <input type="date" id="deathDate" name="deathDate" value={author.deathDate || ''} onChange={handleChange} className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" />
-        </div>
+        
+        <SectionHeader icon={FaUserTag} title="Personal Identity" description="Basic identification for the author." />
+        <InputCard isDirty={dirtyFields.has('firstName') || dirtyFields.has('lastName')}>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <div className="flex items-center gap-2 mb-2">
+                <label className="block text-gray-700 text-sm font-bold" htmlFor="firstName">
+                  {t('addAuthor.form.firstName')}
+                </label>
+                {dirtyFields.has('firstName') && <FaPencilAlt className="text-yellow-600 text-[10px]" />}
+              </div>
+              <input type="text" id="firstName" name="firstName" value={author.firstName || ''} onChange={handleChange} className={`shadow-sm appearance-none border rounded-lg w-full py-2.5 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all ${dirtyFields.has('firstName') ? 'border-yellow-300' : 'border-gray-300'}`} />
+            </div>
+            <div>
+              <div className="flex items-center gap-2 mb-2">
+                <label className="block text-gray-700 text-sm font-bold" htmlFor="lastName">
+                  {t('addAuthor.form.lastName')}
+                </label>
+                {dirtyFields.has('lastName') && <FaPencilAlt className="text-yellow-600 text-[10px]" />}
+              </div>
+              <input type="text" id="lastName" name="lastName" value={author.lastName || ''} onChange={handleChange} className={`shadow-sm appearance-none border rounded-lg w-full py-2.5 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all ${dirtyFields.has('lastName') ? 'border-yellow-300' : 'border-gray-300'}`} />
+            </div>
+          </div>
+        </InputCard>
+
+        <SectionHeader icon={FaInfoCircle} title="Biography & Key Dates" description="Contextual information and lifespan dates." />
+        <InputCard isDirty={dirtyFields.has('bio') || dirtyFields.has('birthDate') || dirtyFields.has('deathDate')}>
+          <div className="mb-6">
+            <div className="flex items-center gap-2 mb-2">
+              <label className="block text-gray-700 text-sm font-bold" htmlFor="bio">{t('addAuthor.form.bio')}</label>
+              {dirtyFields.has('bio') && <FaPencilAlt className="text-yellow-600 text-[10px]" />}
+            </div>
+            <textarea id="bio" name="bio" value={author.bio || ''} onChange={handleChange} rows="4" className={`shadow-sm appearance-none border rounded-lg w-full py-2.5 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all ${dirtyFields.has('bio') ? 'border-yellow-300' : 'border-gray-300'}`} />
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <div className="flex items-center gap-2 mb-2">
+                <label className="block text-gray-700 text-sm font-bold" htmlFor="birthDate">{t('addAuthor.form.birthDate')}</label>
+                {dirtyFields.has('birthDate') && <FaPencilAlt className="text-yellow-600 text-[10px]" />}
+              </div>
+              <input type="date" id="birthDate" name="birthDate" value={author.birthDate || ''} onChange={handleChange} className={`shadow-sm appearance-none border rounded-lg w-full py-2.5 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all ${dirtyFields.has('birthDate') ? 'border-yellow-300' : 'border-gray-300'}`} />
+            </div>
+            <div>
+              <div className="flex items-center gap-2 mb-2">
+                <label className="block text-gray-700 text-sm font-bold" htmlFor="deathDate">{t('addAuthor.form.deathDate')}</label>
+                {dirtyFields.has('deathDate') && <FaPencilAlt className="text-yellow-600 text-[10px]" />}
+              </div>
+              <input type="date" id="deathDate" name="deathDate" value={author.deathDate || ''} onChange={handleChange} className={`shadow-sm appearance-none border rounded-lg w-full py-2.5 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all ${dirtyFields.has('deathDate') ? 'border-yellow-300' : 'border-gray-300'}`} />
+            </div>
+          </div>
+        </InputCard>
       </Form>
     </AddPage>
   );

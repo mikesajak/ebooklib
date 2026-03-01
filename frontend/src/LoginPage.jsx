@@ -3,6 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from './AuthContext';
 import { fetchWithCsrf } from './api';
+import { FaLock, FaUser, FaSignInAlt } from 'react-icons/fa';
 
 const LoginPage = () => {
   const [username, setUsername] = useState('');
@@ -23,7 +24,6 @@ const LoginPage = () => {
     setIsSubmitting(true);
 
     try {
-      // Spring Security default form login params: username, password
       const params = new URLSearchParams();
       params.append('username', username);
       params.append('password', password);
@@ -55,69 +55,92 @@ const LoginPage = () => {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-[60vh]">
-      <div className="w-full max-w-md p-8 bg-white rounded-lg shadow-md border border-gray-200">
-        <h2 className="mb-6 text-2xl font-bold text-center text-gray-800">
-          {t('auth.loginTitle')}
-        </h2>
-
-        {error && (
-          <div className="p-3 mb-4 text-sm text-red-700 bg-red-100 rounded-lg border border-red-200">
-            {error}
+    <div className="flex flex-col items-center justify-center min-h-[70vh] px-4">
+      <div className="w-full max-w-md bg-white rounded-3xl shadow-2xl overflow-hidden border border-gray-100 animate-fade-in">
+        <div className="bg-indigo-600 p-8 text-center text-white relative">
+          <div className="absolute top-0 left-0 w-full h-full opacity-10 bg-[url('/assets/book.jpg')] bg-cover bg-center mix-blend-overlay"></div>
+          <div className="bg-white/20 w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4 backdrop-blur-md border border-white/30 shadow-lg">
+            <FaLock className="text-2xl" />
           </div>
-        )}
+          <h2 className="text-2xl font-black tracking-tight">{t('auth.loginTitle')}</h2>
+          <p className="text-indigo-100 text-xs mt-1 font-bold uppercase tracking-widest opacity-80">Library Access</p>
+        </div>
 
-        <form onSubmit={handleSubmit}>
-          <div className="mb-4">
-            <label className="block mb-2 text-sm font-medium text-gray-700" htmlFor="username">
-              {t('auth.username')}
-            </label>
-            <input
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              type="text"
-              id="username"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              required
-              disabled={isSubmitting}
-            />
-          </div>
+        <div className="p-8">
+          {error && (
+            <div className="p-4 mb-6 text-sm font-bold text-red-700 bg-red-50 rounded-2xl border border-red-100 flex items-center gap-3 animate-shake">
+              <div className="bg-red-500 text-white p-1.5 rounded-lg text-xs"><FaSignInAlt /></div>
+              {error}
+            </div>
+          )}
 
-          <div className="mb-6">
-            <label className="block mb-2 text-sm font-medium text-gray-700" htmlFor="password">
-              {t('auth.password')}
-            </label>
-            <input
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              type="password"
-              id="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              disabled={isSubmitting}
-            />
-          </div>
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <div>
+              <label className="flex items-center gap-2 mb-2 text-[10px] font-black text-gray-400 uppercase tracking-widest" htmlFor="username">
+                <FaUser className="text-indigo-500" /> {t('auth.username')}
+              </label>
+              <input
+                className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white transition-all font-medium text-gray-700"
+                type="text"
+                id="username"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                required
+                disabled={isSubmitting}
+                placeholder="Enter your username"
+              />
+            </div>
 
-          <div className="flex items-center justify-between gap-4">
-            <button
-              className={`flex-1 px-4 py-2 font-bold text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                isSubmitting ? 'bg-blue-400 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700'
-              }`}
-              type="submit"
-              disabled={isSubmitting}
-            >
-              {isSubmitting ? t('common.loading') : t('auth.loginButton')}
-            </button>
-            <button
-              className="flex-1 px-4 py-2 font-bold text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-400"
-              type="button"
-              onClick={handleCancel}
-              disabled={isSubmitting}
-            >
-              {t('common.cancel')}
-            </button>
-          </div>
-        </form>
+            <div>
+              <label className="flex items-center gap-2 mb-2 text-[10px] font-black text-gray-400 uppercase tracking-widest" htmlFor="password">
+                <FaLock className="text-indigo-500" /> {t('auth.password')}
+              </label>
+              <input
+                className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white transition-all font-medium text-gray-700"
+                type="password"
+                id="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+                disabled={isSubmitting}
+                placeholder="••••••••"
+              />
+            </div>
+
+            <div className="flex flex-col gap-3 pt-2">
+              <button
+                className={`w-full py-3 px-6 font-black text-white rounded-xl shadow-lg transition-all flex items-center justify-center gap-2 transform active:scale-95 ${
+                  isSubmitting ? 'bg-indigo-400 cursor-not-allowed' : 'bg-indigo-600 hover:bg-indigo-700 hover:shadow-indigo-200'
+                }`}
+                type="submit"
+                disabled={isSubmitting}
+              >
+                {isSubmitting ? (
+                  <div className="animate-spin h-5 w-5 border-2 border-white/30 border-t-white rounded-full"></div>
+                ) : (
+                  <>
+                    <FaSignInAlt />
+                    {t('auth.loginButton')}
+                  </>
+                )}
+              </button>
+              <button
+                className="w-full py-3 px-6 font-bold text-gray-500 bg-white border border-gray-200 rounded-xl hover:bg-gray-50 hover:text-gray-700 transition-all text-sm"
+                type="button"
+                onClick={handleCancel}
+                disabled={isSubmitting}
+              >
+                {t('common.cancel')}
+              </button>
+            </div>
+          </form>
+        </div>
+        
+        <div className="p-6 bg-gray-50 border-t border-gray-100 text-center">
+          <p className="text-[10px] text-gray-400 font-bold uppercase tracking-tighter">
+            Ebook Library Management System v4.0
+          </p>
+        </div>
       </div>
     </div>
   );

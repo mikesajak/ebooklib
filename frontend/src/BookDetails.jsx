@@ -1,10 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
+import { FaBook, FaEdit, FaTrash, FaInfoCircle, FaLayerGroup, FaTags, FaArrowLeft, FaFileAlt } from 'react-icons/fa';
 import Notification from './Notification';
 import ConfirmationDialog from './ConfirmationDialog';
 import BookFormats from './BookFormats';
-import { useTranslation } from 'react-i18next';
 import { fetchWithCsrf } from './api';
+import { useTranslation } from 'react-i18next';
 
 const BookDetails = () => {
   const { t } = useTranslation();
@@ -13,232 +14,87 @@ const BookDetails = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [notification, setNotification] = useState(null);
-  const [bookCoverUrl, setBookCoverUrl] = useState(null);
-  const [hasCover, setHasCover] = useState(false);
-  const [showUploadConfirmDialog, setShowUploadConfirmDialog] = useState(false);
-  const [showDeleteConfirmDialog, setShowDeleteConfirmDialog] = useState(false);
   const [showBookDeleteConfirmDialog, setShowBookDeleteConfirmDialog] = useState(false);
-  const [selectedFile, setSelectedFile] = useState(null);
-  const [isCoverFileMissing, setIsCoverFileMissing] = useState(false);
-  const descriptionRef = useRef(null);
-  const [isScrolledToBottom, setIsScrolledToBottom] = useState(true); // Assume true initially if no scroll needed
   const navigate = useNavigate();
 
-  const handleScroll = () => {
-    if (descriptionRef.current) {
-      const { scrollTop, scrollHeight, clientHeight } = descriptionRef.current;
-      // Check if scrolled to bottom (with a small tolerance for floating point inaccuracies)
-      const atBottom = scrollHeight - scrollTop <= clientHeight + 1;
-      setIsScrolledToBottom(atBottom);
-    }
-  };
-
-  const fetchBook = async (isInitialLoad = false) => {
-    try {
-      const response = await fetchWithCsrf(`/api/books/${id}`);
-      if (!response.ok) {
-        throw new Error('Failed to fetch book details');
-      }
-      const data = await response.json();
-      setBook(data);
-    } catch (err) {
-      setError(err.message);
-    } finally {
-      if (isInitialLoad) {
+  useEffect(() => {
+    const fetchBook = async () => {
+      try {
+        setLoading(true);
+        const response = await fetchWithCsrf(`/api/books/${id}`);
+        if (!response.ok) {
+          throw new Error(t('bookDetails.errorFetching'));
+        }
+        const data = await response.json();
+        setBook(data);
+      } catch (err) {
+        setError(err.message);
+      } finally {
         setLoading(false);
       }
-    }
-  };
+    };
 
-  const handleCoverUpload = (event) => {
-    const file = event.target.files[0];
-    if (!file) return;
+    fetchBook();
+  }, [id, t]);
 
-    setSelectedFile(file); // Store the file in state
-
-    if (hasCover) {
-      setShowUploadConfirmDialog(true);
-    } else {
-      executeCoverUpload(file);
-    }
-    event.target.value = null; // Clear the file input
-  };
-
-  const executeCoverUpload = async (file) => {
-    setShowUploadConfirmDialog(false); // Close dialog if open
-
-    const formData = new FormData();
-    formData.append('file', file);
-
-    try {
-      const response = await fetchWithCsrf(`/api/books/${id}/cover`, {
-        method: 'POST',
-        body: formData,
-      });
-
-      if (!response.ok) {
-        let errorMessage = 'Failed to upload book cover';
-        try {
-          const errorData = await response.json();
-          errorMessage = errorData.message || errorMessage;
-        } catch (e) {
-          // ignore if response is not json
-        }
-        throw new Error(errorMessage);
-      }
-
-      setBookCoverUrl(`/api/books/${id}/cover?timestamp=${new Date().getTime()}`); // Force refresh
-      setHasCover(true);
-      setNotification({ type: 'success', message: 'Book cover uploaded successfully!' });
-    } catch (err) {
-      setNotification({ type: 'error', message: err.message });
-    } finally {
-      setSelectedFile(null); // Clear the selected file
-    }
-  };
-
-  const handleCoverDelete = () => {
-    setShowDeleteConfirmDialog(true);
-  };
-
-  const executeCoverDelete = async () => {
-    setShowDeleteConfirmDialog(false); // Close dialog
-
-    try {
-      const response = await fetchWithCsrf(`/api/books/${id}/cover`, {
-        method: 'DELETE',
-      });
-
-      if (!response.ok) {
-        let errorMessage = 'Failed to delete book cover';
-        try {
-          const errorData = await response.json();
-          errorMessage = errorData.message || errorMessage;
-        } catch (e) {
-          // ignore if response is not json
-        }
-        throw new Error(errorMessage);
-      }
-
-      setBookCoverUrl(null);
-      setHasCover(false);
-      setNotification({ type: 'success', message: 'Book cover deleted successfully!' });
-    } catch (err) {
-      setNotification({ type: 'error', message: err.message });
-    }
-  };
-
-  const handleBookDelete = () => {
+  const handleDeleteBookClick = () => {
     setShowBookDeleteConfirmDialog(true);
   };
 
   const executeBookDelete = async () => {
-    setShowBookDeleteConfirmDialog(false);
     try {
       const response = await fetchWithCsrf(`/api/books/${id}`, {
         method: 'DELETE',
       });
+
       if (!response.ok) {
-        let errorMessage = 'Failed to delete book';
-        try {
-          const errorData = await response.json();
-          errorMessage = errorData.message || errorMessage;
-        } catch (e) {
-          // ignore if response is not json
-        }
-        throw new Error(errorMessage);
+        throw new Error(t('bookDetails.deleteFailure'));
       }
-      setNotification({ type: 'success', message: 'Book deleted successfully!' });
-      navigate('/');
+
+      navigate('/', { state: { notification: { message: t('bookDetails.deleteSuccess'), type: 'success' } } });
     } catch (err) {
-      setNotification({ type: 'error', message: err.message });
+      setNotification({ message: err.message, type: 'error' });
+      setShowBookDeleteConfirmDialog(false);
     }
   };
 
+  const SectionHeader = ({ icon: Icon, title }) => (
+    <div className="flex items-center gap-2 text-indigo-900 mb-4 border-b border-indigo-100 pb-2">
+      <Icon className="text-indigo-500" />
+      <h3 className="font-extrabold uppercase text-xs tracking-widest">{title}</h3>
+    </div>
+  );
 
-  useEffect(() => {
-    fetchBook(true);
-  }, [id]);
-
-
-  useEffect(() => {
-    // Initial check when component mounts or book data changes
-    if (descriptionRef.current) {
-      const { scrollHeight, clientHeight } = descriptionRef.current;
-      // If content is not scrollable, it's effectively "scrolled to bottom"
-      setIsScrolledToBottom(scrollHeight <= clientHeight);
-    }
-  }, [book]);
-
-  useEffect(() => {
-    const checkCoverExistence = async () => {
-      if (!id) return;
-      try {
-        const response = await fetchWithCsrf(`/api/books/${id}/cover/exists`);
-        if (!response.ok) {
-          throw new Error('Failed to check cover existence');
-        }
-        const data = await response.json();
-        setHasCover(data.exists);
-      } catch (err) {
-        console.error('Error checking cover existence:', err);
-        setHasCover(false);
-      }
-    };
-    checkCoverExistence();
-  }, [id]);
-
-  useEffect(() => {
-    const fetchBookCover = async () => {
-      if (hasCover && id) {
-        try {
-          const response = await fetchWithCsrf(`/api/books/${id}/cover`);
-          if (response.status === 404) {
-            setIsCoverFileMissing(true);
-            setBookCoverUrl(null);
-          } else if (!response.ok) {
-            throw new Error('Failed to fetch book cover');
-          } else {
-            setBookCoverUrl(`/api/books/${id}/cover?timestamp=${new Date().getTime()}`);
-            setIsCoverFileMissing(false);
-          }
-        } catch (err) {
-          console.error('Error fetching book cover:', err);
-          setBookCoverUrl(null);
-          setIsCoverFileMissing(false); // Assume not missing if error is not 404
-        }
-      } else {
-        setBookCoverUrl(null);
-        setIsCoverFileMissing(false);
-      }
-    };
-    fetchBookCover();
-  }, [hasCover, id]);
+  const DetailCard = ({ children, className = "" }) => (
+    <div className={`bg-white p-6 rounded-2xl border border-gray-100 shadow-sm ${className}`}>
+      {children}
+    </div>
+  );
 
   if (loading) {
     return (
-      <div className="container mx-auto p-4">
-        <h1 className="text-2xl font-bold mb-4">{t('bookDetails.title')}</h1>
-        <p className="text-center text-gray-500">{t('bookDetails.loading')}</p>
+      <div className="container mx-auto p-4 max-w-7xl text-center py-20">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto mb-4"></div>
+        <p className="text-gray-500 italic">{t('common.loading')}</p>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="container mx-auto p-4">
-        <h1 className="text-2xl font-bold mb-4">{t('bookDetails.title')}</h1>
-        <p className="text-center text-red-500">{t('common.error')}: {error}</p>
-        <Link to="/" className="back-link">
-          {t('common.backToList')}
-        </Link>
+      <div className="container mx-auto p-4 max-w-7xl">
+        <div className="bg-red-50 border-l-4 border-red-500 p-4 rounded-r-xl">
+          <p className="text-red-700 font-bold">{t('common.error')}: {error}</p>
+          <Link to="/" className="text-red-600 hover:underline text-sm mt-2 inline-block flex items-center gap-1">
+            <FaArrowLeft /> {t('common.backToList')}
+          </Link>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="container mx-auto p-4">
-      <h1 className="text-2xl font-bold mb-4">{t('bookDetails.title')}</h1>
+    <div className="container mx-auto p-4 max-w-7xl">
       {notification && (
         <Notification
           message={notification.message}
@@ -246,140 +102,101 @@ const BookDetails = () => {
           onClose={() => setNotification(null)}
         />
       )}
-        <div className="flex flex-col md:flex-row gap-4">
-          <div className="md:w-2/3 bg-white border border-gray-300 rounded p-6 shadow flex flex-col">
-            <div className="flex-grow">
-              <div className="mb-4">
-                <strong>{t('bookDetails.display.title')}:</strong> {book.title}
-              </div>
-              <div className="mb-4">
-                <strong>{t('bookDetails.display.authors')}:</strong> {book.authors.map((author, index) => (
-                  <span key={author.id}>
-                    <Link to={`/author/${author.id}`} className="author-link">
-                      {author.firstName} {author.lastName}
-                    </Link>
-                    {index < book.authors.length - 1 ? ', ' : ''}
-                  </span>
-                ))}
-              </div>
-              <div className="mb-4">
-                <strong>{t('bookDetails.display.series')}:</strong> {book.series ? <Link to={`/series/${book.series.id}`} className="series-link">{book.series.title}</Link> : t('common.na')}
-              </div>
-              <div className="mb-4">
-                <strong>{t('bookDetails.display.volume')}:</strong> {book.volume || t('common.na')}
-              </div>
-              <div className="mb-4">
-                <strong>{t('bookDetails.display.creationDate')}:</strong> {book.creationDate || t('common.na')}
-              </div>
-              <div className="mb-4">
-                <strong>{t('bookDetails.display.publicationDate')}:</strong> {book.publicationDate || t('common.na')}
-              </div>
-              <div className="mb-4">
-                <strong>{t('bookDetails.display.publisher')}:</strong> {book.publisher || t('common.na')}
-              </div>
-              <div className="mb-4">
-                <strong>{t('bookDetails.display.labels')}:</strong> {book.labels && book.labels.length > 0 ? book.labels.join(', ') : t('common.na')}
-              </div>
-              <div className="mb-4">
-                <strong>{t('bookDetails.display.description')}:</strong>
-                <div
-                  ref={descriptionRef}
-                  onScroll={handleScroll}
-                  className={`mt-1 py-2 px-3 h-auto max-h-[30rem] overflow-y-auto whitespace-pre-wrap ${!isScrolledToBottom ? 'fade-bottom-scroll' : ''}`}
-                >
-                  {book.description || t('common.na')}
-                </div>
-              </div>
-            </div>
-            <div className="flex justify-end mt-4">
-              <Link to={`/books/${book.id}/edit`} className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mr-2">
-                {t('common.edit')}
-              </Link>
-              <button
-                onClick={handleBookDelete}
-                className="bg-red-100 text-red-700 hover:bg-red-700 hover:text-white font-bold py-2 px-4 rounded"
-              >
-                {t('common.delete')}
-              </button>
-            </div>
+
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+        <div className="flex items-center gap-4">
+          <Link to="/" className="bg-white p-3 rounded-xl border border-gray-200 text-gray-400 hover:text-indigo-600 hover:border-indigo-100 shadow-sm transition-all">
+            <FaArrowLeft />
+          </Link>
+          <div className="bg-indigo-600 text-white p-4 rounded-2xl shadow-lg">
+            <FaBook className="text-2xl" />
           </div>
-          <div className="md:w-1/3 flex flex-col gap-4">
-            <div className="bg-white border border-gray-300 rounded p-6 shadow flex flex-col">
-              <div className="flex-grow flex items-center justify-center">
-                {bookCoverUrl ? (
-                  <img src={bookCoverUrl} alt={t('bookDetails.coverImageAlt', { title: book.title })} className="max-w-full h-auto" />
-                ) : isCoverFileMissing ? (
-                  <div className="text-center text-red-500">
-                    <p className="mb-2">{t('bookDetails.coverFileMissing')}</p>
-                    <button
-                      onClick={handleCoverDelete}
-                      className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded"
-                    >
-                      {t('bookDetails.deleteCoverMetadata')}
-                    </button>
-                  </div>
-                ) : (
-                  <div className="text-gray-500 text-center">
-                    <svg xmlns="http://www.w3.org/2000/svg" className="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L20 16m-2-6a2 2 0 100-4 2 2 0 000 4z" />
-                    </svg>
-                    <p className="mt-2">{t('bookDetails.noCoverAvailable')}</p>
-                  </div>
-                )}
-              </div>
-              <div className="flex justify-end gap-2 mt-4">
-                <input
-                  type="file"
-                  id="coverUpload"
-                  accept="image/*"
-                  className="hidden"
-                  onChange={handleCoverUpload}
-                />
-                <button
-                  onClick={() => document.getElementById('coverUpload').click()}
-                  className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded"
-                >
-                  {hasCover ? t('bookDetails.changeCover') : t('bookDetails.uploadCover')}
-                </button>
-                {hasCover && !isCoverFileMissing && (
-                  <button
-                    onClick={handleCoverDelete}
-                    className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded"
-                  >
-                    {t('bookDetails.deleteCover')}
-                  </button>
-                )}
-              </div>
+          <div>
+            <h1 className="text-3xl font-black text-gray-900 tracking-tight leading-tight">{book.title}</h1>
+            <div className="flex flex-wrap gap-2 mt-1">
+              {book.authors.map(author => (
+                <Link key={author.id} to={`/author/${author.id}`} className="text-emerald-600 font-bold hover:underline text-sm">
+                  {author.firstName} {author.lastName}
+                </Link>
+              ))}
             </div>
-            <BookFormats 
-              book={book} 
-              showNotification={setNotification} 
-              onRefreshRequested={() => fetchBook()}
-            />
           </div>
         </div>
-      <Link to="/" className="back-link">
-        {t('common.backToList')}
-      </Link>
 
-      {showUploadConfirmDialog && (
-        <ConfirmationDialog
-          message={t('bookDetails.confirmCoverReplace')}
-          onConfirm={() => executeCoverUpload(selectedFile)}
-          onCancel={() => {
-            setShowUploadConfirmDialog(false);
-            setSelectedFile(null);
-          }}
-        />
-      )}
+        <div className="flex gap-3">
+          <Link 
+            to={`/books/${id}/edit`} 
+            className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2.5 px-6 rounded-xl shadow-md transition-all flex items-center gap-2"
+          >
+            <FaEdit />
+            {t('common.edit')}
+          </Link>
+          <button 
+            onClick={handleDeleteBookClick} 
+            className="bg-white hover:bg-red-50 text-red-600 border border-red-100 font-bold py-2.5 px-6 rounded-xl shadow-sm transition-all flex items-center gap-2"
+          >
+            <FaTrash />
+            {t('common.delete')}
+          </button>
+        </div>
+      </div>
 
-      {showDeleteConfirmDialog && (
-        <ConfirmationDialog
-          message={t('bookDetails.confirmCoverDelete')}
-          onConfirm={executeCoverDelete}
-          onCancel={() => setShowDeleteConfirmDialog(false)}
-        />
-      )}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="lg:col-span-2 space-y-8">
+          <DetailCard>
+            <SectionHeader icon={FaInfoCircle} title="Book Metadata" />
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-6 gap-x-12">
+              <div>
+                <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Publisher</p>
+                <p className="text-gray-800 font-medium">{book.publisher || <span className="text-gray-300 italic">None set</span>}</p>
+              </div>
+              <div>
+                <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Publication Date</p>
+                <p className="text-gray-800 font-medium">{book.publicationDate || <span className="text-gray-300 italic">None set</span>}</p>
+              </div>
+              <div>
+                <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Series</p>
+                <p className="text-gray-800 font-medium">
+                  {book.series ? (
+                    <Link to={`/series/${book.series.id}`} className="text-amber-600 hover:underline flex items-center gap-1.5">
+                      <FaLayerGroup className="text-[10px]" /> {book.series.title}
+                    </Link>
+                  ) : <span className="text-gray-300 italic">None</span>}
+                </p>
+              </div>
+              <div>
+                <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Volume</p>
+                <p className="text-gray-800 font-medium">{book.volume || <span className="text-gray-300 italic">None</span>}</p>
+              </div>
+            </div>
+
+            <div className="mt-8 pt-6 border-t border-gray-50">
+              <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Description</p>
+              <div className="text-gray-600 leading-relaxed text-sm whitespace-pre-wrap bg-gray-50 p-4 rounded-xl border border-gray-100">
+                {book.description || <span className="text-gray-300 italic">No description provided for this book.</span>}
+              </div>
+            </div>
+
+            <div className="mt-8 pt-6 border-t border-gray-50">
+              <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-3">Labels</p>
+              <div className="flex flex-wrap gap-2">
+                {book.labels && book.labels.length > 0 ? book.labels.map(label => (
+                  <span key={label} className="bg-indigo-50 text-indigo-700 text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-tight border border-indigo-100 flex items-center gap-1.5 shadow-sm">
+                    <FaTags className="text-[9px] opacity-50" /> {label}
+                  </span>
+                )) : <span className="text-gray-300 text-sm italic">No labels</span>}
+              </div>
+            </div>
+          </DetailCard>
+        </div>
+
+        <div className="space-y-8">
+          <DetailCard className="ring-2 ring-indigo-50 border-indigo-100">
+            <SectionHeader icon={FaFileAlt} title="Available Formats" />
+            <BookFormats book={book} onNotification={setNotification} />
+          </DetailCard>
+        </div>
+      </div>
 
       {showBookDeleteConfirmDialog && (
         <ConfirmationDialog
