@@ -242,6 +242,19 @@
     "libraryAccess": "Dostęp do biblioteki",
     "usernamePlaceholder": "Wpisz nazwę użytkownika"
   },
+  "admin": {
+    "dashboard": "Panel Administratora",
+    "stats": {
+      "title": "Status Systemu",
+      "books": "Książki",
+      "authors": "Autorzy",
+      "series": "Serie",
+      "formats": "Formaty",
+      "covers": "Okładki",
+      "storage": "Pamięć",
+      "totalSize": "Łączny rozmiar"
+    }
+  },
   "common": {
     "na": "Brak",
     "error": "Błąd",

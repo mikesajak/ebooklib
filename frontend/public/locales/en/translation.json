@@ -243,6 +243,19 @@
     "libraryAccess": "Library Access",
     "usernamePlaceholder": "Enter your username"
   },
+  "admin": {
+    "dashboard": "Admin Dashboard",
+    "stats": {
+      "title": "System Status",
+      "books": "Books",
+      "authors": "Authors",
+      "series": "Series",
+      "formats": "Formats",
+      "covers": "Covers",
+      "storage": "Storage",
+      "totalSize": "Total Size"
+    }
+  },
   "common": {
     "na": "N/A",
     "error": "Error",
