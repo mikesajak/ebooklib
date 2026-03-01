@@ -6,5 +6,6 @@ import java.util.*
 interface UserManagementUseCase {
     fun getAllUsers(): List<User>
     fun deleteUser(id: UUID)
-    // Create and Update will be refined in Phase 2 tasks (USER-002, USER-003)
+    fun updateUserRoles(id: UUID, roles: Set<String>)
+    // Create will be refined in Phase 2 tasks (USER-003)
 }

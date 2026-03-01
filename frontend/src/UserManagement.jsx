@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { FaUserShield, FaUserPlus, FaTrashAlt, FaCheckCircle, FaTimesCircle, FaShieldAlt } from 'react-icons/fa';
+import { FaUserShield, FaUserPlus, FaTrashAlt, FaCheckCircle, FaTimesCircle, FaShieldAlt, FaToggleOn, FaToggleOff } from 'react-icons/fa';
 import { fetchWithCsrf } from './api';
 import Notification from './Notification';
 import ConfirmationDialog from './ConfirmationDialog';
@@ -29,6 +29,29 @@ const UserManagement = () => {
   useEffect(() => {
     fetchUsers();
   }, []);
+
+  const handleToggleAdmin = async (user) => {
+    const isCurrentlyAdmin = user.roles.includes('ADMIN') || user.roles.includes('ROLE_ADMIN');
+    const newRoles = isCurrentlyAdmin 
+      ? user.roles.filter(r => r !== 'ADMIN' && r !== 'ROLE_ADMIN')
+      : [...user.roles, 'ADMIN'];
+
+    try {
+      const response = await fetchWithCsrf(`/api/admin/users/${user.id}/roles`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(newRoles),
+      });
+
+      if (response.ok) {
+        fetchUsers();
+      } else {
+        setNotification({ type: 'error', message: 'Failed to update roles.' });
+      }
+    } catch (err) {
+      setNotification({ type: 'error', message: 'Failed to update roles.' });
+    }
+  };
 
   const handleDeleteUser = async () => {
     if (!deleteConfirm) return;
@@ -80,8 +103,8 @@ const UserManagement = () => {
 
         <button
           className="flex items-center gap-2 px-6 py-3 bg-indigo-600 text-white font-black rounded-2xl shadow-lg shadow-indigo-100 hover:bg-indigo-700 transition-all transform active:scale-95 animate-fade-in opacity-50 cursor-not-allowed"
-          disabled={true} // Add user implemented in USER-003
-          title="Coming soon in Phase 2"
+          disabled={true}
+          title="Coming soon in Phase 2 (TASK-244)"
         >
           <FaUserPlus />
           {t('admin.users.addUser')}
@@ -107,56 +130,72 @@ const UserManagement = () => {
                   </td>
                 </tr>
               ) : (
-                users.map((user) => (
-                  <tr key={user.id} className="group hover:bg-indigo-50/30 transition-colors">
-                    <td className="px-8 py-5">
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center font-black text-sm uppercase">
-                          {user.username.substring(0, 2)}
+                users.map((user) => {
+                  const isAdmin = user.roles.includes('ADMIN') || user.roles.includes('ROLE_ADMIN');
+                  return (
+                    <tr key={user.id} className="group hover:bg-indigo-50/30 transition-colors">
+                      <td className="px-8 py-5">
+                        <div className="flex items-center gap-3">
+                          <div className={`w-10 h-10 rounded-full flex items-center justify-center font-black text-sm uppercase ${isAdmin ? 'bg-rose-100 text-rose-600' : 'bg-indigo-100 text-indigo-600'}`}>
+                            {user.username.substring(0, 2)}
+                          </div>
+                          <span className="font-bold text-gray-700">{user.username}</span>
                         </div>
-                        <span className="font-bold text-gray-700">{user.username}</span>
-                      </div>
-                    </td>
-                    <td className="px-8 py-5">
-                      <div className="flex flex-wrap gap-2">
-                        {user.roles.map((role) => (
-                          <span
-                            key={role}
-                            className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider ${
-                              role === 'ADMIN' || role === 'ROLE_ADMIN'
-                                ? 'bg-rose-100 text-rose-600'
-                                : 'bg-indigo-100 text-indigo-600'
+                      </td>
+                      <td className="px-8 py-5">
+                        <div className="flex items-center gap-4">
+                          <div className="flex flex-wrap gap-2">
+                            {user.roles.map((role) => (
+                              <span
+                                key={role}
+                                className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider ${
+                                  role === 'ADMIN' || role === 'ROLE_ADMIN'
+                                    ? 'bg-rose-100 text-rose-600'
+                                    : 'bg-indigo-100 text-indigo-600'
+                                }`}
+                              >
+                                {role.replace('ROLE_', '')}
+                              </span>
+                            ))}
+                          </div>
+                          <button 
+                            onClick={() => handleToggleAdmin(user)}
+                            className={`flex items-center gap-1.5 px-3 py-1 rounded-lg border text-[10px] font-black uppercase tracking-tight transition-all ${
+                              isAdmin 
+                                ? 'bg-rose-50 border-rose-100 text-rose-600 hover:bg-rose-100' 
+                                : 'bg-indigo-50 border-indigo-100 text-indigo-600 hover:bg-indigo-100'
                             }`}
                           >
-                            {role.replace('ROLE_', '')}
-                          </span>
-                        ))}
-                      </div>
-                    </td>
-                    <td className="px-8 py-5">
-                      <div className="flex justify-center">
-                        {user.enabled ? (
-                          <div className="flex items-center gap-1.5 text-green-500 font-black text-[10px] uppercase tracking-widest">
-                            <FaCheckCircle /> {t('admin.users.active')}
-                          </div>
-                        ) : (
-                          <div className="flex items-center gap-1.5 text-gray-400 font-black text-[10px] uppercase tracking-widest">
-                            <FaTimesCircle /> {t('admin.users.disabled')}
-                          </div>
-                        )}
-                      </div>
-                    </td>
-                    <td className="px-8 py-5 text-right">
-                      <button
-                        onClick={() => setDeleteConfirm(user)}
-                        className="p-3 text-gray-300 hover:text-rose-500 hover:bg-rose-50 rounded-xl transition-all"
-                        title={t('common.delete')}
-                      >
-                        <FaTrashAlt />
-                      </button>
-                    </td>
-                  </tr>
-                ))
+                            {isAdmin ? <FaToggleOn className="text-sm" /> : <FaToggleOff className="text-sm" />}
+                            Admin
+                          </button>
+                        </div>
+                      </td>
+                      <td className="px-8 py-5">
+                        <div className="flex justify-center">
+                          {user.enabled ? (
+                            <div className="flex items-center gap-1.5 text-green-500 font-black text-[10px] uppercase tracking-widest">
+                              <FaCheckCircle /> {t('admin.users.active')}
+                            </div>
+                          ) : (
+                            <div className="flex items-center gap-1.5 text-gray-400 font-black text-[10px] uppercase tracking-widest">
+                              <FaTimesCircle /> {t('admin.users.disabled')}
+                            </div>
+                          )}
+                        </div>
+                      </td>
+                      <td className="px-8 py-5 text-right">
+                        <button
+                          onClick={() => setDeleteConfirm(user)}
+                          className="p-3 text-gray-300 hover:text-rose-500 hover:bg-rose-50 rounded-xl transition-all"
+                          title={t('common.delete')}
+                        >
+                          <FaTrashAlt />
+                        </button>
+                      </td>
+                    </tr>
+                  );
+                })
               )}
             </tbody>
           </table>

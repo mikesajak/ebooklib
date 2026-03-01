@@ -29,6 +29,11 @@ class AdminController(
         userManagementUseCase.deleteUser(id)
     }
 
+    @PutMapping("/users/{id}/roles")
+    fun updateUserRoles(@PathVariable id: UUID, @RequestBody roles: Set<String>) {
+        userManagementUseCase.updateUserRoles(id, roles)
+    }
+
     private fun AdminStats.toDto() = AdminStatsDto(
         bookCount = bookCount,
         authorCount = authorCount,
