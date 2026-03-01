@@ -63,7 +63,7 @@ const LoginPage = () => {
             <FaLock className="text-2xl" />
           </div>
           <h2 className="text-2xl font-black tracking-tight">{t('auth.loginTitle')}</h2>
-          <p className="text-indigo-100 text-xs mt-1 font-bold uppercase tracking-widest opacity-80">Library Access</p>
+          <p className="text-indigo-100 text-xs mt-1 font-bold uppercase tracking-widest opacity-80">{t('auth.libraryAccess')}</p>
         </div>
 
         <div className="p-8">
@@ -87,7 +87,7 @@ const LoginPage = () => {
                 onChange={(e) => setUsername(e.target.value)}
                 required
                 disabled={isSubmitting}
-                placeholder="Enter your username"
+                placeholder={t('auth.usernamePlaceholder')}
               />
             </div>
 
@@ -138,7 +138,7 @@ const LoginPage = () => {
         
         <div className="p-6 bg-gray-50 border-t border-gray-100 text-center">
           <p className="text-[10px] text-gray-400 font-bold uppercase tracking-tighter">
-            Ebook Library Management System v4.0
+            {t('common.footer')}
           </p>
         </div>
       </div>

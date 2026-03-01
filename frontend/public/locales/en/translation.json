@@ -239,7 +239,9 @@
     "password": "Password",
     "loginButton": "Login",
     "logoutButton": "Logout",
-    "loginError": "Invalid username or password"
+    "loginError": "Invalid username or password",
+    "libraryAccess": "Library Access",
+    "usernamePlaceholder": "Enter your username"
   },
   "common": {
     "na": "N/A",
@@ -262,6 +264,7 @@
     "language": {
       "en": "English",
       "pl": "Polish"
-    }
+    },
+    "footer": "Ebook Library Management System v0.8"
   }
 }

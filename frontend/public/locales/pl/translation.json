@@ -238,7 +238,9 @@
     "password": "Hasło",
     "loginButton": "Zaloguj",
     "logoutButton": "Wyloguj",
-    "loginError": "Nieprawidłowa nazwa użytkownika lub hasło"
+    "loginError": "Nieprawidłowa nazwa użytkownika lub hasło",
+    "libraryAccess": "Dostęp do biblioteki",
+    "usernamePlaceholder": "Wpisz nazwę użytkownika"
   },
   "common": {
     "na": "Brak",
@@ -261,6 +263,7 @@
     "language": {
       "en": "Angielski",
       "pl": "Polski"
-    }
+    },
+    "footer": "Ebook Library Management System v0.8"
   }
 }
