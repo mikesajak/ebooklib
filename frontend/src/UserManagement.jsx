@@ -209,15 +209,16 @@ const UserManagement = () => {
         onSuccess={fetchUsers}
       />
 
-      <ConfirmationDialog
-        isOpen={!!deleteConfirm}
-        onClose={() => setDeleteConfirm(null)}
-        onConfirm={handleDeleteUser}
-        title={t('admin.users.deleteConfirmTitle')}
-        message={t('admin.users.deleteConfirmMessage', { username: deleteConfirm?.username })}
-        confirmLabel={t('common.delete')}
-        confirmColor="bg-rose-600"
-      />
+      {deleteConfirm && (
+        <ConfirmationDialog
+          onCancel={() => setDeleteConfirm(null)}
+          onConfirm={handleDeleteUser}
+          title={t('admin.users.deleteConfirmTitle')}
+          message={t('admin.users.deleteConfirmMessage', { username: deleteConfirm?.username })}
+          confirmButtonText={t('common.delete')}
+          confirmColor="bg-rose-600"
+        />
+      )}
     </div>
   );
 };

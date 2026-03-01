@@ -16,8 +16,8 @@ class UserEntity(
     val password: String,
 
     @Column(nullable = false)
-    val enabled: Boolean = true,
+    var enabled: Boolean = true,
 
     @OneToMany(mappedBy = "user", fetch = FetchType.EAGER, cascade = [CascadeType.ALL], orphanRemoval = true)
-    val roles: Set<UserRoleEntity> = emptySet()
+    var roles: MutableSet<UserRoleEntity> = mutableSetOf()
 )

@@ -1,0 +1,23 @@
+databaseChangeLog:
+  - changeSet:
+      id: 009-create-system-settings-table
+      author: ebooklib
+      context: schema
+      changes:
+        - createTable:
+            tableName: system_settings
+            columns:
+              - column:
+                  name: key
+                  type: varchar(255)
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: value
+                  type: text
+                  constraints:
+                    nullable: true
+              - column:
+                  name: description
+                  type: text
