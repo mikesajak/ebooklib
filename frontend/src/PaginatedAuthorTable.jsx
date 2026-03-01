@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { FaEdit, FaTrash, FaChevronDown } from 'react-icons/fa';
 import ConfirmationDialog from './ConfirmationDialog';
 import Notification from './Notification';
 import Pagination from './Pagination';
@@ -75,8 +76,6 @@ const PaginatedAuthorTable = () => {
     setPage(0);
   }, [searchQuery]);
 
-
-
   const handleSortChange = (sortKey) => {
     setSortBy(sortKey);
     setDropdownOpen(false);
@@ -136,44 +135,46 @@ const PaginatedAuthorTable = () => {
 
   if (loading) {
     return (
-      <div className="text-center text-gray-500">{t('common.loading')}</div>
+      <div className="py-12 flex flex-col items-center gap-2 text-gray-400 italic">
+        <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-emerald-600"></div>
+        {t('common.loading')}
+      </div>
     );
   }
 
   if (error) {
     return (
-      <div className="text-center text-red-500">{t('common.error')}: {error}</div>
+      <div className="py-12 text-center text-red-500 italic">{t('common.error')}: {error}</div>
     );
   }
   if (authors.length === 0) {
     return (
-      <div className="text-center text-gray-500">{t('authorList.noAuthorsFound')}</div>
+      <div className="py-12 text-center text-gray-400 italic">{t('authorList.noAuthorsFound')}</div>
     );
   }
 
   return (
-    <div className="bg-white shadow-md rounded my-6">
+    <div className="bg-white overflow-hidden">
       <table className="min-w-full table-auto">
         <thead>
-          <tr className="bg-gray-200 text-gray-600 uppercase text-sm leading-normal">
-            <th className="py-3 px-6 text-left">
+          <tr className="bg-gray-50 border-b border-gray-200 text-gray-600 uppercase text-[10px] font-black tracking-widest">
+            <th className="py-4 px-6 text-left">
               <div className="relative inline-block text-left">
                 <button
                   onClick={() => setDropdownOpen(!isDropdownOpen)}
-                  className="inline-flex justify-center w-full rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none"
+                  className="inline-flex items-center gap-2 rounded-lg border border-gray-200 shadow-sm px-3 py-1.5 bg-white text-[10px] font-bold text-gray-700 hover:bg-gray-50 focus:outline-none transition-all"
                 >
                   {sortOptions[sortBy].label}
-                  <span className="ml-2">{sortBy.includes('Asc') ? ' ▲' : ' ▼'}</span>
+                  <FaChevronDown className={`text-[8px] transition-transform duration-200 ${isDropdownOpen ? 'rotate-180' : ''}`} />
                 </button>
                 {isDropdownOpen && (
-                  <div className="origin-top-left absolute left-0 mt-2 w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-20">
-                    <div className="py-1" role="menu" aria-orientation="vertical" aria-labelledby="options-menu">
+                  <div className="origin-top-left absolute left-0 mt-2 w-56 rounded-xl shadow-xl bg-white ring-1 ring-black ring-opacity-5 z-20 border border-gray-100 overflow-hidden">
+                    <div className="py-1">
                       {nameColumnSortOptions.map(key => (
                         <button
                           key={key}
                           onClick={() => handleSortChange(key)}
-                          className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                          role="menuitem"
+                          className="block w-full text-left px-4 py-2 text-xs font-bold text-gray-600 hover:bg-emerald-50 hover:text-emerald-700 transition-colors"
                         >
                           {sortOptions[key].label}
                         </button>
@@ -183,62 +184,82 @@ const PaginatedAuthorTable = () => {
                 )}
               </div>
             </th>
-            <th className="py-3 px-6 text-left cursor-pointer" onClick={() => handleSimpleSort('bookCount')}>
+            <th className="py-4 px-6 text-left cursor-pointer hover:text-emerald-600 transition-colors" onClick={() => handleSimpleSort('bookCount')}>
               {t('authorList.header.bookCount')}
-              {sortBy.startsWith('bookCount') ? (sortBy.endsWith('Asc') ? ' ▲' : ' ▼') : ''}
+              <span className="ml-1 opacity-50">{sortBy.startsWith('bookCount') ? (sortBy.endsWith('Asc') ? ' ▲' : ' ▼') : ''}</span>
             </th>
-            <th className="py-3 px-6 text-center">{t('common.actions')}</th>
+            <th className="py-4 px-6 text-center">{t('common.actions')}</th>
           </tr>
         </thead>
-        <tbody className="text-gray-600 text-sm font-light">
+        <tbody className="divide-y divide-gray-100">
           {authors.map((author) => (
-            <tr key={author.id} className="border-b border-gray-200 hover:bg-gray-100">
-              <td className="py-3 px-6 text-left whitespace-nowrap">
-                <Link to={`/author/${author.id}`} className="author-link">
+            <tr key={author.id} className="hover:bg-emerald-50/50 transition-colors group">
+              <td className="py-4 px-6 text-left whitespace-nowrap">
+                <Link to={`/author/${author.id}`} className="author-link group-hover:text-emerald-700 font-bold">
                   {author.firstName} {author.lastName}
                 </Link>
               </td>
-              <td className="py-3 px-6 text-left">{author.bookCount}</td>
-              <td className="py-3 px-6 text-center whitespace-nowrap text-sm font-medium">
-                <Link to={`/authors/${author.id}/edit`} className="text-indigo-600 hover:text-indigo-900 mr-2">{t('common.edit')}</Link>
-                <button onClick={() => openConfirmDialog(author)} className="text-red-600 hover:text-red-900">{t('common.delete')}</button>
+              <td className="py-4 px-6 text-left">
+                <span className="bg-gray-100 px-2 py-0.5 rounded-full border border-gray-200 text-xs font-medium text-gray-600">
+                  {author.bookCount}
+                </span>
+              </td>
+              <td className="py-4 px-6 text-center whitespace-nowrap">
+                <div className="flex justify-center gap-2">
+                  <Link 
+                    to={`/authors/${author.id}/edit`} 
+                    className="bg-white p-2 text-indigo-600 hover:bg-indigo-600 hover:text-white rounded-lg border border-indigo-100 shadow-sm transition-all"
+                    title={t('common.edit')}
+                  >
+                    <FaEdit />
+                  </Link>
+                  <button 
+                    onClick={() => openConfirmDialog(author)} 
+                    className="bg-white p-2 text-red-600 hover:bg-red-600 hover:text-white rounded-lg border border-red-100 shadow-sm transition-all"
+                    title={t('common.delete')}
+                  >
+                    <FaTrash />
+                  </button>
+                </div>
               </td>
             </tr>
           ))}
         </tbody>
       </table>
 
-      <Pagination
-        page={page}
-        size={size}
-        totalPages={totalPages}
-        totalElements={totalElements}
-        onPageChange={setPage}
-        onPageSizeChange={(newSize) => {
-          setSize(newSize);
-          localStorage.setItem('authorListPageSize', newSize.toString());
-          setPage(0); // Reset to first page when page size changes
-        }}
-      />
+      <div className="bg-gray-50 border-t border-gray-100 p-4">
+        <Pagination
+          page={page}
+          size={size}
+          totalPages={totalPages}
+          totalElements={totalElements}
+          onPageChange={setPage}
+          onPageSizeChange={(newSize) => {
+            setSize(newSize);
+            localStorage.setItem('authorListPageSize', newSize.toString());
+            setPage(0); // Reset to first page when page size changes
+          }}
+          theme="emerald"
+        />
+      </div>
 
       {showConfirmDialog && authorToDelete && (
         <ConfirmationDialog
           title={t('authorList.confirmDeleteTitle')}
           message={
-            <div>
-              <p>{t('authorList.confirmDeleteMessage', { authorName: `${authorToDelete.firstName} ${authorToDelete.lastName}` })}</p>
+            <div className="text-sm">
+              <p className="text-gray-600 mb-4">{t('authorList.confirmDeleteMessage', { authorName: `${authorToDelete.firstName} ${authorToDelete.lastName}` })}</p>
               {affectedBooks.length > 0 && (
-                <div className="mt-2">
-                  <p className="font-semibold">{t('authorList.affectedBooks')}:</p>
-                  <ul className="list-disc list-inside">
+                <div className="bg-red-50 p-4 rounded-xl border border-red-100">
+                  <p className="font-extrabold text-red-800 uppercase text-[10px] tracking-widest mb-2">{t('authorList.affectedBooks')}:</p>
+                  <ul className="space-y-1">
                     {affectedBooks.map(book => (
-                      <li key={book.id}>{book.title}</li>
+                      <li key={book.id} className="text-red-700 flex items-center gap-2">
+                        <span className="text-[10px]">▪</span> {book.title}
+                      </li>
                     ))}
                   </ul>
                 </div>
-              )}
-              {affectedBooks.length === 0 && (
-                <p className="mt-2">{t('authorList.noAffectedBooks')}</p>
               )}
             </div>
           }
