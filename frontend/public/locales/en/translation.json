@@ -272,7 +272,19 @@
       "deleteConfirmTitle": "Confirm Deletion",
       "deleteConfirmMessage": "Are you sure you want to delete user \"{{username}}\"?",
       "deleteSuccess": "User deleted successfully!",
-      "deleteFailure": "Failed to delete user."
+      "deleteFailure": "Failed to delete user.",
+      "add": {
+        "title": "Add New User",
+        "username": "Username",
+        "usernamePlaceholder": "e.g. john.doe",
+        "roles": "Assigned Roles",
+        "create": "Create User",
+        "successTitle": "User Created",
+        "successMessage": "The user has been created successfully. Below is the temporary password.",
+        "passwordWarning": "This password will be shown ONLY ONCE. Please copy it now!",
+        "copyPassword": "Copy Password",
+        "close": "I have saved the password"
+      }
     },
     "maintenance": {
       "title": "System Maintenance",

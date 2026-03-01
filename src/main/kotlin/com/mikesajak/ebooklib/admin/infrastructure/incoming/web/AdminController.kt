@@ -1,5 +1,7 @@
 package com.mikesajak.ebooklib.admin.infrastructure.incoming.web
 
+import com.mikesajak.ebooklib.admin.application.ports.incoming.CreateUserCommand
+import com.mikesajak.ebooklib.admin.application.ports.incoming.CreatedUserResponse
 import com.mikesajak.ebooklib.admin.application.ports.incoming.UserManagementUseCase
 import com.mikesajak.ebooklib.admin.application.services.AdminStatsService
 import com.mikesajak.ebooklib.admin.domain.model.AdminStats
@@ -32,6 +34,11 @@ class AdminController(
     @PutMapping("/users/{id}/roles")
     fun updateUserRoles(@PathVariable id: UUID, @RequestBody roles: Set<String>) {
         userManagementUseCase.updateUserRoles(id, roles)
+    }
+
+    @PostMapping("/users")
+    fun createUser(@RequestBody command: CreateUserCommand): CreatedUserResponse {
+        return userManagementUseCase.createUser(command)
     }
 
     private fun AdminStats.toDto() = AdminStatsDto(

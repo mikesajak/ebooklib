@@ -271,7 +271,19 @@
       "deleteConfirmTitle": "Potwierdź Usunięcie",
       "deleteConfirmMessage": "Czy na pewno chcesz usunąć użytkownika \"{{username}}\"?",
       "deleteSuccess": "Użytkownik został pomyślnie usunięty!",
-      "deleteFailure": "Nie udało się usunąć użytkownika."
+      "deleteFailure": "Nie udało się usunąć użytkownika.",
+      "add": {
+        "title": "Dodaj Nowego Użytkownika",
+        "username": "Użytkownik",
+        "usernamePlaceholder": "np. jan.kowalski",
+        "roles": "Przypisane Role",
+        "create": "Utwórz Użytkownika",
+        "successTitle": "Użytkownik Utworzony",
+        "successMessage": "Użytkownik został pomyślnie utworzony. Poniżej znajduje się tymczasowe hasło.",
+        "passwordWarning": "To hasło zostanie wyświetlone TYLKO RAZ. Proszę je skopiować teraz!",
+        "copyPassword": "Kopiuj Hasło",
+        "close": "Zapisałem hasło"
+      }
     },
     "maintenance": {
       "title": "Konserwacja Systemu",

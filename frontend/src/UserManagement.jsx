@@ -4,6 +4,7 @@ import { FaUserShield, FaUserPlus, FaTrashAlt, FaCheckCircle, FaTimesCircle, FaS
 import { fetchWithCsrf } from './api';
 import Notification from './Notification';
 import ConfirmationDialog from './ConfirmationDialog';
+import AddUserModal from './AddUserModal';
 
 const UserManagement = () => {
   const { t } = useTranslation();
@@ -11,6 +12,7 @@ const UserManagement = () => {
   const [loading, setLoading] = useState(true);
   const [notification, setNotification] = useState(null);
   const [deleteConfirm, setDeleteConfirm] = useState(null);
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
 
   const fetchUsers = async () => {
     try {
@@ -102,9 +104,8 @@ const UserManagement = () => {
         </div>
 
         <button
-          className="flex items-center gap-2 px-6 py-3 bg-indigo-600 text-white font-black rounded-2xl shadow-lg shadow-indigo-100 hover:bg-indigo-700 transition-all transform active:scale-95 animate-fade-in opacity-50 cursor-not-allowed"
-          disabled={true}
-          title="Coming soon in Phase 2 (TASK-244)"
+          onClick={() => setIsAddModalOpen(true)}
+          className="flex items-center gap-2 px-6 py-3 bg-indigo-600 text-white font-black rounded-2xl shadow-lg shadow-indigo-100 hover:bg-indigo-700 transition-all transform active:scale-95 animate-fade-in"
         >
           <FaUserPlus />
           {t('admin.users.addUser')}
@@ -201,6 +202,12 @@ const UserManagement = () => {
           </table>
         </div>
       </div>
+
+      <AddUserModal
+        isOpen={isAddModalOpen}
+        onClose={() => setIsAddModalOpen(false)}
+        onSuccess={fetchUsers}
+      />
 
       <ConfirmationDialog
         isOpen={!!deleteConfirm}
