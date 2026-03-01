@@ -41,8 +41,8 @@ function App() {
                   <Route path="/series" element={<ProtectedRoute><SeriesList /></ProtectedRoute>} />
                   <Route path="/series/add" element={<ProtectedRoute><AddSeries /></ProtectedRoute>} />
                   <Route path="/series/:id" element={<ProtectedRoute><SeriesDetails /></ProtectedRoute>} />
-                  <Route path="/admin" element={<ProtectedRoute><AdminDashboard /></ProtectedRoute>} />
-                  <Route path="/admin/users" element={<ProtectedRoute><UserManagement /></ProtectedRoute>} />
+                  <Route path="/admin" element={<ProtectedRoute requiredRole="ADMIN"><AdminDashboard /></ProtectedRoute>} />
+                  <Route path="/admin/users" element={<ProtectedRoute requiredRole="ADMIN"><UserManagement /></ProtectedRoute>} />
                 </Routes>
               </main>
             </div>
