@@ -66,6 +66,12 @@ class AdminController(
         return maintenanceUseCase.purgeExpiredStaging()
     }
 
+    @GetMapping("/maintenance/staging-stats")
+    fun getStagingStats(): StagingStatsDto {
+        val stats = maintenanceUseCase.getStagingStats()
+        return StagingStatsDto(stats.totalItems, stats.expiredItems)
+    }
+
     private fun AdminStats.toDto() = AdminStatsDto(
         bookCount = bookCount,
         authorCount = authorCount,

@@ -11,4 +11,6 @@ interface StagedEbookUploadRepositoryPort {
     fun delete(id: StagedEbookUploadId)
     fun findByExpiryAtBefore(now: Instant): List<StagedEbookUpload>
     fun findAll(): List<StagedEbookUpload>
+    fun count(): Long
+    fun countByExpiryAtBefore(now: Instant): Long
 }

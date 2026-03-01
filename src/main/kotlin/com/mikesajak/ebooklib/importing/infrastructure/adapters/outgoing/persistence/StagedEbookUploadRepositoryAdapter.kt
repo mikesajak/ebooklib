@@ -37,4 +37,8 @@ class StagedEbookUploadRepositoryAdapter(
         return jpaRepository.findAll()
             .map { mapper.toDomain(it) }
     }
+
+    override fun count(): Long = jpaRepository.count()
+
+    override fun countByExpiryAtBefore(now: Instant): Long = jpaRepository.countByExpiryAtBefore(now)
 }

@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { FaTools, FaTrashAlt, FaShieldAlt, FaExclamationTriangle, FaHdd, FaCheckCircle } from 'react-icons/fa';
+import { FaTools, FaTrashAlt, FaShieldAlt, FaHdd, FaInbox } from 'react-icons/fa';
 import { fetchWithCsrf } from './api';
 import Notification from './Notification';
 import ConfirmationDialog from './ConfirmationDialog';
@@ -10,6 +10,26 @@ const MaintenancePanel = () => {
   const [isPurging, setIsPurging] = useState(false);
   const [notification, setNotification] = useState(null);
   const [showPurgeConfirm, setShowPurgeConfirm] = useState(false);
+  const [stagingStats, setStagingStats] = useState(null);
+  const [loadingStats, setLoadingStats] = useState(true);
+
+  const fetchStagingStats = async () => {
+    try {
+      const response = await fetch('/api/admin/maintenance/staging-stats');
+      if (response.ok) {
+        const data = await response.json();
+        setStagingStats(data);
+      }
+    } catch (err) {
+      console.error('Failed to fetch staging stats', err);
+    } finally {
+      setLoadingStats(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchStagingStats();
+  }, []);
 
   const handlePurgeStaging = async () => {
     setIsPurging(true);
@@ -25,6 +45,7 @@ const MaintenancePanel = () => {
           type: 'success', 
           message: t('admin.maintenance.staging.success', { count }) 
         });
+        fetchStagingStats();
       } else {
         setNotification({ type: 'error', message: t('admin.maintenance.staging.failure') });
       }
@@ -35,6 +56,8 @@ const MaintenancePanel = () => {
       setIsPurging(false);
     }
   };
+
+  const hasExpiredItems = stagingStats?.expiredItems > 0;
 
   return (
     <div className="max-w-5xl mx-auto px-4 py-8">
@@ -58,28 +81,48 @@ const MaintenancePanel = () => {
       </div>
 
       <div className="grid grid-cols-1 gap-8">
-        <div className="bg-white rounded-[2.5rem] border border-gray-100 shadow-2xl shadow-gray-200/50 p-8 animate-fade-in">
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-            <div className="flex items-start gap-4">
-              <div className="p-4 rounded-2xl bg-rose-50 text-rose-600">
-                <FaTrashAlt size={24} />
+        <div className="bg-white rounded-[2.5rem] border border-gray-100 shadow-2xl shadow-gray-200/50 p-8 animate-fade-in relative overflow-hidden group">
+          <div className="absolute -right-4 -top-4 opacity-5 transform group-hover:scale-110 transition-transform duration-700">
+            <FaInbox size={160} />
+          </div>
+          
+          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-8 relative z-10">
+            <div className="flex items-start gap-6">
+              <div className="p-4 rounded-3xl bg-rose-50 text-rose-600 shadow-inner">
+                <FaTrashAlt size={32} />
               </div>
-              <div>
-                <h2 className="text-xl font-black text-gray-800 tracking-tight mb-1">
-                  {t('admin.maintenance.staging.title')}
-                </h2>
-                <p className="text-sm font-bold text-gray-400 max-w-md">
-                  {t('admin.maintenance.staging.description')}
-                </p>
+              <div className="space-y-4">
+                <div>
+                  <h2 className="text-2xl font-black text-gray-800 tracking-tight mb-1">
+                    {t('admin.maintenance.staging.title')}
+                  </h2>
+                  <p className="text-sm font-bold text-gray-400 max-w-md leading-relaxed">
+                    {t('admin.maintenance.staging.description')}
+                  </p>
+                </div>
+
+                <div className="flex flex-wrap gap-4">
+                  <div className="bg-gray-50 px-4 py-3 rounded-2xl border border-gray-100 min-w-[140px]">
+                    <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">{t('admin.maintenance.staging.totalItems')}</p>
+                    <p className="text-xl font-black text-gray-700">{loadingStats ? '...' : stagingStats?.totalItems || 0}</p>
+                  </div>
+                  <div className={`px-4 py-3 rounded-2xl border min-w-[140px] transition-all ${hasExpiredItems ? 'bg-amber-50 border-amber-100 animate-pulse-slow' : 'bg-gray-50 border-gray-100'}`}>
+                    <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">{t('admin.maintenance.staging.expiredItems')}</p>
+                    <p className={`text-xl font-black ${hasExpiredItems ? 'text-amber-600' : 'text-gray-700'}`}>
+                      {loadingStats ? '...' : stagingStats?.expiredItems || 0}
+                    </p>
+                  </div>
+                </div>
               </div>
             </div>
+
             <button
               onClick={() => setShowPurgeConfirm(true)}
-              disabled={isPurging}
-              className={`flex items-center gap-2 px-8 py-4 rounded-2xl font-black text-sm uppercase tracking-wider transition-all transform active:scale-95 ${
-                isPurging 
-                  ? 'bg-gray-100 text-gray-400 cursor-not-allowed' 
-                  : 'bg-rose-600 text-white shadow-lg shadow-rose-100 hover:bg-rose-700'
+              disabled={isPurging || !hasExpiredItems}
+              className={`flex items-center justify-center gap-3 px-10 py-5 rounded-2xl font-black text-sm uppercase tracking-wider transition-all transform active:scale-95 shadow-xl ${
+                isPurging || !hasExpiredItems
+                  ? 'bg-gray-100 text-gray-400 cursor-not-allowed shadow-none' 
+                  : 'bg-rose-600 text-white shadow-rose-100 hover:bg-rose-700 hover:-translate-y-1'
               }`}
             >
               {isPurging ? (

@@ -299,7 +299,9 @@
         "confirmTitle": "Confirm Staging Cleanup",
         "confirmMessage": "Are you sure you want to permanently delete all expired staged uploads?",
         "success": "Staging area cleaned! Removed {{count}} items.",
-        "failure": "Failed to clean up staging area."
+        "failure": "Failed to clean up staging area.",
+        "totalItems": "Total Items",
+        "expiredItems": "Ready for Cleanup"
       }
     },
     "settings": {

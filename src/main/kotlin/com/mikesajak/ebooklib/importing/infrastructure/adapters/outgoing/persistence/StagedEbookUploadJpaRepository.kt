@@ -6,4 +6,5 @@ import java.util.*
 
 interface StagedEbookUploadJpaRepository : JpaRepository<StagedEbookUploadEntity, UUID> {
     fun findByExpiryAtBefore(now: Instant): List<StagedEbookUploadEntity>
+    fun countByExpiryAtBefore(now: Instant): Long
 }
