@@ -260,7 +260,19 @@
     },
     "users": {
       "title": "User Management",
-      "description": "Manage system access and security roles."
+      "description": "Manage system access and security roles.",
+      "username": "Username",
+      "roles": "Roles",
+      "status": "Status",
+      "actions": "Actions",
+      "active": "Active",
+      "disabled": "Disabled",
+      "addUser": "Add User",
+      "noUsersFound": "No users found.",
+      "deleteConfirmTitle": "Confirm Deletion",
+      "deleteConfirmMessage": "Are you sure you want to delete user \"{{username}}\"?",
+      "deleteSuccess": "User deleted successfully!",
+      "deleteFailure": "Failed to delete user."
     },
     "maintenance": {
       "title": "System Maintenance",

@@ -259,7 +259,19 @@
     },
     "users": {
       "title": "Zarządzanie Użytkownikami",
-      "description": "Zarządzaj dostępem do systemu i rolami bezpieczeństwa."
+      "description": "Zarządzaj dostępem do systemu i rolami bezpieczeństwa.",
+      "username": "Użytkownik",
+      "roles": "Role",
+      "status": "Status",
+      "actions": "Akcje",
+      "active": "Aktywny",
+      "disabled": "Wyłączony",
+      "addUser": "Dodaj Użytkownika",
+      "noUsersFound": "Nie znaleziono użytkowników.",
+      "deleteConfirmTitle": "Potwierdź Usunięcie",
+      "deleteConfirmMessage": "Czy na pewno chcesz usunąć użytkownika \"{{username}}\"?",
+      "deleteSuccess": "Użytkownik został pomyślnie usunięty!",
+      "deleteFailure": "Nie udało się usunąć użytkownika."
     },
     "maintenance": {
       "title": "Konserwacja Systemu",
