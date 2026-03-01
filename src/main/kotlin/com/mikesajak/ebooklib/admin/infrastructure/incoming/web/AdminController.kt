@@ -20,6 +20,8 @@ class AdminController(private val adminStatsService: AdminStatsService) {
         authorCount = authorCount,
         seriesCount = seriesCount,
         formatCount = formatCount,
-        coverCount = coverCount
+        coverCount = coverCount,
+        totalFormatSize = totalFormatSize,
+        totalCoverSize = totalCoverSize
     )
 }

@@ -28,6 +28,8 @@ class EbookFormatFileJpaRepositoryAdapter(
 
     override fun count(): Long = ebookFormatFileJpaRepository.count()
 
+    override fun totalFileSize(): Long = ebookFormatFileJpaRepository.sumFileSize() ?: 0L
+
     private fun EbookFormatFileEntity.toDomain(): EbookFormatFile {
         return EbookFormatFile(
             id = this.id,

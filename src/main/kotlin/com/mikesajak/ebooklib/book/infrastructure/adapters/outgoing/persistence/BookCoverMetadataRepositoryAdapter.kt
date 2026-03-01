@@ -27,6 +27,8 @@ class BookCoverMetadataRepositoryAdapter(
 
     override fun count(): Long = bookCoverJpaRepository.count()
 
+    override fun totalFileSize(): Long = bookCoverJpaRepository.sumFileSize() ?: 0L
+
     private fun BookCoverEntity.toDomain(): BookCoverMetadata {
         return BookCoverMetadata(
                 id = this.id,

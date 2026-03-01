@@ -7,8 +7,8 @@ import com.mikesajak.ebooklib.book.application.ports.outgoing.EbookFormatFileRep
 import com.mikesajak.ebooklib.series.application.ports.outgoing.SeriesRepositoryPort
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
-import org.mockito.Mockito.mock
 import org.mockito.Mockito.`when`
+import org.mockito.Mockito.mock
 
 class AdminStatsServiceTest {
 
@@ -27,13 +27,15 @@ class AdminStatsServiceTest {
     )
 
     @Test
-    fun `getStats returns correct aggregated counts`() {
+    fun `getStats returns correct aggregated counts and sizes`() {
         // given
         `when`(bookRepository.count()).thenReturn(10L)
         `when`(authorRepository.count()).thenReturn(5L)
         `when`(seriesRepository.count()).thenReturn(3L)
         `when`(formatRepository.count()).thenReturn(15L)
         `when`(coverRepository.count()).thenReturn(8L)
+        `when`(formatRepository.totalFileSize()).thenReturn(1024L)
+        `when`(coverRepository.totalFileSize()).thenReturn(512L)
 
         // when
         val stats = adminStatsService.getStats()
@@ -44,5 +46,7 @@ class AdminStatsServiceTest {
         assertEquals(3L, stats.seriesCount)
         assertEquals(15L, stats.formatCount)
         assertEquals(8L, stats.coverCount)
+        assertEquals(1024L, stats.totalFormatSize)
+        assertEquals(512L, stats.totalCoverSize)
     }
 }

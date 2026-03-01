@@ -10,4 +10,5 @@ interface EbookFormatFileRepositoryPort {
     fun findByBookIdAndId(bookId: BookId, id: UUID): EbookFormatFile?
     fun delete(ebookFormatFile: EbookFormatFile)
     fun count(): Long
+    fun totalFileSize(): Long
 }

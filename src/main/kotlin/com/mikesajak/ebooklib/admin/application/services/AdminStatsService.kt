@@ -22,7 +22,9 @@ class AdminStatsService(
             authorCount = authorRepository.count(),
             seriesCount = seriesRepository.count(),
             formatCount = formatRepository.count(),
-            coverCount = coverRepository.count()
+            coverCount = coverRepository.count(),
+            totalFormatSize = formatRepository.totalFileSize(),
+            totalCoverSize = coverRepository.totalFileSize()
         )
     }
 }

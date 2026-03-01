@@ -9,4 +9,5 @@ interface BookCoverMetadataRepositoryPort {
     fun delete(bookCover: BookCoverMetadata)
     fun existsByBookId(bookId: BookId): Boolean
     fun count(): Long
+    fun totalFileSize(): Long
 }

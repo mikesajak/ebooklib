@@ -5,5 +5,7 @@ data class AdminStats(
     val authorCount: Long,
     val seriesCount: Long,
     val formatCount: Long,
-    val coverCount: Long
+    val coverCount: Long,
+    val totalFormatSize: Long,
+    val totalCoverSize: Long
 )
