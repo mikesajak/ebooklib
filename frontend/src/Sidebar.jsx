@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { Sidebar, Menu, MenuItem, useProSidebar } from 'react-pro-sidebar';
+import { Sidebar, Menu, MenuItem } from 'react-pro-sidebar';
 import { Link, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from './AuthContext';
-import { FaBook, FaUsers, FaLayerGroup, FaBars, FaShieldAlt, FaDatabase, FaHdd } from 'react-icons/fa';
+import { FaBook, FaUsers, FaLayerGroup, FaBars, FaShieldAlt, FaHdd } from 'react-icons/fa';
 
 const AdminStatusWidget = () => {
   const { t } = useTranslation();
@@ -76,7 +76,7 @@ const AdminStatusWidget = () => {
 const AppSidebar = () => {
   const { t } = useTranslation();
   const { user, isAuthenticated } = useAuth();
-  const { collapseSidebar, collapsed } = useProSidebar();
+  const [collapsed, setCollapsed] = useState(false);
   const location = useLocation();
   const [isOnline, setIsOnline] = useState(true);
 
@@ -139,10 +139,10 @@ const AppSidebar = () => {
   };
 
   return (
-    <Sidebar backgroundColor="#fff" rootStyles={{ borderRight: '1px solid #f3f4f6', height: '100%' }}>
+    <Sidebar collapsed={collapsed} backgroundColor="#fff" rootStyles={{ borderRight: '1px solid #f3f4f6', height: '100%' }}>
       <div className="flex flex-col h-full overflow-hidden">
         <div className="p-6 flex items-center justify-center border-b border-gray-50 mb-4">
-          <button onClick={() => collapseSidebar()} className="text-gray-400 hover:text-indigo-600 transition-colors">
+          <button onClick={() => setCollapsed(!collapsed)} className="text-gray-400 hover:text-indigo-600 transition-colors">
             <FaBars className="text-xl" />
           </button>
           {!collapsed && (
