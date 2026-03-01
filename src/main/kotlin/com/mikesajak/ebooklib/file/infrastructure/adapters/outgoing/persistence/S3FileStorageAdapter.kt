@@ -102,4 +102,16 @@ class S3FileStorageAdapter(
         val headResponse = s3Client.headObject(HeadObjectRequest.builder().bucket(bucketName).key(newStorageKey).build())
         return FileMetadata(newStorageKey, fileName, headResponse.contentType(), headResponse.contentLength())
     }
+
+    override fun listAllFiles(prefix: String?): List<String> {
+        val listRequest = ListObjectsV2Request.builder()
+            .bucket(bucketName)
+            .let { if (prefix != null) it.prefix(prefix) else it }
+            .build()
+
+        return s3Client.listObjectsV2Paginator(listRequest)
+            .contents()
+            .map { it.key() }
+            .toList()
+    }
 }

@@ -11,4 +11,7 @@ interface EbookFormatFileJpaRepository : JpaRepository<EbookFormatFileEntity, UU
 
     @Query("SELECT SUM(f.fileSize) FROM EbookFormatFileEntity f")
     fun sumFileSize(): Long?
+
+    @Query("SELECT f.storageKey FROM EbookFormatFileEntity f")
+    fun findAllStorageKeys(): List<String>
 }

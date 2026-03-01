@@ -11,4 +11,5 @@ interface EbookFormatFileRepositoryPort {
     fun delete(ebookFormatFile: EbookFormatFile)
     fun count(): Long
     fun totalFileSize(): Long
+    fun findAllKeys(): List<String>
 }

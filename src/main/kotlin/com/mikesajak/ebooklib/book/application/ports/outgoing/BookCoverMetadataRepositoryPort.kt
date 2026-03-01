@@ -10,4 +10,5 @@ interface BookCoverMetadataRepositoryPort {
     fun existsByBookId(bookId: BookId): Boolean
     fun count(): Long
     fun totalFileSize(): Long
+    fun findAllKeys(): List<String>
 }

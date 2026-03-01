@@ -10,7 +10,8 @@ import java.time.Instant
 @Service
 class MaintenanceService(
     private val stagedUploadCleanupUseCase: StagedUploadCleanupUseCase,
-    private val stagingRepository: StagedEbookUploadRepositoryPort
+    private val stagingRepository: StagedEbookUploadRepositoryPort,
+    private val storageScanner: AsyncStorageScanner
 ) : MaintenanceUseCase {
 
     override fun purgeExpiredStaging(): Int {
@@ -22,5 +23,13 @@ class MaintenanceService(
             totalItems = stagingRepository.count(),
             expiredItems = stagingRepository.countByExpiryAtBefore(Instant.now())
         )
+    }
+
+    override fun startStorageScan() {
+        storageScanner.startScan()
+    }
+
+    override fun getStorageScanStats(): StorageScanStats {
+        return storageScanner.getLatestStats()
     }
 }

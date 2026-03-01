@@ -13,4 +13,5 @@ interface StagedEbookUploadRepositoryPort {
     fun findAll(): List<StagedEbookUpload>
     fun count(): Long
     fun countByExpiryAtBefore(now: Instant): Long
+    fun findAllKeys(): List<String>
 }

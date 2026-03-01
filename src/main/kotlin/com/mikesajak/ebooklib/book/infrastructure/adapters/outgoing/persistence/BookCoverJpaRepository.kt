@@ -11,4 +11,7 @@ interface BookCoverJpaRepository : JpaRepository<BookCoverEntity, UUID> {
 
     @Query("SELECT SUM(c.fileSize) FROM BookCoverEntity c")
     fun sumFileSize(): Long?
+
+    @Query("SELECT c.storageKey FROM BookCoverEntity c")
+    fun findAllStorageKeys(): List<String>
 }

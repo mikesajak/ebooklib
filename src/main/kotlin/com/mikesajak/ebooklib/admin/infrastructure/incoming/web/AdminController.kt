@@ -72,6 +72,16 @@ class AdminController(
         return StagingStatsDto(stats.totalItems, stats.expiredItems)
     }
 
+    @PostMapping("/maintenance/storage-scan")
+    fun startStorageScan() {
+        maintenanceUseCase.startStorageScan()
+    }
+
+    @GetMapping("/maintenance/storage-scan/stats")
+    fun getStorageScanStats(): StorageScanStats {
+        return maintenanceUseCase.getStorageScanStats()
+    }
+
     private fun AdminStats.toDto() = AdminStatsDto(
         bookCount = bookCount,
         authorCount = authorCount,

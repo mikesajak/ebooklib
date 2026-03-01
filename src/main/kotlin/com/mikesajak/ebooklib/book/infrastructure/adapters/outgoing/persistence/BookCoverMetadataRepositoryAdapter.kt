@@ -29,6 +29,8 @@ class BookCoverMetadataRepositoryAdapter(
 
     override fun totalFileSize(): Long = bookCoverJpaRepository.sumFileSize() ?: 0L
 
+    override fun findAllKeys(): List<String> = bookCoverJpaRepository.findAllStorageKeys()
+
     private fun BookCoverEntity.toDomain(): BookCoverMetadata {
         return BookCoverMetadata(
                 id = this.id,

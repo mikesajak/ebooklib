@@ -1,5 +1,6 @@
 package com.mikesajak.ebooklib.importing.infrastructure.adapters.outgoing.persistence
 
+import com.fasterxml.jackson.databind.ObjectMapper
 import com.mikesajak.ebooklib.importing.application.ports.outgoing.StagedEbookUploadRepositoryPort
 import com.mikesajak.ebooklib.importing.domain.model.StagedEbookUpload
 import com.mikesajak.ebooklib.importing.domain.model.StagedEbookUploadId
@@ -9,7 +10,8 @@ import java.time.Instant
 @Component
 class StagedEbookUploadRepositoryAdapter(
     private val jpaRepository: StagedEbookUploadJpaRepository,
-    private val mapper: StagedEbookUploadEntityMapper
+    private val mapper: StagedEbookUploadEntityMapper,
+    private val objectMapper: ObjectMapper
 ) : StagedEbookUploadRepositoryPort {
 
     override fun save(stagedEbookUpload: StagedEbookUpload): StagedEbookUpload {
@@ -41,4 +43,22 @@ class StagedEbookUploadRepositoryAdapter(
     override fun count(): Long = jpaRepository.count()
 
     override fun countByExpiryAtBefore(now: Instant): Long = jpaRepository.countByExpiryAtBefore(now)
+
+    override fun findAllKeys(): List<String> {
+        val allEntities = jpaRepository.findAll()
+        val keys = mutableListOf<String>()
+        allEntities.forEach { entity ->
+            keys.add("staged/${entity.id}")
+            entity.metadataJson?.let { json ->
+                try {
+                    val map = objectMapper.readValue(json, Map::class.java)
+                    val coverKey = map["coverStorageKey"] as? String
+                    if (coverKey != null) keys.add(coverKey)
+                } catch (e: Exception) {
+                    // Ignore malformed metadata
+                }
+            }
+        }
+        return keys
+    }
 }
