@@ -12,6 +12,7 @@ import AddAuthor from './AddAuthor'
 import AddSeries from './AddSeries'
 import AppSidebar from './Sidebar'
 import LoginPage from './LoginPage'
+import AdminDashboard from './AdminDashboard'
 import ProtectedRoute from './ProtectedRoute'
 import { SearchProvider } from './SearchContext'
 import { AuthProvider } from './AuthContext'
@@ -39,7 +40,7 @@ function App() {
                   <Route path="/series" element={<ProtectedRoute><SeriesList /></ProtectedRoute>} />
                   <Route path="/series/add" element={<ProtectedRoute><AddSeries /></ProtectedRoute>} />
                   <Route path="/series/:id" element={<ProtectedRoute><SeriesDetails /></ProtectedRoute>} />
-                  <Route path="/series/:id/edit" element={<ProtectedRoute><AddSeries /></ProtectedRoute>} />
+                  <Route path="/admin" element={<ProtectedRoute><AdminDashboard /></ProtectedRoute>} />
                 </Routes>
               </main>
             </div>

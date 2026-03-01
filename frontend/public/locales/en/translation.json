@@ -253,8 +253,20 @@
       "formats": "Formats",
       "covers": "Covers",
       "storage": "Storage",
-      "totalSize": "Total Size"
-    }
+      "totalSize": "Total Size",
+      "formatDistribution": "Format Distribution",
+      "entities": "Library Entities",
+      "storageBreakdown": "Storage Breakdown"
+    },
+    "users": {
+      "title": "User Management",
+      "description": "Manage system access and security roles."
+    },
+    "maintenance": {
+      "title": "System Maintenance",
+      "description": "Tools for data integrity and storage cleanup."
+    },
+    "quickActions": "Quick Actions"
   },
   "common": {
     "na": "N/A",

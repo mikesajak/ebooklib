@@ -252,8 +252,20 @@
       "formats": "Formaty",
       "covers": "Okładki",
       "storage": "Pamięć",
-      "totalSize": "Łączny rozmiar"
-    }
+      "totalSize": "Łączny rozmiar",
+      "formatDistribution": "Rozkład Formatów",
+      "entities": "Obiekty Biblioteki",
+      "storageBreakdown": "Rozkład Pamięci"
+    },
+    "users": {
+      "title": "Zarządzanie Użytkownikami",
+      "description": "Zarządzaj dostępem do systemu i rolami bezpieczeństwa."
+    },
+    "maintenance": {
+      "title": "Konserwacja Systemu",
+      "description": "Narzędzia do integralności danych i czyszczenia pamięci."
+    },
+    "quickActions": "Szybkie Akcje"
   },
   "common": {
     "na": "Brak",
