@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
-import { FaShieldAlt, FaBook, FaUsers, FaLayerGroup, FaFileArchive, FaImage, FaHdd, FaUserCog, FaTools, FaChevronRight } from 'react-icons/fa';
+import { FaShieldAlt, FaBook, FaUsers, FaLayerGroup, FaFileArchive, FaImage, FaHdd, FaUserCog, FaTools, FaChevronRight, FaCog } from 'react-icons/fa';
 
 const StatCard = ({ title, value, icon: Icon, colorClass, delay = "animate-fade-in" }) => (
   <div className={`bg-white p-6 rounded-3xl border border-gray-100 shadow-xl shadow-gray-100/50 flex flex-col gap-4 relative overflow-hidden group ${delay}`}>
@@ -167,7 +167,22 @@ const AdminDashboard = () => {
             </div>
           </Link>
 
-          <div className="block group opacity-50 cursor-not-allowed animate-fade-in [animation-delay:700ms]">
+          <Link to="/admin/settings" className="block group animate-fade-in [animation-delay:700ms]">
+            <div className="bg-white p-6 rounded-3xl border border-gray-100 shadow-xl shadow-gray-100/50 flex items-center justify-between group-hover:border-indigo-200 transition-all group-hover:-translate-y-1">
+              <div className="flex items-center gap-4">
+                <div className="p-3 rounded-2xl bg-indigo-50 text-indigo-600 group-hover:bg-indigo-600 group-hover:text-white transition-all">
+                  <FaCog size={20} />
+                </div>
+                <div>
+                  <p className="text-sm font-black text-gray-800 tracking-tight">{t('admin.settings.title')}</p>
+                  <p className="text-[10px] text-gray-400 font-bold leading-tight">{t('admin.settings.description')}</p>
+                </div>
+              </div>
+              <FaChevronRight className="text-gray-300 group-hover:text-indigo-600 transition-colors" />
+            </div>
+          </Link>
+
+          <div className="block group opacity-50 cursor-not-allowed animate-fade-in [animation-delay:800ms]">
             <div className="bg-white p-6 rounded-3xl border border-gray-100 shadow-xl shadow-gray-100/50 flex items-center justify-between">
               <div className="flex items-center gap-4">
                 <div className="p-3 rounded-2xl bg-gray-50 text-gray-400">

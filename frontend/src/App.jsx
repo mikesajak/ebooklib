@@ -14,6 +14,7 @@ import AppSidebar from './Sidebar'
 import LoginPage from './LoginPage'
 import AdminDashboard from './AdminDashboard'
 import UserManagement from './UserManagement'
+import SettingsPanel from './SettingsPanel'
 import ProtectedRoute from './ProtectedRoute'
 import { SearchProvider } from './SearchContext'
 import { AuthProvider } from './AuthContext'
@@ -43,6 +44,7 @@ function App() {
                   <Route path="/series/:id" element={<ProtectedRoute><SeriesDetails /></ProtectedRoute>} />
                   <Route path="/admin" element={<ProtectedRoute requiredRole="ADMIN"><AdminDashboard /></ProtectedRoute>} />
                   <Route path="/admin/users" element={<ProtectedRoute requiredRole="ADMIN"><UserManagement /></ProtectedRoute>} />
+                  <Route path="/admin/settings" element={<ProtectedRoute requiredRole="ADMIN"><SettingsPanel /></ProtectedRoute>} />
                 </Routes>
               </main>
             </div>

@@ -289,6 +289,19 @@
       "title": "Konserwacja Systemu",
       "description": "Narzędzia do integralności danych i czyszczenia pamięci."
     },
+    "settings": {
+      "title": "Konfiguracja Systemu",
+      "description": "Dostosuj globalne parametry aplikacji.",
+      "saveSuccess": "Ustawienie zaktualizowane pomyślnie!",
+      "saveFailure": "Nie udało się zaktualizować ustawienia.",
+      "noSettings": "Nie znaleziono ustawień konfiguracyjnych.",
+      "groups": {
+        "general": "Ogólne",
+        "security": "Bezpieczeństwo",
+        "cleanup": "Czyszczenie",
+        "other": "Inne"
+      }
+    },
     "quickActions": "Szybkie Akcje"
   },
   "common": {

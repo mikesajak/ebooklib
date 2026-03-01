@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import LanguageSelector from './LanguageSelector';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from './AuthContext';
-import { FaUserCircle, FaSignOutAlt } from 'react-icons/fa';
+import { FaUserCircle, FaSignOutAlt, FaCog } from 'react-icons/fa';
 
 const Header = () => {
   const { t, ready } = useTranslation();
@@ -35,6 +35,14 @@ const Header = () => {
                     {user?.username}
                   </span>
                 </div>
+                <div className="w-px h-4 bg-gray-200"></div>
+                <Link
+                  to="/admin/settings"
+                  className="p-2 text-gray-400 hover:text-indigo-600 transition-colors"
+                  title={t('admin.settings.title')}
+                >
+                  <FaCog className="text-lg hover:rotate-90 transition-transform duration-500" />
+                </Link>
                 <div className="w-px h-4 bg-gray-200"></div>
                 <button
                   onClick={logout}

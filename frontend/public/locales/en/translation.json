@@ -290,6 +290,19 @@
       "title": "System Maintenance",
       "description": "Tools for data integrity and storage cleanup."
     },
+    "settings": {
+      "title": "System Configuration",
+      "description": "Adjust global application parameters.",
+      "saveSuccess": "Setting updated successfully!",
+      "saveFailure": "Failed to update setting.",
+      "noSettings": "No configuration settings found.",
+      "groups": {
+        "general": "General",
+        "security": "Security",
+        "cleanup": "Cleanup",
+        "other": "Other"
+      }
+    },
     "quickActions": "Quick Actions"
   },
   "common": {
