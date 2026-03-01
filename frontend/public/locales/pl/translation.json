@@ -287,7 +287,16 @@
     },
     "maintenance": {
       "title": "Konserwacja Systemu",
-      "description": "Narzędzia do integralności danych i czyszczenia pamięci."
+      "description": "Narzędzia do integralności danych i czyszczenia pamięci.",
+      "staging": {
+        "title": "Czyszczenie Bufora",
+        "description": "Usuń wszystkie wygasłe przesłane pliki i ich powiązane rekordy.",
+        "button": "Wyczyść Bufor",
+        "confirmTitle": "Potwierdź Czyszczenie",
+        "confirmMessage": "Czy na pewno chcesz trwale usunąć wszystkie wygasłe rekordy w buforze?",
+        "success": "Bufor wyczyszczony! Usunięto {{count}} elementów.",
+        "failure": "Nie udało się wyczyścić bufora."
+      }
     },
     "settings": {
       "title": "Konfiguracja Systemu",

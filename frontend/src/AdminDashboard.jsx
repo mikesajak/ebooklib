@@ -182,10 +182,10 @@ const AdminDashboard = () => {
             </div>
           </Link>
 
-          <div className="block group opacity-50 cursor-not-allowed animate-fade-in [animation-delay:800ms]">
-            <div className="bg-white p-6 rounded-3xl border border-gray-100 shadow-xl shadow-gray-100/50 flex items-center justify-between">
+          <Link to="/admin/maintenance" className="block group animate-fade-in [animation-delay:800ms]">
+            <div className="bg-white p-6 rounded-3xl border border-gray-100 shadow-xl shadow-gray-100/50 flex items-center justify-between group-hover:border-indigo-200 transition-all group-hover:-translate-y-1">
               <div className="flex items-center gap-4">
-                <div className="p-3 rounded-2xl bg-gray-50 text-gray-400">
+                <div className="p-3 rounded-2xl bg-indigo-50 text-indigo-600 group-hover:bg-indigo-600 group-hover:text-white transition-all">
                   <FaTools size={20} />
                 </div>
                 <div>
@@ -193,9 +193,9 @@ const AdminDashboard = () => {
                   <p className="text-[10px] text-gray-400 font-bold leading-tight">{t('admin.maintenance.description')}</p>
                 </div>
               </div>
-              <FaChevronRight className="text-gray-300" />
+              <FaChevronRight className="text-gray-300 group-hover:text-indigo-600 transition-colors" />
             </div>
-          </div>
+          </Link>
         </div>
       </div>
     </div>

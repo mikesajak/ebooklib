@@ -15,6 +15,7 @@ import LoginPage from './LoginPage'
 import AdminDashboard from './AdminDashboard'
 import UserManagement from './UserManagement'
 import SettingsPanel from './SettingsPanel'
+import MaintenancePanel from './MaintenancePanel'
 import ProtectedRoute from './ProtectedRoute'
 import { SearchProvider } from './SearchContext'
 import { AuthProvider } from './AuthContext'
@@ -45,6 +46,7 @@ function App() {
                   <Route path="/admin" element={<ProtectedRoute requiredRole="ADMIN"><AdminDashboard /></ProtectedRoute>} />
                   <Route path="/admin/users" element={<ProtectedRoute requiredRole="ADMIN"><UserManagement /></ProtectedRoute>} />
                   <Route path="/admin/settings" element={<ProtectedRoute requiredRole="ADMIN"><SettingsPanel /></ProtectedRoute>} />
+                  <Route path="/admin/maintenance" element={<ProtectedRoute requiredRole="ADMIN"><MaintenancePanel /></ProtectedRoute>} />
                 </Routes>
               </main>
             </div>

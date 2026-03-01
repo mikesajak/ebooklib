@@ -288,7 +288,16 @@
     },
     "maintenance": {
       "title": "System Maintenance",
-      "description": "Tools for data integrity and storage cleanup."
+      "description": "Tools for data integrity and storage cleanup.",
+      "staging": {
+        "title": "Staging Area Cleanup",
+        "description": "Remove all expired staged uploads and their associated files.",
+        "button": "Cleanup Staging",
+        "confirmTitle": "Confirm Staging Cleanup",
+        "confirmMessage": "Are you sure you want to permanently delete all expired staged uploads?",
+        "success": "Staging area cleaned! Removed {{count}} items.",
+        "failure": "Failed to clean up staging area."
+      }
     },
     "settings": {
       "title": "System Configuration",

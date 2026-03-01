@@ -3,6 +3,7 @@ package com.mikesajak.ebooklib.importing.application.services
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.mikesajak.ebooklib.file.application.ports.outgoing.FileStoragePort
 import com.mikesajak.ebooklib.importing.application.ports.outgoing.StagedEbookUploadRepositoryPort
+import com.mikesajak.ebooklib.importing.application.ports.incoming.StagedUploadCleanupUseCase
 import com.mikesajak.ebooklib.importing.domain.model.StagedEbookUpload
 import mu.KotlinLogging
 import org.springframework.scheduling.annotation.Scheduled
@@ -17,26 +18,29 @@ class StagedUploadCleanupService(
     private val repository: StagedEbookUploadRepositoryPort,
     private val fileStoragePort: FileStoragePort,
     private val objectMapper: ObjectMapper
-) {
+) : StagedUploadCleanupUseCase {
 
     @Scheduled(cron = "\${app.import.cleanup.cron:0 0 * * * *}")
     @Transactional
-    fun cleanupExpiredUploads() {
+    override fun cleanupExpiredUploads(): Int {
         val now = Instant.now()
         logger.info { "Starting cleanup of expired staged uploads (now: $now)" }
 
         val expiredUploads = repository.findByExpiryAtBefore(now)
         logger.info { "Found ${expiredUploads.size} expired uploads to clean up" }
 
+        var deletedCount = 0
         expiredUploads.forEach { upload ->
             try {
                 cleanupUpload(upload)
+                deletedCount++
             } catch (e: Exception) {
                 logger.error(e) { "Failed to clean up expired upload ${upload.id}" }
             }
         }
 
-        logger.info { "Finished cleanup of expired staged uploads" }
+        logger.info { "Finished cleanup of expired staged uploads. Deleted: $deletedCount" }
+        return deletedCount
     }
 
     private fun cleanupUpload(upload: StagedEbookUpload) {

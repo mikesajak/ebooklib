@@ -4,6 +4,7 @@ import com.mikesajak.ebooklib.admin.application.ports.incoming.CreateUserCommand
 import com.mikesajak.ebooklib.admin.application.ports.incoming.CreatedUserResponse
 import com.mikesajak.ebooklib.admin.application.ports.incoming.UserManagementUseCase
 import com.mikesajak.ebooklib.admin.application.ports.incoming.SystemSettingsUseCase
+import com.mikesajak.ebooklib.admin.application.ports.incoming.MaintenanceUseCase
 import com.mikesajak.ebooklib.admin.application.services.AdminStatsService
 import com.mikesajak.ebooklib.admin.domain.model.AdminStats
 import com.mikesajak.ebooklib.admin.domain.model.User
@@ -20,7 +21,8 @@ private val logger = KotlinLogging.logger {}
 class AdminController(
     private val adminStatsService: AdminStatsService,
     private val userManagementUseCase: UserManagementUseCase,
-    private val systemSettingsUseCase: SystemSettingsUseCase
+    private val systemSettingsUseCase: SystemSettingsUseCase,
+    private val maintenanceUseCase: MaintenanceUseCase
 ) {
 
     @GetMapping("/stats")
@@ -57,6 +59,11 @@ class AdminController(
     @PutMapping("/settings/{key}")
     fun updateSetting(@PathVariable key: String, @RequestBody value: String?): SystemSettingsDto {
         return systemSettingsUseCase.updateSetting(key, value).toDto()
+    }
+
+    @PostMapping("/maintenance/purge-staging")
+    fun purgeStaging(): Int {
+        return maintenanceUseCase.purgeExpiredStaging()
     }
 
     private fun AdminStats.toDto() = AdminStatsDto(
