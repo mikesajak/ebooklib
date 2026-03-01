@@ -46,7 +46,7 @@ class SecurityConfig(private val userDetailsService: CustomUserDetailsService? =
                 authorize("/assets/**", permitAll)
                 authorize("/favicon.ico", permitAll)
                 authorize("/locales/**", permitAll)
-                authorize("/api/admin/**", hasRole("ADMIN"))
+                authorize("/api/admin/**", hasAuthority("ROLE_ADMIN"))
                 authorize("/api/**", authenticated)
                 authorize(anyRequest, permitAll)
             }

@@ -8,8 +8,12 @@ import com.mikesajak.ebooklib.admin.application.services.AdminStatsService
 import com.mikesajak.ebooklib.admin.domain.model.AdminStats
 import com.mikesajak.ebooklib.admin.domain.model.User
 import com.mikesajak.ebooklib.admin.domain.model.SystemSetting
+import mu.KotlinLogging
+import org.springframework.security.core.Authentication
 import org.springframework.web.bind.annotation.*
 import java.util.*
+
+private val logger = KotlinLogging.logger {}
 
 @RestController
 @RequestMapping("/api/admin")
@@ -20,7 +24,8 @@ class AdminController(
 ) {
 
     @GetMapping("/stats")
-    fun getStats(): AdminStatsDto {
+    fun getStats(authentication: Authentication?): AdminStatsDto {
+        logger.info { "Fetching admin stats for user: ${authentication?.name}, authorities: ${authentication?.authorities}" }
         return adminStatsService.getStats().toDto()
     }
 

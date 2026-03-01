@@ -31,7 +31,10 @@ class CustomUserDetailsService(
             .username(user.username)
             .password(user.password)
             .disabled(!user.enabled)
-            .authorities(user.roles.map { SimpleGrantedAuthority(it.role) })
+            .authorities(user.roles.map { 
+                val roleName = if (it.role.startsWith("ROLE_")) it.role else "ROLE_${it.role}"
+                SimpleGrantedAuthority(roleName) 
+            })
             .build()
     }
 }

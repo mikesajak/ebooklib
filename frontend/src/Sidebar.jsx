@@ -75,12 +75,12 @@ const AdminStatusWidget = () => {
 
 const AppSidebar = () => {
   const { t } = useTranslation();
-  const { user } = useAuth();
+  const { user, isAuthenticated } = useAuth();
   const { collapseSidebar, collapsed } = useProSidebar();
   const location = useLocation();
   const [isOnline, setIsOnline] = useState(true);
 
-  const isAdmin = user?.roles?.includes('ADMIN') || user?.roles?.includes('ROLE_ADMIN');
+  const isAdmin = isAuthenticated && (user?.roles?.includes('ADMIN') || user?.roles?.includes('ROLE_ADMIN'));
 
   useEffect(() => {
     const checkHealth = async () => {
