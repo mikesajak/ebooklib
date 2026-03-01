@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { FaUserShield, FaUserPlus, FaTrashAlt, FaCheckCircle, FaTimesCircle, FaShieldAlt, FaToggleOn, FaToggleOff } from 'react-icons/fa';
+import { Link } from 'react-router-dom';
+import { FaUserShield, FaUserPlus, FaTrashAlt, FaCheckCircle, FaTimesCircle, FaShieldAlt, FaToggleOn, FaToggleOff, FaChevronLeft } from 'react-icons/fa';
 import { fetchWithCsrf } from './api';
 import Notification from './Notification';
 import ConfirmationDialog from './ConfirmationDialog';
@@ -96,7 +97,10 @@ const UserManagement = () => {
         <div className="animate-slide-in-left">
           <div className="flex items-center gap-3 mb-2 text-indigo-600">
             <FaUserShield className="text-xl" />
-            <span className="text-xs font-black uppercase tracking-[0.3em]">{t('admin.dashboard')}</span>
+            <Link to="/admin" className="text-xs font-black uppercase tracking-[0.3em] hover:text-indigo-800 transition-colors flex items-center gap-2 group/back">
+              <FaChevronLeft className="text-[8px] transform group-hover/back:-translate-x-1 transition-transform" />
+              {t('admin.backToDashboard')}
+            </Link>
           </div>
           <h1 className="text-4xl font-black text-gray-800 tracking-tighter">
             User <span className="text-indigo-600">Security</span>

@@ -248,6 +248,7 @@
   },
   "admin": {
     "dashboard": "Admin Dashboard",
+    "backToDashboard": "Back to Dashboard",
     "stats": {
       "title": "System Status",
       "books": "Books",

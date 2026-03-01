@@ -247,6 +247,7 @@
   },
   "admin": {
     "dashboard": "Panel Administratora",
+    "backToDashboard": "Powrót do Panelu",
     "stats": {
       "title": "Status Systemu",
       "books": "Książki",
