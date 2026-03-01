@@ -228,6 +228,9 @@
       "assignedAuthors": "Assigned Authors",
       "authorNote": "Select authors from your library that match the extracted names.",
       "useExtractedCover": "Use extracted cover image instead of current one",
+      "useExtractedCoverSubtext": "Replace current cover with image from ebook file",
+      "importCover": "Import cover from ebook file",
+      "importCoverSubtext": "Set extracted image as the book cover",
       "confirmCreate": "Create Book & Import",
       "confirmUpdate": "Update & Add Format",
       "processing": "Processing Import..."

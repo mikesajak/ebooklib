@@ -227,6 +227,9 @@
       "assignedAuthors": "Przypisani Autorzy",
       "authorNote": "Wybierz autorów ze swojej biblioteki, którzy pasują do wyekstrahowanych nazwisk.",
       "useExtractedCover": "Użyj wyekstrahowanej okładki zamiast obecnej",
+      "useExtractedCoverSubtext": "Zastąp obecną okładkę obrazem z pliku ebooka",
+      "importCover": "Importuj okładkę z pliku ebooka",
+      "importCoverSubtext": "Ustaw wyekstrahowany obraz jako okładkę książki",
       "confirmCreate": "Utwórz Książkę i Importuj",
       "confirmUpdate": "Aktualizuj i Dodaj Format",
       "processing": "Przetwarzanie Importu..."

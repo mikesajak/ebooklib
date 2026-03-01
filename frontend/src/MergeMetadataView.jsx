@@ -66,7 +66,7 @@ const MergeMetadataView = ({
     seriesId: (dirtyFields?.has('series') ? draftBook?.series?.id : (existingBook?.series?.id || null)),
     volume: (dirtyFields?.has('volume') ? draftBook?.volume : (existingBook?.volume || null)),
     labels: (dirtyFields?.has('labels') ? draftBook?.labels : (existingBook?.labels || [])),
-    updateCover: false
+    updateCover: !!extracted.coverStorageKey && !existingBook
   });
 
   const [selectedSources, setSelectedSources] = useState({
@@ -74,7 +74,7 @@ const MergeMetadataView = ({
     publisher: getInitialSource('publisher'),
     publicationDate: getInitialSource('publicationDate'),
     description: getInitialSource('description'),
-    cover: false
+    cover: !!extracted.coverStorageKey && !existingBook
   });
 
   useEffect(() => {
@@ -380,8 +380,12 @@ const MergeMetadataView = ({
             />
             <div className="flex-grow flex items-center justify-between">
               <div>
-                <span className="font-extrabold text-green-900">{t('import.review.useExtractedCover')}</span>
-                <p className="text-xs text-green-700 mt-0.5">Replace current cover with image from ebook file</p>
+                <span className="font-extrabold text-green-900">
+                  {existingBook ? t('import.review.useExtractedCover') : t('import.review.importCover')}
+                </span>
+                <p className="text-xs text-green-700 mt-0.5">
+                  {existingBook ? t('import.review.useExtractedCoverSubtext') : t('import.review.importCoverSubtext')}
+                </p>
               </div>
               <div className="p-1 bg-white rounded-lg border border-green-300 shadow-inner group-hover:scale-105 transition-transform">
                 <img 
