@@ -3,9 +3,11 @@ package com.mikesajak.ebooklib.admin.infrastructure.incoming.web
 import com.mikesajak.ebooklib.admin.application.ports.incoming.CreateUserCommand
 import com.mikesajak.ebooklib.admin.application.ports.incoming.CreatedUserResponse
 import com.mikesajak.ebooklib.admin.application.ports.incoming.UserManagementUseCase
+import com.mikesajak.ebooklib.admin.application.ports.incoming.SystemSettingsUseCase
 import com.mikesajak.ebooklib.admin.application.services.AdminStatsService
 import com.mikesajak.ebooklib.admin.domain.model.AdminStats
 import com.mikesajak.ebooklib.admin.domain.model.User
+import com.mikesajak.ebooklib.admin.domain.model.SystemSetting
 import org.springframework.web.bind.annotation.*
 import java.util.*
 
@@ -13,7 +15,8 @@ import java.util.*
 @RequestMapping("/api/admin")
 class AdminController(
     private val adminStatsService: AdminStatsService,
-    private val userManagementUseCase: UserManagementUseCase
+    private val userManagementUseCase: UserManagementUseCase,
+    private val systemSettingsUseCase: SystemSettingsUseCase
 ) {
 
     @GetMapping("/stats")
@@ -41,6 +44,16 @@ class AdminController(
         return userManagementUseCase.createUser(command)
     }
 
+    @GetMapping("/settings")
+    fun getAllSettings(): List<SystemSettingsDto> {
+        return systemSettingsUseCase.getAllSettings().map { it.toDto() }
+    }
+
+    @PutMapping("/settings/{key}")
+    fun updateSetting(@PathVariable key: String, @RequestBody value: String?): SystemSettingsDto {
+        return systemSettingsUseCase.updateSetting(key, value).toDto()
+    }
+
     private fun AdminStats.toDto() = AdminStatsDto(
         bookCount = bookCount,
         authorCount = authorCount,
@@ -56,5 +69,11 @@ class AdminController(
         username = username,
         roles = roles,
         enabled = enabled
+    )
+
+    private fun SystemSetting.toDto() = SystemSettingsDto(
+        key = key,
+        value = value,
+        description = description
     )
 }
