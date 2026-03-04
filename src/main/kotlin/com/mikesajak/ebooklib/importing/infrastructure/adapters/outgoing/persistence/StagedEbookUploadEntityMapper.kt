@@ -1,5 +1,7 @@
 package com.mikesajak.ebooklib.importing.infrastructure.adapters.outgoing.persistence
 
+import com.mikesajak.ebooklib.importing.domain.model.ImportSession
+import com.mikesajak.ebooklib.importing.domain.model.ImportSessionId
 import com.mikesajak.ebooklib.importing.domain.model.StagedEbookUpload
 import com.mikesajak.ebooklib.importing.domain.model.StagedEbookUploadId
 import org.springframework.stereotype.Component

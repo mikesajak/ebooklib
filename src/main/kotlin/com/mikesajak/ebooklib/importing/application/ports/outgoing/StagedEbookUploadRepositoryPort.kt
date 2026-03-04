@@ -1,5 +1,6 @@
 package com.mikesajak.ebooklib.importing.application.ports.outgoing
 
+import com.mikesajak.ebooklib.importing.domain.model.ImportSessionId
 import com.mikesajak.ebooklib.importing.domain.model.StagedEbookUpload
 import com.mikesajak.ebooklib.importing.domain.model.StagedEbookUploadId
 import java.time.Instant
@@ -14,4 +15,6 @@ interface StagedEbookUploadRepositoryPort {
     fun count(): Long
     fun countByExpiryAtBefore(now: Instant): Long
     fun findAllKeys(): List<String>
+    fun findByImportSessionId(importSessionId: ImportSessionId): List<StagedEbookUpload>
+    fun deleteByImportSessionId(importSessionId: ImportSessionId)
 }

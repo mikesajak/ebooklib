@@ -7,6 +7,7 @@ import com.mikesajak.ebooklib.admin.application.ports.incoming.SystemSettingsUse
 import com.mikesajak.ebooklib.admin.application.ports.incoming.MaintenanceUseCase
 import com.mikesajak.ebooklib.admin.application.services.AdminStatsService
 import com.mikesajak.ebooklib.admin.domain.model.AdminStats
+import com.mikesajak.ebooklib.admin.domain.model.StorageScanStats
 import com.mikesajak.ebooklib.admin.domain.model.User
 import com.mikesajak.ebooklib.admin.domain.model.SystemSetting
 import mu.KotlinLogging

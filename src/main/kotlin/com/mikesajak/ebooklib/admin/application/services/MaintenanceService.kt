@@ -2,6 +2,7 @@ package com.mikesajak.ebooklib.admin.application.services
 
 import com.mikesajak.ebooklib.admin.application.ports.incoming.MaintenanceUseCase
 import com.mikesajak.ebooklib.admin.domain.model.StagingStats
+import com.mikesajak.ebooklib.admin.domain.model.StorageScanStats
 import com.mikesajak.ebooklib.importing.application.ports.outgoing.StagedEbookUploadRepositoryPort
 import com.mikesajak.ebooklib.importing.application.ports.incoming.StagedUploadCleanupUseCase
 import org.springframework.stereotype.Service

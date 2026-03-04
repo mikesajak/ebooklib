@@ -7,7 +7,9 @@ import java.util.*
 
 interface StagedEbookUploadJpaRepository : JpaRepository<StagedEbookUploadEntity, UUID> {
     fun findByExpiryAtBefore(now: Instant): List<StagedEbookUploadEntity>
-    fun countByExpiryAtBefore(now: Instant): Long
+    fun countAllByExpiryAtBefore(now: Instant): Long
+    fun findAllByImportSessionId(importSessionId: UUID): List<StagedEbookUploadEntity>
+    fun deleteAllByImportSessionId(importSessionId: UUID)
 
     @Query("SELECT 'staged/' || cast(s.id as string) FROM StagedEbookUploadEntity s")
     fun findAllStorageKeys(): List<String>

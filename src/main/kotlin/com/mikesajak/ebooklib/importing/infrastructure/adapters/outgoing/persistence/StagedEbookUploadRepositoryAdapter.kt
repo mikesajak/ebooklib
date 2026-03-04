@@ -2,6 +2,7 @@ package com.mikesajak.ebooklib.importing.infrastructure.adapters.outgoing.persis
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.mikesajak.ebooklib.importing.application.ports.outgoing.StagedEbookUploadRepositoryPort
+import com.mikesajak.ebooklib.importing.domain.model.ImportSessionId
 import com.mikesajak.ebooklib.importing.domain.model.StagedEbookUpload
 import com.mikesajak.ebooklib.importing.domain.model.StagedEbookUploadId
 import org.springframework.stereotype.Component
@@ -42,7 +43,7 @@ class StagedEbookUploadRepositoryAdapter(
 
     override fun count(): Long = jpaRepository.count()
 
-    override fun countByExpiryAtBefore(now: Instant): Long = jpaRepository.countByExpiryAtBefore(now)
+    override fun countByExpiryAtBefore(now: Instant): Long = jpaRepository.countAllByExpiryAtBefore(now)
 
     override fun findAllKeys(): List<String> {
         val allEntities = jpaRepository.findAll()
@@ -60,5 +61,12 @@ class StagedEbookUploadRepositoryAdapter(
             }
         }
         return keys
+    }
+
+    override fun findByImportSessionId(importSessionId: com.mikesajak.ebooklib.importing.domain.model.ImportSessionId): List<StagedEbookUpload> =
+        jpaRepository.findAllByImportSessionId(importSessionId.value).map { mapper.toDomain(it) }
+
+    override fun deleteByImportSessionId(importSessionId: com.mikesajak.ebooklib.importing.domain.model.ImportSessionId) {
+        jpaRepository.deleteAllByImportSessionId(importSessionId.value)
     }
 }
