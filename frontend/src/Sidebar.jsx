@@ -3,7 +3,7 @@ import { Sidebar, Menu, MenuItem } from 'react-pro-sidebar';
 import { Link, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from './AuthContext';
-import { FaBook, FaUsers, FaLayerGroup, FaBars, FaShieldAlt, FaHdd } from 'react-icons/fa';
+import { FaBook, FaUsers, FaLayerGroup, FaBars, FaShieldAlt, FaHdd, FaCloudUploadAlt } from 'react-icons/fa';
 
 const AdminStatusWidget = () => {
   const { t } = useTranslation();
@@ -116,6 +116,9 @@ const AppSidebar = () => {
     if (path === '/admin' && (currentPath.startsWith('/admin'))) {
       return { active: true, bg: '#ede9fe', text: '#5b21b6', border: '#8b5cf6' };
     }
+    if (path === '/import' && (currentPath.startsWith('/import'))) {
+      return { active: true, bg: '#dbeafe', text: '#1e40af', border: '#1d4ed8' };
+    }
     return { active: false };
   };
 
@@ -176,6 +179,14 @@ const AppSidebar = () => {
               style={getMenuItemStyles('/series')}
             >
               {t('header.series')}
+            </MenuItem>
+
+            <MenuItem
+              component={<Link to="/import" />} 
+              icon={<FaCloudUploadAlt className={getActiveTheme('/import').active ? 'text-blue-600' : ''} />}
+              style={getMenuItemStyles('/import')}
+            >
+              {t('header.import')}
             </MenuItem>
 
             {isAdmin && (

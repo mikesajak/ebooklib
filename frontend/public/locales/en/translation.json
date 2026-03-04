@@ -3,7 +3,7 @@
   "header": {
     "title": "Ebook Library",
     "books": "Books",
-    "import": "Import Ebook",
+    "import": "Bulk Import",
     "authors": "Authors",
     "series": "Series"
   },
@@ -201,6 +201,8 @@
   },
   "import": {
     "title": "Import Ebook",
+    "bulkUploadTitle": "Bulk Ebook Upload",
+    "startUpload": "Start Upload",
     "description": "Upload an ebook file to automatically extract metadata and add it to your library. We support EPUB, PDF, and other common formats.",
     "dropZoneTitle": "Drop your ebook here",
     "dropZoneSubtitle": "or click to select a file from your computer",

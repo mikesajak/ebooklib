@@ -3,7 +3,7 @@
   "header": {
     "title": "Biblioteka Ebooków",
     "books": "Książki",
-    "import": "Importuj Ebook",
+    "import": "Masowy Import",
     "authors": "Autorzy",
     "series": "Serie"
   },
@@ -200,6 +200,8 @@
   },
   "import": {
     "title": "Importuj Ebook",
+    "bulkUploadTitle": "Masowe Przesyłanie Ebooków",
+    "startUpload": "Rozpocznij Przesyłanie",
     "description": "Prześlij plik ebooka, aby automatycznie wyodrębnić metadane i dodać go do swojej biblioteki. Obsługujemy formaty EPUB, PDF i inne popularne rozszerzenia.",
     "dropZoneTitle": "Przeciągnij ebooka tutaj",
     "dropZoneSubtitle": "lub kliknij, aby wybrać plik z komputera",

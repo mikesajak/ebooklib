@@ -8,6 +8,7 @@ import com.mikesajak.ebooklib.book.infrastructure.adapters.incoming.rest.BookVie
 import com.mikesajak.ebooklib.book.infrastructure.adapters.incoming.rest.dto.BookResponseDto
 import com.mikesajak.ebooklib.importing.application.ports.incoming.FinalizeImportUseCase
 import com.mikesajak.ebooklib.importing.application.ports.incoming.GetStagedCoverUseCase
+import com.mikesajak.ebooklib.importing.application.ports.incoming.GetStagedUploadUseCase
 import com.mikesajak.ebooklib.importing.application.ports.incoming.StagedCover
 import com.mikesajak.ebooklib.importing.application.ports.incoming.UploadToStagingUseCase
 import com.mikesajak.ebooklib.importing.domain.model.StagedEbookUpload
@@ -62,6 +63,9 @@ class ImportControllerComponentTest {
 
     @MockitoBean
     private lateinit var getStagedCoverUseCase: GetStagedCoverUseCase
+
+    @MockitoBean
+    private lateinit var getStagedUploadUseCase: GetStagedUploadUseCase
 
     @MockitoBean
     private lateinit var finalizeImportUseCase: FinalizeImportUseCase
@@ -176,6 +180,61 @@ class ImportControllerComponentTest {
             .param("currentBookId", currentBookId.toString()))
             .andExpect(status().isOk)
             .andExpect(jsonPath("$.id").value(stagedUpload.id.toString()))
+    }
+
+    @Test
+    fun `should upload ebook to staging asynchronously`() {
+        // Given
+        val fileContent = "test ebook content".toByteArray()
+        val fileName = "ebook.epub"
+        val contentType = "application/epub+zip"
+        val multipartFile = MockMultipartFile("file", fileName, contentType, fileContent)
+
+        val stagedUpload = StagedEbookUpload(
+            id = StagedEbookUploadId(UUID.randomUUID()),
+            fileName = fileName,
+            contentType = contentType,
+            fileSize = fileContent.size.toLong(),
+            metadataJson = null,
+            status = StagedEbookUploadStatus.PROCESSING,
+            createdAt = Instant.now(),
+            expiryAt = Instant.now().plusSeconds(3600)
+        )
+
+        whenever(uploadToStagingUseCase.uploadAsync(any(), any(), any(), anyOrNull())).thenReturn(stagedUpload)
+
+        // When & Then
+        mockMvc.perform(multipart("/api/import/upload")
+            .file(multipartFile)
+            .param("async", "true"))
+            .andExpect(status().isOk)
+            .andExpect(jsonPath("$.id").value(stagedUpload.id.toString()))
+            .andExpect(jsonPath("$.status").value("PROCESSING"))
+    }
+
+    @Test
+    fun `should get staged upload status`() {
+        // Given
+        val uploadId = UUID.randomUUID()
+        val stagedUpload = StagedEbookUpload(
+            id = StagedEbookUploadId(uploadId),
+            fileName = "ebook.epub",
+            contentType = "application/epub+zip",
+            fileSize = 100L,
+            metadataJson = """{"title": "Test Book"}""",
+            status = StagedEbookUploadStatus.PARSED,
+            createdAt = Instant.now(),
+            expiryAt = Instant.now().plusSeconds(3600)
+        )
+
+        whenever(getStagedUploadUseCase.getStagedUpload(StagedEbookUploadId(uploadId))).thenReturn(stagedUpload)
+
+        // When & Then
+        mockMvc.perform(get("/api/import/staged/$uploadId"))
+            .andExpect(status().isOk)
+            .andExpect(jsonPath("$.id").value(uploadId.toString()))
+            .andExpect(jsonPath("$.status").value("PARSED"))
+            .andExpect(jsonPath("$.metadata.title").value("Test Book"))
     }
 
     @Test
