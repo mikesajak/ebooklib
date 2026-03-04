@@ -31,5 +31,11 @@ class StagedEbookUploadEntity(
     val createdAt: Instant,
 
     @Column(nullable = false)
-    val expiryAt: Instant
+    val expiryAt: Instant,
+
+    @Column
+    val importSessionId: UUID? = null,
+
+    @Column
+    val resolutionItemId: UUID? = null
 )

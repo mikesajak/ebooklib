@@ -15,7 +15,9 @@ class StagedEbookUploadEntityMapper {
             metadataJson = domain.metadataJson,
             status = domain.status,
             createdAt = domain.createdAt,
-            expiryAt = domain.expiryAt
+            expiryAt = domain.expiryAt,
+            importSessionId = domain.importSessionId?.value,
+            resolutionItemId = domain.resolutionItemId
         )
 
     fun toDomain(entity: StagedEbookUploadEntity): StagedEbookUpload =
@@ -27,6 +29,8 @@ class StagedEbookUploadEntityMapper {
             metadataJson = entity.metadataJson,
             status = entity.status,
             createdAt = entity.createdAt,
-            expiryAt = entity.expiryAt
+            expiryAt = entity.expiryAt,
+            importSessionId = entity.importSessionId?.let { ImportSessionId(it) },
+            resolutionItemId = entity.resolutionItemId
         )
 }

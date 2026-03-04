@@ -22,5 +22,7 @@ data class StagedEbookUpload(
     val metadataJson: String?,
     val status: StagedEbookUploadStatus,
     val createdAt: Instant,
-    val expiryAt: Instant
+    val expiryAt: Instant,
+    val importSessionId: ImportSessionId? = null,
+    val resolutionItemId: UUID? = null
 )
