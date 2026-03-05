@@ -5,6 +5,8 @@ import com.mikesajak.ebooklib.admin.application.ports.incoming.CreatedUserRespon
 import com.mikesajak.ebooklib.admin.application.ports.incoming.UserManagementUseCase
 import com.mikesajak.ebooklib.admin.application.ports.incoming.SystemSettingsUseCase
 import com.mikesajak.ebooklib.admin.application.ports.incoming.MaintenanceUseCase
+import com.mikesajak.ebooklib.importing.application.ports.incoming.MetadataProviderSettingsUseCase
+import com.mikesajak.ebooklib.importing.domain.model.MetadataProviderConfig
 import com.mikesajak.ebooklib.admin.application.services.AdminStatsService
 import com.mikesajak.ebooklib.admin.domain.model.AdminStats
 import com.mikesajak.ebooklib.admin.domain.model.StorageScanStats
@@ -23,7 +25,8 @@ class AdminController(
     private val adminStatsService: AdminStatsService,
     private val userManagementUseCase: UserManagementUseCase,
     private val systemSettingsUseCase: SystemSettingsUseCase,
-    private val maintenanceUseCase: MaintenanceUseCase
+    private val maintenanceUseCase: MaintenanceUseCase,
+    private val metadataProviderSettingsUseCase: MetadataProviderSettingsUseCase
 ) {
 
     @GetMapping("/stats")
@@ -83,6 +86,19 @@ class AdminController(
         return maintenanceUseCase.getStorageScanStats()
     }
 
+    @GetMapping("/metadata-providers")
+    fun getMetadataProviders(): List<MetadataProviderConfigDto> {
+        return metadataProviderSettingsUseCase.getProvidersConfig().map { it.toDto() }
+    }
+
+    @PatchMapping("/metadata-providers/{id}")
+    fun updateMetadataProvider(
+        @PathVariable id: String,
+        @RequestBody request: UpdateMetadataProviderRequest
+    ): MetadataProviderConfigDto {
+        return metadataProviderSettingsUseCase.updateProviderConfig(id, request.enabled, request.settings).toDto()
+    }
+
     private fun AdminStats.toDto() = AdminStatsDto(
         bookCount = bookCount,
         authorCount = authorCount,
@@ -104,5 +120,12 @@ class AdminController(
         key = key,
         value = value,
         description = description
+    )
+
+    private fun MetadataProviderConfig.toDto() = MetadataProviderConfigDto(
+        id = id,
+        name = name,
+        enabled = enabled,
+        settings = settings
     )
 }

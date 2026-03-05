@@ -27,7 +27,8 @@ class StagedUploadProcessor(
     private val bookRepository: BookRepositoryPort,
     private val repository: StagedEbookUploadRepositoryPort,
     private val fileStoragePort: FileStoragePort,
-    private val objectMapper: ObjectMapper
+    private val objectMapper: ObjectMapper,
+    private val groupingService: GroupingService
 ) {
 
     @Async
@@ -86,9 +87,17 @@ class StagedUploadProcessor(
                 findPotentialMatches(extracted, fileBytes.size.toLong(), fileName)
             }
             metadataMap["validation"] = validation
+
+            // Grouping logic (REQ-003)
+            try {
+                groupingService.group(uploadId, extracted.title ?: "Untitled", extracted.authors)
+            } catch (e: Exception) {
+                logger.warn { "Failed to group upload $uploadId: ${e.message}" }
+            }
         }
 
         val metadataJson = objectMapper.writeValueAsString(metadataMap)
+
 
         val existing = repository.findById(uploadId)
         return if (existing != null) {

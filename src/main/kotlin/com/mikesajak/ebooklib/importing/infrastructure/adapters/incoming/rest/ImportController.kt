@@ -36,23 +36,26 @@ class ImportController(
     fun uploadFile(
         @RequestParam("file") file: MultipartFile,
         @RequestParam("currentBookId", required = false) currentBookId: UUID?,
+        @RequestParam("importSessionId", required = false) importSessionId: UUID?,
         @RequestParam("async", required = false, defaultValue = "false") async: Boolean
     ): ResponseEntity<StagedUploadResponseDto> {
-        logger.info { "Received upload request for file: ${file.originalFilename}, currentBookId: $currentBookId, async: $async" }
+        logger.info { "Received upload request for file: ${file.originalFilename}, currentBookId: $currentBookId, importSessionId: $importSessionId, async: $async" }
 
         val stagedUpload = if (async) {
             uploadToStagingUseCase.uploadAsync(
                 fileContent = file.inputStream,
                 fileName = file.originalFilename ?: "untitled",
                 contentType = file.contentType ?: "application/octet-stream",
-                currentBookId = currentBookId
+                currentBookId = currentBookId,
+                importSessionId = importSessionId
             )
         } else {
             uploadToStagingUseCase.upload(
                 fileContent = file.inputStream,
                 fileName = file.originalFilename ?: "untitled",
                 contentType = file.contentType ?: "application/octet-stream",
-                currentBookId = currentBookId
+                currentBookId = currentBookId,
+                importSessionId = importSessionId
             )
         }
 

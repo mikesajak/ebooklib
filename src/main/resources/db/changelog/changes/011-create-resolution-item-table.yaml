@@ -1,0 +1,75 @@
+databaseChangeLog:
+  - changeSet:
+      id: 011-1
+      author: mikesajak
+      preConditions:
+        - onFail: MARK_RAN
+          not:
+            tableExists:
+              tableName: resolution_item
+      changes:
+        - createTable:
+            tableName: resolution_item
+            columns:
+              - column:
+                  name: id
+                  type: UUID
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: import_session_id
+                  type: UUID
+                  constraints:
+                    nullable: false
+              - column:
+                  name: title
+                  type: text
+                  constraints:
+                    nullable: false
+              - column:
+                  name: authors
+                  type: text
+                  constraints:
+                    nullable: false
+              - column:
+                  name: status
+                  type: VARCHAR(50)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: created_at
+                  type: TIMESTAMP
+                  constraints:
+                    nullable: false
+              - column:
+                  name: updated_at
+                  type: TIMESTAMP
+                  constraints:
+                    nullable: false
+              - column:
+                  name: metadata_json
+                  type: text
+        - addForeignKeyConstraint:
+            baseTableName: resolution_item
+            baseColumnNames: import_session_id
+            constraintName: fk_resolution_item_import_session
+            referencedTableName: import_session
+            referencedColumnNames: id
+
+  - changeSet:
+      id: 011-2
+      author: mikesajak
+      preConditions:
+        - onFail: MARK_RAN
+          not:
+            foreignKeyConstraintExists:
+              baseTableName: staged_ebook_upload
+              foreignKeyName: fk_staged_upload_resolution_item
+      changes:
+        - addForeignKeyConstraint:
+            baseTableName: staged_ebook_upload
+            baseColumnNames: resolution_item_id
+            constraintName: fk_staged_upload_resolution_item
+            referencedTableName: resolution_item
+            referencedColumnNames: id

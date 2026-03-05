@@ -3,6 +3,7 @@ package com.mikesajak.ebooklib.importing.application.services
 import com.mikesajak.ebooklib.file.application.ports.outgoing.FileStoragePort
 import com.mikesajak.ebooklib.importing.application.ports.incoming.UploadToStagingUseCase
 import com.mikesajak.ebooklib.importing.application.ports.outgoing.StagedEbookUploadRepositoryPort
+import com.mikesajak.ebooklib.importing.domain.model.ImportSessionId
 import com.mikesajak.ebooklib.importing.domain.model.StagedEbookUpload
 import com.mikesajak.ebooklib.importing.domain.model.StagedEbookUploadId
 import com.mikesajak.ebooklib.importing.domain.model.StagedEbookUploadStatus
@@ -25,8 +26,8 @@ class UploadToStagingService(
     private val stagedUploadProcessor: StagedUploadProcessor
 ) : UploadToStagingUseCase {
 
-    override fun upload(fileContent: InputStream, fileName: String, contentType: String, currentBookId: UUID?): StagedEbookUpload {
-        logger.info { "Uploading file to staging: $fileName ($contentType), currentBookId: $currentBookId" }
+    override fun upload(fileContent: InputStream, fileName: String, contentType: String, currentBookId: UUID?, importSessionId: UUID?): StagedEbookUpload {
+        logger.info { "Uploading file to staging: $fileName ($contentType), currentBookId: $currentBookId, importSessionId: $importSessionId" }
 
         val fileBytes = fileContent.readAllBytes()
         
@@ -43,7 +44,8 @@ class UploadToStagingService(
             metadataJson = null,
             status = StagedEbookUploadStatus.PROCESSING,
             createdAt = Instant.now(),
-            expiryAt = Instant.now().plus(24, ChronoUnit.HOURS)
+            expiryAt = Instant.now().plus(24, ChronoUnit.HOURS),
+            importSessionId = importSessionId?.let { ImportSessionId(it) }
         )
         repository.save(stagedUpload)
 
@@ -51,8 +53,8 @@ class UploadToStagingService(
         return stagedUploadProcessor.process(uploadId, fileBytes, fileName, contentType, currentBookId)
     }
 
-    override fun uploadAsync(fileContent: InputStream, fileName: String, contentType: String, currentBookId: UUID?): StagedEbookUpload {
-        logger.info { "Uploading file to staging (ASYNC): $fileName ($contentType), currentBookId: $currentBookId" }
+    override fun uploadAsync(fileContent: InputStream, fileName: String, contentType: String, currentBookId: UUID?, importSessionId: UUID?): StagedEbookUpload {
+        logger.info { "Uploading file to staging (ASYNC): $fileName ($contentType), currentBookId: $currentBookId, importSessionId: $importSessionId" }
 
         val fileBytes = fileContent.readAllBytes()
         
@@ -69,7 +71,8 @@ class UploadToStagingService(
             metadataJson = null,
             status = StagedEbookUploadStatus.PROCESSING,
             createdAt = Instant.now(),
-            expiryAt = Instant.now().plus(24, ChronoUnit.HOURS)
+            expiryAt = Instant.now().plus(24, ChronoUnit.HOURS),
+            importSessionId = importSessionId?.let { ImportSessionId(it) }
         )
         val saved = repository.save(stagedUpload)
 
