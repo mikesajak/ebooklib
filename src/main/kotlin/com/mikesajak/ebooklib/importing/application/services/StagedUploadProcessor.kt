@@ -8,6 +8,7 @@ import com.mikesajak.ebooklib.book.domain.model.BookId
 import com.mikesajak.ebooklib.common.domain.model.PaginationRequest
 import com.mikesajak.ebooklib.file.application.ports.outgoing.FileStoragePort
 import com.mikesajak.ebooklib.importing.application.ports.incoming.EbookMetadataExtractorUseCase
+import com.mikesajak.ebooklib.importing.application.ports.incoming.MetadataEnrichmentUseCase
 import com.mikesajak.ebooklib.importing.application.ports.outgoing.StagedEbookUploadRepositoryPort
 import com.mikesajak.ebooklib.importing.domain.model.*
 import mu.KotlinLogging
@@ -28,7 +29,8 @@ class StagedUploadProcessor(
     private val repository: StagedEbookUploadRepositoryPort,
     private val fileStoragePort: FileStoragePort,
     private val objectMapper: ObjectMapper,
-    private val groupingService: GroupingService
+    private val groupingService: GroupingService,
+    private val enrichmentUseCase: MetadataEnrichmentUseCase
 ) {
 
     @Async
@@ -93,6 +95,16 @@ class StagedUploadProcessor(
                 groupingService.group(uploadId, extracted.title ?: "Untitled", extracted.authors)
             } catch (e: Exception) {
                 logger.warn { "Failed to group upload $uploadId: ${e.message}" }
+            }
+
+            // External Metadata Enrichment (REQ-004)
+            if (extracted.title != null) {
+                try {
+                    val enrichment = enrichmentUseCase.enrichMetadata(extracted.title, extracted.authors)
+                    metadataMap["enrichment"] = enrichment
+                } catch (e: Exception) {
+                    logger.warn(e) { "Failed to enrich metadata for upload $uploadId" }
+                }
             }
         }
 
