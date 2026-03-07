@@ -47,6 +47,17 @@
   "bookDetails": {
     "title": "Book Details",
     "loading": "Loading book details...",
+    "availableFormats": "Available Formats",
+    "confirmBookDelete": "Are you sure you want to delete book \"{{bookTitle}}\" and all its formats?",
+    "confirmBookDeleteTitle": "Delete Book",
+    "publisher": "Publisher",
+    "publicationDate": "Published",
+    "series": "Series",
+    "volume": "Volume",
+    "description": "Description",
+    "noDescription": "No description provided for this book.",
+    "labels": "Labels",
+    "noLabels": "No labels",
     "form": {
       "title": "Title",
       "author": "Author",
@@ -89,12 +100,19 @@
     "noFormats": "No formats available.",
     "upload": "Upload Format",
     "processing": "Processing...",
+    "deleteSuccess": "Format deleted successfully!",
+    "deleteFailure": "Failed to delete format.",
+    "uploadSuccess": "Format uploaded and processed successfully.",
+    "uploadFailure": "Failed to upload format.",
+    "parseFailure": "Failed to parse upload response.",
+    "networkError": "Network error occurred during upload.",
     "deleteConfirmation": {
       "message": "Are you sure you want to delete the format \"{{formatType}}\"?"
     }
   },
   "addBook": {
     "title": "Add New Book",
+    "editTitle": "Edit Book",
     "form": {
       "title": "Title",
       "author": "Author",
@@ -108,7 +126,13 @@
       "labels": "Labels",
       "labelsPlaceholder": "Comma-separated labels (e.g. Fantasy, Adventure)",
       "addAuthor": "Add Author",
-      "volumeDisabledTooltip": "Select a series first to enable volume number"
+      "volumeDisabledTooltip": "Select a series first to enable volume number",
+      "metadata": "Metadata",
+      "authors": "Authors",
+      "covers": "Covers",
+      "matching": "Matching",
+      "extractedHint": "Form populated from extracted metadata. You can still review and edit below.",
+      "labelHelp": "Separate labels with commas (e.g. Fiction, Fantasy, Hardcover)"
     },
     "addSuccess": "Book added successfully!",
     "updateSuccess": "Book updated successfully!",
@@ -137,14 +161,13 @@
     "failureMessage": "Failed to create series"
   },
   "authorDetails": {
-    "title": "Author Details",
-    "loading": "Loading author details...",
-    "name": "Name",
-    "bio": "Bio",
+    "entityLabel": "Author Entity",
     "birthDate": "Birth Date",
     "deathDate": "Death Date",
-    "booksByAuthor": "Books by this Author",
-    "noBooksFound": "No books found."
+    "bio": "Short Bio",
+    "noBio": "No biographical information available for this author.",
+    "booksByAuthor": "Books by Author",
+    "noBooks": "No books found in library."
   },
   "authorList": {
     "title": "Authors",
@@ -175,20 +198,15 @@
     "noAffectedBooks": "No books will be affected.",
     "errorFetchingBooks": "Error fetching affected books.",
     "authorDeleted": "Author deleted successfully!",
-    "errorDeletingAuthor": "Failed to delete author"
+    "errorDeletingAuthor": "Failed to delete author",
+    "authorNotFound": "Author not found"
   },
   "seriesDetails": {
-    "title": "Series Details",
-    "loading": "Loading series details...",
-    "seriesTitle": "Title",
+    "entityLabel": "Book Series",
     "description": "Description",
-    "booksInSeries": "Books in this Series",
-    "noBooksFound": "No books found.",
-    "volumeAndTitle": "Volume {{volume}}",
-    "header": {
-      "volume": "Volume",
-      "title": "Title"
-    }
+    "noDescription": "No description available for this series.",
+    "booksInSeries": "Books in Series",
+    "noBooks": "No books found in this series."
   },
   "seriesList": {
     "title": "Series",
@@ -197,7 +215,12 @@
     "addSeries": "Add Series",
     "header": {
       "title": "Title"
-    }
+    },
+    "seriesDeleted": "Series deleted successfully!",
+    "errorDeletingSeries": "Failed to delete series",
+    "seriesNotFound": "Series not found",
+    "confirmDeleteTitle": "Confirm Delete",
+    "confirmDeleteMessage": "Are you sure you want to delete series \"{{seriesTitle}}\"?"
   },
   "import": {
     "title": "Import Ebook",
@@ -210,17 +233,106 @@
     "uploading": "Uploading and analyzing...",
     "uploadError": "Failed to upload and analyze the ebook file.",
     "finalizeError": "Failed to finalize the import.",
-    "success": "Successfully imported \"{{title}}\" into the library!",
-    "featureMetadata": "Automatic metadata extraction",
-    "featureCovers": "Cover image detection",
-    "featureFormats": "Multi-format support",
-    "featureMatching": "Smart matching with existing books",
-    "dashboardTitle": "Import Session Dashboard",
+    "uploadingLabel": "Uploading...",
+    "uploadFinished": "Upload Finished",
+    "uploadCompleteWithErrors": "Upload Complete (with errors)",
+    "clearAll": "Clear All",
+    "confirmClearAll": "Are you sure you want to clear the list of selected files?",
+    "confirmClearAllWithSession": "Are you sure you want to clear the list and discard the current import session?",
+    "activeSessions": "Ongoing Import Sessions",
+    "processedCount": "processed",
     "goToDashboard": "Go to Session Dashboard",
+    "dashboardTitle": "Import Session Dashboard",
+    "discardSession": "Discard Session",
+    "completeImport": "Complete Import",
     "totalFiles": "Total Files",
-    "status": "Session Status",
     "processed": "Processed",
     "failed": "Failed",
+    "unresolvedWarning": "Warning: there are still {{count}} unresolved items. They will NOT be imported.",
+    "confirmFinalize": "Are you sure you want to complete this import session?",
+    "confirmDiscardSession": "Are you sure you want to discard this session and all uploaded files?",
+    "finalizeSuccess": "Import session completed successfully.",
+    "discardSuccess": "Import session discarded.",
+    "table": {
+      "fileName": "File Name",
+      "status": "Status",
+      "details": "Details",
+      "actions": "Actions",
+      "bookDetails": "Book Details",
+      "formats": "Formats"
+    },
+    "filters": {
+      "all": "All Items",
+      "unresolved": "Unresolved",
+      "resolved": "Resolved",
+      "ignored": "Ignored",
+      "error": "Error"
+    },
+    "status": {
+      "pending": "Pending",
+      "uploading": "Uploading...",
+      "processing": "Processing...",
+      "parsed": "Parsed",
+      "failed": "Failed",
+      "unresolved": "Unresolved",
+      "resolved": "Resolved",
+      "ignored": "Ignored",
+      "error": "Error",
+      "active": "Active",
+      "completed": "Completed"
+    },
+    "actions": {
+      "resolve": "Resolve",
+      "ignore": "Ignore",
+      "restore": "Restore",
+      "edit": "Edit",
+      "delete": "Delete",
+      "ignoreSelected": "Ignore Selected",
+      "restoreSelected": "Restore Selected"
+    },
+    "resolve": {
+      "title": "Resolve Conflict",
+      "ignore": "Ignore Item",
+      "confirm": "Confirm & Resolve",
+      "notFound": "Item Not Found",
+      "backToList": "Back to Import List",
+      "unresolvedCount": "{{current}} of {{total}} unresolved items",
+      "prevUnresolved": "Previous Unresolved",
+      "nextUnresolved": "Next Unresolved"
+    },
+    "review": {
+      "statusTitle": "Import Analysis",
+      "statusMatch": "Matches an existing book in your library",
+      "statusMismatch": "Potential metadata mismatch with existing book",
+      "statusNewBook": "This is a new book entry",
+      "importCover": "Import Cover",
+      "importCoverSubtext": "Extract and save the cover image from the file",
+      "useExtractedCover": "Update Cover",
+      "useExtractedCoverSubtext": "Replace existing library cover with the one from this file",
+      "externalCoverHint": "Using external high-res cover if available",
+      "titleNew": "Import New Book",
+      "titleUpdate": "Update Existing Book",
+      "createNewDescription": "Create fresh entry",
+      "matchesFound": "Matches Found",
+      "intro": "Review the metadata extracted from your file. You can choose to keep existing library data or use the new values found in the ebook.",
+      "fileName": "File",
+      "duplicateDetected": "Potential Duplicate Detected",
+      "duplicateMessage": "This book already has a format with the same file name or size. Adding it again might create a duplicate.",
+      "confirmDuplicate": "Yes, add this potential duplicate",
+      "buttonImport": "Finalize & Import",
+      "buttonUpdate": "Finalize & Update",
+      "sources": {
+        "library": "Library",
+        "form": "Form",
+        "file": "File",
+        "web": "Web",
+        "extracted": "Extracted",
+        "external": "External",
+        "new": "New",
+        "finalList": "Final Assigned List"
+      }
+    },
+    "success": "Successfully imported \"{{title}}\" into the library!",
     "autoResolve": "Auto-Resolve",
     "autoResolveAll": "Auto-Resolve All",
     "autoResolveSelected": "Auto-Resolve Selected",
@@ -266,6 +378,7 @@
   },
   "admin": {
     "dashboard": "Admin Dashboard",
+    "oversight": "Oversight",
     "backToDashboard": "Back to Dashboard",
     "stats": {
       "title": "System Status",
@@ -282,6 +395,8 @@
     },
     "users": {
       "title": "User Management",
+      "titlePrefix": "User",
+      "titleSuffix": "Security",
       "description": "Manage system access and security roles.",
       "username": "Username",
       "roles": "Roles",
@@ -296,6 +411,8 @@
       "deleteSuccess": "User deleted successfully!",
       "deleteFailure": "Failed to delete user.",
       "add": {
+        "adminLabel": "Administrator",
+        "adminDescription": "Grant elevated permissions",
         "title": "Add New User",
         "username": "Username",
         "usernamePlaceholder": "e.g. john.doe",
@@ -310,6 +427,7 @@
     },
     "maintenance": {
       "title": "System Maintenance",
+      "system": "System",
       "description": "Tools for data integrity and storage cleanup.",
       "staging": {
         "title": "Staging Area Cleanup",
@@ -340,6 +458,8 @@
     },
     "settings": {
       "title": "System Configuration",
+      "titlePrefix": "System",
+      "titleSuffix": "Configuration",
       "description": "Adjust global application parameters.",
       "saveSuccess": "Setting updated successfully!",
       "saveFailure": "Failed to update setting.",
@@ -362,6 +482,7 @@
     "save": "Save",
     "delete": "Delete",
     "remove": "Remove",
+    "download": "Download",
     "page": "Page",
     "of": "of",
     "total": "total",
@@ -371,6 +492,19 @@
     "details": "Details",
     "actions": "Actions",
     "loading": "Loading...",
+    "notAvailable": "Not available",
+    "viewAll": "View All",
+    "restore": "Restore",
+    "online": "Online",
+    "offline": "Offline",
+    "selectedCount": "{{count}} selected",
+    "noItemsFound": "No items found matching the filter.",
+    "pagination": {
+      "rowsPerPage": "Rows per page:",
+      "showing": "Showing",
+      "to": "to",
+      "of": "of"
+    },
     "language": {
       "en": "English",
       "pl": "Polish"

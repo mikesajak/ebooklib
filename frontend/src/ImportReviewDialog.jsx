@@ -96,13 +96,13 @@ const ImportReviewDialog = ({
                     <FaPlusCircle className={`mt-1 text-lg ${!activeMatch ? 'text-indigo-600' : 'text-gray-300'}`} />
                     <div>
                       <div className="font-black text-gray-800 text-sm tracking-tight">{t('import.review.titleNew')}</div>
-                      <div className="text-[10px] text-gray-400 font-bold leading-tight mt-1 uppercase tracking-tighter">Create fresh entry</div>
+                      <div className="text-[10px] text-gray-400 font-bold leading-tight mt-1 uppercase tracking-tighter">{t('import.review.createNewDescription', 'Create fresh entry')}</div>
                     </div>
                   </button>
 
                   <div className="relative py-2 flex items-center gap-4">
                     <div className="flex-grow h-px bg-gray-200"></div>
-                    <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest whitespace-nowrap">Matches Found</span>
+                    <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest whitespace-nowrap">{t('import.review.matchesFound', 'Matches Found')}</span>
                     <div className="flex-grow h-px bg-gray-200"></div>
                   </div>
 
@@ -152,9 +152,9 @@ const ImportReviewDialog = ({
                       <FaExclamationCircle size={20} />
                     </div>
                     <div>
-                      <h4 className="font-black text-rose-900 uppercase text-xs tracking-widest mb-1">Potential Duplicate Detected</h4>
+                      <h4 className="font-black text-rose-900 uppercase text-xs tracking-widest mb-1">{t('import.review.duplicateDetected', 'Potential Duplicate Detected')}</h4>
                       <p className="text-sm text-rose-700 font-medium">
-                        This book already has a format with the same file name or size. Adding it again might create a duplicate.
+                        {t('import.review.duplicateMessage', 'This book already has a format with the same file name or size. Adding it again might create a duplicate.')}
                       </p>
                       <label className="mt-4 flex items-center gap-3 cursor-pointer group">
                         <div className="relative">
@@ -168,7 +168,7 @@ const ImportReviewDialog = ({
                           <div className="absolute left-1 top-1 w-4 h-4 bg-white rounded-full transition-transform peer-checked:translate-x-4"></div>
                         </div>
                         <span className="text-sm font-black text-rose-900 group-hover:text-rose-700 transition-colors uppercase tracking-tight">
-                          Yes, add this potential duplicate
+                          {t('import.review.confirmDuplicate', 'Yes, add this potential duplicate')}
                         </span>
                       </label>
                     </div>

@@ -1,14 +1,14 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
+import { FaTrash, FaPlus, FaSpinner, FaFileAlt, FaDownload } from 'react-icons/fa';
 import ConfirmationDialog from './ConfirmationDialog';
 import ImportReviewDialog from './ImportReviewDialog';
 import { fetchWithCsrf } from './api';
 
-const BookFormats = ({ book, showNotification, onRefreshRequested }) => {
+const BookFormats = ({ bookId, formats: initialFormats, onUpdate }) => {
   const { t } = useTranslation();
-  const bookId = book.id;
-  const [formats, setFormats] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [formats, setFormats] = useState(initialFormats || []);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const fileInputRef = useRef(null);
   const [showDeleteConfirmDialog, setShowDeleteConfirmDialog] = useState(false);
@@ -56,11 +56,10 @@ const BookFormats = ({ book, showNotification, onRefreshRequested }) => {
   );
 
   const fetchFormats = async () => {
+    setLoading(true);
     try {
       const response = await fetchWithCsrf(`/api/books/${bookId}/formats`);
-      if (!response.ok) {
-        throw new Error('Failed to fetch book formats');
-      }
+      if (!response.ok) throw new Error('Failed to fetch book formats');
       const data = await response.json();
       setFormats(data);
     } catch (err) {
@@ -70,15 +69,11 @@ const BookFormats = ({ book, showNotification, onRefreshRequested }) => {
     }
   };
 
-  useEffect(() => {
-    fetchFormats();
-  }, [bookId]);
-
   const formatBytes = (bytes, decimals = 2) => {
     if (bytes === 0) return '0 Bytes';
     const k = 1024;
     const dm = decimals < 0 ? 0 : decimals;
-    const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
+    const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
     const i = Math.floor(Math.log(bytes) / Math.log(k));
     return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
   };
@@ -96,7 +91,6 @@ const BookFormats = ({ book, showNotification, onRefreshRequested }) => {
     const xhr = new XMLHttpRequest();
     xhr.open('POST', `/api/import/upload?currentBookId=${bookId}`);
 
-    // Progress tracking
     xhr.upload.onprogress = (e) => {
       if (e.lengthComputable) {
         setProgress(Math.round((e.loaded * 100) / e.total));
@@ -110,21 +104,21 @@ const BookFormats = ({ book, showNotification, onRefreshRequested }) => {
           const data = JSON.parse(xhr.responseText);
           setStagedUpload(data);
         } catch (e) {
-          showNotification({ type: 'error', message: 'Failed to parse upload response' });
+          setError(t('bookFormats.parseFailure'));
         }
       } else {
-        let errorMessage = 'Failed to upload file';
+        let errorMessage = t('bookFormats.uploadFailure');
         try {
           const errorData = JSON.parse(xhr.responseText);
           errorMessage = errorData.message || errorMessage;
         } catch (e) {}
-        showNotification({ type: 'error', message: errorMessage });
+        setError(errorMessage);
       }
     };
 
     xhr.onerror = () => {
       setUploading(false);
-      showNotification({ type: 'error', message: 'Network error occurred during upload.' });
+      setError(t('bookFormats.networkError'));
     };
 
     xhr.send(formData);
@@ -139,20 +133,17 @@ const BookFormats = ({ book, showNotification, onRefreshRequested }) => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           ...mergedData,
-          bookId: bookId // Ensure we are targeting this book
+          bookId: bookId 
         }),
       });
 
-      if (!response.ok) {
-        throw new Error(t('import.finalizeError'));
-      }
+      if (!response.ok) throw new Error(t('import.finalizeError'));
 
-      showNotification({ type: 'success', message: t('import.success', { title: book.title }) });
       setStagedUpload(null);
       fetchFormats();
-      if (onRefreshRequested) onRefreshRequested();
+      if (onUpdate) onUpdate();
     } catch (err) {
-      showNotification({ type: 'error', message: err.message });
+      setError(err.message);
     } finally {
       setIsFinalizing(false);
     }
@@ -165,20 +156,15 @@ const BookFormats = ({ book, showNotification, onRefreshRequested }) => {
 
   const handleConfirmDelete = async () => {
     if (!formatToDelete) return;
-
     try {
       const response = await fetchWithCsrf(`/api/books/${bookId}/formats/${formatToDelete.id}`, {
         method: 'DELETE',
       });
-
-      if (!response.ok) {
-        throw new Error('Failed to delete format');
-      }
-
-      showNotification({ type: 'success', message: 'Format deleted successfully!' });
+      if (!response.ok) throw new Error(t('bookFormats.deleteFailure'));
       fetchFormats();
+      if (onUpdate) onUpdate();
     } catch (err) {
-      showNotification({ type: 'error', message: err.message });
+      setError(err.message);
     } finally {
       setShowDeleteConfirmDialog(false);
       setFormatToDelete(null);
@@ -186,51 +172,66 @@ const BookFormats = ({ book, showNotification, onRefreshRequested }) => {
   };
 
   return (
-    <div className="bg-white border border-gray-300 rounded p-6 shadow">
-      <h2 className="text-xl font-bold mb-4">{t('bookFormats.title')}</h2>
-      {loading && <p>{t('bookFormats.loading')}</p>}
-      {error && <p className="text-red-500">{t('common.error')}: {error}</p>}
-      {!loading && !error && formats.length === 0 && <p>{t('bookFormats.noFormats')}</p>}
-      {!loading && !error && formats.length > 0 && (
-        <ul>
-          {formats.map(format => (
-            <li key={format.id} className="flex justify-between items-center mb-2">
-              <div>
-                <a href={`/api/books/${bookId}/formats/${format.id}/download`} className="text-blue-500 hover:underline">
-                  {format.formatType}
-                </a>
-                <span className="text-gray-500 text-sm ml-2">({formatBytes(format.size)})</span>
-              </div>
-              <button 
-                onClick={() => handleDeleteClick(format)} 
-                className="bg-rose-50 hover:bg-rose-100 text-rose-600 border border-rose-100 font-black text-[10px] uppercase tracking-wider py-1.5 px-3 rounded-lg transition-all"
-              >
-                {t('common.delete')}
-              </button>            </li>
-          ))}
-          {uploading && (
-            <li className="flex items-center mb-2">
-              <div className="w-full bg-gray-200 rounded-full h-2.5 dark:bg-gray-700">
-                {progress < 100 ? (
-                  <div
-                    className="bg-blue-600 h-2.5 rounded-full"
-                    style={{ width: `${progress}%` }}
-                  ></div>
-                ) : (
-                  <div
-                    className="bg-blue-600 h-2.5 rounded-full animate-pulse"
-                    style={{ width: '100%' }}
-                  ></div>
-                )}
-              </div>
-              <span className="text-sm text-gray-500 ml-2">
-                {progress < 100 ? `${progress}%` : t('bookFormats.processing')}
-              </span>
-            </li>
-          )}
-        </ul>
+    <div className="space-y-4">
+      {error && (
+        <div className="p-3 bg-rose-50 border border-rose-100 text-rose-600 text-xs font-bold rounded-xl animate-fade-in flex justify-between items-center">
+          <span>{error}</span>
+          <button onClick={() => setError(null)}>✖</button>
+        </div>
       )}
-      <div className="flex justify-end mt-4">
+
+      {formats.length === 0 && !loading && !uploading && (
+        <div className="p-8 text-center bg-gray-50 rounded-2xl border border-dashed border-gray-200">
+          <p className="text-sm text-gray-400 font-medium italic">{t('bookFormats.noFormats')}</p>
+        </div>
+      )}
+
+      <div className="space-y-3">
+        {formats.map(format => (
+          <div key={format.id} className="group flex items-center justify-between p-4 bg-gray-50/50 hover:bg-white rounded-2xl border border-transparent hover:border-indigo-100 hover:shadow-md transition-all">
+            <div className="flex items-center gap-4">
+              <div className="p-3 rounded-xl bg-white border border-gray-100 text-indigo-500 shadow-sm">
+                <FaFileAlt size={16} />
+              </div>
+              <div>
+                <div className="flex items-center gap-2">
+                  <span className="text-sm font-black text-gray-800 tracking-tight">{format.formatType}</span>
+                  <span className="text-[10px] font-black text-gray-400 uppercase tracking-tighter">({formatBytes(format.size)})</span>
+                </div>
+                <a 
+                  href={`/api/books/${bookId}/formats/${format.id}/download`}
+                  className="text-[10px] font-black text-indigo-600 hover:text-indigo-800 uppercase tracking-widest flex items-center gap-1 mt-1 transition-colors"
+                >
+                  <FaDownload size={8} /> {t('common.download', 'Download')}
+                </a>
+              </div>
+            </div>
+            <button 
+              onClick={() => handleDeleteClick(format)} 
+              className="p-2 text-gray-300 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-all opacity-0 group-hover:opacity-100"
+              title={t('common.delete')}
+            >
+              <FaTrash size={14} />
+            </button>
+          </div>
+        ))}
+
+        {uploading && (
+          <div className="p-4 bg-indigo-50/50 rounded-2xl border border-indigo-100 animate-pulse">
+            <div className="flex justify-between items-center mb-2">
+              <span className="text-[10px] font-black text-indigo-600 uppercase tracking-widest flex items-center gap-2">
+                <FaSpinner className="animate-spin" /> {t('bookFormats.processing')}
+              </span>
+              <span className="text-[10px] font-black text-indigo-600">{progress}%</span>
+            </div>
+            <div className="w-full bg-indigo-100 rounded-full h-1.5 overflow-hidden">
+              <div className="bg-indigo-600 h-full transition-all duration-300" style={{ width: `${progress}%` }}></div>
+            </div>
+          </div>
+        )}
+      </div>
+
+      <div className="pt-2">
         <input
           type="file"
           ref={fileInputRef}
@@ -241,21 +242,20 @@ const BookFormats = ({ book, showNotification, onRefreshRequested }) => {
         <button 
           type="button" 
           onClick={() => fileInputRef.current.click()} 
-          className={`w-full py-2.5 rounded-xl font-black text-[10px] uppercase tracking-widest transition-all transform active:scale-95 shadow-md ${
-            uploading 
-              ? 'bg-gray-100 text-gray-400 cursor-not-allowed shadow-none' 
-              : 'bg-indigo-600 text-white shadow-indigo-100 hover:bg-indigo-700'
-          }`}
           disabled={uploading}
+          className={`w-full py-3 rounded-2xl font-black text-xs uppercase tracking-[0.2em] transition-all transform active:scale-95 shadow-xl flex items-center justify-center gap-2
+            ${uploading 
+              ? 'bg-gray-100 text-gray-400 cursor-not-allowed shadow-none' 
+              : 'bg-indigo-600 text-white shadow-indigo-100 hover:bg-indigo-700 hover:-translate-y-1'}`}
         >
-          {uploading ? t('common.loading') : t('addBook.form.addFormat', 'Add Format')}
+          {uploading ? <FaSpinner className="animate-spin" /> : <FaPlus />}
+          {t('addBook.form.addFormat')}
         </button>
       </div>
 
       {stagedUpload && (
         <ImportReviewDialog
           stagedUpload={stagedUpload}
-          existingBook={book}
           authorOptions={authorOptions}
           seriesOptions={seriesOptions}
           onCancel={() => setStagedUpload(null)}
@@ -266,9 +266,12 @@ const BookFormats = ({ book, showNotification, onRefreshRequested }) => {
 
       {showDeleteConfirmDialog && (
         <ConfirmationDialog
+          title={t('bookFormats.deleteConfirmation.title', 'Delete Format')}
           message={t('bookFormats.deleteConfirmation.message', { formatType: formatToDelete?.formatType })}
           onConfirm={handleConfirmDelete}
           onCancel={() => setShowDeleteConfirmDialog(false)}
+          confirmButtonText={t('common.delete')}
+          cancelButtonText={t('common.cancel')}
         />
       )}
     </div>
@@ -276,4 +279,3 @@ const BookFormats = ({ book, showNotification, onRefreshRequested }) => {
 };
 
 export default BookFormats;
-

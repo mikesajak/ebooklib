@@ -89,8 +89,8 @@ const AddUserModal = ({ isOpen, onClose, onSuccess }) => {
                     <FaShieldAlt />
                   </div>
                   <div>
-                    <p className="text-xs font-black text-gray-700 uppercase tracking-tight">Administrator</p>
-                    <p className="text-[10px] text-gray-400 font-bold leading-tight">Grant elevated permissions</p>
+                    <p className="text-xs font-black text-gray-700 uppercase tracking-tight">{t('admin.users.add.adminLabel', 'Administrator')}</p>
+                    <p className="text-[10px] text-gray-400 font-bold leading-tight">{t('admin.users.add.adminDescription', 'Grant elevated permissions')}</p>
                   </div>
                 </div>
                 <button

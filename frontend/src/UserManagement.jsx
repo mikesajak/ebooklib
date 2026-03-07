@@ -103,7 +103,7 @@ const UserManagement = () => {
             </Link>
           </div>
           <h1 className="text-4xl font-black text-gray-800 tracking-tighter">
-            User <span className="text-indigo-600">Security</span>
+            {t('admin.users.titlePrefix', 'User')} <span className="text-indigo-600">{t('admin.users.titleSuffix', 'Security')}</span>
           </h1>
         </div>
 

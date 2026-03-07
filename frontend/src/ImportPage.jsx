@@ -388,27 +388,27 @@ const ImportPage = () => {
                                         <td className="px-6 py-4 whitespace-nowrap">
                                             {upload.status === 'PENDING' && (
                                                 <span className="px-3 py-1 inline-flex text-[10px] leading-5 font-black rounded-full bg-gray-100 text-gray-600 uppercase tracking-tighter border border-gray-200">
-                                                    {t('import.status.pending', 'Pending')}
+                                                    {t('import.status.pending')}
                                                 </span>
                                             )}
                                             {upload.status === 'UPLOADING' && (
                                                 <span className="px-3 py-1 inline-flex text-[10px] leading-5 font-black rounded-full bg-indigo-50 text-indigo-600 uppercase tracking-tighter border border-indigo-100 animate-pulse">
-                                                    <FaSpinner className="animate-spin mr-1.5" /> {t('import.status.uploading', 'Uploading...')}
+                                                    <FaSpinner className="animate-spin mr-1.5" /> {t('import.status.uploading')}
                                                 </span>
                                             )}
                                             {upload.status === 'PROCESSING' && (
                                                 <span className="px-3 py-1 inline-flex text-[10px] leading-5 font-black rounded-full bg-amber-50 text-amber-600 uppercase tracking-tighter border border-amber-100 animate-pulse">
-                                                    <FaSpinner className="animate-spin mr-1.5" /> {t('import.status.processing', 'Processing...')}
+                                                    <FaSpinner className="animate-spin mr-1.5" /> {t('import.status.processing')}
                                                 </span>
                                             )}
                                             {upload.status === 'PARSED' && (
                                                 <span className="px-3 py-1 inline-flex text-[10px] leading-5 font-black rounded-full bg-emerald-50 text-emerald-600 uppercase tracking-tighter border border-emerald-100">
-                                                    <FaCheck className="mr-1.5" /> {t('import.status.parsed', 'Parsed')}
+                                                    <FaCheck className="mr-1.5" /> {t('import.status.parsed')}
                                                 </span>
                                             )}
                                             {upload.status === 'FAILED' && (
                                                 <span className="px-3 py-1 inline-flex text-[10px] leading-5 font-black rounded-full bg-rose-50 text-rose-600 uppercase tracking-tighter border border-rose-100">
-                                                    <FaExclamationTriangle className="mr-1.5" /> {t('import.status.failed', 'Failed')}
+                                                    <FaExclamationTriangle className="mr-1.5" /> {t('import.status.failed')}
                                                 </span>
                                             )}
                                         </td>

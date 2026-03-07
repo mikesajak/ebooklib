@@ -118,7 +118,12 @@ const BookTable = () => {
   };
 
   if (!ready) {
-    return <div className="container mx-auto p-4 text-center text-gray-500">Loading translations...</div>;
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
+        <div className="animate-spin rounded-full h-12 w-12 border-4 border-indigo-100 border-t-indigo-600"></div>
+        <p className="text-sm font-black text-gray-400 uppercase tracking-widest">{t('common.loading')}</p>
+      </div>
+    );
   }
 
   const handleSort = (field) => {

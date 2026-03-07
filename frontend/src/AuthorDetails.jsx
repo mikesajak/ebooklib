@@ -1,47 +1,35 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { FaUserTag, FaEdit, FaTrash, FaInfoCircle, FaArrowLeft, FaCalendarAlt, FaHistory, FaBook } from 'react-icons/fa';
+import { FaUserTag, FaEdit, FaTrash, FaInfoCircle, FaArrowLeft, FaCalendarAlt, FaHistory, FaBook, FaChevronRight } from 'react-icons/fa';
 import { useTranslation } from 'react-i18next';
 import Notification from './Notification';
 import ConfirmationDialog from './ConfirmationDialog';
 import { fetchWithCsrf } from './api';
 
 const AuthorDetails = () => {
-  const { t } = useTranslation();
   const { id } = useParams();
+  const { t } = useTranslation();
+  const navigate = useNavigate();
   const [author, setAuthor] = useState(null);
-  const [books, setBooks] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [notification, setNotification] = useState(null);
+  const [notification, setNotification] = useState({ message: '', type: '', visible: false });
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
-  const navigate = useNavigate();
 
   useEffect(() => {
-    const fetchData = async () => {
+    const fetchAuthor = async () => {
       try {
-        setLoading(true);
-        const [authorResponse, booksResponse] = await Promise.all([
-          fetchWithCsrf(`/api/authors/${id}`),
-          fetchWithCsrf(`/api/authors/${id}/books`)
-        ]);
-
-        if (!authorResponse.ok) throw new Error('Failed to fetch author details');
-        if (!booksResponse.ok) throw new Error('Failed to fetch author books');
-
-        const authorData = await authorResponse.json();
-        const booksData = await booksResponse.json();
-
-        setAuthor(authorData);
-        setBooks(Array.isArray(booksData) ? booksData : (booksData.content || []));
+        const response = await fetchWithCsrf(`/api/authors/${id}`);
+        if (!response.ok) throw new Error('Failed to fetch author details');
+        const data = await response.json();
+        setAuthor(data);
       } catch (err) {
         setError(err.message);
       } finally {
         setLoading(false);
       }
     };
-
-    fetchData();
+    fetchAuthor();
   }, [id]);
 
   const handleDeleteClick = () => setShowDeleteConfirm(true);
@@ -52,67 +40,39 @@ const AuthorDetails = () => {
       if (!response.ok) throw new Error('Failed to delete author');
       navigate('/authors', { state: { notification: { message: t('authorList.authorDeleted'), type: 'success' } } });
     } catch (err) {
-      setNotification({ message: err.message, type: 'error' });
+      setNotification({ message: `${t('authorList.errorDeletingAuthor')}: ${err.message}`, type: 'error', visible: true });
       setShowDeleteConfirm(false);
     }
   };
 
-  const SectionHeader = ({ icon: Icon, title }) => (
-    <div className="flex items-center gap-2 text-emerald-900 mb-4 border-b border-emerald-100 pb-2">
-      <Icon className="text-emerald-500" />
-      <h3 className="font-extrabold uppercase text-xs tracking-widest">{title}</h3>
+  if (loading) return (
+    <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
+      <div className="animate-spin rounded-full h-12 w-12 border-4 border-indigo-100 border-t-indigo-600"></div>
+      <p className="text-sm font-black text-gray-400 uppercase tracking-widest">{t('common.loading')}</p>
     </div>
   );
-
-  const DetailCard = ({ children, className = "" }) => (
-    <div className={`bg-white p-6 rounded-2xl border border-gray-100 shadow-sm ${className}`}>
-      {children}
-    </div>
-  );
-
-  if (loading) {
-    return (
-      <div className="container mx-auto p-4 max-w-7xl text-center py-20">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-600 mx-auto mb-4"></div>
-        <p className="text-gray-500 italic">{t('common.loading')}</p>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="container mx-auto p-4 max-w-7xl">
-        <div className="bg-red-50 border-l-4 border-red-500 p-4 rounded-r-xl">
-          <p className="text-red-700 font-bold">{t('common.error')}: {error}</p>
-          <Link to="/authors" className="text-red-600 hover:underline text-sm mt-2 inline-block flex items-center gap-1">
-            <FaArrowLeft /> {t('common.backToList')}
-          </Link>
-        </div>
-      </div>
-    );
-  }
+  if (error) return <div className="container mx-auto p-8 text-center text-rose-600 font-bold bg-rose-50 rounded-2xl border border-rose-100">{t('common.error')}: {error}</div>;
+  if (!author) return <div className="container mx-auto p-8 text-center text-gray-500 font-bold">{t('authorList.authorNotFound', 'Author not found')}</div>;
 
   return (
-    <div className="container mx-auto p-4 max-w-7xl">
-      {notification && (
-        <Notification
-          message={notification.message}
-          type={notification.type}
-          onClose={() => setNotification(null)}
-        />
-      )}
-
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
-        <div className="flex items-center gap-4">
-          <Link to="/authors" className="bg-white p-3 rounded-xl border border-gray-200 text-gray-400 hover:text-emerald-600 hover:border-emerald-100 shadow-sm transition-all">
-            <FaArrowLeft />
-          </Link>
-          <div className="bg-emerald-600 text-white p-4 rounded-2xl shadow-lg">
-            <FaUserTag className="text-2xl" />
+    <div className="max-w-7xl mx-auto px-4 py-8">
+      <header className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-12">
+        <div className="flex items-center gap-6 animate-slide-in-left">
+          <button 
+            onClick={() => navigate('/authors')}
+            className="p-4 bg-white text-gray-400 hover:text-indigo-600 border border-gray-200 rounded-2xl transition-all shadow-sm hover:shadow-md active:scale-95 group"
+          >
+            <FaArrowLeft size={20} className="transform group-hover:-translate-x-1 transition-transform" />
+          </button>
+          
+          <div className="w-20 h-20 bg-indigo-600 text-white rounded-3xl shadow-xl shadow-indigo-100 flex items-center justify-center relative overflow-hidden group">
+            <div className="absolute inset-0 bg-white/20 transform -skew-x-12 translate-x-full group-hover:-translate-x-full transition-transform duration-1000"></div>
+            <FaUserTag size={32} />
           </div>
-          <div>
-            <h1 className="text-3xl font-black text-gray-900 tracking-tight leading-tight">{author.firstName} {author.lastName}</h1>
-            <p className="text-xs text-emerald-600 font-bold uppercase tracking-widest mt-1">Author Entity</p>
+          
+          <div className="flex-grow">
+            <p className="text-xs text-indigo-600 font-black uppercase tracking-widest mt-1">{t('authorDetails.entityLabel', 'Author Entity')}</p>
+            <h1 className="text-4xl font-black text-gray-900 tracking-tighter mt-1">{author.firstName} {author.lastName}</h1>
           </div>
         </div>
 
@@ -132,60 +92,68 @@ const AuthorDetails = () => {
             {t('common.delete')}
           </button>
         </div>
-      </div>
+      </header>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        <div className="lg:col-span-2 space-y-8">
-          <DetailCard>
-            <SectionHeader icon={FaInfoCircle} title="Biography & Details" />
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-6 gap-x-12 mb-8">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
+        <div className="lg:col-span-2 space-y-12">
+          <div className="bg-white p-8 rounded-[2.5rem] border border-gray-100 shadow-2xl shadow-gray-200/50 flex flex-col gap-6 relative overflow-hidden group">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               <div>
-                <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1 flex items-center gap-1.5">
-                  <FaCalendarAlt className="text-[9px]" /> Birth Date
-                </p>
-                <p className="text-gray-800 font-medium">{author.birthDate || <span className="text-gray-300 italic">Not available</span>}</p>
+                <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 flex items-center gap-2"><FaCalendarAlt className="text-indigo-400" /> {t('authorDetails.birthDate', 'Birth Date')}</p>
+                <p className="text-gray-800 font-medium">{author.birthDate || <span className="text-gray-300 italic">{t('common.notAvailable', 'Not available')}</span>}</p>
               </div>
               <div>
-                <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1 flex items-center gap-1.5">
-                  <FaHistory className="text-[9px]" /> Death Date
-                </p>
-                <p className="text-gray-800 font-medium">{author.deathDate || <span className="text-gray-300 italic">Not available</span>}</p>
+                <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 flex items-center gap-2"><FaCalendarAlt className="text-rose-400" /> {t('authorDetails.deathDate', 'Death Date')}</p>
+                <p className="text-gray-800 font-medium">{author.deathDate || <span className="text-gray-300 italic">{t('common.notAvailable', 'Not available')}</span>}</p>
               </div>
             </div>
 
-            <div className="pt-6 border-t border-gray-50">
-              <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Short Bio</p>
-              <div className="text-gray-600 leading-relaxed text-sm whitespace-pre-wrap bg-gray-50 p-4 rounded-xl border border-gray-100 italic">
-                {author.bio || <span className="text-gray-300">No biographical information available for this author.</span>}
+            <div className="border-t border-gray-50 pt-6">
+              <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3 flex items-center gap-2"><FaInfoCircle className="text-indigo-400" /> {t('authorDetails.bio', 'Short Bio')}</p>
+              <div className="text-gray-600 leading-relaxed text-sm font-medium bg-gray-50/50 p-4 rounded-2xl border border-gray-100">
+                {author.bio || <span className="text-gray-300 italic">{t('authorDetails.noBio', 'No biographical information available for this author.')}</span>}
               </div>
             </div>
-          </DetailCard>
+          </div>
         </div>
 
-        <div className="space-y-8">
-          <DetailCard className="ring-2 ring-emerald-50 border-emerald-100">
-            <SectionHeader icon={FaBook} title={`Books by this Author (${books.length})`} />
-            <div className="space-y-3">
-              {books.length === 0 ? (
-                <p className="text-gray-400 text-sm italic py-4 text-center">No books found in library.</p>
-              ) : (
-                books.map(book => (
-                  <Link 
-                    key={book.id} 
-                    to={`/book/${book.id}`}
-                    className="flex items-center gap-3 p-3 rounded-xl border border-gray-100 hover:border-emerald-200 hover:bg-emerald-50 transition-all group"
-                  >
-                    <div className="bg-gray-100 text-gray-400 p-2 rounded group-hover:bg-white group-hover:text-emerald-500 transition-colors">
-                      <FaBook className="text-xs" />
+        <div className="lg:col-span-1 space-y-6">
+          <div className="flex items-center justify-between px-4">
+            <h2 className="text-xs font-black text-gray-400 uppercase tracking-[0.3em] flex items-center gap-2"><FaBook className="text-indigo-400" /> {t('authorDetails.booksByAuthor', 'Books by Author')}</h2>
+            <span className="text-[10px] font-black text-indigo-600 bg-indigo-50 px-2 py-1 rounded-md">{author.books?.length || 0}</span>
+          </div>
+          
+          <div className="space-y-4">
+            {author.books && author.books.length > 0 ? (
+              author.books.map((book) => (
+                <Link key={book.id} to={`/book/${book.id}`} className="block group/book">
+                  <div className="bg-white p-5 rounded-2xl border border-gray-100 shadow-xl shadow-gray-100/50 flex items-center justify-between group-hover/book:border-indigo-200 transition-all group-hover/book:-translate-y-1">
+                    <div className="flex items-center gap-4">
+                      <div className="p-3 rounded-xl bg-indigo-50 text-indigo-600 group-hover/book:bg-indigo-600 group-hover/book:text-white transition-all">
+                        <FaBook size={16} />
+                      </div>
+                      <span className="text-sm font-black text-gray-800 tracking-tight">{book.title}</span>
                     </div>
-                    <span className="text-sm font-bold text-gray-700 group-hover:text-emerald-900 transition-colors">{book.title}</span>
-                  </Link>
-                ))
-              )}
-            </div>
-          </DetailCard>
+                    <FaChevronRight className="text-gray-300 group-hover/book:text-indigo-600 transition-colors" />
+                  </div>
+                </Link>
+              ))
+            ) : (
+              <div className="bg-gray-50/50 rounded-2xl border border-dashed border-gray-200 p-8 text-center">
+                <p className="text-gray-400 text-sm italic">{t('authorDetails.noBooks', 'No books found in library.')}</p>
+              </div>
+            )}
+          </div>
         </div>
       </div>
+
+      {notification.visible && (
+        <Notification
+          message={notification.message}
+          type={notification.type}
+          onClose={() => setNotification({ ...notification, visible: false })}
+        />
+      )}
 
       {showDeleteConfirm && (
         <ConfirmationDialog

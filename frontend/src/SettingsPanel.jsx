@@ -143,9 +143,8 @@ const SettingsPanel = () => {
           </Link>
         </div>
         <h1 className="text-4xl font-black text-gray-800 tracking-tighter">
-          System <span className="text-indigo-600">Configuration</span>
-        </h1>
-        <p className="text-gray-400 font-bold mt-2">{t('admin.settings.description')}</p>
+          {t('admin.settings.titlePrefix', 'System')} <span className="text-indigo-600">{t('admin.settings.titleSuffix', 'Configuration')}</span>
+        </h1>        <p className="text-gray-400 font-bold mt-2">{t('admin.settings.description')}</p>
       </div>
 
       <div className="space-y-12">

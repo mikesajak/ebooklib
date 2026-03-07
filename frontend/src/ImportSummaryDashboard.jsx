@@ -244,7 +244,7 @@ const ImportSummaryDashboard = () => {
                     <div className="bg-white p-5 rounded-2xl shadow-md border border-gray-100 border-l-4 border-indigo-500">
                         <div className="text-[10px] text-gray-400 font-black uppercase tracking-widest mb-1">{t('import.statusLabel', 'Session Status')}</div>
                         <div className="text-xl font-black text-indigo-600 uppercase">
-                            {t(`import.status.${session.status.toLowerCase()}`, session.status)}
+                            {t(`import.status.${session.status.toLowerCase()}`)}
                         </div>
                     </div>
                     <div className="bg-white p-5 rounded-2xl shadow-md border border-gray-100 border-l-4 border-emerald-500">
@@ -381,10 +381,10 @@ const ImportSummaryDashboard = () => {
                                         </div>
                                     </td>
                                     <td className="px-6 py-4 whitespace-nowrap">
-                                        {item.status === 'UNRESOLVED' && <span className="px-3 py-1 inline-flex text-[10px] leading-5 font-black rounded-full bg-amber-50 text-amber-600 uppercase tracking-tighter border border-amber-100">{t('import.status.unresolved', 'Unresolved')}</span>}
-                                        {item.status === 'RESOLVED' && <span className="px-3 py-1 inline-flex text-[10px] leading-5 font-black rounded-full bg-emerald-50 text-emerald-600 uppercase tracking-tighter border border-emerald-100">{t('import.status.resolved', 'Resolved')}</span>}
-                                        {item.status === 'IGNORED' && <span className="px-3 py-1 inline-flex text-[10px] leading-5 font-black rounded-full bg-gray-100 text-gray-600 uppercase tracking-tighter border border-gray-200">{t('import.status.ignored', 'Ignored')}</span>}
-                                        {item.status === 'ERROR' && <span className="px-3 py-1 inline-flex text-[10px] leading-5 font-black rounded-full bg-rose-50 text-rose-600 uppercase tracking-tighter border border-rose-100">{t('import.status.error', 'Error')}</span>}
+                                        {item.status === 'UNRESOLVED' && <span className="px-3 py-1 inline-flex text-[10px] leading-5 font-black rounded-full bg-amber-50 text-amber-600 uppercase tracking-tighter border border-amber-100">{t('import.status.unresolved')}</span>}
+                                        {item.status === 'RESOLVED' && <span className="px-3 py-1 inline-flex text-[10px] leading-5 font-black rounded-full bg-emerald-50 text-emerald-600 uppercase tracking-tighter border border-emerald-100">{t('import.status.resolved')}</span>}
+                                        {item.status === 'IGNORED' && <span className="px-3 py-1 inline-flex text-[10px] leading-5 font-black rounded-full bg-gray-100 text-gray-600 uppercase tracking-tighter border border-gray-200">{t('import.status.ignored')}</span>}
+                                        {item.status === 'ERROR' && <span className="px-3 py-1 inline-flex text-[10px] leading-5 font-black rounded-full bg-rose-50 text-rose-600 uppercase tracking-tighter border border-rose-100">{t('import.status.error')}</span>}
                                     </td>
                                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                         <div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
