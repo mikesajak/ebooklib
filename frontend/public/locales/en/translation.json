@@ -221,6 +221,16 @@
     "status": "Session Status",
     "processed": "Processed",
     "failed": "Failed",
+    "autoResolve": "Auto-Resolve",
+    "autoResolveAll": "Auto-Resolve All",
+    "autoResolveSelected": "Auto-Resolve Selected",
+    "strategies": {
+      "trustIncoming": "Trust Incoming",
+      "trustExisting": "Trust Existing",
+      "newOnly": "New Only"
+    },
+    "autoResolveSuccess": "Auto-resolution completed.",
+    "autoResolveError": "Failed to auto-resolve items.",
     "review": {
       "titleNew": "Import New Book",
       "titleUpdate": "Update Existing Book",

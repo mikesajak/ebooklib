@@ -25,6 +25,7 @@ class ImportController(
     private val getStagedCoverUseCase: GetStagedCoverUseCase,
     private val getStagedUploadUseCase: GetStagedUploadUseCase,
     private val finalizeImportUseCase: FinalizeImportUseCase,
+    private val autoResolutionUseCase: AutoResolutionUseCase,
     private val importSessionUseCase: ImportSessionUseCase,
     private val resolutionItemUseCase: ResolutionItemUseCase,
     private val stagedUploadRepository: StagedEbookUploadRepositoryPort,
@@ -89,6 +90,19 @@ class ImportController(
     fun finalizeSession(@PathVariable sessionId: UUID): ImportSessionResponseDto {
         val session = importSessionUseCase.finalizeSession(ImportSessionId(sessionId))
         return importRestMapper.toResponse(session)
+    }
+
+    @PostMapping("/sessions/{sessionId}/auto-resolve")
+    fun autoResolve(
+        @PathVariable sessionId: UUID,
+        @RequestParam("ids", required = false) ids: List<UUID>?,
+        @RequestParam("strategy") strategy: AutoResolveStrategy
+    ) {
+        autoResolutionUseCase.autoResolve(
+            ImportSessionId(sessionId),
+            ids?.map { ResolutionItemId(it) },
+            strategy
+        )
     }
 
     @GetMapping("/sessions/{sessionId}/items")

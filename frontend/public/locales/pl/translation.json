@@ -214,6 +214,22 @@
     "featureCovers": "Wykrywanie okładek",
     "featureFormats": "Obsługa wielu formatów",
     "featureMatching": "Inteligentne dopasowanie do istniejących książek",
+    "dashboardTitle": "Panel Sesji Importu",
+    "goToDashboard": "Przejdź do Panelu Sesji",
+    "totalFiles": "Wszystkie Pliki",
+    "status": "Status Sesji",
+    "processed": "Przetworzone",
+    "failed": "Błędy",
+    "autoResolve": "Auto-Rozwiązywanie",
+    "autoResolveAll": "Rozwiąż Wszystkie",
+    "autoResolveSelected": "Rozwiąż Zaznaczone",
+    "strategies": {
+      "trustIncoming": "Ufaj Nowym",
+      "trustExisting": "Ufaj Bibliotece",
+      "newOnly": "Tylko Nowe"
+    },
+    "autoResolveSuccess": "Automatyczne rozwiązywanie zakończone.",
+    "autoResolveError": "Błąd podczas automatycznego rozwiązywania.",
     "review": {
       "titleNew": "Importuj Nową Książkę",
       "titleUpdate": "Aktualizuj Istniejącą Książkę",

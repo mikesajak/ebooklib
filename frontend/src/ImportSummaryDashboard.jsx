@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { FaSpinner, FaCheck, FaExclamationTriangle, FaFilter, FaSyncAlt, FaArrowLeft, FaBan, FaInfoCircle } from 'react-icons/fa';
+import { FaSpinner, FaCheck, FaExclamationTriangle, FaFilter, FaSyncAlt, FaArrowLeft, FaBan, FaInfoCircle, FaMagic } from 'react-icons/fa';
 
 const ImportSummaryDashboard = () => {
     const { id: sessionId } = useParams();
@@ -10,6 +10,7 @@ const ImportSummaryDashboard = () => {
     const [session, setSession] = useState(null);
     const [items, setItems] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [isProcessing, setIsProcessing] = useState(false);
     const [filter, setFilter] = useState('ALL'); // ALL, UNRESOLVED, RESOLVED, IGNORED, ERROR
     const [selectedIds, setSelectedIds] = useState([]);
 
@@ -78,6 +79,40 @@ const ImportSummaryDashboard = () => {
             }
         } catch (error) {
             console.error("Bulk update error", error);
+        }
+    };
+
+    const handleAutoResolve = async (strategy) => {
+        const ids = selectedIds.length > 0 ? selectedIds : null;
+        const confirmMsg = ids 
+            ? t('import.confirmAutoResolveSelected', 'Apply auto-resolution to {{count}} selected items?', { count: ids.length })
+            : t('import.confirmAutoResolveAll', 'Apply auto-resolution to all unresolved items in this session?');
+            
+        if (!window.confirm(confirmMsg)) return;
+
+        setIsProcessing(true);
+        try {
+            const params = new URLSearchParams();
+            if (ids) ids.forEach(id => params.append('ids', id));
+            params.append('strategy', strategy);
+
+            const response = await fetch(`/api/import/sessions/${sessionId}/auto-resolve?${params.toString()}`, {
+                method: 'POST',
+                headers: { 'X-XSRF-TOKEN': getCsrfToken() }
+            });
+
+            if (response.ok) {
+                setSelectedIds([]);
+                fetchItems();
+                fetchSession();
+            } else {
+                alert(t('import.autoResolveError'));
+            }
+        } catch (error) {
+            console.error("Auto-resolve error", error);
+            alert(t('import.autoResolveError'));
+        } finally {
+            setIsProcessing(false);
         }
     };
 
@@ -247,6 +282,36 @@ const ImportSummaryDashboard = () => {
                                 >
                                     Restore Selected
                                 </button>
+                                
+                                <div className="relative group">
+                                    <button 
+                                        className="bg-purple-100 text-purple-700 px-3 py-1 rounded text-sm hover:bg-purple-200 font-bold flex items-center gap-1"
+                                        disabled={isProcessing}
+                                    >
+                                        <FaMagic className={isProcessing ? "animate-spin" : ""} /> {t('import.autoResolveSelected')}
+                                    </button>
+                                    <div className="absolute left-0 mt-1 w-48 bg-white border border-gray-200 rounded-lg shadow-xl hidden group-hover:block z-50 overflow-hidden">
+                                        <button onClick={() => handleAutoResolve('TRUST_INCOMING')} className="w-full text-left px-4 py-2 text-sm hover:bg-purple-50 transition-colors">{t('import.strategies.trustIncoming')}</button>
+                                        <button onClick={() => handleAutoResolve('TRUST_EXISTING')} className="w-full text-left px-4 py-2 text-sm hover:bg-purple-50 transition-colors">{t('import.strategies.trustExisting')}</button>
+                                        <button onClick={() => handleAutoResolve('NEW_ONLY')} className="w-full text-left px-4 py-2 text-sm hover:bg-purple-50 transition-colors">{t('import.strategies.newOnly')}</button>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+
+                        {selectedIds.length === 0 && items.some(i => i.status === 'UNRESOLVED') && (
+                            <div className="relative group border-l pl-4">
+                                <button 
+                                    className="text-purple-600 px-3 py-1 rounded text-sm hover:bg-purple-50 font-bold flex items-center gap-1 border border-purple-200"
+                                    disabled={isProcessing}
+                                >
+                                    <FaMagic className={isProcessing ? "animate-spin" : ""} /> {t('import.autoResolveAll')}
+                                </button>
+                                <div className="absolute left-0 mt-1 w-48 bg-white border border-gray-200 rounded-lg shadow-xl hidden group-hover:block z-50 overflow-hidden">
+                                    <button onClick={() => handleAutoResolve('TRUST_INCOMING')} className="w-full text-left px-4 py-2 text-sm hover:bg-purple-50 transition-colors">{t('import.strategies.trustIncoming')}</button>
+                                    <button onClick={() => handleAutoResolve('TRUST_EXISTING')} className="w-full text-left px-4 py-2 text-sm hover:bg-purple-50 transition-colors">{t('import.strategies.trustExisting')}</button>
+                                    <button onClick={() => handleAutoResolve('NEW_ONLY')} className="w-full text-left px-4 py-2 text-sm hover:bg-purple-50 transition-colors">{t('import.strategies.newOnly')}</button>
+                                </div>
                             </div>
                         )}
                     </div>
