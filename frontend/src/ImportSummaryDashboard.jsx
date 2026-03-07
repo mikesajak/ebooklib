@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { FaSpinner, FaCheck, FaExclamationTriangle, FaFilter, FaSyncAlt, FaArrowLeft, FaBan, FaInfoCircle, FaMagic } from 'react-icons/fa';
+import { FaSpinner, FaCheck, FaExclamationTriangle, FaFilter, FaSyncAlt, FaArrowLeft, FaBan, FaInfoCircle, FaMagic, FaTrash } from 'react-icons/fa';
 
 const ImportSummaryDashboard = () => {
     const { id: sessionId } = useParams();
