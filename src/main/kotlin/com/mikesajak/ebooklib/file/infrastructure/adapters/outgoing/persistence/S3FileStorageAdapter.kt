@@ -103,7 +103,7 @@ class S3FileStorageAdapter(
         return FileMetadata(newStorageKey, fileName, headResponse.contentType(), headResponse.contentLength())
     }
 
-    override fun listAllFiles(prefix: String?): List<String> {
+    override fun listAllFiles(prefix: String?): Sequence<String> {
         val listRequest = ListObjectsV2Request.builder()
             .bucket(bucketName)
             .let { if (prefix != null) it.prefix(prefix) else it }
@@ -111,7 +111,7 @@ class S3FileStorageAdapter(
 
         return s3Client.listObjectsV2Paginator(listRequest)
             .contents()
+            .asSequence()
             .map { it.key() }
-            .toList()
     }
 }

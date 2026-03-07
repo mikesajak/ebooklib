@@ -173,4 +173,23 @@ class S3FileStorageAdapterIntegrationTest: BaseIntegrationTest() {
         // Then
         assertNull(retrievedMetadata)
     }
+
+    @Test
+    fun `listAllFiles should return all file keys as a Sequence`() {
+        // Given
+        val files = listOf("file1.txt", "file2.txt", "sub/file3.txt")
+        val uploadedKeys = files.map { fileName ->
+            s3FileStorageAdapter.uploadFile(ByteArrayInputStream("content".toByteArray()), fileName, "text/plain").id
+        }
+
+        // When
+        val fileKeysSequence = s3FileStorageAdapter.listAllFiles()
+        val fileKeysList = fileKeysSequence.toList()
+
+        // Then
+        assertEquals(files.size, fileKeysList.size)
+        uploadedKeys.forEach { key ->
+            assertTrue(fileKeysList.contains(key))
+        }
+    }
 }

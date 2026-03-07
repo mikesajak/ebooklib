@@ -464,7 +464,14 @@
         "orphansFound": "Orphans Found",
         "estimatedWarning": "Note: Counts are based on DB records. Perform a Deep Scan for verified physical status.",
         "progress": "Scan Progress",
-        "noOrphans": "No orphaned files found. Storage is healthy!"
+        "purging": "Purging...",
+        "noOrphans": "No orphaned files found. Storage is healthy!",
+        "purgeButton": "Clear All Orphans",
+        "confirmPurgeTitle": "Confirm Storage Purge",
+        "confirmPurgeMessage": "Are you sure you want to permanently delete all {{count}} orphaned files from storage?",
+        "purgeSuccess": "Storage purged! Removed orphaned files.",
+        "purgeFailure": "Failed to purge orphaned files.",
+        "purgeResults": "Purge Progress"
       }
     },
     "settings": {

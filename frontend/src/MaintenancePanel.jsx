@@ -1,22 +1,25 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
-import { FaTools, FaTrashAlt, FaShieldAlt, FaHdd, FaInbox, FaSync, FaCheckCircle, FaExclamationCircle, FaChevronLeft } from 'react-icons/fa';
+import { FaTools, FaTrashAlt, FaHdd, FaInbox, FaSync, FaCheckCircle, FaExclamationCircle, FaChevronLeft } from 'react-icons/fa';
 import { fetchWithCsrf } from './api';
 import Notification from './Notification';
 import ConfirmationDialog from './ConfirmationDialog';
 
 const MaintenancePanel = () => {
   const { t } = useTranslation();
-  const [isPurging, setIsPurging] = useState(false);
+  const [isPurgingStaging, setIsPurgingStaging] = useState(false);
+  const [isPurgingStorage, setIsPurgingStorage] = useState(false);
   const [notification, setNotification] = useState(null);
-  const [showPurgeConfirm, setShowPurgeConfirm] = useState(false);
+  const [showStagingPurgeConfirm, setShowStagingPurgeConfirm] = useState(false);
+  const [showStoragePurgeConfirm, setShowStoragePurgeConfirm] = useState(false);
   const [stagingStats, setStagingStats] = useState(null);
   const [loadingStaging, setLoadingStaging] = useState(true);
 
   // Scan related state
   const [scanStats, setScanStats] = useState(null);
   const [isStartingScan, setIsStartingScan] = useState(false);
+  const [isStartingPurge, setIsStartingPurge] = useState(false);
 
   const fetchStagingStats = async () => {
     try {
@@ -49,18 +52,18 @@ const MaintenancePanel = () => {
     fetchScanStats();
   }, []);
 
-  // Polling for scan status
+  // Polling for scan/purge status
   useEffect(() => {
     let interval;
-    if (scanStats?.status === 'RUNNING') {
-      interval = setInterval(fetchScanStats, 2000);
+    if (scanStats?.status === 'RUNNING' || scanStats?.status === 'PURGING') {
+      interval = setInterval(fetchScanStats, 1000);
     }
     return () => clearInterval(interval);
   }, [scanStats?.status]);
 
   const handlePurgeStaging = async () => {
-    setIsPurging(true);
-    setShowPurgeConfirm(false);
+    setIsPurgingStaging(true);
+    setShowStagingPurgeConfirm(false);
     try {
       const response = await fetchWithCsrf('/api/admin/maintenance/purge-staging', {
         method: 'POST',
@@ -79,7 +82,7 @@ const MaintenancePanel = () => {
     } catch (err) {
       setNotification({ type: 'error', message: t('admin.maintenance.staging.failure') });
     } finally {
-      setIsPurging(false);
+      setIsPurgingStaging(false);
     }
   };
 
@@ -99,8 +102,29 @@ const MaintenancePanel = () => {
     }
   };
 
+  const handleStartStoragePurge = async () => {
+    setIsStartingPurge(true);
+    setShowStoragePurgeConfirm(false);
+    try {
+      const response = await fetchWithCsrf('/api/admin/maintenance/storage-purge', {
+        method: 'POST',
+      });
+      if (response.ok) {
+        fetchScanStats();
+      } else {
+        setNotification({ type: 'error', message: t('admin.maintenance.scan.purgeFailure') });
+      }
+    } catch (err) {
+      setNotification({ type: 'error', message: t('admin.maintenance.scan.purgeFailure') });
+    } finally {
+      setIsStartingPurge(false);
+    }
+  };
+
   const hasExpiredItems = stagingStats?.expiredItems > 0;
   const isScanRunning = scanStats?.status === 'RUNNING';
+  const isPurgingStorageRunning = scanStats?.status === 'PURGING';
+  const isOperationRunning = isScanRunning || isPurgingStorageRunning;
 
   const formatLastScan = () => {
     if (!scanStats || scanStats.status === 'IDLE') return t('admin.maintenance.scan.statusIdle');
@@ -171,15 +195,15 @@ const MaintenancePanel = () => {
             </div>
 
             <button
-              onClick={() => setShowPurgeConfirm(true)}
-              disabled={isPurging || !hasExpiredItems}
+              onClick={() => setShowStagingPurgeConfirm(true)}
+              disabled={isPurgingStaging || !hasExpiredItems}
               className={`flex items-center justify-center gap-3 px-10 py-5 rounded-2xl font-black text-sm uppercase tracking-wider transition-all transform active:scale-95 shadow-xl ${
-                isPurging || !hasExpiredItems
+                isPurgingStaging || !hasExpiredItems
                   ? 'bg-gray-100 text-gray-400 cursor-not-allowed shadow-none' 
                   : 'bg-rose-600 text-white shadow-rose-100 hover:bg-rose-700 hover:-translate-y-1'
               }`}
             >
-              {isPurging ? (
+              {isPurgingStaging ? (
                 <div className="animate-spin h-5 w-5 border-2 border-white/30 border-t-white rounded-full"></div>
               ) : (
                 <>
@@ -200,8 +224,8 @@ const MaintenancePanel = () => {
           <div className="flex flex-col gap-8 relative z-10">
             <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-8">
               <div className="flex items-start gap-6">
-                <div className={`p-4 rounded-3xl shadow-inner ${isScanRunning ? 'bg-indigo-600 text-white animate-pulse' : 'bg-indigo-50 text-indigo-600'}`}>
-                  <FaSync size={32} className={isScanRunning ? 'animate-spin' : ''} />
+                <div className={`p-4 rounded-3xl shadow-inner ${isOperationRunning ? 'bg-indigo-600 text-white animate-pulse' : 'bg-indigo-50 text-indigo-600'}`}>
+                  <FaSync size={32} className={isOperationRunning ? 'animate-spin' : ''} />
                 </div>
                 <div className="space-y-2">
                   <h2 className="text-2xl font-black text-gray-800 tracking-tight mb-1">
@@ -216,9 +240,9 @@ const MaintenancePanel = () => {
 
               <button
                 onClick={handleStartScan}
-                disabled={isScanRunning || isStartingScan}
+                disabled={isOperationRunning || isStartingScan}
                 className={`flex items-center justify-center gap-3 px-10 py-5 rounded-2xl font-black text-sm uppercase tracking-wider transition-all transform active:scale-95 shadow-xl ${
-                  isScanRunning || isStartingScan
+                  isOperationRunning || isStartingScan
                     ? 'bg-gray-100 text-gray-400 cursor-not-allowed shadow-none' 
                     : 'bg-indigo-600 text-white shadow-indigo-100 hover:bg-indigo-700 hover:-translate-y-1'
                 }`}
@@ -228,26 +252,38 @@ const MaintenancePanel = () => {
                 ) : (
                   <>
                     <FaSync />
-                    {isScanRunning ? t('admin.maintenance.scan.running') : t('admin.maintenance.scan.button')}
+                    {isOperationRunning ? t('admin.maintenance.scan.running') : t('admin.maintenance.scan.button')}
                   </>
                 )}
               </button>
             </div>
 
-            {/* Scan Progress & Results */}
-            {(isScanRunning || (scanStats?.status === 'COMPLETED')) && (
+            {/* Scan/Purge Progress & Results */}
+            {(isOperationRunning || (scanStats?.status === 'COMPLETED')) && (
               <div className="mt-4 p-6 bg-gray-50 rounded-[2rem] border border-gray-100 animate-fade-in">
                 <div className="flex flex-col md:flex-row justify-between items-center gap-6">
                   <div className="w-full md:w-1/2">
                     <div className="flex justify-between items-center mb-2">
-                      <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">{t('admin.maintenance.scan.progress')}</span>
-                      <span className="text-sm font-black text-indigo-600">{scanStats.progressPercent}%</span>
+                      <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">
+                        {isPurgingStorageRunning ? t('admin.maintenance.scan.purgeResults') : t('admin.maintenance.scan.progress')}
+                      </span>
+                      {!isScanRunning && (
+                        <span className="text-sm font-black text-indigo-600">{scanStats.progressPercent}%</span>
+                      )}
                     </div>
-                    <div className="h-3 bg-white rounded-full overflow-hidden border border-gray-200">
-                      <div 
-                        className="h-full bg-indigo-600 rounded-full transition-all duration-500"
-                        style={{ width: `${scanStats.progressPercent}%` }}
-                      ></div>
+                    <div className="h-3 bg-white rounded-full overflow-hidden border border-gray-200 relative">
+                      {isScanRunning ? (
+                        /* Indeterminate progress for scan */
+                        <div className="absolute inset-0 bg-indigo-600/20">
+                          <div className="h-full bg-indigo-600 w-1/3 rounded-full animate-indeterminate-progress"></div>
+                        </div>
+                      ) : (
+                        /* Deterministic progress for purge or completed state */
+                        <div 
+                          className="h-full bg-indigo-600 rounded-full transition-all duration-500"
+                          style={{ width: `${scanStats.progressPercent}%` }}
+                        ></div>
+                      )}
                     </div>
                   </div>
 
@@ -272,18 +308,35 @@ const MaintenancePanel = () => {
                 )}
 
                 {scanStats.status === 'COMPLETED' && scanStats.orphanedFilesFound > 0 && (
-                  <div className="mt-6 p-4 bg-rose-50 border border-rose-100 rounded-2xl">
-                    <div className="flex items-center gap-2 text-rose-600 text-xs font-black uppercase tracking-widest mb-3">
-                      <FaExclamationCircle /> {t('admin.maintenance.scan.results')}
+                  <div className="mt-6 p-6 bg-rose-50 border border-rose-100 rounded-[2rem] flex flex-col md:flex-row justify-between items-start gap-6">
+                    <div className="flex-1 w-full">
+                      <div className="flex items-center gap-2 text-rose-600 text-xs font-black uppercase tracking-widest mb-3">
+                        <FaExclamationCircle /> {t('admin.maintenance.scan.results')}
+                      </div>
+                      <div className="max-h-40 overflow-y-auto space-y-1 pr-2 custom-scrollbar">
+                        {scanStats.orphanedFileKeys.map(key => (
+                          <div key={key} className="text-[10px] font-mono text-rose-800 bg-white/50 px-2 py-1 rounded border border-rose-100/50">
+                            {key}
+                          </div>
+                        ))}
+                      </div>
                     </div>
-                    <div className="max-h-40 overflow-y-auto space-y-1 pr-2 custom-scrollbar">
-                      {scanStats.orphanedFileKeys.map(key => (
-                        <div key={key} className="text-[10px] font-mono text-rose-800 bg-white/50 px-2 py-1 rounded border border-rose-100/50">
-                          {key}
-                        </div>
-                      ))}
-                    </div>
+                    
+                    <button
+                      onClick={() => setShowStoragePurgeConfirm(true)}
+                      disabled={isStartingPurge}
+                      className="whitespace-nowrap flex items-center justify-center gap-3 px-8 py-4 rounded-xl font-black text-xs uppercase tracking-wider transition-all transform active:scale-95 bg-rose-600 text-white shadow-lg shadow-rose-100 hover:bg-rose-700 hover:-translate-y-0.5"
+                    >
+                      <FaTrashAlt size={14} />
+                      {t('admin.maintenance.scan.purgeButton')}
+                    </button>
                   </div>
+                )}
+
+                {isPurgingStorageRunning && (
+                   <div className="mt-6 flex items-center gap-3 text-indigo-600 text-xs font-black uppercase tracking-widest justify-center animate-pulse">
+                     <FaSync className="animate-spin" /> {t('admin.maintenance.scan.purging')}
+                   </div>
                 )}
               </div>
             )}
@@ -291,13 +344,24 @@ const MaintenancePanel = () => {
         </div>
       </div>
 
-      {showPurgeConfirm && (
+      {showStagingPurgeConfirm && (
         <ConfirmationDialog
-          onCancel={() => setShowPurgeConfirm(false)}
+          onCancel={() => setShowStagingPurgeConfirm(false)}
           onConfirm={handlePurgeStaging}
           title={t('admin.maintenance.staging.confirmTitle')}
           message={t('admin.maintenance.staging.confirmMessage')}
           confirmButtonText={t('admin.maintenance.staging.button')}
+          confirmColor="bg-rose-600"
+        />
+      )}
+
+      {showStoragePurgeConfirm && (
+        <ConfirmationDialog
+          onCancel={() => setShowStoragePurgeConfirm(false)}
+          onConfirm={handleStartStoragePurge}
+          title={t('admin.maintenance.scan.confirmPurgeTitle')}
+          message={t('admin.maintenance.scan.confirmPurgeMessage', { count: scanStats?.orphanedFilesFound })}
+          confirmButtonText={t('admin.maintenance.scan.purgeButton')}
           confirmColor="bg-rose-600"
         />
       )}

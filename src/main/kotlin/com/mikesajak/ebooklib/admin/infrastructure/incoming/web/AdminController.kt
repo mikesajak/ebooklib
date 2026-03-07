@@ -81,6 +81,11 @@ class AdminController(
         maintenanceUseCase.startStorageScan()
     }
 
+    @PostMapping("/maintenance/storage-purge")
+    fun startStoragePurge() {
+        maintenanceUseCase.startOrphanedFilesPurge()
+    }
+
     @GetMapping("/maintenance/storage-scan/stats")
     fun getStorageScanStats(): StorageScanStats {
         return maintenanceUseCase.getStorageScanStats()

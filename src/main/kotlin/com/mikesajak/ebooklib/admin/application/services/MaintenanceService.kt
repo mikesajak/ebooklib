@@ -30,6 +30,10 @@ class MaintenanceService(
         storageScanner.startScan()
     }
 
+    override fun startOrphanedFilesPurge() {
+        storageScanner.purgeOrphans()
+    }
+
     override fun getStorageScanStats(): StorageScanStats {
         return storageScanner.getLatestStats()
     }

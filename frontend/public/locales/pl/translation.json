@@ -457,7 +457,14 @@
         "orphansFound": "Znalezione sieroty",
         "estimatedWarning": "Uwaga: Liczby oparte na bazie danych. Wykonaj Głębokie Skanowanie dla zweryfikowanego stanu fizycznego.",
         "progress": "Postęp skanowania",
-        "noOrphans": "Nie znaleziono osieroconych plików. Magazyn jest zdrowy!"
+        "purging": "Usuwanie...",
+        "noOrphans": "Nie znaleziono osieroconych plików. Magazyn jest zdrowy!",
+        "purgeButton": "Usuń wszystkie sieroty",
+        "confirmPurgeTitle": "Potwierdź czyszczenie magazynu",
+        "confirmPurgeMessage": "Czy na pewno chcesz trwale usunąć wszystkie {{count}} osierocone pliki z magazynu?",
+        "purgeSuccess": "Magazyn wyczyszczony! Usunięto osierocone pliki.",
+        "purgeFailure": "Nie udało się usunąć osieroconych plików.",
+        "purgeResults": "Postęp usuwania"
       }
     },
     "settings": {

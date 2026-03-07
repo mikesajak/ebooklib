@@ -14,5 +14,5 @@ data class StorageScanStats(
 )
 
 enum class ScanStatus {
-    IDLE, RUNNING, COMPLETED, FAILED
+    IDLE, RUNNING, PURGING, COMPLETED, FAILED
 }

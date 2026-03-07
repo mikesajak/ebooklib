@@ -90,3 +90,14 @@
   mask-image: linear-gradient(to bottom, black 80%, transparent 100%);
   -webkit-mask-image: linear-gradient(to bottom, black 80%, transparent 100%);
 }
+
+/* Progress bar animations */
+@keyframes indeterminate-progress {
+  0% { transform: translateX(-100%); }
+  50% { transform: translateX(100%); }
+  100% { transform: translateX(300%); }
+}
+
+.animate-indeterminate-progress {
+  animation: indeterminate-progress 2s infinite ease-in-out;
+}

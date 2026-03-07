@@ -7,5 +7,6 @@ interface MaintenanceUseCase {
     fun purgeExpiredStaging(): Int
     fun getStagingStats(): StagingStats
     fun startStorageScan()
+    fun startOrphanedFilesPurge()
     fun getStorageScanStats(): StorageScanStats
 }
