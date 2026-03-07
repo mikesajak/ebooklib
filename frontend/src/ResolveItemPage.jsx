@@ -150,8 +150,8 @@ const ResolveItemPage = () => {
 
     if (!item) return (
         <div className="p-8 text-center">
-            <h2 className="text-2xl font-bold text-gray-800 mb-4">Item Not Found</h2>
-            <Link to="/import" className="text-indigo-600 hover:underline">Back to Import List</Link>
+            <h2 className="text-2xl font-bold text-gray-800 mb-4">{t('import.resolve.notFound', 'Item Not Found')}</h2>
+            <Link to="/import" className="text-indigo-600 hover:underline">{t('import.resolve.backToList', 'Back to Import List')}</Link>
         </div>
     );
 
@@ -170,7 +170,7 @@ const ResolveItemPage = () => {
                             {t('import.resolve.title', 'Resolve Conflict')}
                         </h1>
                         <p className="text-sm text-gray-500 font-medium">
-                            {currentIndex + 1} of {unresolvedItems.length} unresolved items
+                            {t('import.resolve.unresolvedCount', '{{current}} of {{total}} unresolved items', { current: currentIndex + 1, total: unresolvedItems.length })}
                         </p>
                     </div>
                 </div>
@@ -180,7 +180,7 @@ const ResolveItemPage = () => {
                         onClick={() => navigate(`/import/resolve/${prevItem.id}`)}
                         disabled={!prevItem}
                         className="p-2 border rounded-lg hover:bg-gray-50 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
-                        title="Previous Unresolved"
+                        title={t('import.resolve.prevUnresolved', 'Previous Unresolved')}
                     >
                         <FaChevronLeft />
                     </button>
@@ -188,7 +188,7 @@ const ResolveItemPage = () => {
                         onClick={() => navigate(`/import/resolve/${nextItem.id}`)}
                         disabled={!nextItem}
                         className="p-2 border rounded-lg hover:bg-gray-50 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
-                        title="Next Unresolved"
+                        title={t('import.resolve.nextUnresolved', 'Next Unresolved')}
                     >
                         <FaChevronRight />
                     </button>
@@ -224,25 +224,25 @@ const ResolveItemPage = () => {
                     )}
                 </div>
 
-                <footer className="p-6 bg-gray-50 border-t border-gray-100 flex flex-wrap items-center justify-between gap-4">
-                    <button
+                <footer className="p-8 bg-gray-50 border-t border-gray-100 flex flex-wrap items-center justify-between gap-4">
+                    <button 
                         onClick={handleIgnore}
-                        className="flex items-center gap-2 px-6 py-3 text-gray-600 hover:text-gray-900 font-bold transition-all"
+                        className="flex items-center gap-2 px-8 py-3 text-rose-600 bg-rose-50 border border-rose-100 rounded-2xl hover:bg-rose-100 font-black text-xs uppercase tracking-widest transition-all transform active:scale-95 shadow-sm"
                     >
                         <FaBan /> {t('import.resolve.ignore', 'Ignore Item')}
                     </button>
 
-                    <div className="flex gap-3">
-                        <button
+                    <div className="flex gap-4">
+                        <button 
                             onClick={() => navigate(`/import/session/${item.importSessionId}`)}
-                            className="px-6 py-3 text-gray-700 bg-white border border-gray-300 rounded-xl hover:bg-gray-50 font-bold transition-all shadow-sm"
+                            className="px-8 py-3 text-gray-500 bg-white border border-gray-200 rounded-2xl hover:bg-gray-50 font-black text-xs uppercase tracking-widest transition-all transform active:scale-95 shadow-sm"
                         >
                             {t('common.cancel')}
                         </button>
-                        <button
-                            onClick={handleConfirm}
+                        <button 
+                            onClick={handleConfirm} 
                             disabled={isProcessing || !mergedData}
-                            className="flex items-center gap-2 px-8 py-3 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 font-bold transition-all shadow-lg shadow-indigo-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                            className="flex items-center gap-2 px-10 py-3 bg-indigo-600 text-white rounded-2xl hover:bg-indigo-700 font-black text-xs uppercase tracking-widest transition-all shadow-xl shadow-indigo-100 disabled:opacity-50 disabled:cursor-not-allowed transform hover:-translate-y-1 active:scale-95"
                         >
                             {isProcessing ? <FaSpinner className="animate-spin" /> : <FaCheck />}
                             {t('import.resolve.confirm', 'Confirm & Resolve')}

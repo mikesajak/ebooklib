@@ -99,7 +99,7 @@ const SeriesList = () => {
         </div>
 
         <Link to="/series/add">
-          <button className="bg-green-600 hover:bg-green-700 text-white font-bold py-2.5 px-6 rounded-xl shadow-md hover:shadow-lg transition-all flex items-center gap-2 transform hover:-translate-y-0.5 active:translate-y-0">
+          <button className="bg-indigo-600 hover:bg-indigo-700 text-white font-black text-sm uppercase tracking-wider py-3 px-8 rounded-2xl shadow-xl shadow-indigo-100 transition-all flex items-center gap-2 transform hover:-translate-y-1 active:scale-95">
             <FaPlus />
             {t('seriesList.addSeries')}
           </button>
@@ -150,20 +150,20 @@ const SeriesList = () => {
                       </Link>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-center">
-                      <div className="flex justify-center gap-2">
+                      <div className="flex justify-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                         <Link 
                           to={`/series/${s.id}/edit`} 
-                          className="bg-white p-2 text-indigo-600 hover:bg-indigo-600 hover:text-white rounded-lg border border-indigo-100 shadow-sm transition-all"
+                          className="p-2.5 text-indigo-600 hover:bg-indigo-50 rounded-xl transition-all"
                           title={t('common.edit')}
                         >
-                          <FaEdit />
+                          <FaEdit size={16} />
                         </Link>
                         <button 
                           onClick={() => { /* handle delete */ }} 
-                          className="bg-white p-2 text-red-600 hover:bg-red-600 hover:text-white rounded-lg border border-red-100 shadow-sm transition-all"
+                          className="p-2.5 text-rose-600 hover:bg-rose-50 rounded-xl transition-all"
                           title={t('common.delete')}
                         >
-                          <FaTrash />
+                          <FaTrash size={16} />
                         </button>
                       </div>
                     </td>

@@ -201,13 +201,12 @@ const BookFormats = ({ book, showNotification, onRefreshRequested }) => {
                 </a>
                 <span className="text-gray-500 text-sm ml-2">({formatBytes(format.size)})</span>
               </div>
-              <button
-                onClick={() => handleDeleteClick(format)}
-                className="bg-red-500 hover:bg-red-700 text-white font-bold py-1 px-2 rounded text-xs"
+              <button 
+                onClick={() => handleDeleteClick(format)} 
+                className="bg-rose-50 hover:bg-rose-100 text-rose-600 border border-rose-100 font-black text-[10px] uppercase tracking-wider py-1.5 px-3 rounded-lg transition-all"
               >
                 {t('common.delete')}
-              </button>
-            </li>
+              </button>            </li>
           ))}
           {uploading && (
             <li className="flex items-center mb-2">
@@ -239,13 +238,17 @@ const BookFormats = ({ book, showNotification, onRefreshRequested }) => {
           onChange={handleFileChange}
           accept=".epub,.pdf,.mobi,.azw3"
         />
-        <button
-          type="button"
-          onClick={() => fileInputRef.current.click()}
-          className={`font-bold py-2 px-4 rounded ${uploading ? 'bg-gray-400 text-white cursor-not-allowed' : 'bg-green-500 hover:bg-green-700 text-white'}`}
+        <button 
+          type="button" 
+          onClick={() => fileInputRef.current.click()} 
+          className={`w-full py-2.5 rounded-xl font-black text-[10px] uppercase tracking-widest transition-all transform active:scale-95 shadow-md ${
+            uploading 
+              ? 'bg-gray-100 text-gray-400 cursor-not-allowed shadow-none' 
+              : 'bg-indigo-600 text-white shadow-indigo-100 hover:bg-indigo-700'
+          }`}
           disabled={uploading}
         >
-          {t('bookFormats.upload')}
+          {uploading ? t('common.loading') : t('addBook.form.addFormat', 'Add Format')}
         </button>
       </div>
 

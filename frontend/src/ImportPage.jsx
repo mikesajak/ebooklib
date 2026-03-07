@@ -401,7 +401,11 @@ const ImportPage = () => {
                                         {upload.error && <span className="text-red-500">{upload.error}</span>}
                                     </td>
                                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                        <button onClick={() => removeFile(file.name)} className="text-red-600 hover:text-red-900">
+                                        <button 
+                                            onClick={() => removeFile(file.name)} 
+                                            className="p-2 text-rose-600 hover:bg-rose-50 rounded-lg transition-all"
+                                            title={t('common.remove', 'Remove')}
+                                        >
                                             <FaTrash />
                                         </button>
                                     </td>

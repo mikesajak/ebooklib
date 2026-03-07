@@ -126,14 +126,14 @@ const BookDetails = () => {
         <div className="flex gap-3">
           <Link 
             to={`/books/${id}/edit`} 
-            className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2.5 px-6 rounded-xl shadow-md transition-all flex items-center gap-2"
+            className="bg-indigo-600 hover:bg-indigo-700 text-white font-black text-xs uppercase tracking-widest py-3 px-8 rounded-2xl shadow-xl shadow-indigo-100 transition-all flex items-center gap-2 transform hover:-translate-y-1 active:scale-95"
           >
             <FaEdit />
             {t('common.edit')}
           </Link>
           <button 
             onClick={handleDeleteBookClick} 
-            className="bg-white hover:bg-red-50 text-red-600 border border-red-100 font-bold py-2.5 px-6 rounded-xl shadow-sm transition-all flex items-center gap-2"
+            className="bg-rose-50 hover:bg-rose-100 text-rose-600 border border-rose-100 font-black text-xs uppercase tracking-widest py-3 px-8 rounded-2xl shadow-xl shadow-rose-50 transition-all flex items-center gap-2 transform hover:-translate-y-1 active:scale-95"
           >
             <FaTrash />
             {t('common.delete')}

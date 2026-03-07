@@ -211,17 +211,24 @@ const ImportSummaryDashboard = () => {
                     </div>
                 </div>
 
-                <div className="flex gap-3">
+                <div className="flex gap-3 items-center">
+                    <button 
+                        onClick={() => { fetchSession(); fetchItems(); }}
+                        className="p-3 bg-white text-gray-400 hover:text-indigo-600 border border-gray-200 hover:border-indigo-100 rounded-xl shadow-sm transition-all transform active:scale-95"
+                        title={t('common.refresh', 'Refresh')}
+                    >
+                        <FaSyncAlt className={loading ? 'animate-spin' : ''} />
+                    </button>
                     <button 
                         onClick={discardSession}
-                        className="px-4 py-2 text-red-600 bg-white border border-red-200 rounded-lg hover:bg-red-50 font-bold transition-all text-sm flex items-center gap-2"
+                        className="px-8 py-3 text-rose-600 bg-rose-50 border border-rose-100 rounded-2xl hover:bg-rose-100 font-black text-xs uppercase tracking-widest transition-all shadow-xl shadow-rose-50/50 transform hover:-translate-y-1 active:scale-95 flex items-center gap-2"
                     >
-                        <FaBan /> {t('import.discardSession', 'Discard Session')}
+                        <FaTrash /> {t('import.discardSession', 'Discard Session')}
                     </button>
                     <button 
                         onClick={finalizeSession}
                         disabled={items.filter(i => i.status === 'RESOLVED').length === 0 && items.length > 0}
-                        className="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 font-bold transition-all shadow-md shadow-indigo-100 disabled:opacity-50 disabled:cursor-not-allowed text-sm flex items-center gap-2"
+                        className="px-8 py-3 bg-indigo-600 text-white rounded-2xl hover:bg-indigo-700 font-black text-xs uppercase tracking-widest transition-all shadow-xl shadow-indigo-100 disabled:opacity-50 disabled:cursor-not-allowed transform hover:-translate-y-1 active:scale-95 flex items-center gap-2"
                     >
                         <FaCheck /> {t('import.completeImport', 'Complete Import')}
                     </button>
@@ -235,8 +242,10 @@ const ImportSummaryDashboard = () => {
                         <div className="text-2xl font-bold">{session.totalFiles}</div>
                     </div>
                     <div className="bg-white p-4 rounded-lg shadow border-l-4 border-blue-500">
-                        <div className="text-sm text-gray-500 uppercase">{t('import.status', 'Session Status')}</div>
-                        <div className="text-xl font-semibold text-blue-600">{session.status}</div>
+                        <div className="text-sm text-gray-500 uppercase">{t('import.statusLabel', 'Session Status')}</div>
+                        <div className="text-xl font-semibold text-blue-600">
+                            {t(`import.status.${session.status.toLowerCase()}`, session.status)}
+                        </div>
                     </div>
                     <div className="bg-white p-4 rounded-lg shadow border-l-4 border-green-500">
                         <div className="text-sm text-gray-500 uppercase">{t('import.processed', 'Processed')}</div>
@@ -259,28 +268,30 @@ const ImportSummaryDashboard = () => {
                                 onChange={(e) => { setFilter(e.target.value); setSelectedIds([]); }}
                                 className="border rounded px-2 py-1 text-sm focus:ring-blue-500 focus:border-blue-500"
                             >
-                                <option value="ALL">All Items</option>
-                                <option value="UNRESOLVED">Unresolved</option>
-                                <option value="RESOLVED">Resolved</option>
-                                <option value="IGNORED">Ignored</option>
-                                <option value="ERROR">Error</option>
+                                <option value="ALL">{t('import.filters.all', 'All Items')}</option>
+                                <option value="UNRESOLVED">{t('import.filters.unresolved', 'Unresolved')}</option>
+                                <option value="RESOLVED">{t('import.filters.resolved', 'Resolved')}</option>
+                                <option value="IGNORED">{t('import.filters.ignored', 'Ignored')}</option>
+                                <option value="ERROR">{t('import.filters.error', 'Error')}</option>
                             </select>
                         </div>
 
                         {selectedIds.length > 0 && (
                             <div className="flex items-center gap-2 border-l pl-4">
-                                <span className="text-sm font-medium text-gray-700">{selectedIds.length} selected</span>
+                                <span className="text-sm font-medium text-gray-700">
+                                    {t('common.selectedCount', '{{count}} selected', { count: selectedIds.length })}
+                                </span>
                                 <button 
                                     onClick={() => bulkUpdateStatus('IGNORED')}
                                     className="bg-gray-100 text-gray-700 px-3 py-1 rounded text-sm hover:bg-gray-200"
                                 >
-                                    Ignore Selected
+                                    {t('import.actions.ignoreSelected', 'Ignore Selected')}
                                 </button>
                                 <button 
                                     onClick={() => bulkUpdateStatus('UNRESOLVED')}
                                     className="bg-gray-100 text-gray-700 px-3 py-1 rounded text-sm hover:bg-gray-200"
                                 >
-                                    Restore Selected
+                                    {t('import.actions.restoreSelected', 'Restore Selected')}
                                 </button>
                                 
                                 <div className="relative group">
@@ -315,9 +326,6 @@ const ImportSummaryDashboard = () => {
                             </div>
                         )}
                     </div>
-                    <button onClick={() => { fetchSession(); fetchItems(); }} className="flex items-center gap-2 text-blue-600 hover:text-blue-800 text-sm">
-                        <FaSyncAlt /> {t('common.refresh', 'Refresh')}
-                    </button>
                 </div>
 
                 <table className="min-w-full divide-y divide-gray-200">
@@ -331,10 +339,10 @@ const ImportSummaryDashboard = () => {
                                     onChange={toggleSelectAll}
                                 />
                             </th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Book Details</th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Formats</th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                            <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t('import.table.bookDetails', 'Book Details')}</th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t('import.table.formats', 'Formats')}</th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t('import.table.status', 'Status')}</th>
+                            <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">{t('import.table.actions', 'Actions')}</th>
                         </tr>
                     </thead>
                     <tbody className="bg-white divide-y divide-gray-200">
@@ -362,10 +370,10 @@ const ImportSummaryDashboard = () => {
                                     </div>
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap">
-                                    {item.status === 'UNRESOLVED' && <span className="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">Unresolved</span>}
-                                    {item.status === 'RESOLVED' && <span className="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">Resolved</span>}
-                                    {item.status === 'IGNORED' && <span className="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800">Ignored</span>}
-                                    {item.status === 'ERROR' && <span className="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">Error</span>}
+                                    {item.status === 'UNRESOLVED' && <span className="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">{t('import.status.unresolved', 'Unresolved')}</span>}
+                                    {item.status === 'RESOLVED' && <span className="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">{t('import.status.resolved', 'Resolved')}</span>}
+                                    {item.status === 'IGNORED' && <span className="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800">{t('import.status.ignored', 'Ignored')}</span>}
+                                    {item.status === 'ERROR' && <span className="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">{t('import.status.error', 'Error')}</span>}
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                     <div className="flex justify-end gap-2">
@@ -374,17 +382,17 @@ const ImportSummaryDashboard = () => {
                                                 <button 
                                                     onClick={() => navigate(`/import/resolve/${item.id}`)}
                                                     className="text-blue-600 hover:text-blue-900 flex items-center gap-1"
-                                                    title={item.status === 'RESOLVED' ? "Edit Resolution" : "Resolve"}
+                                                    title={item.status === 'RESOLVED' ? t('import.actions.edit', "Edit Resolution") : t('import.actions.resolve', "Resolve")}
                                                 >
-                                                    <FaInfoCircle /> {item.status === 'RESOLVED' ? "Edit" : "Resolve"}
+                                                    <FaInfoCircle /> {item.status === 'RESOLVED' ? t('import.actions.edit', "Edit") : t('import.actions.resolve', "Resolve")}
                                                 </button>
                                                 {item.status === 'UNRESOLVED' && (
                                                     <button 
                                                         onClick={() => updateItemStatus(item.id, 'IGNORED')}
                                                         className="text-gray-600 hover:text-gray-900 flex items-center gap-1"
-                                                        title="Ignore"
+                                                        title={t('import.actions.ignore', "Ignore")}
                                                     >
-                                                        <FaBan /> Ignore
+                                                        <FaBan /> {t('import.actions.ignore', "Ignore")}
                                                     </button>
                                                 )}
                                             </>
@@ -394,7 +402,7 @@ const ImportSummaryDashboard = () => {
                                                 onClick={() => updateItemStatus(item.id, 'UNRESOLVED')}
                                                 className="text-blue-600 hover:text-blue-900"
                                             >
-                                                Restore
+                                                {t('import.actions.restore', "Restore")}
                                             </button>
                                         )}
                                     </div>
@@ -404,7 +412,7 @@ const ImportSummaryDashboard = () => {
                         {filteredItems.length === 0 && (
                             <tr>
                                 <td colSpan="5" className="px-6 py-10 text-center text-gray-500 italic">
-                                    No items found matching the filter.
+                                    {t('common.noItemsFound', 'No items found matching the filter.')}
                                 </td>
                             </tr>
                         )}

@@ -28,23 +28,22 @@ const AuthorGroupTable = ({ authors, openConfirmDialog }) => {
                 <span className="bg-gray-100 px-2 py-0.5 rounded-full border border-gray-200">{author.bookCount}</span>
               </td>
               <td className="py-4 px-6 text-center whitespace-nowrap w-1/4">
-                <div className="flex justify-center gap-2">
+                <div className="flex justify-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                   <Link 
                     to={`/authors/${author.id}/edit`} 
-                    className="bg-white p-2 text-indigo-600 hover:bg-indigo-600 hover:text-white rounded-lg border border-indigo-100 shadow-sm transition-all"
+                    className="p-2.5 text-indigo-600 hover:bg-indigo-50 rounded-xl transition-all"
                     title={t('common.edit')}
                   >
-                    <FaEdit />
+                    <FaEdit size={16} />
                   </Link>
                   <button 
                     onClick={() => openConfirmDialog(author)} 
-                    className="bg-white p-2 text-red-600 hover:bg-red-600 hover:text-white rounded-lg border border-red-100 shadow-sm transition-all"
+                    className="p-2.5 text-rose-600 hover:bg-rose-50 rounded-xl transition-all"
                     title={t('common.delete')}
                   >
-                    <FaTrash />
+                    <FaTrash size={16} />
                   </button>
-                </div>
-              </td>
+                </div>              </td>
             </tr>
           ))}
         </tbody>

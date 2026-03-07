@@ -182,24 +182,24 @@ const AuthorList = () => {
           <div className="bg-white border border-gray-200 rounded-xl p-1 shadow-sm flex items-center">
             <button
               onClick={() => setViewMode('grouped')}
-              className={`p-2 rounded-lg transition-all flex items-center gap-2 text-xs font-bold ${viewMode === 'grouped' ? 'bg-emerald-600 text-white shadow-inner' : 'text-gray-400 hover:text-gray-600'}`}
+              className={`p-2 rounded-lg transition-all flex items-center gap-2 text-xs font-black uppercase tracking-widest ${viewMode === 'grouped' ? 'bg-emerald-600 text-white shadow-inner' : 'text-gray-400 hover:text-gray-600'}`}
               title={t('authorList.groupedView')}
             >
               <FaLayerGroup />
-              <span className="hidden sm:inline">Grouped</span>
+              <span className="hidden sm:inline">{t('authorList.groupedView', 'Grouped')}</span>
             </button>
             <button
               onClick={() => setViewMode('plain')}
-              className={`p-2 rounded-lg transition-all flex items-center gap-2 text-xs font-bold ${viewMode === 'plain' ? 'bg-emerald-600 text-white shadow-inner' : 'text-gray-400 hover:text-gray-600'}`}
+              className={`p-2 rounded-lg transition-all flex items-center gap-2 text-xs font-black uppercase tracking-widest ${viewMode === 'plain' ? 'bg-emerald-600 text-white shadow-inner' : 'text-gray-400 hover:text-gray-600'}`}
               title={t('authorList.plainView')}
             >
               <FaList />
-              <span className="hidden sm:inline">Plain</span>
+              <span className="hidden sm:inline">{t('authorList.plainView', 'Plain')}</span>
             </button>
           </div>
 
           <Link to="/authors/add">
-            <button className="bg-green-600 hover:bg-green-700 text-white font-bold py-2.5 px-6 rounded-xl shadow-md hover:shadow-lg transition-all flex items-center gap-2 transform hover:-translate-y-0.5 active:translate-y-0">
+            <button className="bg-indigo-600 hover:bg-indigo-700 text-white font-black text-sm uppercase tracking-wider py-3 px-8 rounded-2xl shadow-xl shadow-indigo-100 transition-all flex items-center gap-2 transform hover:-translate-y-1 active:scale-95">
               <FaPlus />
               {t('authorList.addAuthor')}
             </button>
