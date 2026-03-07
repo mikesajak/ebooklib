@@ -94,6 +94,14 @@ class ImportController(
         }
     }
 
+    @GetMapping("/items/{itemId}")
+    fun getResolutionItem(@PathVariable itemId: UUID): ResponseEntity<ResolutionItemResponseDto> {
+        val item = resolutionItemUseCase.getResolutionItem(ResolutionItemId(itemId))
+            ?: return ResponseEntity.notFound().build()
+        val formats = stagedUploadRepository.findByResolutionItemId(item.id.value)
+        return ResponseEntity.ok(importRestMapper.toResponse(item, formats))
+    }
+
     @PatchMapping("/items/{itemId}/status")
     fun updateResolutionItemStatus(
         @PathVariable itemId: UUID,

@@ -34,6 +34,16 @@ class ResolutionItemService(
     }
 
     @Transactional
+    override fun updateMetadata(id: ResolutionItemId, metadataJson: String?): ResolutionItem {
+        val item = repository.findById(id) ?: throw IllegalArgumentException("ResolutionItem $id not found")
+        val updated = item.copy(
+            metadataJson = metadataJson,
+            updatedAt = Instant.now()
+        )
+        return repository.save(updated)
+    }
+
+    @Transactional
     override fun bulkUpdateStatus(ids: List<ResolutionItemId>, status: ResolutionItemStatus) {
         val now = Instant.now()
         ids.forEach { id ->

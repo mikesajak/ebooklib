@@ -10,6 +10,7 @@ import com.mikesajak.ebooklib.file.application.ports.outgoing.FileStoragePort
 import com.mikesajak.ebooklib.importing.application.ports.incoming.EbookMetadataExtractorUseCase
 import com.mikesajak.ebooklib.importing.application.ports.incoming.ImportSessionUseCase
 import com.mikesajak.ebooklib.importing.application.ports.incoming.MetadataEnrichmentUseCase
+import com.mikesajak.ebooklib.importing.application.ports.incoming.ResolutionItemUseCase
 import com.mikesajak.ebooklib.importing.application.ports.outgoing.StagedEbookUploadRepositoryPort
 import com.mikesajak.ebooklib.importing.domain.model.*
 import mu.KotlinLogging
@@ -32,7 +33,8 @@ class StagedUploadProcessor(
     private val objectMapper: ObjectMapper,
     private val groupingService: GroupingService,
     private val enrichmentUseCase: MetadataEnrichmentUseCase,
-    private val sessionUseCase: ImportSessionUseCase
+    private val sessionUseCase: ImportSessionUseCase,
+    private val resolutionItemUseCase: ResolutionItemUseCase
 ) {
 
     @Async
@@ -93,10 +95,11 @@ class StagedUploadProcessor(
             metadataMap["validation"] = validation
 
             // Grouping logic (REQ-003)
-            try {
+            val resolutionItemId = try {
                 groupingService.group(uploadId, extracted.title ?: "Untitled", extracted.authors)
             } catch (e: Exception) {
                 logger.warn { "Failed to group upload $uploadId: ${e.message}" }
+                null
             }
 
             // External Metadata Enrichment (REQ-004)
@@ -104,6 +107,11 @@ class StagedUploadProcessor(
                 try {
                     val enrichment = enrichmentUseCase.enrichMetadata(extracted.title, extracted.authors)
                     metadataMap["enrichment"] = enrichment
+
+                    // Also update ResolutionItem if present (REQ-007)
+                    if (resolutionItemId != null && enrichment.isNotEmpty()) {
+                        resolutionItemUseCase.updateMetadata(resolutionItemId, objectMapper.writeValueAsString(enrichment))
+                    }
                 } catch (e: Exception) {
                     logger.warn(e) { "Failed to enrich metadata for upload $uploadId" }
                 }

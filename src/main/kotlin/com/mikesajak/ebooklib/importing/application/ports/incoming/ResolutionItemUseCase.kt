@@ -9,5 +9,6 @@ interface ResolutionItemUseCase {
     fun getResolutionItems(sessionId: ImportSessionId): List<ResolutionItem>
     fun getResolutionItem(id: ResolutionItemId): ResolutionItem?
     fun updateStatus(id: ResolutionItemId, status: ResolutionItemStatus): ResolutionItem
+    fun updateMetadata(id: ResolutionItemId, metadataJson: String?): ResolutionItem
     fun bulkUpdateStatus(ids: List<ResolutionItemId>, status: ResolutionItemStatus)
 }

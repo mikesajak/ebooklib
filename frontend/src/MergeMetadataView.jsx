@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { FaDatabase, FaFileAlt, FaPencilAlt } from 'react-icons/fa';
+import { FaDatabase, FaFileAlt, FaPencilAlt, FaGlobe } from 'react-icons/fa';
 import SearchableDropdown from './SearchableDropdown';
 
 const MergeMetadataView = ({
@@ -13,12 +13,17 @@ const MergeMetadataView = ({
   onMergedDataChange
 }) => {
   const { t } = useTranslation();
-  const extracted = stagedUpload.metadata || {};
-  const validation = stagedUpload.validation || {};
+  
+  // stagedUpload can be a single upload or an object that looks like one 
+  // (e.g., from ResolutionItem where we might have multiple formats)
+  const extracted = stagedUpload?.metadata || {};
+  const validation = stagedUpload?.validation || {};
+  const enrichmentList = extracted.enrichment || [];
+  const external = enrichmentList.length > 0 ? enrichmentList[0] : null;
 
   const resolveInitialAuthors = () => {
     const draftAuthors = draftBook?.authors || [];
-    // Only use draft authors if the user explicitly touched the authors field
+    // 1. User manual input (Form/Draft)
     if (dirtyFields?.has('authors') && draftAuthors.some(a => a.id || a.lastName)) {
       return {
         authorIds: draftAuthors.filter(a => !!a.id).map(a => a.id),
@@ -26,6 +31,7 @@ const MergeMetadataView = ({
       };
     }
 
+    // 2. Existing library book
     if (existingBook) {
       return {
         authorIds: existingBook.authors.map(a => a.id),
@@ -33,6 +39,20 @@ const MergeMetadataView = ({
       };
     }
     
+    // 3. External enrichment
+    if (external && external.authors && external.authors.length > 0) {
+      const ids = [];
+      const names = [];
+      external.authors.forEach(name => {
+        const normalizedName = name.toLowerCase().trim();
+        const match = authorOptions.find(opt => opt.name.toLowerCase().trim() === normalizedName);
+        if (match) ids.push(match.id);
+        else names.push(name);
+      });
+      return { authorIds: ids, authorNames: names };
+    }
+
+    // 4. File extraction
     const extractedNames = extracted.authors || [];
     const ids = [];
     const names = [];
@@ -51,22 +71,23 @@ const MergeMetadataView = ({
 
   const getInitialSource = (field) => {
     if (dirtyFields?.has(field)) return 'draft';
+    if (external && external[field] && external[field].toString().trim() !== '') return 'external';
     if (extracted && extracted[field] && extracted[field].toString().trim() !== '') return 'extracted';
     if (existingBook && existingBook[field]) return 'existing';
     return 'extracted';
   };
 
   const [mergedData, setMergedData] = useState({
-    title: (dirtyFields?.has('title') ? draftBook?.title : (extracted.title || existingBook?.title || '')),
+    title: (dirtyFields?.has('title') ? draftBook?.title : (external?.title || extracted.title || existingBook?.title || '')),
     authorIds: initialAuthors.authorIds,
     authorNames: initialAuthors.authorNames,
-    publisher: (dirtyFields?.has('publisher') ? draftBook?.publisher : (extracted.publisher || existingBook?.publisher || '')),
-    publicationDate: (dirtyFields?.has('publicationDate') ? draftBook?.publicationDate : (extracted.publicationDate || (existingBook?.publicationDate ? existingBook.publicationDate.split('T')[0] : ''))),
-    description: (dirtyFields?.has('description') ? draftBook?.description : (extracted.description || existingBook?.description || '')),
+    publisher: (dirtyFields?.has('publisher') ? draftBook?.publisher : (external?.publisher || extracted.publisher || existingBook?.publisher || '')),
+    publicationDate: (dirtyFields?.has('publicationDate') ? draftBook?.publicationDate : (external?.publicationDate || extracted.publicationDate || (existingBook?.publicationDate ? existingBook.publicationDate.split('T')[0] : ''))),
+    description: (dirtyFields?.has('description') ? draftBook?.description : (external?.description || extracted.description || existingBook?.description || '')),
     seriesId: (dirtyFields?.has('series') ? draftBook?.series?.id : (existingBook?.series?.id || null)),
     volume: (dirtyFields?.has('volume') ? draftBook?.volume : (existingBook?.volume || null)),
     labels: (dirtyFields?.has('labels') ? draftBook?.labels : (existingBook?.labels || [])),
-    updateCover: !!extracted.coverStorageKey && !existingBook
+    updateCover: !!(external?.coverUrl || extracted.coverStorageKey) && !existingBook
   });
 
   const [selectedSources, setSelectedSources] = useState({
@@ -74,7 +95,7 @@ const MergeMetadataView = ({
     publisher: getInitialSource('publisher'),
     publicationDate: getInitialSource('publicationDate'),
     description: getInitialSource('description'),
-    cover: !!extracted.coverStorageKey && !existingBook
+    cover: !!(external?.coverUrl || extracted.coverStorageKey) && !existingBook
   });
 
   useEffect(() => {
@@ -85,7 +106,9 @@ const MergeMetadataView = ({
     setSelectedSources(prev => ({ ...prev, [field]: source }));
     
     let value;
-    if (source === 'extracted') {
+    if (source === 'external') {
+      value = external[field];
+    } else if (source === 'extracted') {
       value = extracted[field];
     } else if (source === 'draft') {
       value = draftBook ? (field === 'series' ? draftBook.series?.id : draftBook[field]) : '';
@@ -156,7 +179,8 @@ const MergeMetadataView = ({
     const sourceConfigs = {
       existing: { label: 'Library', icon: FaDatabase, colorClass: 'ring-blue-500 bg-blue-100' },
       draft: { label: 'Form', icon: FaPencilAlt, colorClass: 'ring-yellow-500 bg-yellow-100' },
-      extracted: { label: 'File', icon: FaFileAlt, colorClass: 'ring-green-500 bg-green-100' }
+      extracted: { label: 'File', icon: FaFileAlt, colorClass: 'ring-green-500 bg-green-100' },
+      external: { label: 'Web', icon: FaGlobe, colorClass: 'ring-purple-500 bg-purple-100' }
     };
 
     const firstSource = sources[0];
@@ -186,17 +210,17 @@ const MergeMetadataView = ({
     );
   };
 
-  const FieldComparison = ({ label, field, existingValue, extractedValue, draftValue }) => {
+  const FieldComparison = ({ label, field, existingValue, extractedValue, draftValue, externalValue }) => {
     // Determine which sources to show - ORDER MATTERS HERE for stable layout
     const sourceValues = [];
     
     // 1. Library (Existing)
-    if (existingValue || !extractedValue) {
+    if (existingValue || (!extractedValue && !externalValue)) {
       sourceValues.push({ id: 'existing', value: existingValue || '' });
     }
     
     // 2. Form (Draft)
-    const isDraftRelevant = dirtyFields?.has(field) || (draftValue && draftValue !== extractedValue);
+    const isDraftRelevant = dirtyFields?.has(field) || (draftValue && draftValue !== extractedValue && draftValue !== externalValue);
     if (draftValue && isDraftRelevant) {
       sourceValues.push({ id: 'draft', value: draftValue });
     }
@@ -204,6 +228,11 @@ const MergeMetadataView = ({
     // 3. File (Extracted)
     if (extractedValue) {
       sourceValues.push({ id: 'extracted', value: extractedValue });
+    }
+
+    // 4. Web (External)
+    if (externalValue && externalValue !== extractedValue) {
+      sourceValues.push({ id: 'external', value: externalValue });
     }
 
     // Group identical values while preserving the order of the first occurrence
@@ -218,8 +247,8 @@ const MergeMetadataView = ({
     });
 
     // Ensure the groups themselves are sorted based on the "highest priority" source in them
-    // Priority: draft > existing > extracted (Manual data is always the primary reference on the left)
-    const sourcePriority = { draft: 0, existing: 1, extracted: 2 };
+    // Priority: draft > existing > external > extracted
+    const sourcePriority = { draft: 0, existing: 1, external: 2, extracted: 3 };
     groups.sort((a, b) => {
       const aMin = Math.min(...a.sources.map(s => sourcePriority[s]));
       const bMin = Math.min(...b.sources.map(s => sourcePriority[s]));
@@ -272,14 +301,19 @@ const MergeMetadataView = ({
         existingValue={existingBook?.title} 
         extractedValue={extracted.title} 
         draftValue={draftBook?.title}
+        externalValue={external?.title}
       />
 
       <div className="mb-6 pb-2">
         <label className="block text-sm font-bold text-gray-700 mb-2">{t('addBook.form.author')}</label>
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 bg-gray-50 p-3 rounded-lg border border-gray-200">
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 bg-gray-50 p-3 rounded-lg border border-gray-200">
           <div className="flex flex-col gap-1">
             <div className="text-[10px] font-bold text-gray-400 uppercase flex items-center gap-1"><FaFileAlt /> Extracted</div>
             <div className="text-sm text-gray-600">{extracted.authors?.join(', ') || t('common.na')}</div>
+          </div>
+          <div className="flex flex-col gap-1">
+            <div className="text-[10px] font-bold text-purple-400 uppercase flex items-center gap-1"><FaGlobe /> External</div>
+            <div className="text-sm text-gray-600">{external?.authors?.join(', ') || t('common.na')}</div>
           </div>
           <div className="lg:col-span-2">
             <div className="text-[10px] font-bold text-gray-400 uppercase mb-2 flex items-center gap-1"><FaPencilAlt /> Final Assigned List</div>
@@ -351,6 +385,7 @@ const MergeMetadataView = ({
         existingValue={existingBook?.publisher} 
         extractedValue={extracted.publisher} 
         draftValue={draftBook?.publisher}
+        externalValue={external?.publisher}
       />
 
       <FieldComparison 
@@ -359,6 +394,7 @@ const MergeMetadataView = ({
         existingValue={existingBook?.publicationDate} 
         extractedValue={extracted.publicationDate} 
         draftValue={draftBook?.publicationDate} 
+        externalValue={external?.publicationDate}
       />
 
       <FieldComparison 
@@ -367,9 +403,10 @@ const MergeMetadataView = ({
         existingValue={existingBook?.description} 
         extractedValue={extracted.description} 
         draftValue={draftBook?.description} 
+        externalValue={external?.description}
       />
 
-      {extracted.coverStorageKey && (
+      {(extracted.coverStorageKey || external?.coverUrl) && (
         <div className="mb-4">
           <label className="flex items-center gap-2 cursor-pointer p-4 bg-green-50 rounded-xl border-2 border-green-200 hover:bg-green-100 transition-colors shadow-sm group">
             <input 
@@ -384,12 +421,12 @@ const MergeMetadataView = ({
                   {existingBook ? t('import.review.useExtractedCover') : t('import.review.importCover')}
                 </span>
                 <p className="text-xs text-green-700 mt-0.5">
-                  {existingBook ? t('import.review.useExtractedCoverSubtext') : t('import.review.importCoverSubtext')}
+                  {external?.coverUrl ? "Using external high-res cover if available" : (existingBook ? t('import.review.useExtractedCoverSubtext') : t('import.review.importCoverSubtext'))}
                 </p>
               </div>
               <div className="p-1 bg-white rounded-lg border border-green-300 shadow-inner group-hover:scale-105 transition-transform">
                 <img 
-                  src={`/api/import/staged/${stagedUpload.id}/cover`} 
+                  src={external?.coverUrl || (stagedUpload?.id ? `/api/import/staged/${stagedUpload.id}/cover` : '')} 
                   alt="Extracted Cover" 
                   className="h-24 w-16 object-cover rounded shadow-sm"
                 />
