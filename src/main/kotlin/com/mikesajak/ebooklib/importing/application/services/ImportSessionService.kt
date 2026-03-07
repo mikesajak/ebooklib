@@ -113,11 +113,11 @@ class ImportSessionService(
             cleanupUpload(upload)
         }
 
-        // 2. Delete ResolutionItems
-        resolutionItemRepository.deleteByImportSessionId(id)
-
-        // 3. Delete StagedUploads
+        // 2. Delete StagedUploads
         stagedUploadRepository.deleteByImportSessionId(id)
+
+        // 3. Delete ResolutionItems
+        resolutionItemRepository.deleteByImportSessionId(id)
 
         // 4. Delete Session
         repository.delete(id)
