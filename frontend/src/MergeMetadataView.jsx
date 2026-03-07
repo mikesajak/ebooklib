@@ -177,10 +177,10 @@ const MergeMetadataView = ({
 
   const MultiSourceButton = ({ sources, value, field, isSelected }) => {
     const sourceConfigs = {
-      existing: { label: 'Library', icon: FaDatabase, colorClass: 'ring-blue-500 bg-blue-100' },
-      draft: { label: 'Form', icon: FaPencilAlt, colorClass: 'ring-yellow-500 bg-yellow-100' },
-      extracted: { label: 'File', icon: FaFileAlt, colorClass: 'ring-green-500 bg-green-100' },
-      external: { label: 'Web', icon: FaGlobe, colorClass: 'ring-purple-500 bg-purple-100' }
+      existing: { label: t('import.review.sources.library', 'Library'), icon: FaDatabase, colorClass: 'ring-blue-500 bg-blue-100' },
+      draft: { label: t('import.review.sources.form', 'Form'), icon: FaPencilAlt, colorClass: 'ring-yellow-500 bg-yellow-100' },
+      extracted: { label: t('import.review.sources.file', 'File'), icon: FaFileAlt, colorClass: 'ring-green-500 bg-green-100' },
+      external: { label: t('import.review.sources.web', 'Web'), icon: FaGlobe, colorClass: 'ring-purple-500 bg-purple-100' }
     };
 
     const firstSource = sources[0];
@@ -281,16 +281,16 @@ const MergeMetadataView = ({
           <div className="flex items-center gap-2 text-indigo-800">
             <FaDatabase />
             <span>
-              Matching with: <span className="font-bold">{existingBook.title}</span>
+              {t('import.review.matchingWith', 'Matching with:')} <span className="font-bold">{existingBook.title}</span>
               {validation.titleMatch && validation.authorMatch 
-                ? ` (${t('import.review.statusMatch')})` 
-                : ` (${t('import.review.statusMismatch')})`}
+                ? ` (${t('import.review.statusMatch', 'Matches an existing book in your library')})` 
+                : ` (${t('import.review.statusMismatch', 'Potential metadata mismatch with existing book')})`}
             </span>
           </div>
         ) : (
           <div className="flex items-center gap-2 text-indigo-800">
             <FaPencilAlt />
-            <span>{t('import.review.statusNewBook')}</span>
+            <span>{t('import.review.statusNewBook', 'This is a new book entry')}</span>
           </div>
         )}
       </div>
@@ -308,21 +308,21 @@ const MergeMetadataView = ({
         <label className="block text-sm font-bold text-gray-700 mb-2">{t('addBook.form.author')}</label>
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 bg-gray-50 p-3 rounded-lg border border-gray-200">
           <div className="flex flex-col gap-1">
-            <div className="text-[10px] font-bold text-gray-400 uppercase flex items-center gap-1"><FaFileAlt /> Extracted</div>
+            <div className="text-[10px] font-bold text-gray-400 uppercase flex items-center gap-1"><FaFileAlt /> {t('import.review.sources.extracted', 'Extracted')}</div>
             <div className="text-sm text-gray-600">{extracted.authors?.join(', ') || t('common.na')}</div>
           </div>
           <div className="flex flex-col gap-1">
-            <div className="text-[10px] font-bold text-purple-400 uppercase flex items-center gap-1"><FaGlobe /> External</div>
+            <div className="text-[10px] font-bold text-purple-400 uppercase flex items-center gap-1"><FaGlobe /> {t('import.review.sources.external', 'External')}</div>
             <div className="text-sm text-gray-600">{external?.authors?.join(', ') || t('common.na')}</div>
           </div>
           <div className="lg:col-span-2">
-            <div className="text-[10px] font-bold text-gray-400 uppercase mb-2 flex items-center gap-1"><FaPencilAlt /> Final Assigned List</div>
+            <div className="text-[10px] font-bold text-gray-400 uppercase mb-2 flex items-center gap-1"><FaPencilAlt /> {t('import.review.sources.finalList', 'Final Assigned List')}</div>
             
             {/* New Authors */}
             {mergedData.authorNames.map((name, index) => (
               <div key={`new-${index}`} className="flex mb-2 gap-2 items-center bg-green-50 p-2 rounded border border-green-200 shadow-sm animate-fade-in">
                 <div className="flex-grow text-sm font-medium text-green-800">
-                  <span className="text-[9px] bg-green-200 px-1 rounded mr-2 uppercase font-bold">New</span>
+                  <span className="text-[9px] bg-green-200 px-1 rounded mr-2 uppercase font-bold">{t('import.review.sources.new', 'New')}</span>
                   {name}
                 </div>
                 <button type="button" onClick={() => handleRemoveNewAuthor(index)} className="text-red-400 hover:text-red-600 transition-colors">✖</button>
@@ -418,10 +418,10 @@ const MergeMetadataView = ({
             <div className="flex-grow flex items-center justify-between">
               <div>
                 <span className="font-extrabold text-green-900">
-                  {existingBook ? t('import.review.useExtractedCover') : t('import.review.importCover')}
+                  {existingBook ? t('import.review.useExtractedCover', 'Update Cover') : t('import.review.importCover', 'Import Cover')}
                 </span>
                 <p className="text-xs text-green-700 mt-0.5">
-                  {external?.coverUrl ? "Using external high-res cover if available" : (existingBook ? t('import.review.useExtractedCoverSubtext') : t('import.review.importCoverSubtext'))}
+                  {external?.coverUrl ? t('import.review.externalCoverHint', "Using external high-res cover if available") : (existingBook ? t('import.review.useExtractedCoverSubtext') : t('import.review.importCoverSubtext'))}
                 </p>
               </div>
               <div className="p-1 bg-white rounded-lg border border-green-300 shadow-inner group-hover:scale-105 transition-transform">

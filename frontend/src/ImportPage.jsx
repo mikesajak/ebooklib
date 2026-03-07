@@ -12,6 +12,22 @@ const ImportPage = () => {
     const [activeSessions, setActiveSessions] = useState([]);
     const [isUploading, setIsUploading] = useState(false);
 
+    const getCsrfToken = () => {
+        const name = 'XSRF-TOKEN';
+        const decodedCookie = decodeURIComponent(document.cookie);
+        const ca = decodedCookie.split(';');
+        for (let i = 0; i < ca.length; i++) {
+            let c = ca[i];
+            while (c.charAt(0) === ' ') {
+                c = c.substring(1);
+            }
+            if (c.indexOf(name + "=") === 0) {
+                return c.substring(name.length + 1, c.length);
+            }
+        }
+        return null;
+    };
+
     const fetchActiveSessions = async () => {
         try {
             const response = await fetch('/api/import/sessions');
@@ -36,12 +52,10 @@ const ImportPage = () => {
                 headers: { 'X-XSRF-TOKEN': getCsrfToken() }
             });
             if (response.ok) {
-                console.log("Session deleted successfully", sessId);
                 await fetchActiveSessions();
                 if (sessionId === sessId) setSessionId(null);
             } else {
                 const errorText = await response.text();
-                console.error("Failed to delete session", sessId, response.status, errorText);
                 alert("Failed to delete session: " + errorText);
             }
         } catch (error) {
@@ -52,11 +66,9 @@ const ImportPage = () => {
 
     const handleFileSelect = (e) => {
         const selectedFiles = Array.from(e.target.files);
-        // Avoid duplicates
         const newFiles = selectedFiles.filter(file => !files.some(f => f.name === file.name));
         setFiles(prev => [...prev, ...newFiles]);
         
-        // Initialize upload state
         const newUploads = { ...uploads };
         newFiles.forEach(file => {
             if (!newUploads[file.name]) {
@@ -102,46 +114,25 @@ const ImportPage = () => {
         setIsUploading(false);
     };
 
-    const startUploadAll = async () => {
-        const pendingFiles = files.filter(f => uploads[f.name]?.status === 'PENDING');
-        if (pendingFiles.length === 0) return;
-
-        setIsUploading(true);
-        
-        try {
-            // 1. Create session
-            const sessionResponse = await fetch(`/api/import/sessions?totalFiles=${pendingFiles.length}`, {
-                method: 'POST',
-                headers: { 'X-XSRF-TOKEN': getCsrfToken() }
-            });
-            if (!sessionResponse.ok) throw new Error('Failed to create import session');
-            const sessionData = await sessionResponse.json();
-            setSessionId(sessionData.id);
-
-            // 2. Upload files
-            for (const file of pendingFiles) {
-                uploadFile(file, sessionData.id);
+    const pollStatus = (fileName, uploadId) => {
+        const interval = setInterval(async () => {
+            try {
+                const response = await fetch(`/api/import/staged/${uploadId}`);
+                if (!response.ok) throw new Error('Poll failed');
+                
+                const data = await response.json();
+                
+                if (data.status === 'PARSED' || data.status === 'FAILED' || data.status === 'PROMOTED') {
+                    clearInterval(interval);
+                    setUploads(prev => ({ 
+                        ...prev, 
+                        [fileName]: { ...prev[fileName], status: data.status, data: data } 
+                    }));
+                }
+            } catch (error) {
+                console.error("Polling error", error);
             }
-        } catch (error) {
-            console.error("Session creation error", error);
-            setIsUploading(false);
-        }
-    };
-
-    const getCsrfToken = () => {
-        const name = 'XSRF-TOKEN';
-        const decodedCookie = decodeURIComponent(document.cookie);
-        const ca = decodedCookie.split(';');
-        for (let i = 0; i < ca.length; i++) {
-            let c = ca[i];
-            while (c.charAt(0) === ' ') {
-                c = c.substring(1);
-            }
-            if (c.indexOf(name + "=") === 0) {
-                return c.substring(name.length + 1, c.length);
-            }
-        }
-        return null;
+        }, 1000);
     };
 
     const uploadFile = async (file, currentSessionId) => {
@@ -158,64 +149,54 @@ const ImportPage = () => {
             const url = `/api/import/upload?async=true${currentSessionId ? `&importSessionId=${currentSessionId}` : ''}`;
             const response = await fetch(url, { 
                 method: 'POST',
-                headers: {
-                    'X-XSRF-TOKEN': getCsrfToken() 
-                },
+                headers: { 'X-XSRF-TOKEN': getCsrfToken() },
                 body: formData
             });
 
             if (!response.ok) throw new Error('Upload failed');
-            
             const data = await response.json();
             
             setUploads(prev => ({ 
                 ...prev, 
-                [file.name]: { 
-                    ...prev[file.name], 
-                    status: 'PROCESSING', 
-                    id: data.id 
-                } 
+                [file.name]: { ...prev[file.name], status: 'PROCESSING', id: data.id } 
             }));
             
             pollStatus(file.name, data.id);
-
         } catch (error) {
              setUploads(prev => ({ 
-                ...prev, 
-                [file.name]: { ...prev[file.name], status: 'FAILED', error: error.message } 
+                ...prev, [file.name]: { ...prev[file.name], status: 'FAILED', error: error.message } 
             }));
         }
     };
 
-    const pollStatus = (fileName, uploadId) => {
-        const interval = setInterval(async () => {
-            try {
-                const response = await fetch(`/api/import/staged/${uploadId}`);
-                if (!response.ok) throw new Error('Poll failed');
-                
-                const data = await response.json();
-                
-                if (data.status === 'PARSED' || data.status === 'FAILED' || data.status === 'PROMOTED') {
-                    clearInterval(interval);
-                    setUploads(prev => ({ 
-                        ...prev, 
-                        [fileName]: { 
-                            ...prev[fileName], 
-                            status: data.status, 
-                            data: data 
-                        } 
-                    }));
-                }
-            } catch (error) {
-                console.error("Polling error", error);
+    const startUploadAll = async () => {
+        const pendingFiles = files.filter(f => !uploads[f.name] || uploads[f.name].status === 'PENDING');
+        if (pendingFiles.length === 0) return;
+
+        setIsUploading(true);
+        
+        try {
+            const sessionResponse = await fetch(`/api/import/sessions?totalFiles=${pendingFiles.length}`, {
+                method: 'POST',
+                headers: { 'X-XSRF-TOKEN': getCsrfToken() }
+            });
+            if (!sessionResponse.ok) throw new Error('Failed to create import session');
+            const sessionData = await sessionResponse.json();
+            setSessionId(sessionData.id);
+
+            for (const file of pendingFiles) {
+                uploadFile(file, sessionData.id);
             }
-        }, 1000);
+        } catch (error) {
+            console.error("Session creation error", error);
+            setIsUploading(false);
+        }
     };
 
     const pendingFilesCount = files.filter(f => !uploads[f.name] || uploads[f.name].status === 'PENDING').length;
     const activeUploadsCount = Object.values(uploads).filter(u => ['UPLOADING', 'PROCESSING'].includes(u.status)).length;
-    const failedUploadsCount = Object.values(uploads).filter(u => u.status === 'FAILED').length;
     const completedUploadsCount = Object.values(uploads).filter(u => ['PARSED', 'PROMOTED', 'FAILED'].includes(u.status)).length;
+    const failedUploadsCount = Object.values(uploads).filter(u => u.status === 'FAILED').length;
     
     const isActuallyUploading = activeUploadsCount > 0;
     const isFullyCompleted = files.length > 0 && completedUploadsCount === files.length;
@@ -282,7 +263,6 @@ const ImportPage = () => {
                                 onClick={() => navigate(`/import/session/${session.id}`)}
                                 className="group relative bg-white p-5 rounded-2xl border border-gray-100 shadow-md hover:shadow-xl hover:border-indigo-200 transition-all cursor-pointer overflow-hidden transform hover:-translate-y-1"
                             >
-                                {/* Progress Bar at bottom */}
                                 <div className="absolute bottom-0 left-0 w-full h-1 bg-gray-50">
                                     <div 
                                         className="h-full bg-indigo-500 transition-all duration-1000" 
@@ -413,28 +393,29 @@ const ImportPage = () => {
                                             )}
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                        {upload.data?.metadata?.title && (
-                                            <div>
-                                                <div className="font-bold">{upload.data.metadata.title}</div>
-                                                <div className="text-xs">{upload.data.metadata.authors?.join(', ')}</div>
-                                            </div>
-                                        )}
-                                        {upload.error && <span className="text-red-500">{upload.error}</span>}
-                                    </td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                        <button 
-                                            onClick={() => removeFile(file.name)} 
-                                            className="p-2 text-rose-600 hover:bg-rose-50 rounded-lg transition-all"
-                                            title={t('common.remove', 'Remove')}
-                                        >
-                                            <FaTrash />
-                                        </button>
-                                    </td>
-                                </tr>
-                            );
-                        })}
-                    </tbody>
-                </table>
+                                            {upload.data?.metadata?.title && (
+                                                <div>
+                                                    <div className="font-bold">{upload.data.metadata.title}</div>
+                                                    <div className="text-xs">{upload.data.metadata.authors?.join(', ')}</div>
+                                                </div>
+                                            )}
+                                            {upload.error && <span className="text-red-500">{upload.error}</span>}
+                                        </td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                            <button 
+                                                onClick={() => removeFile(file.name)} 
+                                                className="p-2 text-rose-600 hover:bg-rose-50 rounded-lg transition-all"
+                                                title={t('common.remove', 'Remove')}
+                                            >
+                                                <FaTrash />
+                                            </button>
+                                        </td>
+                                    </tr>
+                                );
+                            })}
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     );
