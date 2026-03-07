@@ -107,11 +107,20 @@ class ImportController(
 
     @GetMapping("/sessions/{sessionId}/items")
     fun getResolutionItems(@PathVariable sessionId: UUID): List<ResolutionItemResponseDto> {
-        val items = resolutionItemUseCase.getResolutionItems(ImportSessionId(sessionId))
-        return items.map { item ->
+        val sessionItems = resolutionItemUseCase.getResolutionItems(ImportSessionId(sessionId))
+        val resolutionItemResponses = sessionItems.map { item ->
             val formats = stagedUploadRepository.findByResolutionItemId(item.id.value)
             importRestMapper.toResponse(item, formats)
         }
+
+        val allUploads = stagedUploadRepository.findByImportSessionId(ImportSessionId(sessionId))
+        val uploadsWithoutResolutionItem = allUploads.filter { it.resolutionItemId == null }
+        
+        val syntheticResponses = uploadsWithoutResolutionItem.map { upload ->
+            importRestMapper.toResolutionItemResponse(upload)
+        }
+
+        return resolutionItemResponses + syntheticResponses
     }
 
     @GetMapping("/items/{itemId}")

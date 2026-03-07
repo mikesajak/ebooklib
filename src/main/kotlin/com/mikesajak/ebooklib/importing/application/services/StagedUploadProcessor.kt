@@ -47,94 +47,111 @@ class StagedUploadProcessor(
     fun process(uploadId: StagedEbookUploadId, fileBytes: ByteArray, fileName: String, contentType: String, currentBookId: UUID?): StagedEbookUpload {
         logger.info { "Processing upload: $uploadId" }
         
-        // 1. Extract metadata
-        val extracted = try {
-            metadataExtractor.extract(ByteArrayInputStream(fileBytes), fileName, contentType)
-        } catch (e: Exception) {
-            logger.warn(e) { "Failed to extract metadata for $fileName" }
-            null
-        }
-
-        val metadataMap = mutableMapOf<String, Any?>()
-        if (extracted != null) {
-            metadataMap["title"] = extracted.title
-            metadataMap["authors"] = extracted.authors
-            metadataMap["creationDate"] = extracted.creationDate?.toString()
-            metadataMap["publicationDate"] = extracted.publicationDate?.toString()
-            metadataMap["publisher"] = extracted.publisher
-            metadataMap["description"] = extracted.description
-            
-            extracted.coverImage?.let { cover ->
-                try {
-                    val coverFileMetadata = fileStoragePort.uploadFile(
-                        ByteArrayInputStream(cover.data),
-                        cover.fileName,
-                        cover.contentType,
-                        "staged/covers"
-                    )
-                    metadataMap["coverStorageKey"] = coverFileMetadata.id
-                } catch (e: Exception) {
-                    logger.warn(e) { "Failed to upload extracted cover for $fileName" }
-                }
-            }
-
-            // 4. Perform matching
-            val validation = if (currentBookId != null) {
-                // Targeted matching
-                try {
-                    val targetBook = getBookUseCase.getBook(BookId(currentBookId))
-                    StagedUploadValidation(candidates = listOf(createCandidate(extracted, targetBook, fileBytes.size.toLong(), fileName)))
-                } catch (e: Exception) {
-                    logger.warn(e) { "Failed to validate against book $currentBookId" }
-                    StagedUploadValidation()
-                }
-            } else {
-                // Automated global matching
-                findPotentialMatches(extracted, fileBytes.size.toLong(), fileName)
-            }
-            metadataMap["validation"] = validation
-
-            // Grouping logic (REQ-003)
-            val resolutionItemId = try {
-                groupingService.group(uploadId, extracted.title ?: "Untitled", extracted.authors)
+        try {
+            // 1. Extract metadata
+            val extracted = try {
+                metadataExtractor.extract(ByteArrayInputStream(fileBytes), fileName, contentType)
             } catch (e: Exception) {
-                logger.warn { "Failed to group upload $uploadId: ${e.message}" }
+                logger.warn(e) { "Failed to extract metadata for $fileName" }
                 null
             }
 
-            // External Metadata Enrichment (REQ-004)
-            if (extracted.title != null) {
-                try {
-                    val enrichment = enrichmentUseCase.enrichMetadata(extracted.title, extracted.authors)
-                    metadataMap["enrichment"] = enrichment
-
-                    // Also update ResolutionItem if present (REQ-007)
-                    if (resolutionItemId != null && enrichment.isNotEmpty()) {
-                        resolutionItemUseCase.updateMetadata(resolutionItemId, objectMapper.writeValueAsString(enrichment))
+            val metadataMap = mutableMapOf<String, Any?>()
+            if (extracted != null) {
+                metadataMap["title"] = extracted.title
+                metadataMap["authors"] = extracted.authors
+                metadataMap["creationDate"] = extracted.creationDate?.toString()
+                metadataMap["publicationDate"] = extracted.publicationDate?.toString()
+                metadataMap["publisher"] = extracted.publisher
+                metadataMap["description"] = extracted.description
+                
+                extracted.coverImage?.let { cover ->
+                    try {
+                        val coverFileMetadata = fileStoragePort.uploadFile(
+                            ByteArrayInputStream(cover.data),
+                            cover.fileName,
+                            cover.contentType,
+                            "staged/covers"
+                        )
+                        metadataMap["coverStorageKey"] = coverFileMetadata.id
+                    } catch (e: Exception) {
+                        logger.warn(e) { "Failed to upload extracted cover for $fileName" }
                     }
+                }
+
+                // 4. Perform matching
+                val validation = if (currentBookId != null) {
+                    // Targeted matching
+                    try {
+                        val targetBook = getBookUseCase.getBook(BookId(currentBookId))
+                        StagedUploadValidation(candidates = listOf(createCandidate(extracted, targetBook, fileBytes.size.toLong(), fileName)))
+                    } catch (e: Exception) {
+                        logger.warn(e) { "Failed to validate against book $currentBookId" }
+                        StagedUploadValidation()
+                    }
+                } else {
+                    // Automated global matching
+                    findPotentialMatches(extracted, fileBytes.size.toLong(), fileName)
+                }
+                metadataMap["validation"] = validation
+
+                // Grouping logic (REQ-003)
+                val resolutionItemId = try {
+                    groupingService.group(uploadId, extracted.title ?: "Untitled", extracted.authors)
                 } catch (e: Exception) {
-                    logger.warn(e) { "Failed to enrich metadata for upload $uploadId" }
+                    logger.warn { "Failed to group upload $uploadId: ${e.message}" }
+                    null
+                }
+
+                // External Metadata Enrichment (REQ-004)
+                if (extracted.title != null) {
+                    try {
+                        val enrichment = enrichmentUseCase.enrichMetadata(extracted.title, extracted.authors)
+                        metadataMap["enrichment"] = enrichment
+
+                        // Also update ResolutionItem if present (REQ-007)
+                        if (resolutionItemId != null && enrichment.isNotEmpty()) {
+                            resolutionItemUseCase.updateMetadata(resolutionItemId, objectMapper.writeValueAsString(enrichment))
+                        }
+                    } catch (e: Exception) {
+                        logger.warn(e) { "Failed to enrich metadata for upload $uploadId" }
+                    }
                 }
             }
+
+            val metadataJson = objectMapper.writeValueAsString(metadataMap)
+
+
+            val existing = repository.findById(uploadId)
+            val result = if (existing != null) {
+                val updated = existing.copy(
+                    metadataJson = metadataJson,
+                    status = if (extracted != null) StagedEbookUploadStatus.PARSED else StagedEbookUploadStatus.STAGED
+                )
+                repository.save(updated)
+            } else {
+                logger.error { "Upload $uploadId not found during processing" }
+                throw IllegalStateException("Upload $uploadId not found")
+            }
+
+            updateSessionProgress(result)
+
+            return result
+        } catch (e: Exception) {
+            logger.error(e) { "Unhandled error during processing of upload $uploadId" }
+            val existing = repository.findById(uploadId)
+            if (existing != null) {
+                val updated = existing.copy(status = StagedEbookUploadStatus.FAILED)
+                val saved = repository.save(updated)
+                updateSessionProgress(saved)
+                return saved
+            }
+            throw e
         }
+    }
 
-        val metadataJson = objectMapper.writeValueAsString(metadataMap)
-
-
-        val existing = repository.findById(uploadId)
-        val result = if (existing != null) {
-            val updated = existing.copy(
-                metadataJson = metadataJson,
-                status = if (extracted != null) StagedEbookUploadStatus.PARSED else StagedEbookUploadStatus.STAGED
-            )
-            repository.save(updated)
-        } else {
-            logger.error { "Upload $uploadId not found during processing" }
-            throw IllegalStateException("Upload $uploadId not found")
-        }
-
-        // Update session progress if applicable
-        result.importSessionId?.let { sessionId ->
+    private fun updateSessionProgress(upload: StagedEbookUpload) {
+        upload.importSessionId?.let { sessionId ->
             try {
                 val sessionUploads = repository.findByImportSessionId(sessionId)
                 val processed = sessionUploads.count { it.status == StagedEbookUploadStatus.PARSED || it.status == StagedEbookUploadStatus.PROMOTED }
@@ -144,8 +161,6 @@ class StagedUploadProcessor(
                 logger.warn { "Failed to update session progress for $sessionId: ${e.message}" }
             }
         }
-
-        return result
     }
 
     private fun findPotentialMatches(extracted: ExtractedEbookMetadata, fileSize: Long, fileName: String): StagedUploadValidation {

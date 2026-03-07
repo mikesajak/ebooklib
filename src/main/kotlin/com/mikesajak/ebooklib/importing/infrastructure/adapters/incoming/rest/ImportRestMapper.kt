@@ -118,4 +118,30 @@ class ImportRestMapper(private val objectMapper: ObjectMapper) {
             }
         )
     }
+
+    fun toResolutionItemResponse(upload: StagedEbookUpload): ResolutionItemResponseDto {
+        return ResolutionItemResponseDto(
+            id = upload.id.toString(),
+            importSessionId = upload.importSessionId?.toString() ?: "",
+            title = upload.fileName,
+            authors = emptyList(),
+            status = when (upload.status) {
+                StagedEbookUploadStatus.PROCESSING -> ResolutionItemStatus.PROCESSING
+                StagedEbookUploadStatus.STAGED -> ResolutionItemStatus.STAGED
+                StagedEbookUploadStatus.FAILED -> ResolutionItemStatus.ERROR
+                else -> ResolutionItemStatus.UNRESOLVED
+            },
+            createdAt = upload.createdAt,
+            updatedAt = upload.createdAt,
+            metadataJson = upload.metadataJson,
+            formats = listOf(
+                ResolutionItemFormatDto(
+                    uploadId = upload.id.toString(),
+                    fileName = upload.fileName,
+                    contentType = upload.contentType,
+                    fileSize = upload.fileSize
+                )
+            )
+        )
+    }
 }

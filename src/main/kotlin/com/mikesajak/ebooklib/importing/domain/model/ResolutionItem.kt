@@ -11,7 +11,9 @@ enum class ResolutionItemStatus {
     UNRESOLVED,
     RESOLVED,
     IGNORED,
-    ERROR
+    ERROR,
+    PROCESSING,
+    STAGED
 }
 
 data class ResolutionItem(
