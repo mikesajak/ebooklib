@@ -14,7 +14,12 @@ import com.mikesajak.ebooklib.book.domain.model.Book
 import com.mikesajak.ebooklib.file.application.ports.outgoing.FileStoragePort
 import com.mikesajak.ebooklib.importing.application.ports.incoming.FinalizeImportCommand
 import com.mikesajak.ebooklib.importing.application.ports.incoming.FinalizeImportUseCase
+import com.mikesajak.ebooklib.importing.application.ports.incoming.ResolutionItemUseCase
 import com.mikesajak.ebooklib.importing.application.ports.outgoing.StagedEbookUploadRepositoryPort
+import com.mikesajak.ebooklib.importing.domain.model.ResolutionItemId
+import com.mikesajak.ebooklib.importing.domain.model.ResolutionItemStatus
+import com.mikesajak.ebooklib.importing.domain.model.StagedEbookUpload
+import com.mikesajak.ebooklib.importing.domain.model.StagedEbookUploadId
 import com.mikesajak.ebooklib.series.application.ports.incoming.GetSeriesUseCase
 import jakarta.transaction.Transactional
 import mu.KotlinLogging
@@ -36,13 +41,14 @@ class FinalizeImportService(
     private val getSeriesUseCase: GetSeriesUseCase,
     private val addEbookFormatUseCase: AddEbookFormatUseCase,
     private val uploadBookCoverUseCase: UploadBookCoverUseCase,
+    private val resolutionItemUseCase: ResolutionItemUseCase,
     private val objectMapper: ObjectMapper
 ) : FinalizeImportUseCase {
 
     override fun finalize(command: FinalizeImportCommand): Book {
         logger.info { "Finalizing import for uploadId: ${command.uploadId}, bookId: ${command.bookId}, skipFormat: ${command.skipFormatLink}" }
 
-        val stagedUpload = stagedRepository.findById(command.uploadId)
+        val mainStagedUpload = stagedRepository.findById(command.uploadId)
             ?: throw IllegalArgumentException("Staged upload not found: ${command.uploadId}")
 
         // 1. Resolve all authors (existing + new)
@@ -55,34 +61,98 @@ class FinalizeImportService(
             createNewBook(command, allAuthors)
         }
 
-        // 3. Promote Ebook File (Only if not skipped)
-        if (!command.skipFormatLink) {
-            val promotedFile = fileStoragePort.moveFile("staged/${stagedUpload.id}", null) 
-            
-            // 4. Link Format to Book
-            val formatType = extractFormatType(stagedUpload.fileName)
-            addEbookFormatUseCase.addFormatFromStorage(book.id!!, promotedFile.id, formatType)
+        // 3. Promote ALL associated formats (if grouped)
+        val allUploads = if (mainStagedUpload.resolutionItemId != null) {
+            stagedRepository.findByResolutionItemId(mainStagedUpload.resolutionItemId)
         } else {
-            logger.info { "Skipping format linking for book ${book.id} as requested (duplicate detected)" }
+            listOf(mainStagedUpload)
         }
 
-        // 5. Handle Cover Promotion
+        logger.info { "Found ${allUploads.size} formats to promote for resolution item ${mainStagedUpload.resolutionItemId}" }
+
+        allUploads.forEach { stagedUpload ->
+            promoteFormat(stagedUpload, book, command.skipFormatLink)
+        }
+
+        // 4. Handle Cover Promotion
         if (command.updateCover) {
-            val metadataMap = stagedUpload.metadataJson?.let {
-                @Suppress("UNCHECKED_CAST")
-                objectMapper.readValue(it, Map::class.java) as Map<String, Any?>
-            }
-            val coverStorageKey = metadataMap?.get("coverStorageKey") as? String
-            if (coverStorageKey != null) {
-                val promotedCover = fileStoragePort.moveFile(coverStorageKey, "covers")
-                uploadBookCoverUseCase.setCoverFromStorage(book.id!!, promotedCover.id)
-            }
+            promoteCover(mainStagedUpload, book)
         }
 
-        // 6. Cleanup Staging Record
-        stagedRepository.delete(command.uploadId)
+        // 5. Cleanup Staging Records
+        allUploads.forEach { stagedRepository.delete(it.id) }
+
+        // 6. Update Resolution Item status
+        mainStagedUpload.resolutionItemId?.let {
+            resolutionItemUseCase.updateStatus(ResolutionItemId(it), ResolutionItemStatus.RESOLVED)
+        }
 
         return getBookUseCase.getBook(book.id!!)
+    }
+
+    private fun promoteFormat(stagedUpload: StagedEbookUpload, book: Book, skipFormatLink: Boolean) {
+        if (skipFormatLink) {
+            logger.info { "Skipping format linking for upload ${stagedUpload.id} as requested" }
+            return
+        }
+
+        try {
+            val sourceKey = "staged/${stagedUpload.id}"
+            // Check if file still in staged (it might have been moved in a previous failed attempt)
+            val stagedMetadata = fileStoragePort.getFileMetadata(sourceKey)
+            
+            val promotedFileId = if (stagedMetadata != null) {
+                fileStoragePort.moveFile(sourceKey, null).id
+            } else {
+                // If not in staged, check if it's already in permanent storage (root)
+                val rootKey = stagedUpload.id.toString()
+                if (fileStoragePort.getFileMetadata(rootKey) != null) {
+                    rootKey
+                } else {
+                    logger.warn { "Staged file ${stagedUpload.id} not found in staged/ or root. Skipping promotion." }
+                    null
+                }
+            }
+
+            if (promotedFileId != null) {
+                val formatType = extractFormatType(stagedUpload.fileName)
+                addEbookFormatUseCase.addFormatFromStorage(book.id!!, promotedFileId, formatType)
+            }
+        } catch (e: Exception) {
+            logger.error(e) { "Failed to promote format ${stagedUpload.id} for book ${book.id}" }
+            // We continue with other formats even if one fails
+        }
+    }
+
+    private fun promoteCover(stagedUpload: StagedEbookUpload, book: Book) {
+        val metadataMap = stagedUpload.metadataJson?.let {
+            @Suppress("UNCHECKED_CAST")
+            try {
+                objectMapper.readValue(it, Map::class.java) as Map<String, Any?>
+            } catch (e: Exception) {
+                null
+            }
+        }
+
+        val coverStorageKey = metadataMap?.get("coverStorageKey") as? String ?: return
+
+        try {
+            if (fileStoragePort.getFileMetadata(coverStorageKey) != null) {
+                val promotedCover = fileStoragePort.moveFile(coverStorageKey, "covers")
+                uploadBookCoverUseCase.setCoverFromStorage(book.id!!, promotedCover.id)
+            } else {
+                // Check if already promoted
+                val fileName = coverStorageKey.substringAfterLast('/')
+                val rootKey = "covers/$fileName"
+                if (fileStoragePort.getFileMetadata(rootKey) != null) {
+                    uploadBookCoverUseCase.setCoverFromStorage(book.id!!, rootKey)
+                } else {
+                    logger.warn { "Staged cover $coverStorageKey not found. Skipping cover promotion." }
+                }
+            }
+        } catch (e: Exception) {
+            logger.error(e) { "Failed to promote cover $coverStorageKey for book ${book.id}" }
+        }
     }
 
     private fun resolveAuthors(command: FinalizeImportCommand): List<Author> {

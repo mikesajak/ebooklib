@@ -106,9 +106,6 @@ const ResolveItemPage = () => {
             });
 
             if (response.ok) {
-                // Update item status to RESOLVED
-                await fetchWithCsrf(`/api/import/items/${itemId}/status?status=RESOLVED`, { method: 'PATCH' });
-                
                 // Go to next unresolved
                 goToNext();
             }

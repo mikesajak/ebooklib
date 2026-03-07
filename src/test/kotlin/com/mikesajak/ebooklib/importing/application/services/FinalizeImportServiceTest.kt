@@ -13,10 +13,9 @@ import com.mikesajak.ebooklib.book.domain.model.BookId
 import com.mikesajak.ebooklib.file.application.ports.outgoing.FileMetadata
 import com.mikesajak.ebooklib.file.application.ports.outgoing.FileStoragePort
 import com.mikesajak.ebooklib.importing.application.ports.incoming.FinalizeImportCommand
+import com.mikesajak.ebooklib.importing.application.ports.incoming.ResolutionItemUseCase
 import com.mikesajak.ebooklib.importing.application.ports.outgoing.StagedEbookUploadRepositoryPort
-import com.mikesajak.ebooklib.importing.domain.model.StagedEbookUpload
-import com.mikesajak.ebooklib.importing.domain.model.StagedEbookUploadId
-import com.mikesajak.ebooklib.importing.domain.model.StagedEbookUploadStatus
+import com.mikesajak.ebooklib.importing.domain.model.*
 import com.mikesajak.ebooklib.series.application.ports.incoming.GetSeriesUseCase
 import io.mockk.every
 import io.mockk.mockk
@@ -39,12 +38,14 @@ class FinalizeImportServiceTest {
     private val getSeriesUseCase = mockk<GetSeriesUseCase>()
     private val addEbookFormatUseCase = mockk<AddEbookFormatUseCase>()
     private val uploadBookCoverUseCase = mockk<UploadBookCoverUseCase>()
+    private val resolutionItemUseCase = mockk<ResolutionItemUseCase>()
     private val objectMapper: ObjectMapper = jacksonObjectMapper()
 
     private val service = FinalizeImportService(
         stagedRepository, fileStoragePort, getBookUseCase, addBookUseCase,
         updateBookUseCase, getAuthorUseCase, saveAuthorUseCase, authorRepository,
-        getSeriesUseCase, addEbookFormatUseCase, uploadBookCoverUseCase, objectMapper
+        getSeriesUseCase, addEbookFormatUseCase, uploadBookCoverUseCase,
+        resolutionItemUseCase, objectMapper
     )
 
     @Test
@@ -52,6 +53,7 @@ class FinalizeImportServiceTest {
         // given
         val uploadId = UUID.randomUUID()
         val authorId = UUID.randomUUID()
+        val resolutionItemId = UUID.randomUUID()
         val stagedUpload = StagedEbookUpload(
             id = StagedEbookUploadId(uploadId),
             fileName = "the-hobbit.epub",
@@ -60,7 +62,8 @@ class FinalizeImportServiceTest {
             metadataJson = "{}",
             status = StagedEbookUploadStatus.PARSED,
             createdAt = Instant.now(),
-            expiryAt = Instant.now().plusSeconds(3600)
+            expiryAt = Instant.now().plusSeconds(3600),
+            resolutionItemId = resolutionItemId
         )
 
         val command = FinalizeImportCommand(
@@ -73,11 +76,14 @@ class FinalizeImportServiceTest {
         val newBook = Book(BookId(UUID.randomUUID()), "The Hobbit", listOf(author), null, null, null, null, null, null)
 
         every { stagedRepository.findById(StagedEbookUploadId(uploadId)) } returns stagedUpload
+        every { stagedRepository.findByResolutionItemId(any()) } returns listOf(stagedUpload)
         every { getAuthorUseCase.getAuthor(AuthorId(authorId)) } returns author
         every { addBookUseCase.addBook(any()) } returns newBook
-        every { fileStoragePort.moveFile(uploadId.toString(), null) } returns FileMetadata("permanent-key", "the-hobbit.epub", "application/epub+zip", 1000L)
+        every { fileStoragePort.getFileMetadata("staged/$uploadId") } returns FileMetadata("staged/$uploadId", "the-hobbit.epub", "application/epub+zip", 1000L)
+        every { fileStoragePort.moveFile("staged/$uploadId", null) } returns FileMetadata("permanent-key", "the-hobbit.epub", "application/epub+zip", 1000L)
         every { addEbookFormatUseCase.addFormatFromStorage(newBook.id!!, "permanent-key", "EPUB") } returns mockk()
         every { stagedRepository.delete(StagedEbookUploadId(uploadId)) } returns Unit
+        every { resolutionItemUseCase.updateStatus(any(), any()) } returns mockk()
         every { getBookUseCase.getBook(newBook.id!!) } returns newBook
 
         // when
@@ -85,8 +91,9 @@ class FinalizeImportServiceTest {
 
         // then
         assertThat(result).isEqualTo(newBook)
+        verify { resolutionItemUseCase.updateStatus(ResolutionItemId(resolutionItemId), ResolutionItemStatus.RESOLVED) }
         verify { addBookUseCase.addBook(match { it.title == "The Hobbit" }) }
-        verify { fileStoragePort.moveFile(uploadId.toString(), null) }
+        verify { fileStoragePort.moveFile("staged/$uploadId", null) }
         verify { addEbookFormatUseCase.addFormatFromStorage(newBook.id!!, "permanent-key", "EPUB") }
         verify { stagedRepository.delete(StagedEbookUploadId(uploadId)) }
     }
@@ -97,6 +104,7 @@ class FinalizeImportServiceTest {
         val uploadId = UUID.randomUUID()
         val bookId = UUID.randomUUID()
         val authorId = UUID.randomUUID()
+        val resolutionItemId = UUID.randomUUID()
         val stagedUpload = StagedEbookUpload(
             id = StagedEbookUploadId(uploadId),
             fileName = "the-hobbit.epub",
@@ -105,7 +113,8 @@ class FinalizeImportServiceTest {
             metadataJson = "{}",
             status = StagedEbookUploadStatus.PARSED,
             createdAt = Instant.now(),
-            expiryAt = Instant.now().plusSeconds(3600)
+            expiryAt = Instant.now().plusSeconds(3600),
+            resolutionItemId = resolutionItemId
         )
 
         val command = FinalizeImportCommand(
@@ -120,12 +129,15 @@ class FinalizeImportServiceTest {
         val updatedBook = existingBook.copy(title = "The Hobbit (Updated)")
 
         every { stagedRepository.findById(StagedEbookUploadId(uploadId)) } returns stagedUpload
+        every { stagedRepository.findByResolutionItemId(any()) } returns listOf(stagedUpload)
         every { getBookUseCase.getBook(BookId(bookId)) } returns existingBook
         every { getAuthorUseCase.getAuthor(AuthorId(authorId)) } returns author
         every { updateBookUseCase.updateBook(any()) } returns updatedBook
-        every { fileStoragePort.moveFile(uploadId.toString(), null) } returns FileMetadata("permanent-key", "the-hobbit.epub", "application/epub+zip", 1000L)
+        every { fileStoragePort.getFileMetadata("staged/$uploadId") } returns FileMetadata("staged/$uploadId", "the-hobbit.epub", "application/epub+zip", 1000L)
+        every { fileStoragePort.moveFile("staged/$uploadId", null) } returns FileMetadata("permanent-key", "the-hobbit.epub", "application/epub+zip", 1000L)
         every { addEbookFormatUseCase.addFormatFromStorage(BookId(bookId), "permanent-key", "EPUB") } returns mockk()
         every { stagedRepository.delete(StagedEbookUploadId(uploadId)) } returns Unit
+        every { resolutionItemUseCase.updateStatus(any(), any()) } returns mockk()
         every { getBookUseCase.getBook(BookId(bookId)) } returns updatedBook
 
         // when
@@ -133,7 +145,9 @@ class FinalizeImportServiceTest {
 
         // then
         assertThat(result.title).isEqualTo("The Hobbit (Updated)")
+        verify { resolutionItemUseCase.updateStatus(ResolutionItemId(resolutionItemId), ResolutionItemStatus.RESOLVED) }
         verify { updateBookUseCase.updateBook(match { it.title == "The Hobbit (Updated)" }) }
+        verify { fileStoragePort.moveFile("staged/$uploadId", null) }
         verify { stagedRepository.delete(StagedEbookUploadId(uploadId)) }
     }
 }
