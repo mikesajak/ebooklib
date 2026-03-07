@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { FaSpinner, FaCheck, FaExclamationTriangle, FaFilter, FaSyncAlt, FaArrowLeft, FaBan, FaInfoCircle, FaMagic, FaTrash } from 'react-icons/fa';
+import { FaSpinner, FaCheck, FaExclamationTriangle, FaFilter, FaSyncAlt, FaArrowLeft, FaBan, FaInfoCircle, FaMagic, FaTrash, FaHourglassHalf } from 'react-icons/fa';
 
 const ImportSummaryDashboard = () => {
     const { id: sessionId } = useParams();
@@ -11,7 +11,7 @@ const ImportSummaryDashboard = () => {
     const [items, setItems] = useState([]);
     const [loading, setLoading] = useState(true);
     const [isProcessing, setIsProcessing] = useState(false);
-    const [filter, setFilter] = useState('ALL'); // ALL, UNRESOLVED, RESOLVED, IGNORED, ERROR
+    const [filter, setFilter] = useState('ALL'); // ALL, UNRESOLVED, RESOLVED, IGNORED, ERROR, PROCESSING, STAGED
     const [selectedIds, setSelectedIds] = useState([]);
 
     const fetchSession = async () => {
@@ -198,6 +198,8 @@ const ImportSummaryDashboard = () => {
 
     if (loading) return <div className="p-6 text-center"><FaSpinner className="animate-spin text-4xl mx-auto" /></div>;
 
+    const pendingCount = items.filter(i => i.status === 'PROCESSING' || i.status === 'STAGED').length;
+
     return (
         <div className="p-6">
             <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
@@ -236,7 +238,7 @@ const ImportSummaryDashboard = () => {
             </div>
 
             {session && (
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+                <div className="grid grid-cols-1 md:grid-cols-5 gap-6 mb-8">
                     <div className="bg-white p-5 rounded-2xl shadow-md border border-gray-100">
                         <div className="text-[10px] text-gray-400 font-black uppercase tracking-widest mb-1">{t('import.totalFiles', 'Total Files')}</div>
                         <div className="text-3xl font-black text-gray-800">{session.totalFiles}</div>
@@ -250,6 +252,10 @@ const ImportSummaryDashboard = () => {
                     <div className="bg-white p-5 rounded-2xl shadow-md border border-gray-100 border-l-4 border-emerald-500">
                         <div className="text-[10px] text-gray-400 font-black uppercase tracking-widest mb-1">{t('import.processed', 'Processed')}</div>
                         <div className="text-3xl font-black text-emerald-600">{session.processedFiles}</div>
+                    </div>
+                    <div className="bg-white p-5 rounded-2xl shadow-md border border-gray-100 border-l-4 border-amber-500">
+                        <div className="text-[10px] text-gray-400 font-black uppercase tracking-widest mb-1">{t('import.status.pending', 'Pending')}</div>
+                        <div className="text-3xl font-black text-amber-600">{pendingCount}</div>
                     </div>
                     <div className="bg-white p-5 rounded-2xl shadow-md border border-gray-100 border-l-4 border-rose-500">
                         <div className="text-[10px] text-gray-400 font-black uppercase tracking-widest mb-1">{t('import.failed', 'Failed')}</div>
@@ -280,6 +286,7 @@ const ImportSummaryDashboard = () => {
                                     <option value="RESOLVED">{t('import.filters.resolved', 'Resolved')}</option>
                                     <option value="IGNORED">{t('import.filters.ignored', 'Ignored')}</option>
                                     <option value="ERROR">{t('import.filters.error', 'Error')}</option>
+                                    <option value="PROCESSING">{t('import.status.processing', 'Processing')}</option>
                                 </select>
                             </div>
                         </div>
@@ -369,7 +376,9 @@ const ImportSummaryDashboard = () => {
                                     </td>
                                     <td className="px-6 py-4">
                                         <div className="text-sm font-black text-gray-800 tracking-tight">{item.title}</div>
-                                        <div className="text-[10px] font-bold text-gray-400 uppercase tracking-tighter mt-0.5">{item.authors.join(', ')}</div>
+                                        {item.authors?.length > 0 && (
+                                            <div className="text-[10px] font-bold text-gray-400 uppercase tracking-tighter mt-0.5">{item.authors.join(', ')}</div>
+                                        )}
                                     </td>
                                     <td className="px-6 py-4">
                                         <div className="flex flex-wrap gap-1">
@@ -385,6 +394,12 @@ const ImportSummaryDashboard = () => {
                                         {item.status === 'RESOLVED' && <span className="px-3 py-1 inline-flex text-[10px] leading-5 font-black rounded-full bg-emerald-50 text-emerald-600 uppercase tracking-tighter border border-emerald-100">{t('import.status.resolved')}</span>}
                                         {item.status === 'IGNORED' && <span className="px-3 py-1 inline-flex text-[10px] leading-5 font-black rounded-full bg-gray-100 text-gray-600 uppercase tracking-tighter border border-gray-200">{t('import.status.ignored')}</span>}
                                         {item.status === 'ERROR' && <span className="px-3 py-1 inline-flex text-[10px] leading-5 font-black rounded-full bg-rose-50 text-rose-600 uppercase tracking-tighter border border-rose-100">{t('import.status.error')}</span>}
+                                        {item.status === 'PROCESSING' && (
+                                            <span className="px-3 py-1 inline-flex text-[10px] leading-5 font-black rounded-full bg-indigo-50 text-indigo-600 uppercase tracking-tighter border border-indigo-100 gap-2 items-center">
+                                                <FaHourglassHalf className="animate-spin-slow" /> {t('import.status.processing')}
+                                            </span>
+                                        )}
+                                        {item.status === 'STAGED' && <span className="px-3 py-1 inline-flex text-[10px] leading-5 font-black rounded-full bg-blue-50 text-blue-600 uppercase tracking-tighter border border-blue-100">{t('import.status.staged')}</span>}
                                     </td>
                                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                         <div className="flex justify-end gap-2 transition-all">

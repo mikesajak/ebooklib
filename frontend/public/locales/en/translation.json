@@ -284,6 +284,7 @@
       "uploading": "Uploading...",
       "processing": "Processing...",
       "parsed": "Parsed",
+      "staged": "Staged",
       "failed": "Failed",
       "unresolved": "Unresolved",
       "resolved": "Resolved",

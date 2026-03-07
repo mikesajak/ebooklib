@@ -277,6 +277,7 @@
       "uploading": "Przesyłanie...",
       "processing": "Przetwarzanie...",
       "parsed": "Przetworzono",
+      "staged": "Przesłany",
       "failed": "Błąd",
       "unresolved": "Nierozwiązany",
       "resolved": "Rozwiązany",
