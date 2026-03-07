@@ -368,30 +368,51 @@ const ImportPage = () => {
                 )}
             </div>
 
-            <div className="bg-white shadow rounded-lg overflow-hidden">
-                <table className="min-w-full divide-y divide-gray-200">
-                    <thead className="bg-gray-50">
-                        <tr>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t('import.table.fileName', 'File Name')}</th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t('import.table.status', 'Status')}</th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t('import.table.details', 'Details')}</th>
-                            <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">{t('import.table.actions', 'Actions')}</th>
-                        </tr>
-                    </thead>
-                    <tbody className="bg-white divide-y divide-gray-200">
-                        {files.map(file => {
-                            const upload = uploads[file.name] || {};
-                            return (
-                                <tr key={file.name}>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{file.name}</td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                        {upload.status === 'PENDING' && <span className="text-gray-500">{t('import.status.pending', 'Pending')}</span>}
-                                        {upload.status === 'UPLOADING' && <span className="text-blue-500 flex items-center"><FaSpinner className="animate-spin mr-2" /> {t('import.status.uploading', 'Uploading...')}</span>}
-                                        {upload.status === 'PROCESSING' && <span className="text-orange-500 flex items-center"><FaSpinner className="animate-spin mr-2" /> {t('import.status.processing', 'Processing...')}</span>}
-                                        {upload.status === 'PARSED' && <span className="text-green-500 flex items-center"><FaCheck className="mr-2" /> {t('import.status.parsed', 'Parsed')}</span>}
-                                        {upload.status === 'FAILED' && <span className="text-red-500 flex items-center"><FaExclamationTriangle className="mr-2" /> {t('import.status.failed', 'Failed')}</span>}
-                                    </td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+            <div className="bg-white shadow-xl rounded-2xl overflow-hidden border border-gray-100">
+                <div className="overflow-x-auto">
+                    <table className="min-w-full divide-y divide-gray-200">
+                        <thead className="bg-gray-50/50">
+                            <tr className="text-gray-500 uppercase text-[10px] font-black tracking-widest border-b border-gray-200">
+                                <th className="px-6 py-4 text-left">{t('import.table.fileName', 'File Name')}</th>
+                                <th className="px-6 py-4 text-left">{t('import.table.status', 'Status')}</th>
+                                <th className="px-6 py-4 text-left">{t('import.table.details', 'Details')}</th>
+                                <th className="px-6 py-4 text-right">{t('import.table.actions', 'Actions')}</th>
+                            </tr>
+                        </thead>
+                        <tbody className="bg-white divide-y divide-gray-100">
+                            {files.map(file => {
+                                const upload = uploads[file.name] || {};
+                                return (
+                                    <tr key={file.name} className="group hover:bg-indigo-50/30 transition-all duration-200">
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-700">{file.name}</td>
+                                        <td className="px-6 py-4 whitespace-nowrap">
+                                            {upload.status === 'PENDING' && (
+                                                <span className="px-3 py-1 inline-flex text-[10px] leading-5 font-black rounded-full bg-gray-100 text-gray-600 uppercase tracking-tighter border border-gray-200">
+                                                    {t('import.status.pending', 'Pending')}
+                                                </span>
+                                            )}
+                                            {upload.status === 'UPLOADING' && (
+                                                <span className="px-3 py-1 inline-flex text-[10px] leading-5 font-black rounded-full bg-indigo-50 text-indigo-600 uppercase tracking-tighter border border-indigo-100 animate-pulse">
+                                                    <FaSpinner className="animate-spin mr-1.5" /> {t('import.status.uploading', 'Uploading...')}
+                                                </span>
+                                            )}
+                                            {upload.status === 'PROCESSING' && (
+                                                <span className="px-3 py-1 inline-flex text-[10px] leading-5 font-black rounded-full bg-amber-50 text-amber-600 uppercase tracking-tighter border border-amber-100 animate-pulse">
+                                                    <FaSpinner className="animate-spin mr-1.5" /> {t('import.status.processing', 'Processing...')}
+                                                </span>
+                                            )}
+                                            {upload.status === 'PARSED' && (
+                                                <span className="px-3 py-1 inline-flex text-[10px] leading-5 font-black rounded-full bg-emerald-50 text-emerald-600 uppercase tracking-tighter border border-emerald-100">
+                                                    <FaCheck className="mr-1.5" /> {t('import.status.parsed', 'Parsed')}
+                                                </span>
+                                            )}
+                                            {upload.status === 'FAILED' && (
+                                                <span className="px-3 py-1 inline-flex text-[10px] leading-5 font-black rounded-full bg-rose-50 text-rose-600 uppercase tracking-tighter border border-rose-100">
+                                                    <FaExclamationTriangle className="mr-1.5" /> {t('import.status.failed', 'Failed')}
+                                                </span>
+                                            )}
+                                        </td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                         {upload.data?.metadata?.title && (
                                             <div>
                                                 <div className="font-bold">{upload.data.metadata.title}</div>

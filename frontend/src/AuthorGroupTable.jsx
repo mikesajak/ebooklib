@@ -10,22 +10,24 @@ const AuthorGroupTable = ({ authors, openConfirmDialog }) => {
     <div className="bg-white overflow-hidden">
       <table className="min-w-full table-auto">
         <thead>
-          <tr className="bg-gray-50 border-b border-gray-200 text-gray-600 uppercase text-[10px] font-black tracking-widest">
+          <tr className="bg-gray-50/50 border-b border-gray-200 text-gray-500 uppercase text-[10px] font-black tracking-widest">
             <th className="py-4 px-6 text-left w-1/2">{t('authorList.header.name')}</th>
             <th className="py-4 px-6 text-left w-1/4">{t('authorList.header.bookCount')}</th>
             <th className="py-4 px-6 text-center w-1/4">{t('common.actions')}</th>
           </tr>
         </thead>
-        <tbody className="divide-y divide-gray-100">
+        <tbody className="divide-y divide-gray-100 bg-white">
           {authors.map((author) => (
-            <tr key={author.id} className="hover:bg-emerald-50/50 transition-colors group">
+            <tr key={author.id} className="group hover:bg-indigo-50/30 transition-all duration-200">
               <td className="py-4 px-6 text-left whitespace-nowrap w-1/2">
-                <Link to={`/author/${author.id}`} className="author-link group-hover:text-emerald-700">
+                <Link to={`/author/${author.id}`} className="author-link group-hover:text-indigo-700 font-bold text-gray-700">
                   {author.firstName} {author.lastName}
                 </Link>
               </td>
               <td className="py-4 px-6 text-left w-1/4 text-sm text-gray-600 font-medium">
-                <span className="bg-gray-100 px-2 py-0.5 rounded-full border border-gray-200">{author.bookCount}</span>
+                <span className="bg-gray-100 px-3 py-1 rounded-full border border-gray-200 text-[10px] font-black">
+                  {author.bookCount}
+                </span>
               </td>
               <td className="py-4 px-6 text-center whitespace-nowrap w-1/4">
                 <div className="flex justify-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -43,7 +45,8 @@ const AuthorGroupTable = ({ authors, openConfirmDialog }) => {
                   >
                     <FaTrash size={16} />
                   </button>
-                </div>              </td>
+                </div>
+              </td>
             </tr>
           ))}
         </tbody>

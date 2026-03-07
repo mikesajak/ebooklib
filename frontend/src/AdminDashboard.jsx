@@ -70,7 +70,7 @@ const AdminDashboard = () => {
             <span className="text-xs font-black uppercase tracking-[0.3em]">{t('admin.dashboard')}</span>
           </div>
           <h1 className="text-4xl font-black text-gray-800 tracking-tighter">
-            System <span className="text-indigo-600">Oversight</span>
+            {t('admin.maintenance.system', 'System')} <span className="text-indigo-600">{t('admin.oversight', 'Oversight')}</span>
           </h1>
         </div>
       </div>
@@ -87,14 +87,14 @@ const AdminDashboard = () => {
           title={t('admin.stats.authors')} 
           value={stats?.authorCount || 0} 
           icon={FaUsers} 
-          colorClass="bg-emerald-500" 
+          colorClass="bg-indigo-500" 
           delay="animate-fade-in [animation-delay:100ms]"
         />
         <StatCard 
           title={t('admin.stats.series')} 
           value={stats?.seriesCount || 0} 
           icon={FaLayerGroup} 
-          colorClass="bg-amber-500" 
+          colorClass="bg-indigo-500" 
           delay="animate-fade-in [animation-delay:200ms]"
         />
         <StatCard 

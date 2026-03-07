@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate, Link, useLocation } from 'react-router-dom';
 import { FaBook, FaPlus, FaEdit, FaTrash } from 'react-icons/fa';
 import Notification from './Notification';
@@ -173,8 +173,8 @@ const BookTable = () => {
       <div className="bg-white shadow-xl rounded-2xl overflow-hidden border border-gray-100">
         <div className="overflow-x-auto">
           <table className="min-w-full table-auto">
-            <thead>
-              <tr className="bg-gray-50 border-b border-gray-200 text-gray-600 uppercase text-[10px] font-black tracking-widest">
+            <thead className="bg-gray-50/50 border-b border-gray-200">
+              <tr className="text-gray-500 uppercase text-[10px] font-black tracking-widest">
                 <th className="py-4 px-6 text-left cursor-pointer hover:text-indigo-600 transition-colors" onClick={() => handleSort('title')}>
                   {t('bookTable.header.title')}{getSortIndicator('title')}
                 </th>
@@ -186,16 +186,16 @@ const BookTable = () => {
                   {t('bookTable.header.volume')}{getSortIndicator('volume')}
                 </th>
                 <th className="py-4 px-6 text-left cursor-pointer hover:text-indigo-600 transition-colors" onClick={() => handleSort('publicationDate')}>
-                  Publication Date{getSortIndicator('publicationDate')}
+                  {t('bookTable.header.publicationDate', 'Publication Date')}{getSortIndicator('publicationDate')}
                 </th>
                 <th className="py-4 px-6 text-left cursor-pointer hover:text-indigo-600 transition-colors" onClick={() => handleSort('publisher')}>
-                  Publisher{getSortIndicator('publisher')}
+                  {t('bookTable.header.publisher', 'Publisher')}{getSortIndicator('publisher')}
                 </th>
                 <th className="py-4 px-6 text-left">{t('bookTable.header.labels')}</th>
                 <th className="py-4 px-6 text-center">{t('bookTable.header.actions')}</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-100">
+            <tbody className="divide-y divide-gray-100 bg-white">
               {loading ? (
                 <tr>
                   <td colSpan="8" className="px-6 py-12 whitespace-nowrap text-center text-sm text-gray-400 italic">
@@ -211,7 +211,7 @@ const BookTable = () => {
                 </tr>
               ) : (
                 books.map((book) => (
-                  <tr key={book.id} className="hover:bg-indigo-50/50 transition-colors group">
+                  <tr key={book.id} className="group hover:bg-indigo-50/30 transition-all duration-200">
                     <td className="py-4 px-6 text-left">
                       <Link to={`/book/${book.id}`} className="book-link group-hover:text-indigo-700">
                         {book.title}
@@ -281,7 +281,7 @@ const BookTable = () => {
           />
         )}
 
-        <div className="bg-gray-50 border-t border-gray-100 p-4">
+        <div className="bg-gray-50/50 border-t border-gray-100 p-4">
           <Pagination
             page={page}
             size={size}

@@ -202,12 +202,12 @@ const ImportSummaryDashboard = () => {
         <div className="p-6">
             <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
                 <div className="flex items-center gap-4">
-                    <button onClick={() => navigate('/import')} className="text-gray-600 hover:text-gray-900">
+                    <button onClick={() => navigate('/import')} className="p-3 bg-white text-gray-400 hover:text-gray-600 border border-gray-200 rounded-xl transition-all shadow-sm">
                         <FaArrowLeft size={20} />
                     </button>
                     <div>
-                        <h1 className="text-2xl font-bold">{t('import.dashboardTitle', 'Import Session Dashboard')}</h1>
-                        <p className="text-xs text-gray-500 font-mono">{sessionId}</p>
+                        <h1 className="text-2xl font-black text-gray-900 tracking-tight">{t('import.dashboardTitle', 'Import Session Dashboard')}</h1>
+                        <p className="text-[10px] text-indigo-400 font-black uppercase tracking-widest mt-0.5">{sessionId}</p>
                     </div>
                 </div>
 
@@ -236,188 +236,200 @@ const ImportSummaryDashboard = () => {
             </div>
 
             {session && (
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-                    <div className="bg-white p-4 rounded-lg shadow">
-                        <div className="text-sm text-gray-500 uppercase">{t('import.totalFiles', 'Total Files')}</div>
-                        <div className="text-2xl font-bold">{session.totalFiles}</div>
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+                    <div className="bg-white p-5 rounded-2xl shadow-md border border-gray-100">
+                        <div className="text-[10px] text-gray-400 font-black uppercase tracking-widest mb-1">{t('import.totalFiles', 'Total Files')}</div>
+                        <div className="text-3xl font-black text-gray-800">{session.totalFiles}</div>
                     </div>
-                    <div className="bg-white p-4 rounded-lg shadow border-l-4 border-blue-500">
-                        <div className="text-sm text-gray-500 uppercase">{t('import.statusLabel', 'Session Status')}</div>
-                        <div className="text-xl font-semibold text-blue-600">
+                    <div className="bg-white p-5 rounded-2xl shadow-md border border-gray-100 border-l-4 border-indigo-500">
+                        <div className="text-[10px] text-gray-400 font-black uppercase tracking-widest mb-1">{t('import.statusLabel', 'Session Status')}</div>
+                        <div className="text-xl font-black text-indigo-600 uppercase">
                             {t(`import.status.${session.status.toLowerCase()}`, session.status)}
                         </div>
                     </div>
-                    <div className="bg-white p-4 rounded-lg shadow border-l-4 border-green-500">
-                        <div className="text-sm text-gray-500 uppercase">{t('import.processed', 'Processed')}</div>
-                        <div className="text-2xl font-bold text-green-600">{session.processedFiles}</div>
+                    <div className="bg-white p-5 rounded-2xl shadow-md border border-gray-100 border-l-4 border-emerald-500">
+                        <div className="text-[10px] text-gray-400 font-black uppercase tracking-widest mb-1">{t('import.processed', 'Processed')}</div>
+                        <div className="text-3xl font-black text-emerald-600">{session.processedFiles}</div>
                     </div>
-                    <div className="bg-white p-4 rounded-lg shadow border-l-4 border-red-500">
-                        <div className="text-sm text-gray-500 uppercase">{t('import.failed', 'Failed')}</div>
-                        <div className="text-2xl font-bold text-red-600">{session.failedFiles}</div>
+                    <div className="bg-white p-5 rounded-2xl shadow-md border border-gray-100 border-l-4 border-rose-500">
+                        <div className="text-[10px] text-gray-400 font-black uppercase tracking-widest mb-1">{t('import.failed', 'Failed')}</div>
+                        <div className="text-3xl font-black text-rose-600">{session.failedFiles}</div>
                     </div>
                 </div>
             )}
 
-            <div className="bg-white shadow rounded-lg overflow-hidden">
-                <div className="p-4 border-b flex flex-wrap justify-between items-center gap-4">
-                    <div className="flex items-center gap-4">
-                        <div className="flex items-center gap-2">
-                            <FaFilter className="text-gray-400" />
-                            <select 
-                                value={filter} 
-                                onChange={(e) => { setFilter(e.target.value); setSelectedIds([]); }}
-                                className="border rounded px-2 py-1 text-sm focus:ring-blue-500 focus:border-blue-500"
-                            >
-                                <option value="ALL">{t('import.filters.all', 'All Items')}</option>
-                                <option value="UNRESOLVED">{t('import.filters.unresolved', 'Unresolved')}</option>
-                                <option value="RESOLVED">{t('import.filters.resolved', 'Resolved')}</option>
-                                <option value="IGNORED">{t('import.filters.ignored', 'Ignored')}</option>
-                                <option value="ERROR">{t('import.filters.error', 'Error')}</option>
-                            </select>
+            <div className="bg-white shadow-xl rounded-2xl overflow-hidden border border-gray-100">
+                <div className="p-6 border-b border-gray-100 bg-gray-50/30 flex flex-wrap justify-between items-center gap-4">
+                    <div className="flex flex-wrap items-center gap-4">
+                        <div className="flex items-center gap-3">
+                            <input 
+                                type="checkbox" 
+                                className="w-5 h-5 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500 transition-all cursor-pointer shadow-sm"
+                                checked={selectedIds.length === filteredItems.length && filteredItems.length > 0}
+                                onChange={toggleSelectAll}
+                            />
+                            <div className="flex items-center gap-2">
+                                <FaFilter className="text-gray-400" size={12} />
+                                <select 
+                                    value={filter} 
+                                    onChange={(e) => { setFilter(e.target.value); setSelectedIds([]); }}
+                                    className="bg-white border border-gray-200 rounded-lg px-3 py-1.5 text-[10px] font-black uppercase tracking-widest focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all cursor-pointer shadow-sm"
+                                >
+                                    <option value="ALL">{t('import.filters.all', 'All Items')}</option>
+                                    <option value="UNRESOLVED">{t('import.filters.unresolved', 'Unresolved')}</option>
+                                    <option value="RESOLVED">{t('import.filters.resolved', 'Resolved')}</option>
+                                    <option value="IGNORED">{t('import.filters.ignored', 'Ignored')}</option>
+                                    <option value="ERROR">{t('import.filters.error', 'Error')}</option>
+                                </select>
+                            </div>
                         </div>
 
                         {selectedIds.length > 0 && (
-                            <div className="flex items-center gap-2 border-l pl-4">
-                                <span className="text-sm font-medium text-gray-700">
+                            <div className="flex items-center gap-3 border-l border-gray-200 pl-4 animate-fade-in">
+                                <span className="text-[10px] font-black text-indigo-600 uppercase tracking-widest bg-indigo-50 px-2 py-1 rounded-md">
                                     {t('common.selectedCount', '{{count}} selected', { count: selectedIds.length })}
                                 </span>
-                                <button 
-                                    onClick={() => bulkUpdateStatus('IGNORED')}
-                                    className="bg-gray-100 text-gray-700 px-3 py-1 rounded text-sm hover:bg-gray-200"
-                                >
-                                    {t('import.actions.ignoreSelected', 'Ignore Selected')}
-                                </button>
-                                <button 
-                                    onClick={() => bulkUpdateStatus('UNRESOLVED')}
-                                    className="bg-gray-100 text-gray-700 px-3 py-1 rounded text-sm hover:bg-gray-200"
-                                >
-                                    {t('import.actions.restoreSelected', 'Restore Selected')}
-                                </button>
-                                
-                                <div className="relative group">
+                                <div className="flex gap-2">
                                     <button 
-                                        className="bg-purple-100 text-purple-700 px-3 py-1 rounded text-sm hover:bg-purple-200 font-bold flex items-center gap-1"
+                                        onClick={() => bulkUpdateStatus('IGNORED')}
+                                        className="bg-white text-gray-500 border border-gray-200 px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-tighter hover:bg-rose-50 hover:text-rose-600 hover:border-rose-100 transition-all shadow-sm"
+                                    >
+                                        {t('import.actions.ignoreSelected', 'Ignore Selected')}
+                                    </button>
+                                    <button 
+                                        onClick={() => bulkUpdateStatus('UNRESOLVED')}
+                                        className="bg-white text-gray-500 border border-gray-200 px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-tighter hover:bg-emerald-50 hover:text-emerald-600 hover:border-emerald-100 transition-all shadow-sm"
+                                    >
+                                        {t('import.actions.restoreSelected', 'Restore Selected')}
+                                    </button>
+                                </div>
+                                
+                                <div className="relative group border-l border-gray-200 pl-4">
+                                    <button 
+                                        className="bg-purple-50 text-purple-600 border border-purple-100 px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-tighter hover:bg-purple-100 transition-all shadow-sm flex items-center gap-1"
                                         disabled={isProcessing}
                                     >
                                         <FaMagic className={isProcessing ? "animate-spin" : ""} /> {t('import.autoResolveSelected')}
                                     </button>
-                                    <div className="absolute left-0 mt-1 w-48 bg-white border border-gray-200 rounded-lg shadow-xl hidden group-hover:block z-50 overflow-hidden">
-                                        <button onClick={() => handleAutoResolve('TRUST_INCOMING')} className="w-full text-left px-4 py-2 text-sm hover:bg-purple-50 transition-colors">{t('import.strategies.trustIncoming')}</button>
-                                        <button onClick={() => handleAutoResolve('TRUST_EXISTING')} className="w-full text-left px-4 py-2 text-sm hover:bg-purple-50 transition-colors">{t('import.strategies.trustExisting')}</button>
-                                        <button onClick={() => handleAutoResolve('NEW_ONLY')} className="w-full text-left px-4 py-2 text-sm hover:bg-purple-50 transition-colors">{t('import.strategies.newOnly')}</button>
+                                    <div className="absolute left-0 mt-1 w-48 bg-white border border-gray-200 rounded-xl shadow-xl hidden group-hover:block z-50 overflow-hidden ring-4 ring-black/5">
+                                        <button onClick={() => handleAutoResolve('TRUST_INCOMING')} className="w-full text-left px-4 py-2 text-[10px] font-black uppercase tracking-widest hover:bg-purple-50 hover:text-purple-700 transition-colors border-b border-gray-50">{t('import.strategies.trustIncoming')}</button>
+                                        <button onClick={() => handleAutoResolve('TRUST_EXISTING')} className="w-full text-left px-4 py-2 text-[10px] font-black uppercase tracking-widest hover:bg-purple-50 hover:text-purple-700 transition-colors border-b border-gray-50">{t('import.strategies.trustExisting')}</button>
+                                        <button onClick={() => handleAutoResolve('NEW_ONLY')} className="w-full text-left px-4 py-2 text-[10px] font-black uppercase tracking-widest hover:bg-purple-50 hover:text-purple-700 transition-colors">{t('import.strategies.newOnly')}</button>
                                     </div>
                                 </div>
                             </div>
                         )}
 
                         {selectedIds.length === 0 && items.some(i => i.status === 'UNRESOLVED') && (
-                            <div className="relative group border-l pl-4">
+                            <div className="relative group border-l border-gray-200 pl-4">
                                 <button 
-                                    className="text-purple-600 px-3 py-1 rounded text-sm hover:bg-purple-50 font-bold flex items-center gap-1 border border-purple-200"
+                                    className="bg-purple-50 text-purple-600 border border-purple-100 px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-tighter hover:bg-purple-100 transition-all shadow-sm flex items-center gap-1"
                                     disabled={isProcessing}
                                 >
                                     <FaMagic className={isProcessing ? "animate-spin" : ""} /> {t('import.autoResolveAll')}
                                 </button>
-                                <div className="absolute left-0 mt-1 w-48 bg-white border border-gray-200 rounded-lg shadow-xl hidden group-hover:block z-50 overflow-hidden">
-                                    <button onClick={() => handleAutoResolve('TRUST_INCOMING')} className="w-full text-left px-4 py-2 text-sm hover:bg-purple-50 transition-colors">{t('import.strategies.trustIncoming')}</button>
-                                    <button onClick={() => handleAutoResolve('TRUST_EXISTING')} className="w-full text-left px-4 py-2 text-sm hover:bg-purple-50 transition-colors">{t('import.strategies.trustExisting')}</button>
-                                    <button onClick={() => handleAutoResolve('NEW_ONLY')} className="w-full text-left px-4 py-2 text-sm hover:bg-purple-50 transition-colors">{t('import.strategies.newOnly')}</button>
+                                <div className="absolute left-0 mt-1 w-48 bg-white border border-gray-200 rounded-xl shadow-xl hidden group-hover:block z-50 overflow-hidden ring-4 ring-black/5">
+                                    <button onClick={() => handleAutoResolve('TRUST_INCOMING')} className="w-full text-left px-4 py-2 text-[10px] font-black uppercase tracking-widest hover:bg-purple-50 hover:text-purple-700 transition-colors border-b border-gray-50">{t('import.strategies.trustIncoming')}</button>
+                                    <button onClick={() => handleAutoResolve('TRUST_EXISTING')} className="w-full text-left px-4 py-2 text-[10px] font-black uppercase tracking-widest hover:bg-purple-50 hover:text-purple-700 transition-colors border-b border-gray-50">{t('import.strategies.trustExisting')}</button>
+                                    <button onClick={() => handleAutoResolve('NEW_ONLY')} className="w-full text-left px-4 py-2 text-[10px] font-black uppercase tracking-widest hover:bg-purple-50 hover:text-purple-700 transition-colors">{t('import.strategies.newOnly')}</button>
                                 </div>
                             </div>
                         )}
                     </div>
                 </div>
 
-                <table className="min-w-full divide-y divide-gray-200">
-                    <thead className="bg-gray-50">
-                        <tr>
-                            <th className="px-6 py-3 text-left w-10">
-                                <input 
-                                    type="checkbox" 
-                                    className="rounded text-blue-600 focus:ring-blue-500"
-                                    checked={filteredItems.length > 0 && selectedIds.length === filteredItems.length}
-                                    onChange={toggleSelectAll}
-                                />
-                            </th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t('import.table.bookDetails', 'Book Details')}</th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t('import.table.formats', 'Formats')}</th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t('import.table.status', 'Status')}</th>
-                            <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">{t('import.table.actions', 'Actions')}</th>
-                        </tr>
-                    </thead>
-                    <tbody className="bg-white divide-y divide-gray-200">
-                        {filteredItems.map(item => (
-                            <tr key={item.id} className={selectedIds.includes(item.id) ? 'bg-blue-50' : ''}>
-                                <td className="px-6 py-4">
+                <div className="overflow-x-auto">
+                    <table className="min-w-full divide-y divide-gray-200">
+                        <thead className="bg-gray-50/50">
+                            <tr className="text-gray-500 uppercase text-[10px] font-black tracking-widest border-b border-gray-200">
+                                <th className="px-6 py-4 text-left w-10">
                                     <input 
                                         type="checkbox" 
-                                        className="rounded text-blue-600 focus:ring-blue-500"
-                                        checked={selectedIds.includes(item.id)}
-                                        onChange={() => toggleSelect(item.id)}
+                                        className="w-5 h-5 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500 transition-all cursor-pointer shadow-sm"
+                                        checked={filteredItems.length > 0 && selectedIds.length === filteredItems.length}
+                                        onChange={toggleSelectAll}
                                     />
-                                </td>
-                                <td className="px-6 py-4">
-                                    <div className="text-sm font-medium text-gray-900">{item.title}</div>
-                                    <div className="text-xs text-gray-500">{item.authors.join(', ')}</div>
-                                </td>
-                                <td className="px-6 py-4">
-                                    <div className="flex flex-wrap gap-1">
-                                        {item.formats.map(f => (
-                                            <span key={f.uploadId} className="px-2 py-0.5 bg-blue-100 text-blue-800 text-xs rounded" title={f.fileName}>
-                                                {f.contentType.split('/').pop().toUpperCase()}
-                                            </span>
-                                        ))}
-                                    </div>
-                                </td>
-                                <td className="px-6 py-4 whitespace-nowrap">
-                                    {item.status === 'UNRESOLVED' && <span className="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">{t('import.status.unresolved', 'Unresolved')}</span>}
-                                    {item.status === 'RESOLVED' && <span className="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">{t('import.status.resolved', 'Resolved')}</span>}
-                                    {item.status === 'IGNORED' && <span className="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800">{t('import.status.ignored', 'Ignored')}</span>}
-                                    {item.status === 'ERROR' && <span className="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">{t('import.status.error', 'Error')}</span>}
-                                </td>
-                                <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                    <div className="flex justify-end gap-2">
-                                        {(item.status === 'UNRESOLVED' || item.status === 'RESOLVED') && (
-                                            <>
-                                                <button 
-                                                    onClick={() => navigate(`/import/resolve/${item.id}`)}
-                                                    className="text-blue-600 hover:text-blue-900 flex items-center gap-1"
-                                                    title={item.status === 'RESOLVED' ? t('import.actions.edit', "Edit Resolution") : t('import.actions.resolve', "Resolve")}
-                                                >
-                                                    <FaInfoCircle /> {item.status === 'RESOLVED' ? t('import.actions.edit', "Edit") : t('import.actions.resolve', "Resolve")}
-                                                </button>
-                                                {item.status === 'UNRESOLVED' && (
+                                </th>
+                                <th className="px-6 py-4 text-left">{t('import.table.bookDetails', 'Book Details')}</th>
+                                <th className="px-6 py-4 text-left">{t('import.table.formats', 'Formats')}</th>
+                                <th className="px-6 py-4 text-left">{t('import.table.status', 'Status')}</th>
+                                <th className="px-6 py-4 text-right">{t('import.table.actions', 'Actions')}</th>
+                            </tr>
+                        </thead>
+                        <tbody className="bg-white divide-y divide-gray-100">
+                            {filteredItems.map(item => (
+                                <tr key={item.id} className={`group hover:bg-indigo-50/30 transition-all duration-200 ${selectedIds.includes(item.id) ? 'bg-indigo-50/50' : ''}`}>
+                                    <td className="px-6 py-4">
+                                        <input 
+                                            type="checkbox" 
+                                            className="w-5 h-5 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500 transition-all cursor-pointer shadow-sm"
+                                            checked={selectedIds.includes(item.id)}
+                                            onChange={() => toggleSelect(item.id)}
+                                        />
+                                    </td>
+                                    <td className="px-6 py-4">
+                                        <div className="text-sm font-black text-gray-800 tracking-tight">{item.title}</div>
+                                        <div className="text-[10px] font-bold text-gray-400 uppercase tracking-tighter mt-0.5">{item.authors.join(', ')}</div>
+                                    </td>
+                                    <td className="px-6 py-4">
+                                        <div className="flex flex-wrap gap-1">
+                                            {item.formats.map(f => (
+                                                <span key={f.uploadId} className="px-2 py-0.5 bg-indigo-50 text-indigo-600 text-[9px] font-black rounded border border-indigo-100 uppercase tracking-tighter" title={f.fileName}>
+                                                    {f.contentType.split('/').pop().toUpperCase()}
+                                                </span>
+                                            ))}
+                                        </div>
+                                    </td>
+                                    <td className="px-6 py-4 whitespace-nowrap">
+                                        {item.status === 'UNRESOLVED' && <span className="px-3 py-1 inline-flex text-[10px] leading-5 font-black rounded-full bg-amber-50 text-amber-600 uppercase tracking-tighter border border-amber-100">{t('import.status.unresolved', 'Unresolved')}</span>}
+                                        {item.status === 'RESOLVED' && <span className="px-3 py-1 inline-flex text-[10px] leading-5 font-black rounded-full bg-emerald-50 text-emerald-600 uppercase tracking-tighter border border-emerald-100">{t('import.status.resolved', 'Resolved')}</span>}
+                                        {item.status === 'IGNORED' && <span className="px-3 py-1 inline-flex text-[10px] leading-5 font-black rounded-full bg-gray-100 text-gray-600 uppercase tracking-tighter border border-gray-200">{t('import.status.ignored', 'Ignored')}</span>}
+                                        {item.status === 'ERROR' && <span className="px-3 py-1 inline-flex text-[10px] leading-5 font-black rounded-full bg-rose-50 text-rose-600 uppercase tracking-tighter border border-rose-100">{t('import.status.error', 'Error')}</span>}
+                                    </td>
+                                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                        <div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                            {(item.status === 'UNRESOLVED' || item.status === 'RESOLVED') && (
+                                                <>
                                                     <button 
-                                                        onClick={() => updateItemStatus(item.id, 'IGNORED')}
-                                                        className="text-gray-600 hover:text-gray-900 flex items-center gap-1"
-                                                        title={t('import.actions.ignore', "Ignore")}
+                                                        onClick={() => navigate(`/import/resolve/${item.id}`)}
+                                                        className="p-2.5 text-indigo-600 hover:bg-indigo-50 rounded-xl transition-all"
+                                                        title={item.status === 'RESOLVED' ? t('import.actions.edit', "Edit Resolution") : t('import.actions.resolve', "Resolve")}
                                                     >
-                                                        <FaBan /> {t('import.actions.ignore', "Ignore")}
+                                                        <FaInfoCircle size={16} />
                                                     </button>
-                                                )}
-                                            </>
-                                        )}
-                                        {item.status === 'IGNORED' && (
-                                            <button 
-                                                onClick={() => updateItemStatus(item.id, 'UNRESOLVED')}
-                                                className="text-blue-600 hover:text-blue-900"
-                                            >
-                                                {t('import.actions.restore', "Restore")}
-                                            </button>
-                                        )}
-                                    </div>
-                                </td>
-                            </tr>
-                        ))}
-                        {filteredItems.length === 0 && (
-                            <tr>
-                                <td colSpan="5" className="px-6 py-10 text-center text-gray-500 italic">
-                                    {t('common.noItemsFound', 'No items found matching the filter.')}
-                                </td>
-                            </tr>
-                        )}
-                    </tbody>
-                </table>
+                                                    {item.status === 'UNRESOLVED' && (
+                                                        <button 
+                                                            onClick={() => updateItemStatus(item.id, 'IGNORED')}
+                                                            className="p-2.5 text-gray-400 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition-all"
+                                                            title={t('import.actions.ignore', "Ignore")}
+                                                        >
+                                                            <FaBan size={16} />
+                                                        </button>
+                                                    )}
+                                                </>
+                                            )}
+                                            {item.status === 'IGNORED' && (
+                                                <button 
+                                                    onClick={() => updateItemStatus(item.id, 'UNRESOLVED')}
+                                                    className="p-2.5 text-indigo-600 hover:bg-indigo-50 rounded-xl transition-all font-black text-[10px] uppercase tracking-widest"
+                                                >
+                                                    {t('import.actions.restore', "Restore")}
+                                                </button>
+                                            )}
+                                        </div>
+                                    </td>
+                                </tr>
+                            ))}
+                            {filteredItems.length === 0 && (
+                                <tr>
+                                    <td colSpan="5" className="px-6 py-12 text-center text-gray-400 italic text-sm">
+                                        {t('common.noItemsFound', 'No items found matching the filter.')}
+                                    </td>
+                                </tr>
+                            )}
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     );

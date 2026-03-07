@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { FaLayerGroup, FaPlus, FaEdit, FaTrash } from 'react-icons/fa';
 import { useSearch } from './SearchContext';
@@ -89,7 +89,7 @@ const SeriesList = () => {
     <div className="container mx-auto p-4 max-w-7xl">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
         <div className="flex items-center gap-3">
-          <div className="bg-amber-600 text-white p-3 rounded-xl shadow-md">
+          <div className="bg-indigo-600 text-white p-3 rounded-xl shadow-md">
             <FaLayerGroup className="text-xl" />
           </div>
           <div>
@@ -114,19 +114,19 @@ const SeriesList = () => {
         <div className="overflow-x-auto">
           <table className="min-w-full table-auto">
             <thead>
-              <tr className="bg-gray-50 border-b border-gray-200 text-gray-600 uppercase text-[10px] font-black tracking-widest">
-                <th className="py-4 px-6 text-left cursor-pointer hover:text-amber-600 transition-colors" onClick={() => handleSort('title')}>
+              <tr className="bg-gray-50/50 border-b border-gray-200 text-gray-500 uppercase text-[10px] font-black tracking-widest">
+                <th className="py-4 px-6 text-left cursor-pointer hover:text-indigo-600 transition-colors" onClick={() => handleSort('title')}>
                   {t('seriesList.header.title')}{getSortIndicator('title')}
                 </th>
                 <th className="py-4 px-6 text-center">{t('common.actions')}</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-100">
+            <tbody className="divide-y divide-gray-100 bg-white">
               {loading ? (
                 <tr>
                   <td colSpan="2" className="px-6 py-12 whitespace-nowrap text-center text-sm text-gray-400 italic">
                     <div className="flex flex-col items-center gap-2">
-                      <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-amber-600"></div>
+                      <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-indigo-600"></div>
                       {t('seriesList.loading')}
                     </div>
                   </td>
@@ -143,9 +143,9 @@ const SeriesList = () => {
                 </tr>
               ) : (
                 series.map((s) => (
-                  <tr key={s.id} className="hover:bg-amber-50/50 transition-colors group">
+                  <tr key={s.id} className="group hover:bg-indigo-50/30 transition-all duration-200">
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                      <Link to={`/series/${s.id}`} className="series-link group-hover:text-amber-700">
+                      <Link to={`/series/${s.id}`} className="series-link group-hover:text-indigo-700 font-bold text-gray-700">
                         {s.title}
                       </Link>
                     </td>
@@ -174,7 +174,7 @@ const SeriesList = () => {
           </table>
         </div>
 
-        <div className="bg-gray-50 border-t border-gray-100 p-4">
+        <div className="bg-gray-50/50 border-t border-gray-100 p-4">
           <Pagination
             page={page}
             size={size}
@@ -186,7 +186,7 @@ const SeriesList = () => {
               localStorage.setItem('seriesListPageSize', newSize.toString());
               setPage(0); // Reset to first page when page size changes
             }}
-            theme="amber"
+            theme="indigo"
           />
         </div>
       </div>
