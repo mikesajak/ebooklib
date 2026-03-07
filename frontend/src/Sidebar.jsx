@@ -28,9 +28,21 @@ const AdminStatusWidget = () => {
       }
     };
     fetchStats();
+    const interval = setInterval(fetchStats, 60000); // Refresh every minute
+    return () => clearInterval(interval);
   }, []);
 
+  const formatSize = (bytes) => {
+    if (!bytes) return '0 B';
+    const k = 1024;
+    const sizes = ['B', 'KB', 'MB', 'GB', 'TB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
+  };
+
   if (loading && !stats) return null;
+
+  const totalSize = (stats?.totalFormatSize || 0) + (stats?.totalCoverSize || 0);
 
   return (
     <div className="space-y-3">
@@ -47,6 +59,16 @@ const AdminStatusWidget = () => {
         <div className="bg-white p-2 rounded-xl border border-gray-100 shadow-sm">
           <p className="text-[9px] font-bold text-gray-400 uppercase leading-none mb-1">{t('admin.stats.authors')}</p>
           <p className="text-sm font-black text-gray-700 leading-none">{stats?.authorCount || 0}</p>
+        </div>
+      </div>
+
+      <div className="bg-indigo-600 p-2.5 rounded-xl shadow-lg shadow-indigo-100 text-white relative overflow-hidden group">
+        <div className="absolute -right-2 -bottom-2 opacity-10 transform group-hover:scale-110 transition-transform">
+          <FaHdd className="text-4xl" />
+        </div>
+        <div className="relative z-10">
+          <p className="text-[9px] font-black uppercase tracking-widest opacity-80 mb-0.5">{t('admin.stats.totalSize')}</p>
+          <p className="text-base font-black tracking-tight">{formatSize(totalSize)}</p>
         </div>
       </div>
     </div>
@@ -77,12 +99,17 @@ const AppSidebar = ({ collapsed, setCollapsed }) => {
   ];
 
   const adminItems = [
+    { path: '/admin', icon: FaShieldAlt, label: t('admin.dashboard') },
     { path: '/admin/users', icon: FaUserCog, label: t('admin.users.title') },
     { path: '/admin/settings', icon: FaCog, label: t('admin.settings.title') },
     { path: '/admin/maintenance', icon: FaTools, label: t('admin.maintenance.title') },
   ];
 
-  const isActive = (path) => location.pathname === path;
+  const isActive = (path) => {
+    if (path === '/' && location.pathname === '/') return true;
+    if (path !== '/' && location.pathname.startsWith(path)) return true;
+    return false;
+  };
 
   return (
     <Sidebar collapsed={collapsed} backgroundColor="#fff" rootStyles={{ borderRight: '1px solid #f3f4f6', height: '100%' }}>
@@ -117,7 +144,7 @@ const AppSidebar = ({ collapsed, setCollapsed }) => {
           >
             <div className="px-6 py-2">
               <p className={`text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-2 ${collapsed ? 'hidden' : 'block'}`}>
-                Library
+                {t('header.title', 'Library')}
               </p>
             </div>
             {menuItems.map((item) => (
@@ -135,7 +162,7 @@ const AppSidebar = ({ collapsed, setCollapsed }) => {
               <>
                 <div className="px-6 py-6 pb-2">
                   <p className={`text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-2 ${collapsed ? 'hidden' : 'block'}`}>
-                    {t('admin.dashboard')}
+                    {t('admin.oversight', 'Oversight')}
                   </p>
                 </div>
                 {adminItems.map((item) => (

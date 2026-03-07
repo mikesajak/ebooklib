@@ -480,7 +480,7 @@ const AddBook = () => {
           </div>
         </InputCard>
 
-        <SectionHeader icon={FaInfoCircle} title="Cataloging Details" description="Publication and additional cataloging data." />
+        <SectionHeader icon={FaInfoCircle} title={t('addBook.section.cataloging', 'Cataloging Details')} description="Publication and additional cataloging data." />
         <InputCard isDirty={dirtyFields.has('publicationDate') || dirtyFields.has('publisher') || dirtyFields.has('description') || dirtyFields.has('labels')}>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
             <div>

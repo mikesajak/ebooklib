@@ -1,11 +1,15 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useSearch } from './SearchContext';
 
-const SearchBar = ({ scope, queryTransformer, placeholder = "Search..." }) => {
+const SearchBar = ({ scope, queryTransformer, placeholder }) => {
+  const { t } = useTranslation();
   const { searchQuery, triggerSearch, searchHistory, addToHistory } = useSearch(scope);
   const [localQuery, setLocalQuery] = useState(searchQuery);
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);
   const searchBarRef = useRef(null);
+
+  const defaultPlaceholder = placeholder || t('common.searchPlaceholder', 'Search...');
 
   useEffect(() => {
     setLocalQuery(searchQuery);
@@ -69,7 +73,7 @@ const SearchBar = ({ scope, queryTransformer, placeholder = "Search..." }) => {
           onChange={(e) => setLocalQuery(e.target.value)}
           onKeyPress={handleKeyPress}
           onFocus={() => setIsHistoryOpen(true)}
-          placeholder={placeholder}
+          placeholder={defaultPlaceholder}
           className="w-full pl-10 pr-10 py-1 border rounded-l-md focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
         {localQuery && (
@@ -88,7 +92,7 @@ const SearchBar = ({ scope, queryTransformer, placeholder = "Search..." }) => {
                 <li
                   key={index}
                   onClick={() => handleHistoryClick(query)}
-                  className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                  className="px-4 py-2 hover:bg-gray-100 cursor-pointer text-sm font-medium"
                 >
                   {query}
                 </li>
@@ -99,9 +103,9 @@ const SearchBar = ({ scope, queryTransformer, placeholder = "Search..." }) => {
       </div>
       <button
         onClick={handleSearch}
-        className="px-4 py-1 bg-blue-500 text-white rounded-r-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
+        className="px-4 py-1 bg-blue-500 text-white rounded-r-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 font-bold"
       >
-        Search
+        {t('common.search', 'Search')}
       </button>
     </div>
   );

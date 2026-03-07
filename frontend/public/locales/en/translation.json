@@ -129,6 +129,7 @@
       "volumeDisabledTooltip": "Select a series first to enable volume number",
       "metadata": "Metadata",
       "authors": "Authors",
+      "cataloging": "Cataloging Details",
       "covers": "Covers",
       "matching": "Matching",
       "extractedHint": "Form populated from extracted metadata. You can still review and edit below.",
@@ -148,14 +149,24 @@
       "birthDate": "Birth Date",
       "deathDate": "Death Date"
     },
+    "section": {
+      "identity": "Personal Identity",
+      "bio": "Biography & Key Dates"
+    },
     "addSuccess": "Author added successfully!",
     "updateSuccess": "Author updated successfully!",
     "failureMessage": "Failed to create author"
   },
   "addSeries": {
     "title": "Add New Series",
+    "editTitle": "Edit Series",
     "form": {
-      "name": "Name"
+      "name": "Name",
+      "description": "Description"
+    },
+    "section": {
+      "identity": "Series Identity",
+      "description": "Description"
     },
     "successMessage": "Series added successfully!",
     "failureMessage": "Failed to create series"
@@ -483,6 +494,9 @@
     "delete": "Delete",
     "remove": "Remove",
     "download": "Download",
+    "clear": "Clear",
+    "search": "Search",
+    "searchPlaceholder": "Search...",
     "page": "Page",
     "of": "of",
     "total": "total",

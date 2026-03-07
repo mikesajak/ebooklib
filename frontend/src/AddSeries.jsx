@@ -24,9 +24,7 @@ const saveSeries = async (seriesData, isEditMode, seriesId) => {
     try {
       const errorData = await response.json();
       errorMessage = errorData.message || errorMessage;
-    } catch (e) {
-      // ignore if response is not json
-    }
+    } catch (e) {}
     throw new Error(errorMessage);
   }
 
@@ -36,13 +34,10 @@ const saveSeries = async (seriesData, isEditMode, seriesId) => {
 const AddSeries = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const { id } = useParams(); // Get series ID from URL
-  const isEditMode = !!id; // Determine if in edit mode
-  const [series, setSeries] = useState({
-    title: '',
-    description: ''
-  });
-  const [originalSeries, setOriginalSeries] = useState(null); // Store original series data for comparison
+  const { id } = useParams();
+  const isEditMode = !!id;
+  const [series, setSeries] = useState({ title: '', description: '' });
+  const [originalSeries, setOriginalSeries] = useState(null);
   const [loading, setLoading] = useState(true);
   const [dirtyFields, setDirtyFields] = useState(new Set());
 
@@ -57,8 +52,9 @@ const AddSeries = () => {
   const { mutate, isSaving, notification, setNotification } = useMutation(
     (seriesData) => saveSeries(seriesData, isEditMode, id),
     {
-      onSuccess: (savedSeries) => {
-        navigate(`/series/${savedSeries.id}`, { state: { notification: { type: 'success', message: t(isEditMode ? 'addSeries.updateSuccess' : 'addSeries.addSuccess') } } });
+      onSuccess: (data) => {
+        const successMessage = t(isEditMode ? 'addSeries.updateSuccess' : 'addSeries.successMessage');
+        navigate(`/series/${data.id}`, { state: { notification: { type: 'success', message: successMessage } } });
       }
     }
   );
@@ -68,12 +64,10 @@ const AddSeries = () => {
       try {
         setLoading(true);
         const response = await fetchWithCsrf(`/api/series/${id}`);
-        if (!response.ok) {
-          throw new Error('Failed to fetch series details');
-        }
+        if (!response.ok) throw new Error('Failed to fetch series details');
         const data = await response.json();
         setSeries(data);
-        setOriginalSeries(data); // Store original data
+        setOriginalSeries(data);
       } catch (err) {
         setNotification({ type: 'error', message: err.message });
       } finally {
@@ -81,93 +75,70 @@ const AddSeries = () => {
       }
     };
 
-    if (isEditMode) {
-      fetchSeries();
-    } else {
-      setLoading(false); // No need to load if not in edit mode
-    }
+    if (isEditMode) fetchSeries();
+    else setLoading(false);
   }, [id, isEditMode, setNotification]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     markDirty(name);
-    setSeries(prevSeries => ({
-      ...prevSeries,
-      [name]: value
-    }));
+    setSeries(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleSave = () => {
-    mutate(series);
-  };
-
-  const handleCancel = () => {
-    navigate(isEditMode ? `/series/${id}` : '/series');
-  };
-
-  const isFormValid = series.title.trim() !== '';
+  const handleSave = () => mutate(series);
+  const handleCancel = () => navigate(isEditMode ? `/series/${id}` : '/series');
 
   const hasChanges = () => {
     if (!originalSeries || !series) return false;
-
     const normalize = (val) => val || '';
-
     if (normalize(originalSeries.title) !== normalize(series.title)) return true;
     if (normalize(originalSeries.description) !== normalize(series.description)) return true;
-
     return false;
   };
 
-  const isSaveDisabled = !isFormValid || isSaving || (isEditMode && !hasChanges());
+  const isSaveDisabled = !series.title.trim() || isSaving || (isEditMode && !hasChanges());
 
   const SectionHeader = ({ icon: Icon, title, description }) => (
     <div className="mb-4">
-      <div className="flex items-center gap-2 text-amber-900 mb-1">
-        <Icon className="text-amber-500" />
+      <div className="flex items-center gap-2 text-indigo-900 mb-1">
+        <Icon className="text-indigo-500" />
         <h3 className="font-extrabold uppercase text-xs tracking-widest">{title}</h3>
       </div>
-      {description && <p className="text-xs text-gray-500">{description}</p>}
+      {description && <p className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">{description}</p>}
     </div>
   );
 
   const InputCard = ({ children, isDirty }) => (
-    <div className={`p-4 rounded-xl border-2 transition-all shadow-sm mb-6 ${isDirty ? 'bg-yellow-50 border-yellow-200 ring-1 ring-yellow-100' : 'bg-white border-gray-100'}`}>
+    <div className={`p-6 rounded-2xl border-2 transition-all shadow-sm mb-10 ${isDirty ? 'bg-yellow-50 border-yellow-200 ring-4 ring-yellow-50' : 'bg-white border-gray-100'}`}>
       {children}
     </div>
   );
 
-  if (loading) {
-    return (
-      <AddPage title={t(isEditMode ? 'addSeries.editTitle' : 'addSeries.title')} notification={notification} setNotification={setNotification}>
-        <p>{t('common.loading')}</p>
-      </AddPage>
-    );
-  }
+  if (loading) return <AddPage title={t(isEditMode ? 'addSeries.editTitle' : 'addSeries.title')}><p>{t('common.loading')}</p></AddPage>;
 
   return (
     <AddPage title={t(isEditMode ? 'addSeries.editTitle' : 'addSeries.title')} notification={notification} setNotification={setNotification}>
       <Form onSave={handleSave} onCancel={handleCancel} isSaveDisabled={isSaveDisabled}>
         
-        <SectionHeader icon={FaLayerGroup} title="Series Information" description="Basic details for the series." />
-        <InputCard isDirty={dirtyFields.has('title') || dirtyFields.has('description')}>
-          <div className="mb-6">
-            <div className="flex items-center gap-2 mb-2">
-              <label className="block text-gray-700 text-sm font-bold" htmlFor="title">
-                {t('addSeries.form.title')}
-              </label>
-              {dirtyFields.has('title') && <FaPencilAlt className="text-yellow-600 text-[10px]" />}
-            </div>
-            <input type="text" id="title" name="title" value={series.title || ''} onChange={handleChange} className={`shadow-sm appearance-none border rounded-lg w-full py-2.5 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-amber-500 transition-all ${dirtyFields.has('title') ? 'border-yellow-300' : 'border-gray-300'}`} />
+        <SectionHeader icon={FaLayerGroup} title={t('addSeries.section.identity', 'Series Identity')} description="Key information for the book series." />
+        <InputCard isDirty={dirtyFields.has('title')}>
+          <div className="flex items-center gap-2 mb-3">
+            <label className="block text-gray-700 text-xs font-black uppercase tracking-widest" htmlFor="title">
+              {t('addSeries.form.name')}
+            </label>
+            {dirtyFields.has('title') && <FaPencilAlt className="text-yellow-600 text-[10px]" />}
           </div>
+          <input type="text" id="title" name="title" value={series.title} onChange={handleChange} className={`shadow-sm appearance-none border-2 rounded-xl w-full py-3 px-4 text-gray-700 leading-tight font-bold focus:outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all ${dirtyFields.has('title') ? 'border-yellow-300' : 'border-gray-100 bg-gray-50/30'}`} />
+        </InputCard>
 
-          <div>
-            <div className="flex items-center gap-2 mb-2">
-              <label className="block text-gray-700 text-sm font-bold" htmlFor="description">
-                {t('addSeries.form.description')}
-              </label>
+        <SectionHeader icon={FaInfoCircle} title={t('addSeries.section.description', 'Description')} description="Additional context and summary of the series." />
+        <InputCard isDirty={dirtyFields.has('description')}>
+          <div className="mb-2">
+            <div className="flex items-center gap-2 mb-3">
+              <label className="block text-gray-700 text-xs font-black uppercase tracking-widest" htmlFor="description">{t('addSeries.form.description', 'Description')}</label>
               {dirtyFields.has('description') && <FaPencilAlt className="text-yellow-600 text-[10px]" />}
             </div>
-            <textarea id="description" name="description" value={series.description || ''} onChange={handleChange} rows="4" className={`shadow-sm appearance-none border rounded-lg w-full py-2.5 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-amber-500 transition-all ${dirtyFields.has('description') ? 'border-yellow-300' : 'border-gray-300'}`} />
+            <textarea id="description" name="description" value={series.description || ''} onChange={handleChange} rows="6" className={`shadow-sm appearance-none border-2 rounded-2xl w-full py-3 px-4 text-gray-700 leading-tight font-medium focus:outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all ${dirtyFields.has('description') ? 'border-yellow-300' : 'border-gray-100 bg-gray-50/30'}`} />
           </div>
         </InputCard>
       </Form>

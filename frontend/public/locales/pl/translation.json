@@ -128,6 +128,7 @@
       "volumeDisabledTooltip": "Najpierw wybierz serię, aby odblokować numer tomu",
       "metadata": "Metadane",
       "authors": "Autorzy",
+      "cataloging": "Dane Katalogowe",
       "covers": "Okładki",
       "matching": "Dopasowanie",
       "extractedHint": "Formularz wypełniony automatycznie z metadanych pliku. Możesz go zweryfikować i edytować poniżej.",
@@ -147,14 +148,24 @@
       "birthDate": "Data urodzenia",
       "deathDate": "Data śmierci"
     },
+    "section": {
+      "identity": "Tożsamość Autora",
+      "bio": "Biografia i Kluczowe Daty"
+    },
     "addSuccess": "Autor dodany pomyślnie!",
     "updateSuccess": "Autor zaktualizowany pomyślnie!",
     "failureMessage": "Nie udało się utworzyć autora"
   },
   "addSeries": {
     "title": "Dodaj nową serię",
+    "editTitle": "Edytuj Serię",
     "form": {
-      "name": "Nazwa"
+      "name": "Nazwa",
+      "description": "Opis"
+    },
+    "section": {
+      "identity": "Tożsamość Serii",
+      "description": "Opis"
     },
     "successMessage": "Seria dodana pomyślnie!",
     "failureMessage": "Nie udało się utworzyć serii"
@@ -476,6 +487,9 @@
     "delete": "Usuń",
     "remove": "Usuń",
     "download": "Pobierz",
+    "clear": "Wyczyść",
+    "search": "Szukaj",
+    "searchPlaceholder": "Szukaj...",
     "page": "Strona",
     "of": "z",
     "total": "razem",

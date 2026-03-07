@@ -67,7 +67,7 @@ const SearchableDropdown = ({ options, value, onChange, placeholder, label, id }
             type="button"
             onClick={() => onChange('')}
             className="absolute inset-y-0 right-0 px-3 flex items-center text-gray-400 hover:text-gray-600"
-            title="Clear"
+            title={t('common.clear', 'Clear')}
           >
             ✖
           </button>
