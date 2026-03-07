@@ -1,11 +1,54 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { FaCloudUploadAlt, FaSpinner, FaCheck, FaExclamationTriangle, FaTrash } from 'react-icons/fa';
+import { FaSpinner, FaCheck, FaExclamationTriangle, FaTrash, FaArrowRight } from 'react-icons/fa';
+import { useNavigate } from 'react-router-dom';
 
 const ImportPage = () => {
     const { t } = useTranslation();
+    const navigate = useNavigate();
     const [files, setFiles] = useState([]); // List of file objects
     const [uploads, setUploads] = useState({}); // Key: fileName, Value: { status, id, error, data }
+    const [sessionId, setSessionId] = useState(null);
+    const [activeSessions, setActiveSessions] = useState([]);
+    const [isUploading, setIsUploading] = useState(false);
+
+    const fetchActiveSessions = async () => {
+        try {
+            const response = await fetch('/api/import/sessions');
+            if (response.ok) {
+                const data = await response.json();
+                setActiveSessions(data);
+            }
+        } catch (error) {
+            console.error("Fetch active sessions error", error);
+        }
+    };
+
+    useEffect(() => {
+        fetchActiveSessions();
+    }, []);
+
+    const discardSession = async (sessId) => {
+        if (!window.confirm(t('import.confirmDiscardSession', 'Are you sure you want to discard this session and all uploaded files?'))) return;
+        try {
+            const response = await fetch(`/api/import/sessions/${sessId}`, {
+                method: 'DELETE',
+                headers: { 'X-XSRF-TOKEN': getCsrfToken() }
+            });
+            if (response.ok) {
+                console.log("Session deleted successfully", sessId);
+                await fetchActiveSessions();
+                if (sessionId === sessId) setSessionId(null);
+            } else {
+                const errorText = await response.text();
+                console.error("Failed to delete session", sessId, response.status, errorText);
+                alert("Failed to delete session: " + errorText);
+            }
+        } catch (error) {
+            console.error("Discard session error", error);
+            alert("Error deleting session: " + error.message);
+        }
+    };
 
     const handleFileSelect = (e) => {
         const selectedFiles = Array.from(e.target.files);
@@ -34,8 +77,27 @@ const ImportPage = () => {
 
     const startUploadAll = async () => {
         const pendingFiles = files.filter(f => uploads[f.name]?.status === 'PENDING');
-        for (const file of pendingFiles) {
-            uploadFile(file); // Don't await here to run in parallel
+        if (pendingFiles.length === 0) return;
+
+        setIsUploading(true);
+        
+        try {
+            // 1. Create session
+            const sessionResponse = await fetch(`/api/import/sessions?totalFiles=${pendingFiles.length}`, {
+                method: 'POST',
+                headers: { 'X-XSRF-TOKEN': getCsrfToken() }
+            });
+            if (!sessionResponse.ok) throw new Error('Failed to create import session');
+            const sessionData = await sessionResponse.json();
+            setSessionId(sessionData.id);
+
+            // 2. Upload files
+            for (const file of pendingFiles) {
+                uploadFile(file, sessionData.id);
+            }
+        } catch (error) {
+            console.error("Session creation error", error);
+            setIsUploading(false);
         }
     };
 
@@ -55,15 +117,19 @@ const ImportPage = () => {
         return null;
     };
 
-    const uploadFile = async (file) => {
+    const uploadFile = async (file, currentSessionId) => {
         setUploads(prev => ({ ...prev, [file.name]: { ...prev[file.name], status: 'UPLOADING', progress: 0 } }));
 
         const formData = new FormData();
         formData.append('file', file);
         formData.append('async', 'true');
+        if (currentSessionId) {
+            formData.append('importSessionId', currentSessionId);
+        }
 
         try {
-            const response = await fetch('/api/import/upload?async=true', { 
+            const url = `/api/import/upload?async=true${currentSessionId ? `&importSessionId=${currentSessionId}` : ''}`;
+            const response = await fetch(url, { 
                 method: 'POST',
                 headers: {
                     'X-XSRF-TOKEN': getCsrfToken() 
@@ -115,7 +181,6 @@ const ImportPage = () => {
                 }
             } catch (error) {
                 console.error("Polling error", error);
-                // Don't mark as failed immediately, maybe transient network error
             }
         }, 1000);
     };
@@ -124,6 +189,41 @@ const ImportPage = () => {
         <div className="p-6">
             <h1 className="text-2xl font-bold mb-4">{t('import.bulkUploadTitle', 'Bulk Upload')}</h1>
             
+            {activeSessions.length > 0 && (
+                <div className="mb-8 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                    <h2 className="text-lg font-semibold mb-3 flex items-center gap-2 text-blue-800">
+                        <FaArrowRight className="text-blue-600" /> {t('import.activeSessions', 'Ongoing Import Sessions')}
+                    </h2>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        {activeSessions.map(session => (
+                            <div key={session.id} className="bg-white p-3 rounded border shadow-sm flex justify-between items-center">
+                                <div>
+                                    <div className="text-sm font-medium">{new Date(session.createdAt).toLocaleString()}</div>
+                                    <div className="text-xs text-gray-500">
+                                        {session.processedFiles} / {session.totalFiles} {t('import.processedCount', 'processed')}
+                                    </div>
+                                </div>
+                                <div className="flex gap-2">
+                                    <button 
+                                        onClick={() => navigate(`/import/session/${session.id}`)}
+                                        className="text-blue-600 hover:text-blue-800 text-sm font-medium"
+                                    >
+                                        {t('common.details', 'Details')} →
+                                    </button>
+                                    <button 
+                                        onClick={() => discardSession(session.id)}
+                                        className="text-red-600 hover:text-red-800 text-sm"
+                                        title={t('common.delete', 'Delete')}
+                                    >
+                                        <FaTrash />
+                                    </button>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            )}
+
             <div className="mb-6">
                 <input 
                     type="file" 
@@ -141,11 +241,20 @@ const ImportPage = () => {
             <div className="flex gap-2 mb-6">
                 <button 
                     onClick={startUploadAll}
-                    disabled={files.length === 0 || files.every(f => uploads[f.name]?.status !== 'PENDING')}
+                    disabled={files.length === 0 || files.every(f => uploads[f.name]?.status !== 'PENDING') || isUploading}
                     className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 disabled:opacity-50"
                 >
                     {t('import.startUpload', 'Start Upload')}
                 </button>
+
+                {sessionId && (
+                    <button 
+                        onClick={() => navigate(`/import/session/${sessionId}`)}
+                        className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 flex items-center gap-2"
+                    >
+                        {t('import.goToDashboard', 'Go to Session Dashboard')} <FaArrowRight />
+                    </button>
+                )}
             </div>
 
             <div className="bg-white shadow rounded-lg overflow-hidden">

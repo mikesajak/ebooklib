@@ -35,4 +35,8 @@ class ResolutionItemRepositoryAdapter(
     override fun delete(id: ResolutionItemId) {
         jpaRepository.deleteById(id.value)
     }
+
+    override fun deleteByImportSessionId(importSessionId: ImportSessionId) {
+        jpaRepository.deleteAllByImportSessionId(importSessionId.value)
+    }
 }

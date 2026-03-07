@@ -215,6 +215,12 @@
     "featureCovers": "Cover image detection",
     "featureFormats": "Multi-format support",
     "featureMatching": "Smart matching with existing books",
+    "dashboardTitle": "Import Session Dashboard",
+    "goToDashboard": "Go to Session Dashboard",
+    "totalFiles": "Total Files",
+    "status": "Session Status",
+    "processed": "Processed",
+    "failed": "Failed",
     "review": {
       "titleNew": "Import New Book",
       "titleUpdate": "Update Existing Book",

@@ -5,10 +5,7 @@ import com.mikesajak.ebooklib.author.domain.model.AuthorId
 import com.mikesajak.ebooklib.book.domain.model.BookId
 import com.mikesajak.ebooklib.importing.application.ports.incoming.FinalizeImportCommand
 import com.mikesajak.ebooklib.importing.domain.model.*
-import com.mikesajak.ebooklib.importing.infrastructure.adapters.incoming.rest.dto.FinalizeImportRequestDto
-import com.mikesajak.ebooklib.importing.infrastructure.adapters.incoming.rest.dto.MatchCandidateDto
-import com.mikesajak.ebooklib.importing.infrastructure.adapters.incoming.rest.dto.StagedUploadResponseDto
-import com.mikesajak.ebooklib.importing.infrastructure.adapters.incoming.rest.dto.StagedUploadValidationDto
+import com.mikesajak.ebooklib.importing.infrastructure.adapters.incoming.rest.dto.*
 import com.mikesajak.ebooklib.series.domain.model.SeriesId
 import org.springframework.stereotype.Component
 import java.util.*
@@ -85,6 +82,40 @@ class ImportRestMapper(private val objectMapper: ObjectMapper) {
             labels = request.labels,
             updateCover = request.updateCover,
             skipFormatLink = request.skipFormatLink
+        )
+    }
+
+    fun toResponse(session: ImportSession): ImportSessionResponseDto {
+        return ImportSessionResponseDto(
+            id = session.id.toString(),
+            status = session.status,
+            totalFiles = session.totalFiles,
+            processedFiles = session.processedFiles,
+            failedFiles = session.failedFiles,
+            createdAt = session.createdAt,
+            updatedAt = session.updatedAt,
+            expiryAt = session.expiryAt
+        )
+    }
+
+    fun toResponse(item: ResolutionItem, formats: List<StagedEbookUpload>): ResolutionItemResponseDto {
+        return ResolutionItemResponseDto(
+            id = item.id.toString(),
+            importSessionId = item.importSessionId.toString(),
+            title = item.title,
+            authors = item.authors,
+            status = item.status,
+            createdAt = item.createdAt,
+            updatedAt = item.updatedAt,
+            metadataJson = item.metadataJson,
+            formats = formats.map { f ->
+                ResolutionItemFormatDto(
+                    uploadId = f.id.toString(),
+                    fileName = f.fileName,
+                    contentType = f.contentType,
+                    fileSize = f.fileSize
+                )
+            }
         )
     }
 }

@@ -17,4 +17,5 @@ interface StagedEbookUploadRepositoryPort {
     fun findAllKeys(): List<String>
     fun findByImportSessionId(importSessionId: ImportSessionId): List<StagedEbookUpload>
     fun deleteByImportSessionId(importSessionId: ImportSessionId)
+    fun findByResolutionItemId(resolutionItemId: UUID): List<StagedEbookUpload>
 }

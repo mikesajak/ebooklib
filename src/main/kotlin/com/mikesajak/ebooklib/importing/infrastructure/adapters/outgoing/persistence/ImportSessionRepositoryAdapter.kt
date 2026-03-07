@@ -19,6 +19,9 @@ class ImportSessionRepositoryAdapter(
     override fun findById(id: ImportSessionId): ImportSession? =
         repository.findByIdOrNull(id.value)?.let { mapper.toDomain(it) }
 
+    override fun findAllByStatus(status: com.mikesajak.ebooklib.importing.domain.model.ImportSessionStatus): List<ImportSession> =
+        repository.findAllByStatus(status).map { mapper.toDomain(it) }
+
     override fun findAllExpired(now: Instant): List<ImportSession> =
         repository.findAllByExpiryAtBefore(now).map { mapper.toDomain(it) }
 

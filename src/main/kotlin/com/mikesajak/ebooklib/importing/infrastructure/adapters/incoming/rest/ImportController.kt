@@ -3,13 +3,10 @@ package com.mikesajak.ebooklib.importing.infrastructure.adapters.incoming.rest
 import com.mikesajak.ebooklib.book.infrastructure.adapters.incoming.rest.BookRestMapper
 import com.mikesajak.ebooklib.book.infrastructure.adapters.incoming.rest.BookView
 import com.mikesajak.ebooklib.book.infrastructure.adapters.incoming.rest.dto.BookResponseDto
-import com.mikesajak.ebooklib.importing.application.ports.incoming.FinalizeImportUseCase
-import com.mikesajak.ebooklib.importing.application.ports.incoming.GetStagedCoverUseCase
-import com.mikesajak.ebooklib.importing.application.ports.incoming.GetStagedUploadUseCase
-import com.mikesajak.ebooklib.importing.application.ports.incoming.UploadToStagingUseCase
-import com.mikesajak.ebooklib.importing.domain.model.StagedEbookUploadId
-import com.mikesajak.ebooklib.importing.infrastructure.adapters.incoming.rest.dto.FinalizeImportRequestDto
-import com.mikesajak.ebooklib.importing.infrastructure.adapters.incoming.rest.dto.StagedUploadResponseDto
+import com.mikesajak.ebooklib.importing.application.ports.incoming.*
+import com.mikesajak.ebooklib.importing.application.ports.outgoing.StagedEbookUploadRepositoryPort
+import com.mikesajak.ebooklib.importing.domain.model.*
+import com.mikesajak.ebooklib.importing.infrastructure.adapters.incoming.rest.dto.*
 import mu.KotlinLogging
 import org.springframework.core.io.InputStreamResource
 import org.springframework.http.HttpHeaders
@@ -28,6 +25,9 @@ class ImportController(
     private val getStagedCoverUseCase: GetStagedCoverUseCase,
     private val getStagedUploadUseCase: GetStagedUploadUseCase,
     private val finalizeImportUseCase: FinalizeImportUseCase,
+    private val importSessionUseCase: ImportSessionUseCase,
+    private val resolutionItemUseCase: ResolutionItemUseCase,
+    private val stagedUploadRepository: StagedEbookUploadRepositoryPort,
     private val importRestMapper: ImportRestMapper,
     private val bookRestMapper: BookRestMapper
 ) {
@@ -60,6 +60,56 @@ class ImportController(
         }
 
         return ResponseEntity.ok(importRestMapper.toResponse(stagedUpload))
+    }
+
+    @PostMapping("/sessions")
+    fun createSession(@RequestParam("totalFiles") totalFiles: Int): ImportSessionResponseDto {
+        val session = importSessionUseCase.createSession(totalFiles)
+        return importRestMapper.toResponse(session)
+    }
+
+    @GetMapping("/sessions")
+    fun getActiveSessions(): List<ImportSessionResponseDto> {
+        return importSessionUseCase.getActiveSessions().map { importRestMapper.toResponse(it) }
+    }
+
+    @GetMapping("/sessions/{sessionId}")
+    fun getSession(@PathVariable sessionId: UUID): ResponseEntity<ImportSessionResponseDto> {
+        val session = importSessionUseCase.getSession(ImportSessionId(sessionId))
+            ?: return ResponseEntity.notFound().build()
+        return ResponseEntity.ok(importRestMapper.toResponse(session))
+    }
+
+    @DeleteMapping("/sessions/{sessionId}")
+    fun deleteSession(@PathVariable sessionId: UUID) {
+        importSessionUseCase.deleteSession(ImportSessionId(sessionId))
+    }
+
+    @GetMapping("/sessions/{sessionId}/items")
+    fun getResolutionItems(@PathVariable sessionId: UUID): List<ResolutionItemResponseDto> {
+        val items = resolutionItemUseCase.getResolutionItems(ImportSessionId(sessionId))
+        return items.map { item ->
+            val formats = stagedUploadRepository.findByResolutionItemId(item.id.value)
+            importRestMapper.toResponse(item, formats)
+        }
+    }
+
+    @PatchMapping("/items/{itemId}/status")
+    fun updateResolutionItemStatus(
+        @PathVariable itemId: UUID,
+        @RequestParam("status") status: ResolutionItemStatus
+    ): ResolutionItemResponseDto {
+        val item = resolutionItemUseCase.updateStatus(ResolutionItemId(itemId), status)
+        val formats = stagedUploadRepository.findByResolutionItemId(item.id.value)
+        return importRestMapper.toResponse(item, formats)
+    }
+
+    @PatchMapping("/items/bulk-status")
+    fun bulkUpdateResolutionItemStatus(
+        @RequestParam("ids") ids: List<UUID>,
+        @RequestParam("status") status: ResolutionItemStatus
+    ) {
+        resolutionItemUseCase.bulkUpdateStatus(ids.map { ResolutionItemId(it) }, status)
     }
 
     @GetMapping("/staged/{uploadId}")

@@ -7,6 +7,7 @@ import com.mikesajak.ebooklib.importing.domain.model.StagedEbookUpload
 import com.mikesajak.ebooklib.importing.domain.model.StagedEbookUploadId
 import org.springframework.stereotype.Component
 import java.time.Instant
+import java.util.UUID
 
 @Component
 class StagedEbookUploadRepositoryAdapter(
@@ -69,4 +70,7 @@ class StagedEbookUploadRepositoryAdapter(
     override fun deleteByImportSessionId(importSessionId: com.mikesajak.ebooklib.importing.domain.model.ImportSessionId) {
         jpaRepository.deleteAllByImportSessionId(importSessionId.value)
     }
+
+    override fun findByResolutionItemId(resolutionItemId: UUID): List<StagedEbookUpload> =
+        jpaRepository.findAllByResolutionItemId(resolutionItemId).map { mapper.toDomain(it) }
 }

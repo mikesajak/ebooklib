@@ -6,4 +6,5 @@ import java.util.*
 
 interface ImportSessionJpaRepository : JpaRepository<ImportSessionEntity, UUID> {
     fun findAllByExpiryAtBefore(now: Instant): List<ImportSessionEntity>
+    fun findAllByStatus(status: com.mikesajak.ebooklib.importing.domain.model.ImportSessionStatus): List<ImportSessionEntity>
 }

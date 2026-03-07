@@ -10,4 +10,5 @@ interface ResolutionItemRepositoryPort {
     fun findByImportSessionIdAndTitleAndAuthors(importSessionId: ImportSessionId, title: String, authors: List<String>): ResolutionItem?
     fun findByImportSessionId(importSessionId: ImportSessionId): List<ResolutionItem>
     fun delete(id: ResolutionItemId)
+    fun deleteByImportSessionId(importSessionId: ImportSessionId)
 }

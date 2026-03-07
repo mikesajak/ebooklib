@@ -8,6 +8,7 @@ import com.mikesajak.ebooklib.book.domain.model.BookId
 import com.mikesajak.ebooklib.common.domain.model.PaginationRequest
 import com.mikesajak.ebooklib.file.application.ports.outgoing.FileStoragePort
 import com.mikesajak.ebooklib.importing.application.ports.incoming.EbookMetadataExtractorUseCase
+import com.mikesajak.ebooklib.importing.application.ports.incoming.ImportSessionUseCase
 import com.mikesajak.ebooklib.importing.application.ports.incoming.MetadataEnrichmentUseCase
 import com.mikesajak.ebooklib.importing.application.ports.outgoing.StagedEbookUploadRepositoryPort
 import com.mikesajak.ebooklib.importing.domain.model.*
@@ -30,7 +31,8 @@ class StagedUploadProcessor(
     private val fileStoragePort: FileStoragePort,
     private val objectMapper: ObjectMapper,
     private val groupingService: GroupingService,
-    private val enrichmentUseCase: MetadataEnrichmentUseCase
+    private val enrichmentUseCase: MetadataEnrichmentUseCase,
+    private val sessionUseCase: ImportSessionUseCase
 ) {
 
     @Async
@@ -112,7 +114,7 @@ class StagedUploadProcessor(
 
 
         val existing = repository.findById(uploadId)
-        return if (existing != null) {
+        val result = if (existing != null) {
             val updated = existing.copy(
                 metadataJson = metadataJson,
                 status = if (extracted != null) StagedEbookUploadStatus.PARSED else StagedEbookUploadStatus.STAGED
@@ -122,6 +124,20 @@ class StagedUploadProcessor(
             logger.error { "Upload $uploadId not found during processing" }
             throw IllegalStateException("Upload $uploadId not found")
         }
+
+        // Update session progress if applicable
+        result.importSessionId?.let { sessionId ->
+            try {
+                val sessionUploads = repository.findByImportSessionId(sessionId)
+                val processed = sessionUploads.count { it.status == StagedEbookUploadStatus.PARSED || it.status == StagedEbookUploadStatus.PROMOTED }
+                val failed = sessionUploads.count { it.status == StagedEbookUploadStatus.FAILED }
+                sessionUseCase.updateProgress(sessionId, processed, failed)
+            } catch (e: Exception) {
+                logger.warn { "Failed to update session progress for $sessionId: ${e.message}" }
+            }
+        }
+
+        return result
     }
 
     private fun findPotentialMatches(extracted: ExtractedEbookMetadata, fileSize: Long, fileName: String): StagedUploadValidation {
