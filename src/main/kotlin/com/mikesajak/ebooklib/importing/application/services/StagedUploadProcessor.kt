@@ -43,6 +43,26 @@ class StagedUploadProcessor(
         process(uploadId, fileBytes, fileName, contentType, currentBookId)
     }
 
+    @Async
+    @Transactional
+    fun retryAsync(uploadId: StagedEbookUploadId) {
+        val stagedUpload = repository.findById(uploadId) ?: throw IllegalArgumentException("Upload $uploadId not found")
+        
+        logger.info { "Retrying processing for upload: $uploadId (${stagedUpload.fileName})" }
+        
+        // Mark as processing first
+        repository.save(stagedUpload.copy(status = StagedEbookUploadStatus.PROCESSING))
+
+        try {
+            val fileBytes = fileStoragePort.downloadFile("staged/${uploadId.value}").readAllBytes()
+            process(uploadId, fileBytes, stagedUpload.fileName, stagedUpload.contentType, null)
+        } catch (e: Exception) {
+            logger.error(e) { "Failed to retry processing for upload $uploadId" }
+            repository.save(stagedUpload.copy(status = StagedEbookUploadStatus.FAILED))
+            updateSessionProgress(stagedUpload.copy(status = StagedEbookUploadStatus.FAILED))
+        }
+    }
+
     @Transactional
     fun process(uploadId: StagedEbookUploadId, fileBytes: ByteArray, fileName: String, contentType: String, currentBookId: UUID?): StagedEbookUpload {
         logger.info { "Processing upload: $uploadId" }

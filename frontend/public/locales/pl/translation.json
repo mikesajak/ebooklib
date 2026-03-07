@@ -290,6 +290,7 @@
       "resolve": "Rozwiąż",
       "ignore": "Zignoruj",
       "restore": "Przywróć",
+      "retry": "Ponów",
       "edit": "Edytuj",
       "delete": "Usuń",
       "ignoreSelected": "Zignoruj wybrane",

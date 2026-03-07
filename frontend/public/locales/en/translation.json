@@ -297,6 +297,7 @@
       "resolve": "Resolve",
       "ignore": "Ignore",
       "restore": "Restore",
+      "retry": "Retry",
       "edit": "Edit",
       "delete": "Delete",
       "ignoreSelected": "Ignore Selected",

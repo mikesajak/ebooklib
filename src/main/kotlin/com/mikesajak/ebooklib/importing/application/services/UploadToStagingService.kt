@@ -10,6 +10,8 @@ import com.mikesajak.ebooklib.importing.domain.model.StagedEbookUploadStatus
 import jakarta.transaction.Transactional
 import mu.KotlinLogging
 import org.springframework.stereotype.Service
+import org.springframework.transaction.support.TransactionSynchronization
+import org.springframework.transaction.support.TransactionSynchronizationManager
 import java.io.ByteArrayInputStream
 import java.io.InputStream
 import java.time.Instant
@@ -76,9 +78,21 @@ class UploadToStagingService(
         )
         val saved = repository.save(stagedUpload)
 
-        // 3. Process Async
-        stagedUploadProcessor.processAsync(uploadId, fileBytes, fileName, contentType, currentBookId)
+        // 3. Process Async after commit
+        TransactionSynchronizationManager.registerSynchronization(object : TransactionSynchronization {
+            override fun afterCommit() {
+                stagedUploadProcessor.processAsync(uploadId, fileBytes, fileName, contentType, currentBookId)
+            }
+        })
         
         return saved
+    }
+
+    override fun retryProcessing(uploadId: UUID) {
+        TransactionSynchronizationManager.registerSynchronization(object : TransactionSynchronization {
+            override fun afterCommit() {
+                stagedUploadProcessor.retryAsync(StagedEbookUploadId(uploadId))
+            }
+        })
     }
 }

@@ -63,6 +63,11 @@ class ImportController(
         return ResponseEntity.ok(importRestMapper.toResponse(stagedUpload))
     }
 
+    @PostMapping("/staged/{uploadId}/retry")
+    fun retryProcessing(@PathVariable uploadId: UUID) {
+        uploadToStagingUseCase.retryProcessing(uploadId)
+    }
+
     @PostMapping("/sessions")
     fun createSession(@RequestParam("totalFiles") totalFiles: Int): ImportSessionResponseDto {
         val session = importSessionUseCase.createSession(totalFiles)

@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { FaSpinner, FaCheck, FaExclamationTriangle, FaFilter, FaSyncAlt, FaArrowLeft, FaBan, FaInfoCircle, FaMagic, FaTrash, FaHourglassHalf } from 'react-icons/fa';
+import { FaSpinner, FaCheck, FaExclamationTriangle, FaFilter, FaSyncAlt, FaArrowLeft, FaBan, FaInfoCircle, FaMagic, FaTrash, FaHourglassHalf, FaRedo } from 'react-icons/fa';
+import Notification from './Notification';
 
 const ImportSummaryDashboard = () => {
     const { id: sessionId } = useParams();
@@ -13,6 +14,7 @@ const ImportSummaryDashboard = () => {
     const [isProcessing, setIsProcessing] = useState(false);
     const [filter, setFilter] = useState('ALL'); // ALL, UNRESOLVED, RESOLVED, IGNORED, ERROR, PROCESSING, STAGED
     const [selectedIds, setSelectedIds] = useState([]);
+    const [notification, setNotification] = useState(null);
 
     const fetchSession = async () => {
         try {
@@ -59,6 +61,24 @@ const ImportSummaryDashboard = () => {
             }
         } catch (error) {
             console.error("Update item status error", error);
+        }
+    };
+
+    const handleRetry = async (itemId) => {
+        try {
+            const response = await fetch(`/api/import/staged/${itemId}/retry`, {
+                method: 'POST',
+                headers: { 'X-XSRF-TOKEN': getCsrfToken() }
+            });
+            if (response.ok) {
+                fetchItems();
+                setNotification({ type: 'success', message: t('import.status.processing') });
+            } else {
+                setNotification({ type: 'error', message: t('common.error') });
+            }
+        } catch (error) {
+            console.error("Retry item error", error);
+            setNotification({ type: 'error', message: t('common.error') });
         }
     };
 
@@ -202,6 +222,14 @@ const ImportSummaryDashboard = () => {
 
     return (
         <div className="p-6">
+            {notification && (
+                <Notification
+                    type={notification.type}
+                    message={notification.message}
+                    onClose={() => setNotification(null)}
+                />
+            )}
+
             <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
                 <div className="flex items-center gap-4">
                     <button onClick={() => navigate('/import')} className="p-3 bg-white text-gray-400 hover:text-gray-600 border border-gray-200 rounded-xl transition-all shadow-sm">
@@ -424,6 +452,16 @@ const ImportSummaryDashboard = () => {
                                                         </button>
                                                     )}
                                                 </>
+                                            )}
+                                            {item.status === 'ERROR' && (
+                                                <button 
+                                                    onClick={() => handleRetry(item.id)}
+                                                    className="flex items-center gap-2 px-3 py-1.5 bg-amber-50 text-amber-600 hover:bg-amber-100 rounded-lg transition-all font-black text-[10px] uppercase tracking-widest border border-amber-100 shadow-sm transform active:scale-95"
+                                                    title={t('import.actions.retry', "Retry")}
+                                                >
+                                                    <FaRedo size={12} />
+                                                    {t('import.actions.retry')}
+                                                </button>
                                             )}
                                             {item.status === 'IGNORED' && (
                                                 <button 

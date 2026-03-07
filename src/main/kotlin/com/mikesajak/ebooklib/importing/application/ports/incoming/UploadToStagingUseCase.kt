@@ -8,4 +8,6 @@ interface UploadToStagingUseCase {
     fun upload(fileContent: InputStream, fileName: String, contentType: String, currentBookId: UUID?, importSessionId: UUID? = null): StagedEbookUpload
 
     fun uploadAsync(fileContent: InputStream, fileName: String, contentType: String, currentBookId: UUID?, importSessionId: UUID? = null): StagedEbookUpload
+
+    fun retryProcessing(uploadId: UUID)
 }
