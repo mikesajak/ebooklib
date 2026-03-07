@@ -387,23 +387,25 @@ const ImportSummaryDashboard = () => {
                                         {item.status === 'ERROR' && <span className="px-3 py-1 inline-flex text-[10px] leading-5 font-black rounded-full bg-rose-50 text-rose-600 uppercase tracking-tighter border border-rose-100">{t('import.status.error')}</span>}
                                     </td>
                                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                        <div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                        <div className="flex justify-end gap-2 transition-all">
                                             {(item.status === 'UNRESOLVED' || item.status === 'RESOLVED') && (
                                                 <>
                                                     <button 
                                                         onClick={() => navigate(`/import/resolve/${item.id}`)}
-                                                        className="p-2.5 text-indigo-600 hover:bg-indigo-50 rounded-xl transition-all"
+                                                        className="flex items-center gap-2 px-3 py-1.5 bg-indigo-50 text-indigo-600 hover:bg-indigo-100 rounded-lg transition-all font-black text-[10px] uppercase tracking-widest border border-indigo-100 shadow-sm transform active:scale-95"
                                                         title={item.status === 'RESOLVED' ? t('import.actions.edit', "Edit Resolution") : t('import.actions.resolve', "Resolve")}
                                                     >
-                                                        <FaInfoCircle size={16} />
+                                                        <FaInfoCircle size={14} />
+                                                        {item.status === 'RESOLVED' ? t('import.actions.edit') : t('import.actions.resolve')}
                                                     </button>
                                                     {item.status === 'UNRESOLVED' && (
                                                         <button 
                                                             onClick={() => updateItemStatus(item.id, 'IGNORED')}
-                                                            className="p-2.5 text-gray-400 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition-all"
+                                                            className="flex items-center gap-2 px-3 py-1.5 bg-gray-50 text-gray-400 hover:text-rose-600 hover:bg-rose-50 hover:border-rose-100 rounded-lg transition-all font-black text-[10px] uppercase tracking-widest border border-gray-200 shadow-sm transform active:scale-95"
                                                             title={t('import.actions.ignore', "Ignore")}
                                                         >
-                                                            <FaBan size={16} />
+                                                            <FaBan size={14} />
+                                                            {t('import.actions.ignore')}
                                                         </button>
                                                     )}
                                                 </>
@@ -411,8 +413,9 @@ const ImportSummaryDashboard = () => {
                                             {item.status === 'IGNORED' && (
                                                 <button 
                                                     onClick={() => updateItemStatus(item.id, 'UNRESOLVED')}
-                                                    className="p-2.5 text-indigo-600 hover:bg-indigo-50 rounded-xl transition-all font-black text-[10px] uppercase tracking-widest"
+                                                    className="flex items-center gap-2 px-3 py-1.5 bg-emerald-50 text-emerald-600 hover:bg-emerald-100 rounded-lg transition-all font-black text-[10px] uppercase tracking-widest border border-emerald-100 shadow-sm transform active:scale-95"
                                                 >
+                                                    <FaSyncAlt size={12} />
                                                     {t('import.actions.restore', "Restore")}
                                                 </button>
                                             )}
