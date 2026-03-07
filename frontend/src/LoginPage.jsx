@@ -8,6 +8,7 @@ import { FaLock, FaUser, FaSignInAlt } from 'react-icons/fa';
 const LoginPage = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [isPasswordFocused, setIsPasswordFocused] = useState(false);
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -97,13 +98,15 @@ const LoginPage = () => {
               </label>
               <input
                 className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white transition-all font-medium text-gray-700"
-                type="password"
+                type={isPasswordFocused || password.length > 0 ? "password" : "text"}
                 id="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
+                onFocus={() => setIsPasswordFocused(true)}
+                onBlur={() => setIsPasswordFocused(false)}
                 required
                 disabled={isSubmitting}
-                placeholder="••••••••"
+                placeholder={t('auth.password')}
               />
             </div>
 
