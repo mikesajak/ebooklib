@@ -116,16 +116,81 @@ const ImportSummaryDashboard = () => {
         return item.status === filter;
     });
 
+    const finalizeSession = async () => {
+        const unresolvedCount = items.filter(i => i.status === 'UNRESOLVED').length;
+        let msg = t('import.confirmFinalize', 'Are you sure you want to complete this import session?');
+        if (unresolvedCount > 0) {
+            msg += `\n\n${t('import.unresolvedWarning', 'Warning: there are still {{count}} unresolved items. They will NOT be imported.', { count: unresolvedCount })}`;
+        }
+
+        if (!window.confirm(msg)) return;
+
+        try {
+            const response = await fetch(`/api/import/sessions/${sessionId}/finalize`, {
+                method: 'POST',
+                headers: { 'X-XSRF-TOKEN': getCsrfToken() }
+            });
+            if (response.ok) {
+                navigate('/import', { state: { notification: { message: t('import.finalizeSuccess', 'Import session completed successfully.'), type: 'success' } } });
+            } else {
+                const errorText = await response.text();
+                alert("Failed to finalize session: " + errorText);
+            }
+        } catch (error) {
+            console.error("Finalize session error", error);
+            alert("Error finalizing session: " + error.message);
+        }
+    };
+
+    const discardSession = async () => {
+        if (!window.confirm(t('import.confirmDiscardSession', 'Are you sure you want to discard this session and all uploaded files?'))) return;
+        try {
+            const response = await fetch(`/api/import/sessions/${sessionId}`, {
+                method: 'DELETE',
+                headers: { 'X-XSRF-TOKEN': getCsrfToken() }
+            });
+            if (response.ok) {
+                navigate('/import', { state: { notification: { message: t('import.discardSuccess', 'Import session discarded.'), type: 'info' } } });
+            } else {
+                const errorText = await response.text();
+                alert("Failed to discard session: " + errorText);
+            }
+        } catch (error) {
+            console.error("Discard session error", error);
+            alert("Error discarding session: " + error.message);
+        }
+    };
+
     if (loading) return <div className="p-6 text-center"><FaSpinner className="animate-spin text-4xl mx-auto" /></div>;
 
     return (
         <div className="p-6">
-            <div className="flex items-center gap-4 mb-6">
-                <button onClick={() => navigate('/import')} className="text-gray-600 hover:text-gray-900">
-                    <FaArrowLeft size={20} />
-                </button>
-                <h1 className="text-2xl font-bold">{t('import.dashboardTitle', 'Import Session Dashboard')}</h1>
-                <span className="text-sm text-gray-500 font-mono">{sessionId}</span>
+            <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
+                <div className="flex items-center gap-4">
+                    <button onClick={() => navigate('/import')} className="text-gray-600 hover:text-gray-900">
+                        <FaArrowLeft size={20} />
+                    </button>
+                    <div>
+                        <h1 className="text-2xl font-bold">{t('import.dashboardTitle', 'Import Session Dashboard')}</h1>
+                        <p className="text-xs text-gray-500 font-mono">{sessionId}</p>
+                    </div>
+                </div>
+
+                <div className="flex gap-3">
+                    <button 
+                        onClick={discardSession}
+                        className="px-4 py-2 text-red-600 bg-white border border-red-200 rounded-lg hover:bg-red-50 font-bold transition-all text-sm flex items-center gap-2"
+                    >
+                        <FaBan /> {t('import.discardSession', 'Discard Session')}
+                    </button>
+                    <button 
+                        onClick={finalizeSession}
+                        disabled={items.filter(i => i.status === 'RESOLVED').length === 0 && items.length > 0}
+                        className="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 font-bold transition-all shadow-md shadow-indigo-100 disabled:opacity-50 disabled:cursor-not-allowed text-sm flex items-center gap-2"
+                    >
+                        <FaCheck /> {t('import.completeImport', 'Complete Import')}
+                    </button>
+                </div>
             </div>
 
             {session && (
@@ -239,22 +304,24 @@ const ImportSummaryDashboard = () => {
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                     <div className="flex justify-end gap-2">
-                                        {item.status === 'UNRESOLVED' && (
+                                        {(item.status === 'UNRESOLVED' || item.status === 'RESOLVED') && (
                                             <>
                                                 <button 
                                                     onClick={() => navigate(`/import/resolve/${item.id}`)}
                                                     className="text-blue-600 hover:text-blue-900 flex items-center gap-1"
-                                                    title="Resolve"
+                                                    title={item.status === 'RESOLVED' ? "Edit Resolution" : "Resolve"}
                                                 >
-                                                    <FaInfoCircle /> Resolve
+                                                    <FaInfoCircle /> {item.status === 'RESOLVED' ? "Edit" : "Resolve"}
                                                 </button>
-                                                <button 
-                                                    onClick={() => updateItemStatus(item.id, 'IGNORED')}
-                                                    className="text-gray-600 hover:text-gray-900 flex items-center gap-1"
-                                                    title="Ignore"
-                                                >
-                                                    <FaBan /> Ignore
-                                                </button>
+                                                {item.status === 'UNRESOLVED' && (
+                                                    <button 
+                                                        onClick={() => updateItemStatus(item.id, 'IGNORED')}
+                                                        className="text-gray-600 hover:text-gray-900 flex items-center gap-1"
+                                                        title="Ignore"
+                                                    >
+                                                        <FaBan /> Ignore
+                                                    </button>
+                                                )}
                                             </>
                                         )}
                                         {item.status === 'IGNORED' && (

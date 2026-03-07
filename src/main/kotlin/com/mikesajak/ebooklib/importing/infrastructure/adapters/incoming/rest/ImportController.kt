@@ -85,6 +85,12 @@ class ImportController(
         importSessionUseCase.deleteSession(ImportSessionId(sessionId))
     }
 
+    @PostMapping("/sessions/{sessionId}/finalize")
+    fun finalizeSession(@PathVariable sessionId: UUID): ImportSessionResponseDto {
+        val session = importSessionUseCase.finalizeSession(ImportSessionId(sessionId))
+        return importRestMapper.toResponse(session)
+    }
+
     @GetMapping("/sessions/{sessionId}/items")
     fun getResolutionItems(@PathVariable sessionId: UUID): List<ResolutionItemResponseDto> {
         val items = resolutionItemUseCase.getResolutionItems(ImportSessionId(sessionId))

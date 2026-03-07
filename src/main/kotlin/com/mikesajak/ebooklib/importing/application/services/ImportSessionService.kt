@@ -67,6 +67,25 @@ class ImportSessionService(
     @Transactional
     override fun finalizeSession(id: ImportSessionId): ImportSession {
         val session = repository.findById(id) ?: throw IllegalArgumentException("Session $id not found")
+        
+        logger.info { "Finalizing import session $id. Cleaning up remaining non-resolved data." }
+
+        // 1. Find all remaining staged uploads for this session
+        // Resolved ones were already deleted during individual finalization
+        val remainingUploads = stagedUploadRepository.findByImportSessionId(id)
+        logger.info { "Found ${remainingUploads.size} remaining staged uploads to cleanup in session $id" }
+        
+        remainingUploads.forEach { upload ->
+            cleanupUpload(upload)
+        }
+
+        // 2. Delete all staged upload records for this session
+        stagedUploadRepository.deleteByImportSessionId(id)
+
+        // 3. Delete all resolution items for this session
+        resolutionItemRepository.deleteByImportSessionId(id)
+
+        // 4. Update session status
         val updated = session.copy(
             status = ImportSessionStatus.FINALIZED,
             updatedAt = Instant.now()
