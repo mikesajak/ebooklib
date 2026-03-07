@@ -20,7 +20,7 @@ const SearchableDropdown = ({ options, value, onChange, placeholder, label, id }
   }, [value, options]);
 
   const filteredOptions = options.filter(option =>
-    option.name.toLowerCase().includes(searchTerm.toLowerCase())
+    option && option.name && option.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   const handleInputChange = (e) => {

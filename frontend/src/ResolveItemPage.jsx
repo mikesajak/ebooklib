@@ -24,14 +24,7 @@ const ResolveItemPage = () => {
         try {
             setLoading(true);
             // 1. Fetch the ResolutionItem
-            const itemResponse = await fetchWithCsrf(`/api/import/items/${itemId}/status?status=UNRESOLVED`); // Hack to get the item, but updateStatus returns it
-            // Wait, I should have a getResolutionItem endpoint. Let's check ImportController.
-            // Actually, I can use /api/import/sessions/{sessionId}/items and filter.
-            // But I don't have the sessionId yet.
-            
-            // Let's assume there's a GET /api/import/items/{id} (I should check if I need to add it)
-            // I'll check ImportController.kt again.
-            const response = await fetchWithCsrf(`/api/import/items/${itemId}`); // I'll add this endpoint if it's missing
+            const response = await fetchWithCsrf(`/api/import/items/${itemId}`);
             if (!response.ok) throw new Error('Failed to fetch resolution item');
             const itemData = await response.json();
             setItem(itemData);
@@ -78,8 +71,14 @@ const ResolveItemPage = () => {
                 fetchWithCsrf('/api/authors'),
                 fetchWithCsrf('/api/series')
             ]);
-            if (authorsRes.ok) setAuthorOptions((await authorsRes.json()).content.map(a => ({ id: a.id, name: `${a.firstName} ${a.lastName}`.trim() })));
-            if (seriesRes.ok) setSeriesOptions((await seriesRes.json()).content);
+            if (authorsRes.ok) {
+                const authorsData = await authorsRes.json();
+                setAuthorOptions(authorsData.content.map(a => ({ id: a.id, name: `${a.firstName} ${a.lastName}`.trim() })));
+            }
+            if (seriesRes.ok) {
+                const seriesData = await seriesRes.json();
+                setSeriesOptions(seriesData.content.map(s => ({ id: s.id, name: s.title })));
+            }
 
         } catch (error) {
             console.error("Error fetching resolution data:", error);
