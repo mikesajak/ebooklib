@@ -1,8 +1,15 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 
-const Form = ({ children, onSave, onCancel, isSaveDisabled }) => {
+const Form = ({ children, onSave, onCancel, isSaveDisabled, color = 'indigo' }) => {
   const { t } = useTranslation();
+
+  const buttonColorMap = {
+    indigo: 'bg-indigo-600 shadow-indigo-100 hover:bg-indigo-700',
+    emerald: 'bg-emerald-600 shadow-emerald-100 hover:bg-emerald-700',
+    amber: 'bg-amber-600 shadow-amber-100 hover:bg-amber-700',
+    violet: 'bg-violet-600 shadow-violet-100 hover:bg-violet-700'
+  };
 
   return (
     <>
@@ -14,7 +21,7 @@ const Form = ({ children, onSave, onCancel, isSaveDisabled }) => {
           className={`px-8 py-3 rounded-xl font-black text-sm uppercase tracking-wider transition-all transform active:scale-95 shadow-xl ${
             isSaveDisabled 
               ? 'bg-gray-100 text-gray-400 cursor-not-allowed shadow-none' 
-              : 'bg-indigo-600 text-white shadow-indigo-100 hover:bg-indigo-700 hover:-translate-y-1'
+              : `${buttonColorMap[color]} text-white hover:-translate-y-1`
           }`}
         >
           {t('common.save')}

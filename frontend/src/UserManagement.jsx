@@ -78,7 +78,7 @@ const UserManagement = () => {
   if (loading) {
     return (
       <div className="flex justify-center items-center min-h-[400px]">
-        <div className="animate-spin rounded-full h-12 w-12 border-4 border-indigo-100 border-t-indigo-600"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-4 border-violet-100 border-t-violet-600"></div>
       </div>
     );
   }
@@ -95,21 +95,21 @@ const UserManagement = () => {
 
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-12">
         <div className="animate-slide-in-left">
-          <div className="flex items-center gap-3 mb-2 text-indigo-600">
+          <div className="flex items-center gap-3 mb-2 text-violet-600">
             <FaUserShield className="text-xl" />
-            <Link to="/admin" className="text-xs font-black uppercase tracking-[0.3em] hover:text-indigo-800 transition-colors flex items-center gap-2 group/back">
+            <Link to="/admin" className="text-xs font-black uppercase tracking-[0.3em] hover:text-violet-800 transition-colors flex items-center gap-2 group/back">
               <FaChevronLeft className="text-[8px] transform group-hover/back:-translate-x-1 transition-transform" />
               {t('admin.backToDashboard')}
             </Link>
           </div>
           <h1 className="text-4xl font-black text-gray-800 tracking-tighter">
-            {t('admin.users.titlePrefix', 'User')} <span className="text-indigo-600">{t('admin.users.titleSuffix', 'Security')}</span>
+            {t('admin.users.titlePrefix', 'User')} <span className="text-violet-600">{t('admin.users.titleSuffix', 'Security')}</span>
           </h1>
         </div>
 
         <button
           onClick={() => setIsAddModalOpen(true)}
-          className="flex items-center gap-2 px-6 py-3 bg-indigo-600 text-white font-black rounded-2xl shadow-lg shadow-indigo-100 hover:bg-indigo-700 transition-all transform active:scale-95 animate-fade-in"
+          className="flex items-center gap-2 px-6 py-3 bg-violet-600 text-white font-black rounded-2xl shadow-lg shadow-violet-100 hover:bg-violet-700 transition-all transform active:scale-95 animate-fade-in"
         >
           <FaUserPlus />
           {t('admin.users.addUser')}
@@ -138,10 +138,10 @@ const UserManagement = () => {
                 users.map((user) => {
                   const isAdmin = user.roles.includes('ADMIN') || user.roles.includes('ROLE_ADMIN');
                   return (
-                    <tr key={user.id} className="group hover:bg-indigo-50/30 transition-colors">
+                    <tr key={user.id} className="group hover:bg-violet-50/30 transition-colors">
                       <td className="px-8 py-5">
                         <div className="flex items-center gap-3">
-                          <div className={`w-10 h-10 rounded-full flex items-center justify-center font-black text-sm uppercase ${isAdmin ? 'bg-rose-100 text-rose-600' : 'bg-indigo-100 text-indigo-600'}`}>
+                          <div className={`w-10 h-10 rounded-full flex items-center justify-center font-black text-sm uppercase ${isAdmin ? 'bg-rose-100 text-rose-600' : 'bg-violet-100 text-violet-600'}`}>
                             {user.username.substring(0, 2)}
                           </div>
                           <span className="font-bold text-gray-700">{user.username}</span>
@@ -156,7 +156,7 @@ const UserManagement = () => {
                                 className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider ${
                                   role === 'ADMIN' || role === 'ROLE_ADMIN'
                                     ? 'bg-rose-100 text-rose-600'
-                                    : 'bg-indigo-100 text-indigo-600'
+                                    : 'bg-violet-100 text-violet-600'
                                 }`}
                               >
                                 {role.replace('ROLE_', '')}
@@ -168,7 +168,7 @@ const UserManagement = () => {
                             className={`flex items-center gap-1.5 px-3 py-1 rounded-lg border text-[10px] font-black uppercase tracking-tight transition-all ${
                               isAdmin 
                                 ? 'bg-rose-50 border-rose-100 text-rose-600 hover:bg-rose-100' 
-                                : 'bg-indigo-50 border-indigo-100 text-indigo-600 hover:bg-indigo-100'
+                                : 'bg-violet-50 border-violet-100 text-violet-600 hover:bg-violet-100'
                             }`}
                           >
                             {isAdmin ? <FaToggleOn className="text-sm" /> : <FaToggleOff className="text-sm" />}

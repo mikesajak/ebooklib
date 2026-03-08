@@ -84,7 +84,7 @@ const SeriesList = () => {
   if (!ready) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
-        <div className="animate-spin rounded-full h-12 w-12 border-4 border-indigo-100 border-t-indigo-600"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-4 border-amber-100 border-t-amber-600"></div>
         <p className="text-sm font-black text-gray-400 uppercase tracking-widest">{t('common.loading')}</p>
       </div>
     );
@@ -94,7 +94,7 @@ const SeriesList = () => {
     <div className="container mx-auto p-4 max-w-7xl">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
         <div className="flex items-center gap-3">
-          <div className="bg-indigo-600 text-white p-3 rounded-xl shadow-md">
+          <div className="bg-amber-600 text-white p-3 rounded-xl shadow-md">
             <FaLayerGroup className="text-xl" />
           </div>
           <div>
@@ -104,7 +104,7 @@ const SeriesList = () => {
         </div>
 
         <Link to="/series/add">
-          <button className="bg-indigo-600 hover:bg-indigo-700 text-white font-black text-sm uppercase tracking-wider py-3 px-8 rounded-2xl shadow-xl shadow-indigo-100 transition-all flex items-center gap-2 transform hover:-translate-y-1 active:scale-95">
+          <button className="bg-amber-600 hover:bg-amber-700 text-white font-black text-sm uppercase tracking-wider py-3 px-8 rounded-2xl shadow-xl shadow-amber-100 transition-all flex items-center gap-2 transform hover:-translate-y-1 active:scale-95">
             <FaPlus />
             {t('seriesList.addSeries')}
           </button>
@@ -120,7 +120,7 @@ const SeriesList = () => {
           <table className="min-w-full table-auto">
             <thead>
               <tr className="bg-gray-50/50 border-b border-gray-200 text-gray-500 uppercase text-[10px] font-black tracking-widest">
-                <th className="py-4 px-6 text-left cursor-pointer hover:text-indigo-600 transition-colors" onClick={() => handleSort('title')}>
+                <th className="py-4 px-6 text-left cursor-pointer hover:text-amber-600 transition-colors" onClick={() => handleSort('title')}>
                   {t('bookTable.header.title')}{getSortIndicator('title')}
                 </th>
                 <th className="py-4 px-6 text-center">{t('common.actions')}</th>
@@ -131,7 +131,7 @@ const SeriesList = () => {
                 <tr>
                   <td colSpan="2" className="px-6 py-12 whitespace-nowrap text-center text-sm text-gray-400 italic">
                     <div className="flex flex-col items-center gap-2">
-                      <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-indigo-600"></div>
+                      <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-amber-600"></div>
                       {t('seriesList.loading')}
                     </div>
                   </td>
@@ -148,9 +148,9 @@ const SeriesList = () => {
                 </tr>
               ) : (
                 series.map((s) => (
-                  <tr key={s.id} className="group hover:bg-indigo-50/30 transition-all duration-200">
+                  <tr key={s.id} className="group hover:bg-amber-50/30 transition-all duration-200">
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                      <Link to={`/series/${s.id}`} className="series-link group-hover:text-indigo-700 font-bold text-gray-700">
+                      <Link to={`/series/${s.id}`} className="series-link group-hover:text-amber-700 font-bold text-gray-700">
                         {s.title}
                       </Link>
                     </td>
@@ -191,7 +191,7 @@ const SeriesList = () => {
               localStorage.setItem('seriesListPageSize', newSize.toString());
               setPage(0); // Reset to first page when page size changes
             }}
-            theme="indigo"
+            theme="amber"
           />
         </div>
       </div>

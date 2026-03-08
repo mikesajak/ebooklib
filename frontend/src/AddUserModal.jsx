@@ -59,7 +59,7 @@ const AddUserModal = ({ isOpen, onClose, onSuccess }) => {
       <div className="bg-white w-full max-w-md rounded-[2.5rem] shadow-2xl overflow-hidden border border-gray-100 transform transition-all animate-scale-in">
         {!createdSecret ? (
           <form onSubmit={handleSubmit}>
-            <div className="bg-indigo-600 p-8 text-center text-white relative">
+            <div className="bg-violet-600 p-8 text-center text-white relative">
               <div className="bg-white/20 w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4 backdrop-blur-md border border-white/30 shadow-lg">
                 <FaUserPlus className="text-2xl" />
               </div>
@@ -74,7 +74,7 @@ const AddUserModal = ({ isOpen, onClose, onSuccess }) => {
                 <input
                   id="new-username"
                   type="text"
-                  className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white transition-all font-medium"
+                  className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-violet-500 focus:bg-white transition-all font-medium"
                   placeholder={t('admin.users.add.usernamePlaceholder')}
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
@@ -85,7 +85,7 @@ const AddUserModal = ({ isOpen, onClose, onSuccess }) => {
 
               <div className="flex items-center justify-between p-4 bg-gray-50 rounded-2xl border border-gray-100">
                 <div className="flex items-center gap-3">
-                  <div className={`p-2 rounded-lg ${isAdmin ? 'bg-rose-100 text-rose-600' : 'bg-indigo-100 text-indigo-600'}`}>
+                  <div className={`p-2 rounded-lg ${isAdmin ? 'bg-rose-100 text-rose-600' : 'bg-violet-100 text-violet-600'}`}>
                     <FaShieldAlt />
                   </div>
                   <div>
@@ -115,7 +115,7 @@ const AddUserModal = ({ isOpen, onClose, onSuccess }) => {
               <button
                 type="submit"
                 className={`flex-1 py-3 px-6 font-black text-white rounded-xl shadow-lg transition-all flex items-center justify-center gap-2 transform active:scale-95 ${
-                  isSubmitting ? 'bg-indigo-400 cursor-not-allowed' : 'bg-indigo-600 hover:bg-indigo-700 shadow-indigo-100'
+                  isSubmitting ? 'bg-violet-400 cursor-not-allowed' : 'bg-violet-600 hover:bg-violet-700 shadow-violet-100'
                 }`}
                 disabled={isSubmitting}
               >
@@ -148,14 +148,14 @@ const AddUserModal = ({ isOpen, onClose, onSuccess }) => {
               </div>
 
               <div className="relative group">
-                <div className="absolute inset-0 bg-indigo-600 blur-xl opacity-10 group-hover:opacity-20 transition-opacity"></div>
+                <div className="absolute inset-0 bg-violet-600 blur-xl opacity-10 group-hover:opacity-20 transition-opacity"></div>
                 <div className="relative bg-gray-50 p-6 rounded-2xl border border-gray-200 flex items-center justify-center gap-4">
                   <span className="text-2xl font-black text-gray-800 tracking-widest font-mono">
                     {createdSecret.initialPassword}
                   </span>
                   <button
                     onClick={handleCopyPassword}
-                    className={`p-3 rounded-xl transition-all ${copied ? 'bg-green-500 text-white' : 'bg-white text-indigo-600 border border-indigo-100 shadow-sm hover:border-indigo-300'}`}
+                    className={`p-3 rounded-xl transition-all ${copied ? 'bg-green-500 text-white' : 'bg-white text-violet-600 border border-violet-100 shadow-sm hover:border-violet-300'}`}
                   >
                     {copied ? <FaCheck /> : <FaCopy />}
                   </button>
@@ -164,7 +164,7 @@ const AddUserModal = ({ isOpen, onClose, onSuccess }) => {
 
               <button
                 onClick={handleFinalClose}
-                className="w-full py-4 px-6 font-black text-white bg-indigo-600 rounded-2xl shadow-xl shadow-indigo-100 hover:bg-indigo-700 transition-all transform active:scale-95"
+                className="w-full py-4 px-6 font-black text-white bg-violet-600 rounded-2xl shadow-xl shadow-violet-100 hover:bg-violet-700 transition-all transform active:scale-95"
               >
                 {t('admin.users.add.close')}
               </button>

@@ -53,7 +53,7 @@ const AdminDashboard = () => {
   if (loading) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
-        <div className="animate-spin rounded-full h-12 w-12 border-4 border-indigo-100 border-t-indigo-600"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-4 border-violet-100 border-t-violet-600"></div>
         <p className="text-sm font-bold text-gray-400 uppercase tracking-widest">{t('common.loading')}</p>
       </div>
     );
@@ -65,12 +65,12 @@ const AdminDashboard = () => {
     <div className="max-w-7xl mx-auto px-4 py-8">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-12">
         <div className="animate-slide-in-left">
-          <div className="flex items-center gap-3 mb-2 text-indigo-600">
+          <div className="flex items-center gap-3 mb-2 text-violet-600">
             <FaShieldAlt className="text-xl" />
             <span className="text-xs font-black uppercase tracking-[0.3em]">{t('admin.dashboard')}</span>
           </div>
           <h1 className="text-4xl font-black text-gray-800 tracking-tighter">
-            {t('admin.maintenance.system', 'System')} <span className="text-indigo-600">{t('admin.oversight', 'Oversight')}</span>
+            {t('admin.title', 'System')} <span className="text-violet-600">{t('admin.dashboard', 'Oversight')}</span>
           </h1>
         </div>
       </div>
@@ -87,21 +87,21 @@ const AdminDashboard = () => {
           title={t('admin.stats.authors')} 
           value={stats?.authorCount || 0} 
           icon={FaUsers} 
-          colorClass="bg-indigo-500" 
+          colorClass="bg-emerald-500" 
           delay="animate-fade-in [animation-delay:100ms]"
         />
         <StatCard 
           title={t('admin.stats.series')} 
           value={stats?.seriesCount || 0} 
           icon={FaLayerGroup} 
-          colorClass="bg-indigo-500" 
+          colorClass="bg-amber-500" 
           delay="animate-fade-in [animation-delay:200ms]"
         />
         <StatCard 
           title={t('admin.stats.totalSize')} 
           value={formatSize(totalSize)} 
           icon={FaHdd} 
-          colorClass="bg-rose-500" 
+          colorClass="bg-violet-500" 
           delay="animate-fade-in [animation-delay:300ms]"
         />
       </div>
@@ -110,7 +110,7 @@ const AdminDashboard = () => {
         <div className="lg:col-span-2 space-y-8">
           <div className="bg-white rounded-[2.5rem] border border-gray-100 shadow-2xl shadow-gray-200/50 p-8 animate-fade-in [animation-delay:400ms]">
             <h2 className="text-xl font-black text-gray-800 tracking-tight mb-8 flex items-center gap-3">
-              <FaHdd className="text-rose-500" /> {t('admin.stats.storageBreakdown')}
+              <FaHdd className="text-violet-500" /> {t('admin.stats.storageBreakdown')}
             </h2>
             
             <div className="space-y-6">
@@ -132,13 +132,13 @@ const AdminDashboard = () => {
               <div>
                 <div className="flex justify-between items-center mb-2">
                   <span className="text-xs font-black text-gray-500 uppercase tracking-widest flex items-center gap-2">
-                    <FaImage className="text-rose-500" /> {t('admin.stats.covers')}
+                    <FaImage className="text-violet-500" /> {t('admin.stats.covers')}
                   </span>
                   <span className="text-sm font-black text-gray-700">{formatSize(stats?.totalCoverSize)}</span>
                 </div>
                 <div className="h-3 bg-gray-100 rounded-full overflow-hidden">
                   <div 
-                    className="h-full bg-rose-500 rounded-full transition-all duration-1000" 
+                    className="h-full bg-violet-500 rounded-full transition-all duration-1000" 
                     style={{ width: totalSize > 0 ? `${(stats.totalCoverSize / totalSize) * 100}%` : '0%' }}
                   ></div>
                 </div>
@@ -153,9 +153,9 @@ const AdminDashboard = () => {
           </h2>
           
           <Link to="/admin/users" className="block group animate-fade-in [animation-delay:600ms]">
-            <div className="bg-white p-6 rounded-3xl border border-gray-100 shadow-xl shadow-gray-100/50 flex items-center justify-between group-hover:border-indigo-200 transition-all group-hover:-translate-y-1">
+            <div className="bg-white p-6 rounded-3xl border border-gray-100 shadow-xl shadow-gray-100/50 flex items-center justify-between group-hover:border-violet-200 transition-all group-hover:-translate-y-1">
               <div className="flex items-center gap-4">
-                <div className="p-3 rounded-2xl bg-indigo-50 text-indigo-600 group-hover:bg-indigo-600 group-hover:text-white transition-all">
+                <div className="p-3 rounded-2xl bg-violet-50 text-violet-600 group-hover:bg-violet-600 group-hover:text-white transition-all">
                   <FaUserCog size={20} />
                 </div>
                 <div>
@@ -163,14 +163,14 @@ const AdminDashboard = () => {
                   <p className="text-[10px] text-gray-400 font-bold leading-tight">{t('admin.users.description')}</p>
                 </div>
               </div>
-              <FaChevronRight className="text-gray-300 group-hover:text-indigo-600 transition-colors" />
+              <FaChevronRight className="text-gray-300 group-hover:text-violet-600 transition-colors" />
             </div>
           </Link>
 
           <Link to="/admin/settings" className="block group animate-fade-in [animation-delay:700ms]">
-            <div className="bg-white p-6 rounded-3xl border border-gray-100 shadow-xl shadow-gray-100/50 flex items-center justify-between group-hover:border-indigo-200 transition-all group-hover:-translate-y-1">
+            <div className="bg-white p-6 rounded-3xl border border-gray-100 shadow-xl shadow-gray-100/50 flex items-center justify-between group-hover:border-violet-200 transition-all group-hover:-translate-y-1">
               <div className="flex items-center gap-4">
-                <div className="p-3 rounded-2xl bg-indigo-50 text-indigo-600 group-hover:bg-indigo-600 group-hover:text-white transition-all">
+                <div className="p-3 rounded-2xl bg-violet-50 text-violet-600 group-hover:bg-violet-600 group-hover:text-white transition-all">
                   <FaCog size={20} />
                 </div>
                 <div>
@@ -178,14 +178,14 @@ const AdminDashboard = () => {
                   <p className="text-[10px] text-gray-400 font-bold leading-tight">{t('admin.settings.description')}</p>
                 </div>
               </div>
-              <FaChevronRight className="text-gray-300 group-hover:text-indigo-600 transition-colors" />
+              <FaChevronRight className="text-gray-300 group-hover:text-violet-600 transition-colors" />
             </div>
           </Link>
 
           <Link to="/admin/maintenance" className="block group animate-fade-in [animation-delay:800ms]">
-            <div className="bg-white p-6 rounded-3xl border border-gray-100 shadow-xl shadow-gray-100/50 flex items-center justify-between group-hover:border-indigo-200 transition-all group-hover:-translate-y-1">
+            <div className="bg-white p-6 rounded-3xl border border-gray-100 shadow-xl shadow-gray-100/50 flex items-center justify-between group-hover:border-violet-200 transition-all group-hover:-translate-y-1">
               <div className="flex items-center gap-4">
-                <div className="p-3 rounded-2xl bg-indigo-50 text-indigo-600 group-hover:bg-indigo-600 group-hover:text-white transition-all">
+                <div className="p-3 rounded-2xl bg-violet-50 text-violet-600 group-hover:bg-violet-600 group-hover:text-white transition-all">
                   <FaTools size={20} />
                 </div>
                 <div>
@@ -193,7 +193,7 @@ const AdminDashboard = () => {
                   <p className="text-[10px] text-gray-400 font-bold leading-tight">{t('admin.maintenance.description')}</p>
                 </div>
               </div>
-              <FaChevronRight className="text-gray-300 group-hover:text-indigo-600 transition-colors" />
+              <FaChevronRight className="text-gray-300 group-hover:text-violet-600 transition-colors" />
             </div>
           </Link>
         </div>

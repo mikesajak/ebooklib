@@ -7,14 +7,26 @@ const Pagination = ({ page, size, totalPages, totalElements, onPageChange, onPag
 
   const themeClasses = {
     indigo: 'bg-indigo-600 border-indigo-600 text-white shadow-indigo-100',
-    emerald: 'bg-indigo-600 border-indigo-600 text-white shadow-indigo-100', // Converging to indigo
-    amber: 'bg-indigo-600 border-indigo-600 text-white shadow-indigo-100'    // Converging to indigo
+    emerald: 'bg-emerald-600 border-emerald-600 text-white shadow-emerald-100',
+    amber: 'bg-amber-600 border-amber-600 text-white shadow-amber-100'
   };
 
   const hoverClasses = {
     indigo: 'hover:bg-indigo-50 hover:text-indigo-700 hover:border-indigo-200',
-    emerald: 'hover:bg-indigo-50 hover:text-indigo-700 hover:border-indigo-200',
-    amber: 'hover:bg-indigo-50 hover:text-indigo-700 hover:border-indigo-200'
+    emerald: 'hover:bg-emerald-50 hover:text-emerald-700 hover:border-emerald-200',
+    amber: 'hover:bg-amber-50 hover:text-amber-700 hover:border-amber-200'
+  };
+
+  const focusClasses = {
+    indigo: 'focus:ring-indigo-500',
+    emerald: 'focus:ring-emerald-500',
+    amber: 'focus:ring-amber-500'
+  };
+
+  const btnHoverTextClasses = {
+    indigo: 'hover:text-indigo-600 hover:border-indigo-100',
+    emerald: 'hover:text-emerald-600 hover:border-emerald-100',
+    amber: 'hover:text-amber-600 hover:border-amber-100'
   };
 
   const textClasses = {
@@ -33,7 +45,7 @@ const Pagination = ({ page, size, totalPages, totalElements, onPageChange, onPag
           <select
             value={size}
             onChange={(e) => onPageSizeChange(Number(e.target.value))}
-            className="bg-white border border-gray-200 text-gray-700 text-xs font-black rounded-lg focus:ring-2 focus:ring-indigo-500 p-1.5 outline-none transition-all shadow-sm cursor-pointer"
+            className={`bg-white border border-gray-200 text-gray-700 text-xs font-black rounded-lg focus:ring-2 ${focusClasses[theme]} p-1.5 outline-none transition-all shadow-sm cursor-pointer`}
           >
             {[5, 10, 25, 50, 100].map((pageSize) => (
               <option key={pageSize} value={pageSize}>
@@ -53,7 +65,7 @@ const Pagination = ({ page, size, totalPages, totalElements, onPageChange, onPag
         <button
           onClick={() => onPageChange(Math.max(0, page - 1))}
           disabled={page === 0}
-          className="p-2.5 rounded-xl border border-gray-200 text-gray-400 hover:bg-white hover:text-indigo-600 hover:border-indigo-100 disabled:opacity-30 disabled:cursor-not-allowed transition-all shadow-sm active:scale-95"
+          className={`p-2.5 rounded-xl border border-gray-200 text-gray-400 hover:bg-white ${btnHoverTextClasses[theme]} disabled:opacity-30 disabled:cursor-not-allowed transition-all shadow-sm active:scale-95`}
         >
           <FaChevronLeft size={12} />
         </button>
@@ -84,7 +96,7 @@ const Pagination = ({ page, size, totalPages, totalElements, onPageChange, onPag
         <button
           onClick={() => onPageChange(Math.min(totalPages - 1, page + 1))}
           disabled={page >= totalPages - 1}
-          className="p-2.5 rounded-xl border border-gray-200 text-gray-400 hover:bg-white hover:text-indigo-600 hover:border-indigo-100 disabled:opacity-30 disabled:cursor-not-allowed transition-all shadow-sm active:scale-95"
+          className={`p-2.5 rounded-xl border border-gray-200 text-gray-400 hover:bg-white ${btnHoverTextClasses[theme]} disabled:opacity-30 disabled:cursor-not-allowed transition-all shadow-sm active:scale-95`}
         >
           <FaChevronRight size={12} />
         </button>

@@ -134,6 +134,15 @@ const PaginatedAuthorTable = () => {
 
   return (
     <div className="bg-white overflow-hidden">
+      <div className="flex items-center gap-3 p-6 border-b border-gray-100">
+        <div className="bg-emerald-600 text-white p-2.5 rounded-lg shadow-md">
+          <FaUserTag size={18} />
+        </div>
+        <div>
+          <h2 className="text-sm font-black text-gray-800 tracking-tight uppercase">{t('authorList.title')}</h2>
+          <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">{totalElements} authors</p>
+        </div>
+      </div>
       <div className="overflow-x-auto">
         <table className="min-w-full table-auto">
           <thead>
@@ -222,7 +231,7 @@ const PaginatedAuthorTable = () => {
             localStorage.setItem('authorListPageSize', newSize.toString());
             setPage(0);
           }}
-          theme="indigo"
+          theme="emerald"
         />
       </div>
 

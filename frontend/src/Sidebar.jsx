@@ -201,18 +201,45 @@ const AppSidebar = ({ collapsed, setCollapsed }) => {
         <div className="flex-grow overflow-y-auto custom-scrollbar">
           <Menu
             menuItemStyles={{
-              button: ({ active, level }) => ({
-                color: active ? '#4f46e5' : '#9ca3af',
-                background: active ? '#f5f3ff' : 'transparent',
-                fontWeight: active ? '900' : '700',
-                fontSize: '13px',
-                paddingLeft: level === 0 ? '24px' : '48px',
-                paddingRight: '24px',
-                '&:hover': {
-                  background: '#f5f3ff',
-                  color: '#4f46e5',
-                },
-              }),
+              button: ({ active, level }) => {
+                const getActiveColor = () => {
+                  if (!active) return '#9ca3af';
+                  const path = location.pathname;
+                  if (path.startsWith('/authors')) return '#10b981'; // emerald-600
+                  if (path.startsWith('/series')) return '#d97706';  // amber-600
+                  if (path.startsWith('/import')) return '#4f46e5';  // indigo-600
+                  if (path.startsWith('/admin')) return '#4f46e5';   // indigo-600
+                  return '#4f46e5'; // default indigo-600
+                };
+
+                const getHoverColor = () => {
+                  const path = location.pathname;
+                  if (path.startsWith('/authors')) return '#10b981';
+                  if (path.startsWith('/series')) return '#d97706';
+                  return '#4f46e5';
+                };
+
+                const getBgColor = () => {
+                  if (!active) return 'transparent';
+                  const path = location.pathname;
+                  if (path.startsWith('/authors')) return '#ecfdf5'; // emerald-50
+                  if (path.startsWith('/series')) return '#fffbeb';  // amber-50
+                  return '#f5f3ff'; // indigo-50
+                };
+
+                return {
+                  color: getActiveColor(),
+                  background: getBgColor(),
+                  fontWeight: active ? '900' : '700',
+                  fontSize: '13px',
+                  paddingLeft: level === 0 ? '24px' : '48px',
+                  paddingRight: '24px',
+                  '&:hover': {
+                    background: getBgColor() !== 'transparent' ? getBgColor() : '#f5f3ff',
+                    color: getActiveColor() !== '#9ca3af' ? getActiveColor() : '#4f46e5',
+                  },
+                };
+              },
               label: ({ open }) => ({
                 fontWeight: open ? '900' : '700',
               }),

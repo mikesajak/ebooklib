@@ -129,8 +129,8 @@ const AddAuthor = () => {
 
   const SectionHeader = ({ icon: Icon, title, description }) => (
     <div className="mb-4">
-      <div className="flex items-center gap-2 text-indigo-900 mb-1">
-        <Icon className="text-indigo-500" />
+      <div className="flex items-center gap-2 text-emerald-900 mb-1">
+        <Icon className="text-emerald-500" />
         <h3 className="font-extrabold uppercase text-xs tracking-widest">{title}</h3>
       </div>
       {description && <p className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">{description}</p>}
@@ -145,15 +145,15 @@ const AddAuthor = () => {
 
   if (loading) {
     return (
-      <AddPage title={t(isEditMode ? 'addAuthor.editTitle' : 'addAuthor.title')} notification={notification} setNotification={setNotification}>
+      <AddPage title={t(isEditMode ? 'addAuthor.editTitle' : 'addAuthor.title')} notification={notification} setNotification={setNotification} color="emerald" icon={FaUserTag}>
         <p>{t('common.loading')}</p>
       </AddPage>
     );
   }
 
   return (
-    <AddPage title={t(isEditMode ? 'addAuthor.editTitle' : 'addAuthor.title')} notification={notification} setNotification={setNotification}>
-      <Form onSave={handleSave} onCancel={handleCancel} isSaveDisabled={isSaveDisabled}>
+    <AddPage title={t(isEditMode ? 'addAuthor.editTitle' : 'addAuthor.title')} notification={notification} setNotification={setNotification} color="emerald" icon={FaUserTag}>
+      <Form onSave={handleSave} onCancel={handleCancel} isSaveDisabled={isSaveDisabled} color="emerald">
         
         <SectionHeader icon={FaUserTag} title={t('addAuthor.section.identity', 'Personal Identity')} description="Basic identification for the author." />
         <InputCard isDirty={dirtyFields.has('firstName') || dirtyFields.has('lastName')}>
@@ -165,7 +165,7 @@ const AddAuthor = () => {
                 </label>
                 {dirtyFields.has('firstName') && <FaPencilAlt className="text-yellow-600 text-[10px]" />}
               </div>
-              <input type="text" id="firstName" name="firstName" value={author.firstName || ''} onChange={handleChange} className={`shadow-sm appearance-none border-2 rounded-xl w-full py-3 px-4 text-gray-700 leading-tight font-bold focus:outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all ${dirtyFields.has('firstName') ? 'border-yellow-300' : 'border-gray-100 bg-gray-50/30'}`} />
+              <input type="text" id="firstName" name="firstName" value={author.firstName || ''} onChange={handleChange} className={`shadow-sm appearance-none border-2 rounded-xl w-full py-3 px-4 text-gray-700 leading-tight font-bold focus:outline-none focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 transition-all ${dirtyFields.has('firstName') ? 'border-yellow-300' : 'border-gray-100 bg-gray-50/30'}`} />
             </div>
             <div>
               <div className="flex items-center gap-2 mb-3">
@@ -174,7 +174,7 @@ const AddAuthor = () => {
                 </label>
                 {dirtyFields.has('lastName') && <FaPencilAlt className="text-yellow-600 text-[10px]" />}
               </div>
-              <input type="text" id="lastName" name="lastName" value={author.lastName || ''} onChange={handleChange} className={`shadow-sm appearance-none border-2 rounded-xl w-full py-3 px-4 text-gray-700 leading-tight font-bold focus:outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all ${dirtyFields.has('lastName') ? 'border-yellow-300' : 'border-gray-100 bg-gray-50/30'}`} />
+              <input type="text" id="lastName" name="lastName" value={author.lastName || ''} onChange={handleChange} className={`shadow-sm appearance-none border-2 rounded-xl w-full py-3 px-4 text-gray-700 leading-tight font-bold focus:outline-none focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 transition-all ${dirtyFields.has('lastName') ? 'border-yellow-300' : 'border-gray-100 bg-gray-50/30'}`} />
             </div>
           </div>
         </InputCard>
@@ -186,7 +186,7 @@ const AddAuthor = () => {
               <label className="block text-gray-700 text-xs font-black uppercase tracking-widest" htmlFor="bio">{t('addAuthor.form.bio')}</label>
               {dirtyFields.has('bio') && <FaPencilAlt className="text-yellow-600 text-[10px]" />}
             </div>
-            <textarea id="bio" name="bio" value={author.bio || ''} onChange={handleChange} rows="4" className={`shadow-sm appearance-none border-2 rounded-2xl w-full py-3 px-4 text-gray-700 leading-tight font-medium focus:outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all ${dirtyFields.has('bio') ? 'border-yellow-300' : 'border-gray-100 bg-gray-50/30'}`} />
+            <textarea id="bio" name="bio" value={author.bio || ''} onChange={handleChange} rows="4" className={`shadow-sm appearance-none border-2 rounded-2xl w-full py-3 px-4 text-gray-700 leading-tight font-medium focus:outline-none focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 transition-all ${dirtyFields.has('bio') ? 'border-yellow-300' : 'border-gray-100 bg-gray-50/30'}`} />
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -195,14 +195,14 @@ const AddAuthor = () => {
                 <label className="block text-gray-700 text-xs font-black uppercase tracking-widest" htmlFor="birthDate">{t('addAuthor.form.birthDate')}</label>
                 {dirtyFields.has('birthDate') && <FaPencilAlt className="text-yellow-600 text-[10px]" />}
               </div>
-              <input type="date" id="birthDate" name="birthDate" value={author.birthDate || ''} onChange={handleChange} className={`shadow-sm appearance-none border-2 rounded-xl w-full py-3 px-4 text-gray-700 leading-tight font-bold focus:outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all ${dirtyFields.has('birthDate') ? 'border-yellow-300' : 'border-gray-100 bg-gray-50/30'}`} />
+              <input type="date" id="birthDate" name="birthDate" value={author.birthDate || ''} onChange={handleChange} className={`shadow-sm appearance-none border-2 rounded-xl w-full py-3 px-4 text-gray-700 leading-tight font-bold focus:outline-none focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 transition-all ${dirtyFields.has('birthDate') ? 'border-yellow-300' : 'border-gray-100 bg-gray-50/30'}`} />
             </div>
             <div>
               <div className="flex items-center gap-2 mb-3">
                 <label className="block text-gray-700 text-xs font-black uppercase tracking-widest" htmlFor="deathDate">{t('addAuthor.form.deathDate')}</label>
                 {dirtyFields.has('deathDate') && <FaPencilAlt className="text-yellow-600 text-[10px]" />}
               </div>
-              <input type="date" id="deathDate" name="deathDate" value={author.deathDate || ''} onChange={handleChange} className={`shadow-sm appearance-none border-2 rounded-xl w-full py-3 px-4 text-gray-700 leading-tight font-bold focus:outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all ${dirtyFields.has('deathDate') ? 'border-yellow-300' : 'border-gray-100 bg-gray-50/30'}`} />
+              <input type="date" id="deathDate" name="deathDate" value={author.deathDate || ''} onChange={handleChange} className={`shadow-sm appearance-none border-2 rounded-xl w-full py-3 px-4 text-gray-700 leading-tight font-bold focus:outline-none focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 transition-all ${dirtyFields.has('deathDate') ? 'border-yellow-300' : 'border-gray-100 bg-gray-50/30'}`} />
             </div>
           </div>
         </InputCard>

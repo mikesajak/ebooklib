@@ -199,7 +199,7 @@ const AuthorList = () => {
           </div>
 
           <Link to="/authors/add">
-            <button className="bg-indigo-600 hover:bg-indigo-700 text-white font-black text-sm uppercase tracking-wider py-3 px-8 rounded-2xl shadow-xl shadow-indigo-100 transition-all flex items-center gap-2 transform hover:-translate-y-1 active:scale-95">
+            <button className="bg-emerald-600 hover:bg-emerald-700 text-white font-black text-sm uppercase tracking-wider py-3 px-8 rounded-2xl shadow-xl shadow-emerald-100 transition-all flex items-center gap-2 transform hover:-translate-y-1 active:scale-95">
               <FaPlus />
               {t('authorList.addAuthor')}
             </button>

@@ -20,13 +20,13 @@ const SettingRow = ({ setting, onSave }) => {
   };
 
   return (
-    <div className="flex flex-col md:flex-row md:items-center justify-between p-6 bg-white rounded-2xl border border-gray-100 group hover:border-indigo-200 transition-all shadow-sm">
+    <div className="flex flex-col md:flex-row md:items-center justify-between p-6 bg-white rounded-2xl border border-gray-100 group hover:border-violet-200 transition-all shadow-sm">
       <div className="flex-grow mb-4 md:mb-0">
-        <p className="text-[10px] font-black text-indigo-400 uppercase tracking-widest mb-1">{setting.key}</p>
+        <p className="text-[10px] font-black text-violet-400 uppercase tracking-widest mb-1">{setting.key}</p>
         <p className="text-sm font-bold text-gray-700 mb-1">{setting.description || 'No description available.'}</p>
         <input
           type="text"
-          className="w-full md:max-w-md px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white transition-all text-sm font-medium"
+          className="w-full md:max-w-md px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-violet-500 focus:bg-white transition-all text-sm font-medium"
           value={value}
           onChange={(e) => {
             setValue(e.target.value);
@@ -41,7 +41,7 @@ const SettingRow = ({ setting, onSave }) => {
           className={`flex items-center gap-2 px-6 py-2.5 rounded-xl font-black text-xs uppercase tracking-wider transition-all transform active:scale-95 ${
             !isModified 
               ? 'bg-gray-100 text-gray-400 cursor-not-allowed' 
-              : 'bg-indigo-600 text-white shadow-lg shadow-indigo-100 hover:bg-indigo-700'
+              : 'bg-violet-600 text-white shadow-lg shadow-violet-100 hover:bg-violet-700'
           }`}
         >
           {isSaving ? (
@@ -106,7 +106,7 @@ const SettingsPanel = () => {
   if (loading) {
     return (
       <div className="flex justify-center items-center min-h-[400px]">
-        <div className="animate-spin rounded-full h-12 w-12 border-4 border-indigo-100 border-t-indigo-600"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-4 border-violet-100 border-t-violet-600"></div>
       </div>
     );
   }
@@ -135,15 +135,15 @@ const SettingsPanel = () => {
       )}
 
       <div className="animate-slide-in-left mb-12">
-        <div className="flex items-center gap-3 mb-2 text-indigo-600">
+        <div className="flex items-center gap-3 mb-2 text-violet-600">
           <FaCog className="text-xl animate-spin-slow" />
-          <Link to="/admin" className="text-xs font-black uppercase tracking-[0.3em] hover:text-indigo-800 transition-colors flex items-center gap-2 group/back">
+          <Link to="/admin" className="text-xs font-black uppercase tracking-[0.3em] hover:text-violet-800 transition-colors flex items-center gap-2 group/back">
             <FaChevronLeft className="text-[8px] transform group-hover/back:-translate-x-1 transition-transform" />
             {t('admin.backToDashboard')}
           </Link>
         </div>
         <h1 className="text-4xl font-black text-gray-800 tracking-tighter">
-          {t('admin.settings.titlePrefix', 'System')} <span className="text-indigo-600">{t('admin.settings.titleSuffix', 'Configuration')}</span>
+          {t('admin.settings.titlePrefix', 'System')} <span className="text-violet-600">{t('admin.settings.titleSuffix', 'Configuration')}</span>
         </h1>        <p className="text-gray-400 font-bold mt-2">{t('admin.settings.description')}</p>
       </div>
 
@@ -161,7 +161,7 @@ const SettingsPanel = () => {
             return (
               <div key={groupKey} className="animate-fade-in">
                 <h2 className="text-xs font-black text-gray-400 uppercase tracking-[0.3em] mb-6 px-4 flex items-center gap-2">
-                  <div className="w-1.5 h-1.5 rounded-full bg-indigo-500"></div>
+                  <div className="w-1.5 h-1.5 rounded-full bg-violet-500"></div>
                   {t(`admin.settings.groups.${groupKey}`)}
                 </h2>
                 <div className="grid grid-cols-1 gap-4">

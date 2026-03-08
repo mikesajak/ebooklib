@@ -324,10 +324,14 @@ const AddBook = () => {
     </div>
   );
 
-  if (loading) return <AddPage title={t(isEditMode ? 'addBook.editTitle' : 'addBook.title')}><p>{t('common.loading')}</p></AddPage>;
+  if (loading) return (
+    <AddPage title={t(isEditMode ? 'addBook.editTitle' : 'addBook.title')} color="indigo" icon={FaBook}>
+      <p>{t('common.loading')}</p>
+    </AddPage>
+  );
 
   return (
-    <AddPage title={t(isEditMode ? 'addBook.editTitle' : 'addBook.title')} notification={notification} setNotification={setNotification}>
+    <AddPage title={t(isEditMode ? 'addBook.editTitle' : 'addBook.title')} notification={notification} setNotification={setNotification} color="indigo" icon={FaBook}>
       
       {!isEditMode && !stagedUpload && (
         <div className="mb-10 bg-indigo-50/50 p-6 rounded-[2.5rem] border border-indigo-100 shadow-inner">
@@ -406,7 +410,7 @@ const AddBook = () => {
         </div>
       )}
 
-      <Form onSave={handleSave} onCancel={() => navigate(isEditMode ? `/book/${id}` : '/')} isSaveDisabled={!book.title.trim() || isSaving || (isEditMode && !hasChanges())}>
+      <Form onSave={handleSave} onCancel={() => navigate(isEditMode ? `/book/${id}` : '/')} isSaveDisabled={!book.title.trim() || isSaving || (isEditMode && !hasChanges())} color="indigo">
         
         <SectionHeader icon={FaBook} title={t('addBook.form.metadata')} description="The core details of your book entry." />
         <InputCard isDirty={dirtyFields.has('title')}>
