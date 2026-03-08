@@ -12,6 +12,7 @@
     "loadingBooks": "Ładowanie książek...",
     "error": "Błąd",
     "addBookButton": "Dodaj Książkę",
+    "booksCount": "{{count}} książek w bibliotece",
     "header": {
       "title": "Tytuł",
       "authors": "Autorzy",

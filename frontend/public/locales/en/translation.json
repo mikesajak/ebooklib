@@ -12,6 +12,7 @@
     "loadingBooks": "Loading books...",
     "error": "Error",
     "addBookButton": "Add Book",
+    "booksCount": "{{count}} books in library",
     "header": {
       "title": "Title",
       "authors": "Authors",
