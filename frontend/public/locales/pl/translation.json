@@ -194,6 +194,14 @@
     "addAuthor": "Dodaj Autora",
     "groupedView": "Widok grupowany",
     "plainView": "Lista płaska",
+    "authorsCount_one": "1 autor w bazie danych",
+    "authorsCount_few": "{{count}} autorzy w bazie danych",
+    "authorsCount_many": "{{count}} autorów w bazie danych",
+    "authorsCount_other": "{{count}} autorów w bazie danych",
+    "authorsCountShort_one": "1 autor",
+    "authorsCountShort_few": "{{count}} autorzy",
+    "authorsCountShort_many": "{{count}} autorów",
+    "authorsCountShort_other": "{{count}} autorów",
     "lastName": "Nazwisko",
     "firstName": "Imię",
     "header": {
@@ -231,6 +239,10 @@
     "loading": "Ładowanie serii...",
     "noSeriesFound": "Nie znaleziono serii.",
     "addSeries": "Dodaj Serię",
+    "seriesCount_one": "1 seria w kolekcji",
+    "seriesCount_few": "{{count}} serie w kolekcji",
+    "seriesCount_many": "{{count}} serii w kolekcji",
+    "seriesCount_other": "{{count}} serii w kolekcji",
     "header": {
       "title": "Tytuł"
     }

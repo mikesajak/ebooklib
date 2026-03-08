@@ -159,7 +159,7 @@ const AuthorList = () => {
           </div>
           <div>
             <h1 className="text-2xl font-extrabold text-gray-900 tracking-tight">{t('authorList.title')}</h1>
-            <p className="text-xs text-gray-500 font-medium">{authors.length} authors in database</p>
+            <p className="text-xs text-gray-500 font-medium">{t('authorList.authorsCount', { count: authors.length })}</p>
           </div>
         </div>
 

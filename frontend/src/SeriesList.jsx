@@ -99,7 +99,7 @@ const SeriesList = () => {
           </div>
           <div>
             <h1 className="text-2xl font-extrabold text-gray-900 tracking-tight">{t('seriesList.title')}</h1>
-            <p className="text-xs text-gray-500 font-medium">{totalElements} series in collection</p>
+            <p className="text-xs text-gray-500 font-medium">{t('seriesList.seriesCount', { count: totalElements })}</p>
           </div>
         </div>
 

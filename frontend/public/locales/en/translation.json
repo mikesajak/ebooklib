@@ -193,6 +193,10 @@
     "addAuthor": "Add Author",
     "groupedView": "Grouped View",
     "plainView": "Plain List",
+    "authorsCount_one": "1 author in database",
+    "authorsCount_other": "{{count}} authors in database",
+    "authorsCountShort_one": "1 author",
+    "authorsCountShort_other": "{{count}} authors",
     "lastName": "Last Name",
     "firstName": "First Name",
     "header": {
@@ -229,6 +233,8 @@
     "loading": "Loading series...",
     "noSeriesFound": "No series found.",
     "addSeries": "Add Series",
+    "seriesCount_one": "1 series in collection",
+    "seriesCount_other": "{{count}} series in collection",
     "header": {
       "title": "Title"
     },

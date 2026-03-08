@@ -140,7 +140,7 @@ const PaginatedAuthorTable = () => {
         </div>
         <div>
           <h2 className="text-sm font-black text-gray-800 tracking-tight uppercase">{t('authorList.title')}</h2>
-          <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">{totalElements} authors</p>
+          <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">{t('authorList.authorsCountShort', { count: totalElements })}</p>
         </div>
       </div>
       <div className="overflow-x-auto">
