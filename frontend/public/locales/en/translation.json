@@ -70,6 +70,7 @@
       "labels": "Labels",
       "selectAuthor": "Select an author",
       "selectSeries": "Select a series",
+      "addFormat": "Add Format",
       "labelsPlaceholder": "Comma-separated labels (e.g. Fantasy, Adventure)"
     },
     "display": {
@@ -126,6 +127,7 @@
       "labels": "Labels",
       "labelsPlaceholder": "Comma-separated labels (e.g. Fantasy, Adventure)",
       "addAuthor": "Add Author",
+      "addFormat": "Add Format",
       "volumeDisabledTooltip": "Select a series first to enable volume number",
       "metadata": "Metadata",
       "authors": "Authors",
@@ -334,6 +336,9 @@
       "confirmDuplicate": "Yes, add this potential duplicate",
       "buttonImport": "Finalize & Import",
       "buttonUpdate": "Finalize & Update",
+      "confirmCreate": "Create Book & Import",
+      "confirmUpdate": "Update & Add Format",
+      "processing": "Processing Import...",
       "sources": {
         "library": "Library",
         "form": "Form",
@@ -355,29 +360,7 @@
       "newOnly": "New Only"
     },
     "autoResolveSuccess": "Auto-resolution completed.",
-    "autoResolveError": "Failed to auto-resolve items.",
-    "review": {
-      "titleNew": "Import New Book",
-      "titleUpdate": "Update Existing Book",
-      "intro": "Review the metadata extracted from your file. You can choose to keep existing library data or use the new values found in the ebook.",
-      "fileName": "File",
-      "existingValue": "Current Library Data",
-      "extractedValue": "Extracted from File",
-      "statusTitle": "Analysis Result",
-      "statusMatch": "Extracted metadata matches this book. You can safely add this format.",
-      "statusMismatch": "Extracted metadata (Title/Author) differs from this book record. Please review carefully.",
-      "statusNewBook": "This looks like a new book. You can create a new record in the library.",
-      "description": "Description / Summary",
-      "assignedAuthors": "Assigned Authors",
-      "authorNote": "Select authors from your library that match the extracted names.",
-      "useExtractedCover": "Use extracted cover image instead of current one",
-      "useExtractedCoverSubtext": "Replace current cover with image from ebook file",
-      "importCover": "Import cover from ebook file",
-      "importCoverSubtext": "Set extracted image as the book cover",
-      "confirmCreate": "Create Book & Import",
-      "confirmUpdate": "Update & Add Format",
-      "processing": "Processing Import..."
-    }
+    "autoResolveError": "Failed to auto-resolve items."
   },
   "auth": {
     "loginTitle": "Login",

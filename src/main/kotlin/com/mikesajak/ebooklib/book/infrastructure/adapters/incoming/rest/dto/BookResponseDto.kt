@@ -15,5 +15,6 @@ data class BookResponseDto(val id: UUID,
                            val publicationDate: LocalDate?,
                            val publisher: String?,
                            val description: String?,
-                           val labels: List<String>
+                           val labels: List<String>,
+                           val formats: List<EbookFormatFileDto>? = null
 )

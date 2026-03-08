@@ -3,9 +3,13 @@ package com.mikesajak.ebooklib.book.infrastructure.adapters.incoming.rest
 import com.mikesajak.ebooklib.author.application.ports.incoming.GetAuthorUseCase
 import com.mikesajak.ebooklib.author.domain.model.AuthorId
 import com.mikesajak.ebooklib.author.infrastructure.adapters.incoming.rest.AuthorRestMapper
+import com.mikesajak.ebooklib.book.application.ports.incoming.GetBookUseCase
+import com.mikesajak.ebooklib.book.application.ports.incoming.ListEbookFormatsUseCase
 import com.mikesajak.ebooklib.book.domain.model.Book
+import com.mikesajak.ebooklib.book.domain.model.BookId
 import com.mikesajak.ebooklib.book.infrastructure.adapters.incoming.rest.dto.BookRequestDto
 import com.mikesajak.ebooklib.book.infrastructure.adapters.incoming.rest.dto.BookResponseDto
+import com.mikesajak.ebooklib.book.infrastructure.adapters.incoming.rest.dto.EbookFormatFileDto
 import com.mikesajak.ebooklib.series.application.ports.incoming.GetSeriesUseCase
 import com.mikesajak.ebooklib.series.domain.model.SeriesId
 import com.mikesajak.ebooklib.series.infrastructure.adapters.incoming.rest.SeriesRestMapper
@@ -17,7 +21,8 @@ class BookRestMapper(
         private val seriesRestMapper: SeriesRestMapper,
 
         private val getAuthorUseCase: GetAuthorUseCase,
-        private val getSeriesUseCase: GetSeriesUseCase
+        private val getSeriesUseCase: GetSeriesUseCase,
+        private val listEbookFormatsUseCase: ListEbookFormatsUseCase
 ) {
     fun toResponse(book: Book, view: BookView) =
         when (view) {
@@ -31,7 +36,17 @@ class BookRestMapper(
                     publicationDate = book.publicationDate,
                     publisher = book.publisher,
                     description = book.description,
-                    labels = book.labels
+                    labels = book.labels,
+                    formats = listEbookFormatsUseCase.listFormatFiles(book.id)
+                        .map {
+                            EbookFormatFileDto(
+                                id = it.id.toString(),
+                                fileName = it.fileName,
+                                contentType = it.contentType,
+                                size = it.fileSize,
+                                formatType = it.formatType
+                            )
+                        }
             )
 
             BookView.COMPACT -> BookResponseDto(

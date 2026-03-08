@@ -66,7 +66,7 @@ const BookDetails = () => {
       <header className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-12">
         <div className="flex items-center gap-6 animate-slide-in-left">
           <button 
-            onClick={() => navigate('/books')}
+            onClick={() => navigate('/')}
             className="p-4 bg-white text-gray-400 hover:text-indigo-600 border border-gray-200 rounded-2xl transition-all shadow-sm hover:shadow-md active:scale-95 group"
           >
             <FaArrowLeft size={20} className="transform group-hover:-translate-x-1 transition-transform" />

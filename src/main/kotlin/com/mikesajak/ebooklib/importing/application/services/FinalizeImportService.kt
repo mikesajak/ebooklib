@@ -98,15 +98,20 @@ class FinalizeImportService(
 
         try {
             val sourceKey = "staged/${stagedUpload.id}"
+            logger.info { "Promoting format for upload ${stagedUpload.id} to book ${book.id}. Source key: $sourceKey" }
+            
             // Check if file still in staged (it might have been moved in a previous failed attempt)
             val stagedMetadata = fileStoragePort.getFileMetadata(sourceKey)
             
             val promotedFileId = if (stagedMetadata != null) {
-                fileStoragePort.moveFile(sourceKey, null).id
+                val moved = fileStoragePort.moveFile(sourceKey, null)
+                logger.info { "Moved staged file $sourceKey to permanent storage: ${moved.id}" }
+                moved.id
             } else {
                 // If not in staged, check if it's already in permanent storage (root)
                 val rootKey = stagedUpload.id.toString()
                 if (fileStoragePort.getFileMetadata(rootKey) != null) {
+                    logger.info { "File ${stagedUpload.id} already in permanent storage at $rootKey" }
                     rootKey
                 } else {
                     logger.warn { "Staged file ${stagedUpload.id} not found in staged/ or root. Skipping promotion." }
@@ -116,6 +121,7 @@ class FinalizeImportService(
 
             if (promotedFileId != null) {
                 val formatType = extractFormatType(stagedUpload.fileName)
+                logger.info { "Linking promoted file $promotedFileId as format $formatType to book ${book.id}" }
                 addEbookFormatUseCase.addFormatFromStorage(book.id!!, promotedFileId, formatType)
             }
         } catch (e: Exception) {

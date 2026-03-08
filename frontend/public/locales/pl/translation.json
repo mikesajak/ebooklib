@@ -70,6 +70,7 @@
       "labels": "Etykiety",
       "selectAuthor": "Wybierz autora",
       "selectSeries": "Wybierz serię",
+      "addFormat": "Dodaj Format",
       "labelsPlaceholder": "Etykiety oddzielone przecinkami (np. Fantasy, Przygoda)"
     },
     "display": {
@@ -125,6 +126,7 @@
       "labels": "Etykiety",
       "labelsPlaceholder": "Etykiety oddzielone przecinkami (np. Fantasy, Przygoda)",
       "addAuthor": "Dodaj Autora",
+      "addFormat": "Dodaj Format",
       "volumeDisabledTooltip": "Najpierw wybierz serię, aby odblokować numer tomu",
       "metadata": "Metadane",
       "authors": "Autorzy",
@@ -327,6 +329,9 @@
       "confirmDuplicate": "Tak, dodaj ten potencjalny duplikat",
       "buttonImport": "Finalizuj i Importuj",
       "buttonUpdate": "Finalizuj i Aktualizuj",
+      "confirmCreate": "Utwórz książkę i importuj",
+      "confirmUpdate": "Aktualizuj i dodaj format",
+      "processing": "Przetwarzanie importu...",
       "sources": {
         "library": "Biblioteka",
         "form": "Formularz",
@@ -348,29 +353,7 @@
       "newOnly": "Tylko nowe"
     },
     "autoResolveSuccess": "Automatyczne rozwiązywanie zakończone.",
-    "autoResolveError": "Nie udało się automatycznie rozwiązać elementów.",
-    "review": {
-      "titleNew": "Importuj nową książkę",
-      "titleUpdate": "Aktualizuj istniejącą książkę",
-      "intro": "Przejrzyj metadane wyodrębnione z pliku. Możesz zachować istniejące dane z biblioteki lub użyć nowych wartości znalezionych w ebooku.",
-      "fileName": "Plik",
-      "existingValue": "Aktualne dane w bibliotece",
-      "extractedValue": "Wyodrębnione z pliku",
-      "statusTitle": "Wynik analizy",
-      "statusMatch": "Wyodrębnione metadane pasują do tej książki. Możesz bezpiecznie dodać ten format.",
-      "statusMismatch": "Wyodrębnione metadane (tytuł/autor) różnią się od zapisu w bibliotece. Proszę o uważną weryfikację.",
-      "statusNewBook": "To wygląda na nową książkę. Możesz utworzyć nowy rekord w bibliotece.",
-      "description": "Opis / Podsumowanie",
-      "assignedAuthors": "Przypisani autorzy",
-      "authorNote": "Wybierz autorów ze swojej biblioteki, którzy pasują do wyodrębnionych nazwisk.",
-      "useExtractedCover": "Użyj wyodrębnionej okładki zamiast obecnej",
-      "useExtractedCoverSubtext": "Zastąp obecną okładkę obrazem z pliku ebooka",
-      "importCover": "Importuj okładkę z pliku ebooka",
-      "importCoverSubtext": "Ustaw wyodrębniony obraz jako okładkę książki",
-      "confirmCreate": "Utwórz książkę i importuj",
-      "confirmUpdate": "Aktualizuj i dodaj format",
-      "processing": "Przetwarzanie importu..."
-    }
+    "autoResolveError": "Nie udało się automatycznie rozwiązać elementów."
   },
   "auth": {
     "loginTitle": "Logowanie",
