@@ -260,7 +260,7 @@ const AuthorList = () => {
               <p className="text-gray-600 mb-4">{t('authorList.confirmDeleteMessage', { authorName: `${authorToDelete.firstName} ${authorToDelete.lastName}` })}</p>
               {affectedBooks.length > 0 && (
                 <div className="bg-red-50 p-4 rounded-xl border border-red-100">
-                  <p className="font-extrabold text-red-800 uppercase text-[10px] tracking-widest mb-2">{t('authorList.affectedBooks')}:</p>
+                  <p className="font-extrabold text-red-800 uppercase text-[10px] tracking-widest mb-2">{t('authorList.affectedBooks', { count: affectedBooks.length })}:</p>
                   <ul className="space-y-1">
                     {affectedBooks.map(book => (
                       <li key={book.id} className="text-red-700 flex items-center gap-2">

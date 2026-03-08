@@ -159,7 +159,7 @@ const BookTable = () => {
           </div>
           <div>
             <h1 className="text-2xl font-extrabold text-gray-900 tracking-tight">{t('bookTable.title')}</h1>
-            <p className="text-xs text-gray-500 font-medium">{t('bookTable.booksCount', '{{count}} books in library', { count: totalElements })}</p>
+            <p className="text-xs text-gray-500 font-medium">{t('bookTable.booksCount', { count: totalElements })}</p>
           </div>
         </div>
         

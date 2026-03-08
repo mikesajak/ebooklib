@@ -243,7 +243,7 @@ const PaginatedAuthorTable = () => {
               <p className="mb-4">{t('authorList.confirmDeleteMessage', { authorName: `${authorToDelete?.firstName} ${authorToDelete?.lastName}` })}</p>
               {affectedBooks.length > 0 && (
                 <div className="bg-amber-50 border border-amber-100 p-4 rounded-xl text-amber-800 text-sm">
-                  <p className="font-bold mb-2">{t('authorList.affectedBooks')}:</p>
+                  <p className="font-bold mb-2">{t('authorList.affectedBooks', { count: affectedBooks.length })}:</p>
                   <ul className="list-disc list-inside max-h-32 overflow-y-auto">
                     {affectedBooks.map(book => (
                       <li key={book.id}>{book.title}</li>
