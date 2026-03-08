@@ -11,25 +11,35 @@ const SeriesDetails = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const [series, setSeries] = useState(null);
+  const [books, setBooks] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [notification, setNotification] = useState({ message: '', type: '', visible: false });
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   useEffect(() => {
-    const fetchSeries = async () => {
+    const fetchSeriesAndBooks = async () => {
       try {
-        const response = await fetchWithCsrf(`/api/series/${id}`);
-        if (!response.ok) throw new Error('Failed to fetch series details');
-        const data = await response.json();
-        setSeries(data);
+        const [seriesRes, booksRes] = await Promise.all([
+          fetchWithCsrf(`/api/series/${id}`),
+          fetchWithCsrf(`/api/series/${id}/books?size=1000`)
+        ]);
+
+        if (!seriesRes.ok) throw new Error('Failed to fetch series details');
+        const seriesData = await seriesRes.json();
+        setSeries(seriesData);
+
+        if (booksRes.ok) {
+          const booksData = await booksRes.json();
+          setBooks(booksData.content || []);
+        }
       } catch (err) {
         setError(err.message);
       } finally {
         setLoading(false);
       }
     };
-    fetchSeries();
+    fetchSeriesAndBooks();
   }, [id]);
 
   const handleDeleteClick = () => setShowDeleteConfirm(true);
@@ -109,12 +119,12 @@ const SeriesDetails = () => {
         <div className="lg:col-span-1 space-y-6">
           <div className="flex items-center justify-between px-4">
             <h2 className="text-xs font-black text-gray-400 uppercase tracking-[0.3em] flex items-center gap-2"><FaBook className="text-amber-400" /> {t('seriesDetails.booksInSeries', 'Books in Series')}</h2>
-            <span className="text-[10px] font-black text-amber-600 bg-amber-50 px-2 py-1 rounded-md">{series.books?.length || 0}</span>
+            <span className="text-[10px] font-black text-amber-600 bg-amber-50 px-2 py-1 rounded-md">{books.length}</span>
           </div>
           
           <div className="space-y-4">
-            {series.books && series.books.length > 0 ? (
-              series.books.map((book) => (
+            {books.length > 0 ? (
+              books.map((book) => (
                 <Link key={book.id} to={`/book/${book.id}`} className="block group/book">
                   <div className="bg-white p-5 rounded-2xl border border-gray-100 shadow-xl shadow-gray-100/50 flex items-center justify-between group-hover/book:border-amber-200 transition-all group-hover/book:-translate-y-1">
                     <div className="flex items-center gap-4">
