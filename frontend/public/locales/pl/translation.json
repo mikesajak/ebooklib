@@ -424,6 +424,8 @@
     },
     "maintenance": {
       "title": "Konserwacja Systemu",
+      "titlePrefix": "System",
+      "titleSuffix": "Konserwacja",
       "system": "System",
       "description": "Narzędzia do zachowania spójności danych i czyszczenia pamięci.",
       "staging": {

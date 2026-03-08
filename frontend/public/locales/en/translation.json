@@ -431,6 +431,8 @@
     },
     "maintenance": {
       "title": "System Maintenance",
+      "titlePrefix": "System",
+      "titleSuffix": "Maintenance",
       "system": "System",
       "description": "Tools for data integrity and storage cleanup.",
       "staging": {

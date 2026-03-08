@@ -160,7 +160,7 @@ const MaintenancePanel = () => {
           </Link>
         </div>
         <h1 className="text-4xl font-black text-gray-800 tracking-tighter">
-          {t('admin.maintenance.system', 'System')} <span className="text-indigo-600">{t('admin.maintenance.title', 'Maintenance')}</span>
+          {t('admin.maintenance.titlePrefix', 'System')} <span className="text-indigo-600">{t('admin.maintenance.titleSuffix', 'Maintenance')}</span>
         </h1>
         <p className="text-gray-400 font-bold mt-2">{t('admin.maintenance.description')}</p>
       </div>
