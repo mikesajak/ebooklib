@@ -16,7 +16,7 @@ class GroupingService(
 ) : GroupUploadUseCase {
 
     @Transactional
-    override fun group(uploadId: StagedEbookUploadId, title: String, authors: List<String>): ResolutionItemId {
+    override fun group(uploadId: StagedEbookUploadId, title: String, authors: List<String>): ResolutionItemId? {
         val upload = stagedUploadRepository.findById(uploadId) ?: throw IllegalArgumentException("Upload $uploadId not found")
         val sessionId = upload.importSessionId
 
@@ -38,15 +38,9 @@ class GroupingService(
             stagedUploadRepository.save(updatedUpload)
             existing.id
         } else {
-            // If no session, we still need a session to create a ResolutionItem because of the FK
-            // This suggests that we SHOULD have a session for bulk imports.
-            // For now, if sessionId is null, we might be in a legacy or single-upload flow.
-            // Requirement REQ-003 is about Bulk Import, which implies a session.
-            
+            // If no session, we can't create a ResolutionItem because of the FK requirement
             if (sessionId == null) {
-                // In a real scenario, we might want to create a session here or throw an error.
-                // Given the constraints, I'll throw an error or just return a random ID (but it won't persist well without session)
-                throw IllegalStateException("Cannot group upload $uploadId without an ImportSession")
+                return null
             }
 
             val newItem = ResolutionItem(
