@@ -26,7 +26,7 @@ class AsyncStorageScanner(
     private val notificationService: NotificationService
 ) {
     private val currentStats = AtomicReference(
-        StorageScanStats(ScanStatus.IDLE, null, null, 0, 0, emptyList(), 0)
+        StorageScanStats(ScanStatus.IDLE, null, null, 0, 0, 0, 0, emptyList(), 0)
     )
 
     fun getLatestStats(): StorageScanStats = currentStats.get()
@@ -39,7 +39,7 @@ class AsyncStorageScanner(
         }
 
         logger.info { "Starting deep storage scan..." }
-        val initialStats = StorageScanStats(ScanStatus.RUNNING, Instant.now(), null, 0, 0, emptyList(), 0)
+        val initialStats = StorageScanStats(ScanStatus.RUNNING, Instant.now(), null, 0, 0, 0, 0, emptyList(), 0)
         currentStats.set(initialStats)
         notificationService.broadcast(NotificationEvent(NotificationType.STORAGE_SCAN_PROGRESS, initialStats))
 
@@ -54,15 +54,19 @@ class AsyncStorageScanner(
 
             val orphanedKeys = mutableListOf<String>()
             var scannedCount = 0
+            var scannedSize = 0L
+            var orphanedSize = 0L
 
-            fileStoragePort.listAllFiles().forEach { key ->
+            fileStoragePort.listAllFiles().forEach { entry ->
                 scannedCount++
-                if (!allReferencedKeys.contains(key)) {
-                    orphanedKeys.add(key)
+                scannedSize += entry.size
+                if (!allReferencedKeys.contains(entry.key)) {
+                    orphanedKeys.add(entry.key)
+                    orphanedSize += entry.size
                 }
                 
                 if (scannedCount % 50 == 0) {
-                    updateProgress(scannedCount, orphanedKeys.size, orphanedKeys.toList(), 0)
+                    updateProgress(scannedCount, scannedSize, orphanedKeys.size, orphanedSize, orphanedKeys.toList(), 0)
                 }
             }
 
@@ -70,13 +74,15 @@ class AsyncStorageScanner(
                 status = ScanStatus.COMPLETED,
                 finishedAt = Instant.now(),
                 totalFilesScanned = scannedCount,
+                totalScannedSize = scannedSize,
                 orphanedFilesFound = orphanedKeys.size,
+                orphanedSize = orphanedSize,
                 orphanedFileKeys = orphanedKeys.toList(),
                 progressPercent = 100
             )
             currentStats.set(finalStats)
             notificationService.broadcast(NotificationEvent(NotificationType.STORAGE_SCAN_PROGRESS, finalStats))
-            logger.info { "Deep storage scan completed. Found ${orphanedKeys.size} orphans. Total scanned: $scannedCount" }
+            logger.info { "Deep storage scan completed. Found ${orphanedKeys.size} orphans (${orphanedSize} bytes). Total scanned: $scannedCount (${scannedSize} bytes)" }
 
         } catch (e: Exception) {
             logger.error(e) { "Error during deep storage scan" }
@@ -104,7 +110,7 @@ class AsyncStorageScanner(
             return
         }
 
-        logger.info { "Starting purge of ${keysToPurge.size} orphaned files..." }
+        logger.info { "Starting purge of ${keysToPurge.size} orphaned files (${stats.orphanedSize} bytes)..." }
         val initialStats = stats.copy(status = ScanStatus.PURGING, progressPercent = 0)
         currentStats.set(initialStats)
         notificationService.broadcast(NotificationEvent(NotificationType.STORAGE_SCAN_PROGRESS, initialStats))
@@ -128,6 +134,7 @@ class AsyncStorageScanner(
                 finishedAt = Instant.now(),
                 orphanedFileKeys = emptyList(),
                 orphanedFilesFound = 0,
+                orphanedSize = 0,
                 progressPercent = 100
             )
             currentStats.set(finalStats)
@@ -145,10 +152,12 @@ class AsyncStorageScanner(
         }
     }
 
-    private fun updateProgress(scanned: Int, found: Int, keys: List<String>, progress: Int) {
+    private fun updateProgress(scanned: Int, scannedSize: Long, found: Int, foundSize: Long, keys: List<String>, progress: Int) {
         val stats = currentStats.get().copy(
             totalFilesScanned = scanned,
+            totalScannedSize = scannedSize,
             orphanedFilesFound = found,
+            orphanedSize = foundSize,
             orphanedFileKeys = keys,
             progressPercent = progress
         )
@@ -157,11 +166,15 @@ class AsyncStorageScanner(
     }
 
     private fun updatePurgeProgress(purged: Int, total: Int, progress: Int) {
-        val stats = currentStats.get().copy(
+        val stats = currentStats.get()
+        val currentOrphanedSize = stats.orphanedSize
+        // We don't track size per file during purge for simplicity, 
+        // we'll just set it to 0 at the end.
+        val updatedStats = stats.copy(
             progressPercent = progress,
             orphanedFilesFound = total - purged
         )
-        currentStats.set(stats)
-        notificationService.broadcast(NotificationEvent(NotificationType.STORAGE_SCAN_PROGRESS, stats))
+        currentStats.set(updatedStats)
+        notificationService.broadcast(NotificationEvent(NotificationType.STORAGE_SCAN_PROGRESS, updatedStats))
     }
 }

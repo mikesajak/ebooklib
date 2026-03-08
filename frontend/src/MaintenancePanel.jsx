@@ -133,6 +133,14 @@ const MaintenancePanel = () => {
     return t('admin.maintenance.scan.statusCompleted', { date: new Date(date).toLocaleString() });
   };
 
+  const formatSize = (bytes) => {
+    if (!bytes) return '0 B';
+    const k = 1024;
+    const sizes = ['B', 'KB', 'MB', 'GB', 'TB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
+  };
+
   return (
     <div className="max-w-5xl mx-auto px-4 py-8">
       {notification && (
@@ -287,16 +295,18 @@ const MaintenancePanel = () => {
                     </div>
                   </div>
 
-                  <div className="flex gap-8">
-                    <div className="text-center">
+                  <div className="flex flex-wrap justify-center gap-6">
+                    <div className="text-center min-w-[100px]">
                       <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">{t('admin.maintenance.scan.totalScanned')}</p>
                       <p className="text-xl font-black text-gray-700">{scanStats.totalFilesScanned}</p>
+                      <p className="text-[9px] font-bold text-gray-400 uppercase">{formatSize(scanStats.totalScannedSize)}</p>
                     </div>
-                    <div className="text-center">
+                    <div className="text-center min-w-[100px]">
                       <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">{t('admin.maintenance.scan.orphansFound')}</p>
                       <p className={`text-xl font-black ${scanStats.orphanedFilesFound > 0 ? 'text-rose-600' : 'text-green-600'}`}>
                         {scanStats.orphanedFilesFound}
                       </p>
+                      <p className="text-[9px] font-bold text-gray-400 uppercase">{formatSize(scanStats.orphanedSize)}</p>
                     </div>
                   </div>
                 </div>

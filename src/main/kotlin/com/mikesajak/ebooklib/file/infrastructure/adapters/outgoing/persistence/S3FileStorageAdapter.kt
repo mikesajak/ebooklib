@@ -1,5 +1,6 @@
 package com.mikesajak.ebooklib.file.infrastructure.adapters.outgoing.persistence
 
+import com.mikesajak.ebooklib.file.application.ports.outgoing.FileEntry
 import com.mikesajak.ebooklib.file.application.ports.outgoing.FileMetadata
 import com.mikesajak.ebooklib.file.application.ports.outgoing.FileStoragePort
 import mu.KotlinLogging
@@ -103,7 +104,7 @@ class S3FileStorageAdapter(
         return FileMetadata(newStorageKey, fileName, headResponse.contentType(), headResponse.contentLength())
     }
 
-    override fun listAllFiles(prefix: String?): Sequence<String> {
+    override fun listAllFiles(prefix: String?): Sequence<FileEntry> {
         val listRequest = ListObjectsV2Request.builder()
             .bucket(bucketName)
             .let { if (prefix != null) it.prefix(prefix) else it }
@@ -112,6 +113,6 @@ class S3FileStorageAdapter(
         return s3Client.listObjectsV2Paginator(listRequest)
             .contents()
             .asSequence()
-            .map { it.key() }
+            .map { FileEntry(it.key(), it.size()) }
     }
 }

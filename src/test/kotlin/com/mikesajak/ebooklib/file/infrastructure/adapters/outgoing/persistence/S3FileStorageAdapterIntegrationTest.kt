@@ -184,7 +184,7 @@ class S3FileStorageAdapterIntegrationTest: BaseIntegrationTest() {
 
         // When
         val fileKeysSequence = s3FileStorageAdapter.listAllFiles()
-        val fileKeysList = fileKeysSequence.toList()
+        val fileKeysList = fileKeysSequence.map { it.key }.toList()
 
         // Then
         assertEquals(files.size, fileKeysList.size)

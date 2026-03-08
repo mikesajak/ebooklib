@@ -7,7 +7,9 @@ data class StorageScanStats(
     val startedAt: Instant?,
     val finishedAt: Instant?,
     val totalFilesScanned: Int,
+    val totalScannedSize: Long = 0,
     val orphanedFilesFound: Int,
+    val orphanedSize: Long = 0,
     val orphanedFileKeys: List<String>,
     val progressPercent: Int,
     val error: String? = null
