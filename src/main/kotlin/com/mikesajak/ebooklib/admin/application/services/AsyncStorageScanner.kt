@@ -2,6 +2,7 @@ package com.mikesajak.ebooklib.admin.application.services
 
 import com.mikesajak.ebooklib.admin.domain.model.ScanStatus
 import com.mikesajak.ebooklib.admin.domain.model.StorageScanStats
+import com.mikesajak.ebooklib.admin.infrastructure.incoming.web.StorageScanStatsDto
 import com.mikesajak.ebooklib.book.application.ports.outgoing.BookCoverMetadataRepositoryPort
 import com.mikesajak.ebooklib.book.application.ports.outgoing.EbookFormatFileRepositoryPort
 import com.mikesajak.ebooklib.file.application.ports.outgoing.FileStoragePort
@@ -29,6 +30,19 @@ class AsyncStorageScanner(
         StorageScanStats(ScanStatus.IDLE, null, null, 0, 0, 0, 0, emptyList(), 0)
     )
 
+    private fun StorageScanStats.toDto() = StorageScanStatsDto(
+        status = status,
+        startedAt = startedAt,
+        finishedAt = finishedAt,
+        totalFilesScanned = totalFilesScanned,
+        totalScannedSize = totalScannedSize,
+        orphanedFilesFound = orphanedFilesFound,
+        orphanedSize = orphanedSize,
+        orphanedFileKeys = orphanedFileKeys,
+        progressPercent = progressPercent,
+        error = error
+    )
+
     fun getLatestStats(): StorageScanStats = currentStats.get()
 
     @Async
@@ -41,7 +55,7 @@ class AsyncStorageScanner(
         logger.info { "Starting deep storage scan..." }
         val initialStats = StorageScanStats(ScanStatus.RUNNING, Instant.now(), null, 0, 0, 0, 0, emptyList(), 0)
         currentStats.set(initialStats)
-        notificationService.broadcast(NotificationEvent(NotificationType.STORAGE_SCAN_PROGRESS, initialStats))
+        notificationService.broadcast(NotificationEvent(NotificationType.STORAGE_SCAN_PROGRESS, initialStats.toDto()))
 
         try {
             // Load all referenced keys from DB (to avoid N+1 queries during scan)
@@ -81,7 +95,7 @@ class AsyncStorageScanner(
                 progressPercent = 100
             )
             currentStats.set(finalStats)
-            notificationService.broadcast(NotificationEvent(NotificationType.STORAGE_SCAN_PROGRESS, finalStats))
+            notificationService.broadcast(NotificationEvent(NotificationType.STORAGE_SCAN_PROGRESS, finalStats.toDto()))
             logger.info { "Deep storage scan completed. Found ${orphanedKeys.size} orphans (${orphanedSize} bytes). Total scanned: $scannedCount (${scannedSize} bytes)" }
 
         } catch (e: Exception) {
@@ -92,7 +106,7 @@ class AsyncStorageScanner(
                 error = e.message
             )
             currentStats.set(errorStats)
-            notificationService.broadcast(NotificationEvent(NotificationType.STORAGE_SCAN_PROGRESS, errorStats))
+            notificationService.broadcast(NotificationEvent(NotificationType.STORAGE_SCAN_PROGRESS, errorStats.toDto()))
         }
     }
 
@@ -113,7 +127,7 @@ class AsyncStorageScanner(
         logger.info { "Starting purge of ${keysToPurge.size} orphaned files (${stats.orphanedSize} bytes)..." }
         val initialStats = stats.copy(status = ScanStatus.PURGING, progressPercent = 0)
         currentStats.set(initialStats)
-        notificationService.broadcast(NotificationEvent(NotificationType.STORAGE_SCAN_PROGRESS, initialStats))
+        notificationService.broadcast(NotificationEvent(NotificationType.STORAGE_SCAN_PROGRESS, initialStats.toDto()))
 
         try {
             var purgedCount = 0
@@ -138,7 +152,7 @@ class AsyncStorageScanner(
                 progressPercent = 100
             )
             currentStats.set(finalStats)
-            notificationService.broadcast(NotificationEvent(NotificationType.STORAGE_SCAN_PROGRESS, finalStats))
+            notificationService.broadcast(NotificationEvent(NotificationType.STORAGE_SCAN_PROGRESS, finalStats.toDto()))
             logger.info { "Purge completed successfully. Purged $purgedCount files." }
         } catch (e: Exception) {
             logger.error(e) { "Error during orphaned files purge" }
@@ -148,7 +162,7 @@ class AsyncStorageScanner(
                 error = e.message
             )
             currentStats.set(errorStats)
-            notificationService.broadcast(NotificationEvent(NotificationType.STORAGE_SCAN_PROGRESS, errorStats))
+            notificationService.broadcast(NotificationEvent(NotificationType.STORAGE_SCAN_PROGRESS, errorStats.toDto()))
         }
     }
 
@@ -162,7 +176,7 @@ class AsyncStorageScanner(
             progressPercent = progress
         )
         currentStats.set(stats)
-        notificationService.broadcast(NotificationEvent(NotificationType.STORAGE_SCAN_PROGRESS, stats))
+        notificationService.broadcast(NotificationEvent(NotificationType.STORAGE_SCAN_PROGRESS, stats.toDto()))
     }
 
     private fun updatePurgeProgress(purged: Int, total: Int, progress: Int) {

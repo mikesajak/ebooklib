@@ -62,7 +62,7 @@ const ImportStatusWidget = () => {
             className="bg-white p-3 rounded-2xl border border-indigo-100 shadow-sm hover:shadow-md transition-all cursor-pointer group"
           >
             <div className="flex justify-between items-center mb-2">
-              <span className="text-[9px] font-black text-gray-400 uppercase tracking-tighter truncate max-w-[100px]">Session {session.id.substring(0, 8)}</span>
+              <span className="text-[9px] font-black text-gray-400 uppercase tracking-tighter truncate max-w-[100px]">Session {session.id?.toString().substring(0, 8)}</span>
               <span className="text-[10px] font-black text-indigo-600">{progress}%</span>
             </div>
             <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden border border-gray-50">

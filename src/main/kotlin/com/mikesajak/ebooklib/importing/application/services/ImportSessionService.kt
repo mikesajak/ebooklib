@@ -10,6 +10,7 @@ import com.mikesajak.ebooklib.importing.domain.model.ImportSession
 import com.mikesajak.ebooklib.importing.domain.model.ImportSessionId
 import com.mikesajak.ebooklib.importing.domain.model.ImportSessionStatus
 import com.mikesajak.ebooklib.importing.domain.model.StagedEbookUpload
+import com.mikesajak.ebooklib.importing.infrastructure.adapters.incoming.rest.ImportRestMapper
 import com.mikesajak.ebooklib.notification.application.NotificationService
 import com.mikesajak.ebooklib.notification.domain.model.NotificationEvent
 import com.mikesajak.ebooklib.notification.domain.model.NotificationType
@@ -29,7 +30,8 @@ class ImportSessionService(
     private val resolutionItemRepository: ResolutionItemRepositoryPort,
     private val fileStoragePort: FileStoragePort,
     private val objectMapper: ObjectMapper,
-    private val notificationService: NotificationService
+    private val notificationService: NotificationService,
+    private val importRestMapper: ImportRestMapper
 ) : ImportSessionUseCase {
 
     @Transactional
@@ -46,7 +48,7 @@ class ImportSessionService(
             expiryAt = now.plus(24, ChronoUnit.HOURS)
         )
         val saved = repository.save(session)
-        notificationService.broadcast(NotificationEvent(NotificationType.IMPORT_PROGRESS, saved))
+        notificationService.broadcast(NotificationEvent(NotificationType.IMPORT_PROGRESS, importRestMapper.toResponse(saved)))
         return saved
     }
 
@@ -68,7 +70,7 @@ class ImportSessionService(
             updatedAt = Instant.now()
         )
         val saved = repository.save(updated)
-        notificationService.broadcast(NotificationEvent(NotificationType.IMPORT_PROGRESS, saved))
+        notificationService.broadcast(NotificationEvent(NotificationType.IMPORT_PROGRESS, importRestMapper.toResponse(saved)))
         return saved
     }
 
@@ -99,7 +101,7 @@ class ImportSessionService(
             updatedAt = Instant.now()
         )
         val saved = repository.save(updated)
-        notificationService.broadcast(NotificationEvent(NotificationType.IMPORT_PROGRESS, saved))
+        notificationService.broadcast(NotificationEvent(NotificationType.IMPORT_PROGRESS, importRestMapper.toResponse(saved)))
         return saved
     }
 
@@ -111,7 +113,7 @@ class ImportSessionService(
             updatedAt = Instant.now()
         )
         val saved = repository.save(updated)
-        notificationService.broadcast(NotificationEvent(NotificationType.IMPORT_PROGRESS, saved))
+        notificationService.broadcast(NotificationEvent(NotificationType.IMPORT_PROGRESS, importRestMapper.toResponse(saved)))
         return saved
     }
 
@@ -135,7 +137,7 @@ class ImportSessionService(
         val session = repository.findById(id)
         repository.delete(id)
         session?.let {
-            notificationService.broadcast(NotificationEvent(NotificationType.IMPORT_PROGRESS, it.copy(status = ImportSessionStatus.CANCELLED)))
+            notificationService.broadcast(NotificationEvent(NotificationType.IMPORT_PROGRESS, importRestMapper.toResponse(it.copy(status = ImportSessionStatus.CANCELLED))))
         }
     }
 
