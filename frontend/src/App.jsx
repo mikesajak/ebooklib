@@ -22,12 +22,14 @@ import ResolveItemPage from './ResolveItemPage'
 import ProtectedRoute from './ProtectedRoute'
 import { SearchProvider } from './SearchContext'
 import { AuthProvider } from './AuthContext'
+import { ImportProvider } from './ImportContext'
 
 function App() {
   return (
     <AuthProvider>
-      <SearchProvider>
-        <BrowserRouter>
+      <ImportProvider>
+        <SearchProvider>
+          <BrowserRouter>
           <div style={{ display: 'flex', flexDirection: 'column', height: '100vh' }}>
             <Header />
             <div style={{ display: 'flex', flexGrow: 1, overflow: 'hidden' }}>
@@ -59,7 +61,8 @@ function App() {
           </div>
         </BrowserRouter>
       </SearchProvider>
-    </AuthProvider>
+    </ImportProvider>
+  </AuthProvider>
   )
 }
 export default App
