@@ -124,9 +124,9 @@ const BookDetails = () => {
                 <p className="text-gray-800 font-bold text-sm">{book.publicationDate || <span className="text-gray-300 italic">{t('common.notAvailable')}</span>}</p>
               </div>
               <div className="space-y-1">
-                <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest flex items-center gap-2"><FaLayerGroup className="text-indigo-400" /> {t('bookDetails.series', 'Series')}</p>
+                <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest flex items-center gap-2"><FaLayerGroup className="text-amber-500" /> {t('bookDetails.series', 'Series')}</p>
                 {book.series ? (
-                  <Link to={`/series/${book.series.id}`} className="text-indigo-600 hover:text-indigo-800 font-black text-sm tracking-tight flex items-center gap-1 group/link">
+                  <Link to={`/series/${book.series.id}`} className="text-amber-600 hover:text-amber-800 font-black text-sm tracking-tight flex items-center gap-1 group/link transition-colors bg-amber-50/50 px-2 py-0.5 rounded-md border border-amber-100/50">
                     {book.series.title} <FaChevronRight size={8} className="transform group-hover/link:translate-x-0.5 transition-transform" />
                   </Link>
                 ) : <span className="text-gray-300 italic text-sm">{t('common.notAvailable')}</span>}
