@@ -4,10 +4,19 @@ import { useTranslation } from 'react-i18next';
 import { FaSpinner, FaCheck, FaExclamationTriangle, FaFilter, FaSyncAlt, FaArrowLeft, FaBan, FaInfoCircle, FaMagic, FaTrash, FaHourglassHalf, FaRedo } from 'react-icons/fa';
 import Notification from './Notification';
 
+import { useImport } from './ImportContext';
+
 const ImportSummaryDashboard = () => {
     const { id: sessionId } = useParams();
     const { t } = useTranslation();
     const navigate = useNavigate();
+    const { sessions } = useImport();
+    
+    // Find this specific session in the global context
+    const sessionFromContext = useMemo(() => 
+        sessions.find(s => s.id === sessionId), 
+    [sessions, sessionId]);
+
     const [session, setSession] = useState(null);
     const [items, setItems] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -40,15 +49,19 @@ const ImportSummaryDashboard = () => {
         }
     };
 
+    // Initial load
     useEffect(() => {
         fetchSession();
         fetchItems();
-        const interval = setInterval(() => {
-            fetchSession();
-            fetchItems();
-        }, 5000);
-        return () => clearInterval(interval);
     }, [sessionId]);
+
+    // Update local session state and items when global context session changes (SSE update)
+    useEffect(() => {
+        if (sessionFromContext) {
+            setSession(sessionFromContext);
+            fetchItems(); // Re-fetch items to get updated statuses/metadata
+        }
+    }, [sessionFromContext]);
 
     const updateItemStatus = async (itemId, status) => {
         try {

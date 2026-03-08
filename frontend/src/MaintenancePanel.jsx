@@ -5,19 +5,20 @@ import { FaTools, FaTrashAlt, FaHdd, FaInbox, FaSync, FaCheckCircle, FaExclamati
 import { fetchWithCsrf } from './api';
 import Notification from './Notification';
 import ConfirmationDialog from './ConfirmationDialog';
+import { useImport } from './ImportContext';
 
 const MaintenancePanel = () => {
   const { t } = useTranslation();
+  const { scanStats, refreshScanStats } = useImport();
+  
   const [isPurgingStaging, setIsPurgingStaging] = useState(false);
-  const [isPurgingStorage, setIsPurgingStorage] = useState(false);
   const [notification, setNotification] = useState(null);
   const [showStagingPurgeConfirm, setShowStagingPurgeConfirm] = useState(false);
   const [showStoragePurgeConfirm, setShowStoragePurgeConfirm] = useState(false);
   const [stagingStats, setStagingStats] = useState(null);
   const [loadingStaging, setLoadingStaging] = useState(true);
 
-  // Scan related state
-  const [scanStats, setScanStats] = useState(null);
+  // Local state for immediate UI feedback before SSE arrives
   const [isStartingScan, setIsStartingScan] = useState(false);
   const [isStartingPurge, setIsStartingPurge] = useState(false);
 
@@ -35,31 +36,10 @@ const MaintenancePanel = () => {
     }
   };
 
-  const fetchScanStats = async () => {
-    try {
-      const response = await fetch('/api/admin/maintenance/storage-scan/stats');
-      if (response.ok) {
-        const data = await response.json();
-        setScanStats(data);
-      }
-    } catch (err) {
-      console.error('Failed to fetch scan stats', err);
-    }
-  };
-
   useEffect(() => {
     fetchStagingStats();
-    fetchScanStats();
+    refreshScanStats(); // Ensure we have latest stats on mount
   }, []);
-
-  // Polling for scan/purge status
-  useEffect(() => {
-    let interval;
-    if (scanStats?.status === 'RUNNING' || scanStats?.status === 'PURGING') {
-      interval = setInterval(fetchScanStats, 1000);
-    }
-    return () => clearInterval(interval);
-  }, [scanStats?.status]);
 
   const handlePurgeStaging = async () => {
     setIsPurgingStaging(true);
@@ -93,7 +73,7 @@ const MaintenancePanel = () => {
         method: 'POST',
       });
       if (response.ok) {
-        fetchScanStats();
+        // SSE will provide the update
       }
     } catch (err) {
       console.error('Failed to start scan', err);
@@ -110,7 +90,7 @@ const MaintenancePanel = () => {
         method: 'POST',
       });
       if (response.ok) {
-        fetchScanStats();
+        // SSE will provide the update
       } else {
         setNotification({ type: 'error', message: t('admin.maintenance.scan.purgeFailure') });
       }

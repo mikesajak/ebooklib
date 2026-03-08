@@ -17,6 +17,46 @@ const ImportPage = () => {
     const [supportedFormats, setSupportedFormats] = useState([]);
     const [showFolderConfirm, setShowFolderConfirm] = useState(false);
     
+    // Find our specific session in the global context
+    const currentSessionFromContext = useMemo(() => 
+        sessions.find(s => s.id === sessionId),
+    [sessions, sessionId]);
+
+    // Synchronize local 'uploads' state with global SSE updates
+    useEffect(() => {
+        if (!sessionId || !currentSessionFromContext) return;
+
+        const syncItems = async () => {
+            try {
+                const response = await fetch(`/api/import/sessions/${sessionId}/items`);
+                if (response.ok) {
+                    const items = await response.json();
+                    setUploads(prev => {
+                        const next = { ...prev };
+                        items.forEach(item => {
+                            // Map resolution item format back to local uploads entry
+                            item.formats.forEach(format => {
+                                if (next[format.fileName]) {
+                                    next[format.fileName] = {
+                                        ...next[format.fileName],
+                                        status: item.status, // Use the shared resolution status
+                                        id: format.uploadId,
+                                        data: item
+                                    };
+                                }
+                            });
+                        });
+                        return next;
+                    });
+                }
+            } catch (err) {
+                console.error("Failed to sync items for session", sessionId, err);
+            }
+        };
+
+        syncItems();
+    }, [sessionId, currentSessionFromContext?.processedFiles, currentSessionFromContext?.failedFiles]);
+
     // Scan options
     const [maxDepth, setMaxDepth] = useState(5);
     const [noDepthLimit, setNoDepthLimit] = useState(false);
