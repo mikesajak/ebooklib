@@ -28,10 +28,16 @@ class ImportController(
     private val autoResolutionUseCase: AutoResolutionUseCase,
     private val importSessionUseCase: ImportSessionUseCase,
     private val resolutionItemUseCase: ResolutionItemUseCase,
+    private val getSupportedFormatsUseCase: GetSupportedFormatsUseCase,
     private val stagedUploadRepository: StagedEbookUploadRepositoryPort,
     private val importRestMapper: ImportRestMapper,
     private val bookRestMapper: BookRestMapper
 ) {
+
+    @GetMapping("/supported-formats")
+    fun getSupportedFormats(): List<SupportedEbookFormat> {
+        return getSupportedFormatsUseCase.getSupportedFormats()
+    }
 
     @PostMapping("/upload")
     fun uploadFile(
