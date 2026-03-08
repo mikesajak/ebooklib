@@ -359,10 +359,12 @@ const ImportSummaryDashboard = () => {
                                     >
                                         <FaMagic className={isProcessing ? "animate-spin" : ""} /> {t('import.autoResolveSelected')}
                                     </button>
-                                    <div className="absolute left-0 mt-1 w-48 bg-white border border-gray-200 rounded-xl shadow-xl hidden group-hover:block z-50 overflow-hidden ring-4 ring-black/5">
-                                        <button onClick={() => handleAutoResolve('TRUST_INCOMING')} className="w-full text-left px-4 py-2 text-[10px] font-black uppercase tracking-widest hover:bg-purple-50 hover:text-purple-700 transition-colors border-b border-gray-50">{t('import.strategies.trustIncoming')}</button>
-                                        <button onClick={() => handleAutoResolve('TRUST_EXISTING')} className="w-full text-left px-4 py-2 text-[10px] font-black uppercase tracking-widest hover:bg-purple-50 hover:text-purple-700 transition-colors border-b border-gray-50">{t('import.strategies.trustExisting')}</button>
-                                        <button onClick={() => handleAutoResolve('NEW_ONLY')} className="w-full text-left px-4 py-2 text-[10px] font-black uppercase tracking-widest hover:bg-purple-50 hover:text-purple-700 transition-colors">{t('import.strategies.newOnly')}</button>
+                                    <div className="absolute left-0 top-full pt-1 w-48 hidden group-hover:block z-50">
+                                        <div className="bg-white border border-gray-200 rounded-xl shadow-xl overflow-hidden ring-4 ring-black/5">
+                                            <button onClick={() => handleAutoResolve('TRUST_INCOMING')} className="w-full text-left px-4 py-2 text-[10px] font-black uppercase tracking-widest hover:bg-purple-50 hover:text-purple-700 transition-colors border-b border-gray-50">{t('import.strategies.trustIncoming')}</button>
+                                            <button onClick={() => handleAutoResolve('TRUST_EXISTING')} className="w-full text-left px-4 py-2 text-[10px] font-black uppercase tracking-widest hover:bg-purple-50 hover:text-purple-700 transition-colors border-b border-gray-50">{t('import.strategies.trustExisting')}</button>
+                                            <button onClick={() => handleAutoResolve('NEW_ONLY')} className="w-full text-left px-4 py-2 text-[10px] font-black uppercase tracking-widest hover:bg-purple-50 hover:text-purple-700 transition-colors">{t('import.strategies.newOnly')}</button>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -376,10 +378,12 @@ const ImportSummaryDashboard = () => {
                                 >
                                     <FaMagic className={isProcessing ? "animate-spin" : ""} /> {t('import.autoResolveAll')}
                                 </button>
-                                <div className="absolute left-0 mt-1 w-48 bg-white border border-gray-200 rounded-xl shadow-xl hidden group-hover:block z-50 overflow-hidden ring-4 ring-black/5">
-                                    <button onClick={() => handleAutoResolve('TRUST_INCOMING')} className="w-full text-left px-4 py-2 text-[10px] font-black uppercase tracking-widest hover:bg-purple-50 hover:text-purple-700 transition-colors border-b border-gray-50">{t('import.strategies.trustIncoming')}</button>
-                                    <button onClick={() => handleAutoResolve('TRUST_EXISTING')} className="w-full text-left px-4 py-2 text-[10px] font-black uppercase tracking-widest hover:bg-purple-50 hover:text-purple-700 transition-colors border-b border-gray-50">{t('import.strategies.trustExisting')}</button>
-                                    <button onClick={() => handleAutoResolve('NEW_ONLY')} className="w-full text-left px-4 py-2 text-[10px] font-black uppercase tracking-widest hover:bg-purple-50 hover:text-purple-700 transition-colors">{t('import.strategies.newOnly')}</button>
+                                <div className="absolute left-0 top-full pt-1 w-48 hidden group-hover:block z-50">
+                                    <div className="bg-white border border-gray-200 rounded-xl shadow-xl overflow-hidden ring-4 ring-black/5">
+                                        <button onClick={() => handleAutoResolve('TRUST_INCOMING')} className="w-full text-left px-4 py-2 text-[10px] font-black uppercase tracking-widest hover:bg-purple-50 hover:text-purple-700 transition-colors border-b border-gray-50">{t('import.strategies.trustIncoming')}</button>
+                                        <button onClick={() => handleAutoResolve('TRUST_EXISTING')} className="w-full text-left px-4 py-2 text-[10px] font-black uppercase tracking-widest hover:bg-purple-50 hover:text-purple-700 transition-colors border-b border-gray-50">{t('import.strategies.trustExisting')}</button>
+                                        <button onClick={() => handleAutoResolve('NEW_ONLY')} className="w-full text-left px-4 py-2 text-[10px] font-black uppercase tracking-widest hover:bg-purple-50 hover:text-purple-700 transition-colors">{t('import.strategies.newOnly')}</button>
+                                    </div>
                                 </div>
                             </div>
                         )}
