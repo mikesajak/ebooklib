@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useMemo } from 'react';
+import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { FaSpinner, FaCheck, FaExclamationTriangle, FaTrash, FaArrowRight, FaCheckDouble, FaChevronRight, FaFolderOpen, FaFileMedical, FaSearchPlus } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
@@ -10,8 +10,15 @@ const ImportPage = () => {
     const navigate = useNavigate();
     const { sessions, refreshSessions } = useImport();
     
+    // Local state for selected files (File objects)
     const [files, setFiles] = useState([]); 
-    const [uploads, setUploads] = useState({}); 
+    
+    // Backend state: Map of filename -> session item data
+    const [sessionItemsMap, setSessionItemsMap] = useState({});
+    
+    // Local state for upload progress/status before backend confirms
+    const [localUploadStatus, setLocalUploadStatus] = useState({});
+
     const [sessionId, setSessionId] = useState(null);
     const [isUploading, setIsUploading] = useState(false);
     const [supportedFormats, setSupportedFormats] = useState([]);
@@ -22,40 +29,59 @@ const ImportPage = () => {
         sessions.find(s => s.id === sessionId),
     [sessions, sessionId]);
 
-    // Synchronize local 'uploads' state with global SSE updates
-    useEffect(() => {
-        if (!sessionId || !currentSessionFromContext) return;
-
-        const syncItems = async () => {
-            try {
-                const response = await fetch(`/api/import/sessions/${sessionId}/items`);
-                if (response.ok) {
-                    const items = await response.json();
-                    setUploads(prev => {
-                        const next = { ...prev };
-                        items.forEach(item => {
-                            // Map resolution item format back to local uploads entry
-                            item.formats.forEach(format => {
-                                if (next[format.fileName]) {
-                                    next[format.fileName] = {
-                                        ...next[format.fileName],
-                                        status: item.status, // Use the shared resolution status
-                                        id: format.uploadId,
-                                        data: item
-                                    };
-                                }
-                            });
-                        });
-                        return next;
+    // Fetch items from backend
+    const fetchSessionItems = useCallback(async () => {
+        if (!sessionId) return;
+        try {
+            const response = await fetchWithCsrf(`/api/import/sessions/${sessionId}/items`);
+            if (response.ok) {
+                const items = await response.json();
+                const newMap = {};
+                items.forEach(item => {
+                    // Map resolution item format back to local uploads entry
+                    item.formats.forEach(format => {
+                        newMap[format.fileName] = {
+                            status: item.status, // Use the shared resolution status
+                            id: format.uploadId,
+                            data: item
+                        };
                     });
-                }
-            } catch (err) {
-                console.error("Failed to sync items for session", sessionId, err);
+                });
+                setSessionItemsMap(newMap);
             }
-        };
+        } catch (err) {
+            console.error("Failed to sync items for session", sessionId, err);
+        }
+    }, [sessionId]);
 
-        syncItems();
-    }, [sessionId, currentSessionFromContext?.processedFiles, currentSessionFromContext?.failedFiles]);
+    // Poll for updates (Backup mechanism)
+    useEffect(() => {
+        if (!sessionId) return;
+
+        // Check if we have active uploads or processing items
+        const hasActive = Object.values(sessionItemsMap).some(
+            item => ['PROCESSING', 'UPLOADING'].includes(item.status)
+        );
+        const hasPending = files.some(f => {
+            const status = localUploadStatus[f.name]?.status;
+            return status === 'UPLOADING' || status === 'PENDING';
+        });
+
+        if (!hasActive && !hasPending && !isUploading) return;
+
+        const intervalId = setInterval(() => {
+            fetchSessionItems();
+        }, 5000); // 5 seconds is enough for a backup poll
+
+        return () => clearInterval(intervalId);
+    }, [sessionId, fetchSessionItems, isUploading, sessionItemsMap, files, localUploadStatus]);
+
+    // Primary sync on SSE updates
+    useEffect(() => {
+        if (currentSessionFromContext) {
+            fetchSessionItems();
+        }
+    }, [currentSessionFromContext?.processedFiles, currentSessionFromContext?.failedFiles, fetchSessionItems]);
 
     // Scan options
     const [maxDepth, setMaxDepth] = useState(5);
@@ -96,7 +122,11 @@ const ImportPage = () => {
             });
             if (response.ok) {
                 refreshSessions();
-                if (sessionId === sessId) setSessionId(null);
+                if (sessionId === sessId) {
+                    setSessionId(null);
+                    setSessionItemsMap({});
+                    setLocalUploadStatus({});
+                }
             }
         } catch (error) {
             console.error("Discard session error", error);
@@ -106,35 +136,31 @@ const ImportPage = () => {
     const processFiles = (selectedFiles, depthLimit = null) => {
         setIsScanning(true);
         
-        // Use a timeout to allow the UI to update (show loading state)
+        // Use a timeout to allow the UI to update
         setTimeout(() => {
             const newFileList = [];
-            const newUploads = {};
+            const newLocalStatus = {};
 
-            // Process in a single pass for efficiency
             for (let i = 0; i < selectedFiles.length; i++) {
                 const file = selectedFiles[i];
                 const ext = file.name.split('.').pop().toLowerCase();
                 
-                // 1. Check if supported format
                 if (!supportedExtSet.has(ext)) continue;
                 
-                // 2. Check directory depth
                 if (file.webkitRelativePath && depthLimit !== null) {
                     const depth = file.webkitRelativePath.split('/').length - 1;
                     if (depth > depthLimit) continue;
                 }
 
-                // 3. Check if already in list
                 if (!files.some(f => f.name === file.name)) {
                     newFileList.push(file);
-                    newUploads[file.name] = { status: 'PENDING', progress: 0 };
+                    newLocalStatus[file.name] = { status: 'PENDING', progress: 0 };
                 }
             }
 
             if (newFileList.length > 0) {
                 setFiles(prev => [...prev, ...newFileList]);
-                setUploads(prev => ({ ...prev, ...newUploads }));
+                setLocalUploadStatus(prev => ({ ...prev, ...newLocalStatus }));
             }
             
             setIsScanning(false);
@@ -156,7 +182,12 @@ const ImportPage = () => {
 
     const removeFile = (fileName) => {
         setFiles(prev => prev.filter(f => f.name !== fileName));
-        setUploads(prev => {
+        setLocalUploadStatus(prev => {
+            const next = { ...prev };
+            delete next[fileName];
+            return next;
+        });
+        setSessionItemsMap(prev => {
             const next = { ...prev };
             delete next[fileName];
             return next;
@@ -180,13 +211,14 @@ const ImportPage = () => {
         }
 
         setFiles([]);
-        setUploads({});
+        setSessionItemsMap({});
+        setLocalUploadStatus({});
         setSessionId(null);
         setIsUploading(false);
     };
 
     const uploadFile = async (file, currentSessionId) => {
-        setUploads(prev => ({ ...prev, [file.name]: { ...prev[file.name], status: 'UPLOADING' } }));
+        setLocalUploadStatus(prev => ({ ...prev, [file.name]: { ...prev[file.name], status: 'UPLOADING' } }));
 
         const formData = new FormData();
         formData.append('file', file);
@@ -205,34 +237,52 @@ const ImportPage = () => {
             if (!response.ok) throw new Error('Upload failed');
             const data = await response.json();
             
-            setUploads(prev => ({ 
+            setLocalUploadStatus(prev => ({ 
                 ...prev, 
                 [file.name]: { ...prev[file.name], status: 'PROCESSING', id: data.id } 
             }));
+            
+            // Trigger a sync to get the backend state as soon as possible
+            fetchSessionItems();
+
         } catch (error) {
-             setUploads(prev => ({ 
+             setLocalUploadStatus(prev => ({ 
                 ...prev, [file.name]: { ...prev[file.name], status: 'FAILED', error: error.message } 
             }));
         }
     };
 
     const startUploadAll = async () => {
-        const pendingFiles = files.filter(f => !uploads[f.name] || uploads[f.name].status === 'PENDING');
+        // Filter files that are not yet in sessionItemsMap and not currently uploading
+        const pendingFiles = files.filter(f => {
+            const backendItem = sessionItemsMap[f.name];
+            const local = localUploadStatus[f.name];
+            // If backend knows it, and it's not failed, skip
+            if (backendItem && backendItem.status !== 'FAILED') return false;
+            // If local says pending, include it
+            return !local || local.status === 'PENDING';
+        });
+
         if (pendingFiles.length === 0) return;
 
         setIsUploading(true);
         
         try {
-            const sessionResponse = await fetchWithCsrf(`/api/import/sessions?totalFiles=${pendingFiles.length}`, {
-                method: 'POST'
-            });
-            if (!sessionResponse.ok) throw new Error('Failed to create import session');
-            const sessionData = await sessionResponse.json();
-            setSessionId(sessionData.id);
-            refreshSessions();
+            let currentSessionId = sessionId;
+            if (!currentSessionId) {
+                const sessionResponse = await fetchWithCsrf(`/api/import/sessions?totalFiles=${pendingFiles.length}`, {
+                    method: 'POST'
+                });
+                if (!sessionResponse.ok) throw new Error('Failed to create import session');
+                const sessionData = await sessionResponse.json();
+                currentSessionId = sessionData.id;
+                setSessionId(currentSessionId);
+                refreshSessions();
+            }
 
+            // Upload in parallel
             for (const file of pendingFiles) {
-                uploadFile(file, sessionData.id);
+                uploadFile(file, currentSessionId);
             }
         } catch (error) {
             console.error("Session creation error", error);
@@ -240,18 +290,40 @@ const ImportPage = () => {
         }
     };
 
-    const activeUploadsCount = Object.values(uploads).filter(u => ['UPLOADING', 'PROCESSING'].includes(u.status)).length;
-    const completedUploadsCount = Object.values(uploads).filter(u => ['PARSED', 'PROMOTED', 'FAILED'].includes(u.status)).length;
+    // Derived State for UI
+    const getFileStatus = (fileName) => {
+        const backendItem = sessionItemsMap[fileName];
+        if (backendItem) return backendItem; // { status, id, data }
+        
+        const local = localUploadStatus[fileName];
+        if (local) return local; // { status, progress, error }
+        
+        return { status: 'PENDING' };
+    };
+
+    const activeUploadsCount = files.filter(f => {
+        const status = getFileStatus(f.name).status;
+        return ['UPLOADING', 'PROCESSING'].includes(status);
+    }).length;
+
+    const completedUploadsCount = files.filter(f => {
+        const status = getFileStatus(f.name).status;
+        return ['PARSED', 'PROMOTED', 'FAILED'].includes(status);
+    }).length;
     
     const isActuallyUploading = activeUploadsCount > 0;
     const isFullyCompleted = files.length > 0 && completedUploadsCount === files.length;
-    const hasPending = files.some(f => !uploads[f.name] || uploads[f.name].status === 'PENDING');
+    const hasPending = files.some(f => {
+        const status = getFileStatus(f.name).status;
+        return status === 'PENDING';
+    });
 
     useEffect(() => {
-        if (isUploading && !isActuallyUploading && completedUploadsCount > 0) {
+        if (isUploading && !isActuallyUploading && (completedUploadsCount > 0 || hasPending === false)) {
+            // If we think we are uploading, but no active uploads remain, turn off flag
             setIsUploading(false);
         }
-    }, [isActuallyUploading, isUploading, completedUploadsCount]);
+    }, [isActuallyUploading, isUploading, completedUploadsCount, hasPending]);
 
     const getUploadButtonConfig = () => {
         if (isActuallyUploading) {
@@ -264,7 +336,7 @@ const ImportPage = () => {
         }
 
         if (isFullyCompleted && !hasPending) {
-            const hasFailed = Object.values(uploads).some(u => u.status === 'FAILED');
+            const hasFailed = files.some(f => getFileStatus(f.name).status === 'FAILED');
             if (hasFailed) {
                 return {
                     label: t('import.uploadCompleteWithErrors', 'Upload Complete (with errors)'),
@@ -431,51 +503,55 @@ const ImportPage = () => {
                         </thead>
                         <tbody className="bg-white divide-y divide-gray-100">
                             {files.map(file => {
-                                const upload = uploads[file.name] || {};
+                                const statusObj = getFileStatus(file.name);
+                                const status = statusObj.status;
+                                const data = statusObj.data;
+                                const error = statusObj.error;
+
                                 return (
                                     <tr key={file.name} className="group hover:bg-indigo-50/30 transition-all duration-200">
                                         <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-700">{file.name}</td>
                                         <td className="px-6 py-4 whitespace-nowrap">
-                                            {upload.status === 'PENDING' && (
+                                            {status === 'PENDING' && (
                                                 <span className="px-3 py-1 inline-flex text-[10px] leading-5 font-black rounded-full bg-gray-100 text-gray-600 uppercase tracking-tighter border border-gray-200">
                                                     {t('import.status.pending')}
                                                 </span>
                                             )}
-                                            {upload.status === 'UPLOADING' && (
+                                            {status === 'UPLOADING' && (
                                                 <span className="px-3 py-1 inline-flex text-[10px] leading-5 font-black rounded-full bg-indigo-50 text-indigo-600 uppercase tracking-tighter border border-indigo-100 animate-pulse">
                                                     <FaSpinner className="animate-spin mr-1.5" /> {t('import.status.uploading')}
                                                 </span>
                                             )}
-                                            {upload.status === 'PROCESSING' && (
+                                            {status === 'PROCESSING' && (
                                                 <span className="px-3 py-1 inline-flex text-[10px] leading-5 font-black rounded-full bg-amber-50 text-amber-600 uppercase tracking-tighter border border-amber-100 animate-pulse">
                                                     <FaSpinner className="animate-spin mr-1.5" /> {t('import.status.processing')}
                                                 </span>
                                             )}
-                                            {upload.status === 'PARSED' && (
+                                            {(status === 'PARSED' || status === 'PROMOTED') && (
                                                 <span className="px-3 py-1 inline-flex text-[10px] leading-5 font-black rounded-full bg-emerald-50 text-emerald-600 uppercase tracking-tighter border border-emerald-100">
                                                     <FaCheck className="mr-1.5" /> {t('import.status.parsed')}
                                                 </span>
                                             )}
-                                            {upload.status === 'FAILED' && (
+                                            {status === 'FAILED' && (
                                                 <span className="px-3 py-1 inline-flex text-[10px] leading-5 font-black rounded-full bg-rose-50 text-rose-600 uppercase tracking-tighter border border-rose-100">
                                                     <FaExclamationTriangle className="mr-1.5" /> {t('import.status.failed')}
                                                 </span>
                                             )}
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                            {upload.data?.metadata?.title && (
+                                            {data?.metadata?.title && (
                                                 <div>
-                                                    <div className="font-bold">{upload.data.metadata.title}</div>
-                                                    <div className="text-xs">{upload.data.metadata.authors?.join(', ')}</div>
+                                                    <div className="font-bold">{data.metadata.title}</div>
+                                                    <div className="text-xs">{data.metadata.authors?.join(', ')}</div>
                                                 </div>
                                             )}
-                                            {upload.error && <span className="text-rose-500 font-bold text-[10px] uppercase tracking-tighter">{upload.error}</span>}
+                                            {error && <span className="text-rose-500 font-bold text-[10px] uppercase tracking-tighter">{error}</span>}
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                             <button 
                                                 onClick={() => removeFile(file.name)} 
-                                                disabled={isUploading && (upload.status === 'UPLOADING' || upload.status === 'PROCESSING')}
-                                                className={`p-2 rounded-lg transition-all ${isUploading && (upload.status === 'UPLOADING' || upload.status === 'PROCESSING') ? 'text-gray-200 cursor-not-allowed' : 'text-rose-600 hover:bg-rose-50'}`}
+                                                disabled={isUploading && (status === 'UPLOADING' || status === 'PROCESSING')}
+                                                className={`p-2 rounded-lg transition-all ${isUploading && (status === 'UPLOADING' || status === 'PROCESSING') ? 'text-gray-200 cursor-not-allowed' : 'text-rose-600 hover:bg-rose-50'}`}
                                                 title={t('common.remove', 'Remove')}
                                             >
                                                 <FaTrash />
