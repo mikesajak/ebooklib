@@ -10,6 +10,9 @@ import com.mikesajak.ebooklib.importing.domain.model.ImportSession
 import com.mikesajak.ebooklib.importing.domain.model.ImportSessionId
 import com.mikesajak.ebooklib.importing.domain.model.ImportSessionStatus
 import com.mikesajak.ebooklib.importing.domain.model.StagedEbookUpload
+import com.mikesajak.ebooklib.notification.application.NotificationService
+import com.mikesajak.ebooklib.notification.domain.model.NotificationEvent
+import com.mikesajak.ebooklib.notification.domain.model.NotificationType
 import mu.KotlinLogging
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -25,7 +28,8 @@ class ImportSessionService(
     private val stagedUploadRepository: StagedEbookUploadRepositoryPort,
     private val resolutionItemRepository: ResolutionItemRepositoryPort,
     private val fileStoragePort: FileStoragePort,
-    private val objectMapper: ObjectMapper
+    private val objectMapper: ObjectMapper,
+    private val notificationService: NotificationService
 ) : ImportSessionUseCase {
 
     @Transactional
@@ -41,7 +45,9 @@ class ImportSessionService(
             updatedAt = now,
             expiryAt = now.plus(24, ChronoUnit.HOURS)
         )
-        return repository.save(session)
+        val saved = repository.save(session)
+        notificationService.broadcast(NotificationEvent(NotificationType.IMPORT_PROGRESS, saved))
+        return saved
     }
 
     override fun getSession(id: ImportSessionId): ImportSession? {
@@ -61,7 +67,9 @@ class ImportSessionService(
             failedFiles = failed,
             updatedAt = Instant.now()
         )
-        return repository.save(updated)
+        val saved = repository.save(updated)
+        notificationService.broadcast(NotificationEvent(NotificationType.IMPORT_PROGRESS, saved))
+        return saved
     }
 
     @Transactional
@@ -90,7 +98,9 @@ class ImportSessionService(
             status = ImportSessionStatus.FINALIZED,
             updatedAt = Instant.now()
         )
-        return repository.save(updated)
+        val saved = repository.save(updated)
+        notificationService.broadcast(NotificationEvent(NotificationType.IMPORT_PROGRESS, saved))
+        return saved
     }
 
     @Transactional
@@ -100,7 +110,9 @@ class ImportSessionService(
             status = ImportSessionStatus.CANCELLED,
             updatedAt = Instant.now()
         )
-        return repository.save(updated)
+        val saved = repository.save(updated)
+        notificationService.broadcast(NotificationEvent(NotificationType.IMPORT_PROGRESS, saved))
+        return saved
     }
 
     @Transactional
@@ -120,7 +132,11 @@ class ImportSessionService(
         resolutionItemRepository.deleteByImportSessionId(id)
 
         // 4. Delete Session
+        val session = repository.findById(id)
         repository.delete(id)
+        session?.let {
+            notificationService.broadcast(NotificationEvent(NotificationType.IMPORT_PROGRESS, it.copy(status = ImportSessionStatus.CANCELLED)))
+        }
     }
 
     private fun cleanupUpload(upload: StagedEbookUpload) {
