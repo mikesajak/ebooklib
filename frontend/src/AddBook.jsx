@@ -3,7 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { 
   FaCloudUploadAlt, FaFileImport, FaCheckDouble, FaUserTag, 
-  FaImage, FaSearch, FaPencilAlt, FaInfoCircle, FaBook, FaLayerGroup, FaTags, FaFileAlt, FaCheck 
+  FaImage, FaSearch, FaPencilAlt, FaInfoCircle, FaBook, FaLayerGroup, FaTags, FaFileAlt, FaCheck, FaPlus 
 } from 'react-icons/fa';
 import useMutation from './hooks/useMutation';
 import AddPage from './AddPage';
