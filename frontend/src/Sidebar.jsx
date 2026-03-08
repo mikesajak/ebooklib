@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link, useLocation } from 'react-router-dom';
-import { Sidebar, Menu, MenuItem } from 'react-pro-sidebar';
+import { Sidebar, Menu, MenuItem, SubMenu } from 'react-pro-sidebar';
 import { 
   FaBook, FaUsers, FaLayerGroup, FaFileImport, FaShieldAlt, 
   FaBars, FaUserCog, FaCog, FaTools, FaHdd, FaChevronRight, FaSyncAlt
@@ -172,8 +172,7 @@ const AppSidebar = ({ collapsed, setCollapsed }) => {
     { path: '/import', icon: FaFileImport, label: t('header.import') },
   ];
 
-  const adminItems = [
-    { path: '/admin', icon: FaShieldAlt, label: t('admin.dashboard') },
+  const adminSubItems = [
     { path: '/admin/users', icon: FaUserCog, label: t('admin.users.title') },
     { path: '/admin/settings', icon: FaCog, label: t('admin.settings.title') },
     { path: '/admin/maintenance', icon: FaTools, label: t('admin.maintenance.title') },
@@ -202,17 +201,20 @@ const AppSidebar = ({ collapsed, setCollapsed }) => {
         <div className="flex-grow overflow-y-auto custom-scrollbar">
           <Menu
             menuItemStyles={{
-              button: ({ active }) => ({
+              button: ({ active, level }) => ({
                 color: active ? '#4f46e5' : '#9ca3af',
                 background: active ? '#f5f3ff' : 'transparent',
                 fontWeight: active ? '900' : '700',
                 fontSize: '13px',
-                paddingLeft: '24px',
+                paddingLeft: level === 0 ? '24px' : '48px',
                 paddingRight: '24px',
                 '&:hover': {
                   background: '#f5f3ff',
                   color: '#4f46e5',
                 },
+              }),
+              label: ({ open }) => ({
+                fontWeight: open ? '900' : '700',
               }),
             }}
           >
@@ -239,16 +241,25 @@ const AppSidebar = ({ collapsed, setCollapsed }) => {
                     {t('admin.oversight', 'Oversight')}
                   </p>
                 </div>
-                {adminItems.map((item) => (
-                  <MenuItem
-                    key={item.path}
-                    component={<Link to={item.path} />}
-                    icon={<item.icon size={18} />}
-                    active={isActive(item.path)}
-                  >
-                    {item.label}
-                  </MenuItem>
-                ))}
+                
+                <SubMenu
+                  label={t('admin.oversight', 'System Oversight')}
+                  icon={<FaShieldAlt size={18} />}
+                  component={<Link to="/admin" />}
+                  active={location.pathname === '/admin'}
+                  defaultOpen={location.pathname.startsWith('/admin')}
+                >
+                  {adminSubItems.map((item) => (
+                    <MenuItem
+                      key={item.path}
+                      component={<Link to={item.path} />}
+                      icon={<item.icon size={16} />}
+                      active={isActive(item.path)}
+                    >
+                      {item.label}
+                    </MenuItem>
+                  ))}
+                </SubMenu>
               </>
             )}
           </Menu>
