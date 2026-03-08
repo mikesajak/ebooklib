@@ -392,8 +392,8 @@
     },
     "users": {
       "title": "Zarządzanie Użytkownikami",
-      "titlePrefix": "Bezpieczeństwo",
-      "titleSuffix": "Użytkowników",
+      "titlePrefix": "Zarządzanie",
+      "titleSuffix": "Użytkownikami",
       "description": "Zarządzaj dostępem do systemu i rolami bezpieczeństwa.",
       "username": "Użytkownik",
       "roles": "Role",
@@ -424,8 +424,8 @@
     },
     "maintenance": {
       "title": "Konserwacja Systemu",
-      "titlePrefix": "System",
-      "titleSuffix": "Konserwacja",
+      "titlePrefix": "Konserwacja",
+      "titleSuffix": "Systemu",
       "system": "System",
       "description": "Narzędzia do zachowania spójności danych i czyszczenia pamięci.",
       "staging": {

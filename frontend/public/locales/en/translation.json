@@ -400,7 +400,7 @@
     "users": {
       "title": "User Management",
       "titlePrefix": "User",
-      "titleSuffix": "Security",
+      "titleSuffix": "Management",
       "description": "Manage system access and security roles.",
       "username": "Username",
       "roles": "Roles",

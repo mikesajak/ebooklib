@@ -154,6 +154,13 @@ const AppSidebar = ({ collapsed, setCollapsed }) => {
   const { isAdmin } = useAuth();
   const location = useLocation();
   const [isOnline, setIsOnline] = useState(navigator.onLine);
+  const [isAdminOpen, setIsAdminOpen] = useState(location.pathname.startsWith('/admin'));
+
+  useEffect(() => {
+    if (location.pathname.startsWith('/admin')) {
+      setIsAdminOpen(true);
+    }
+  }, [location.pathname]);
 
   useEffect(() => {
     const handleStatusChange = () => setIsOnline(navigator.onLine);
@@ -270,11 +277,43 @@ const AppSidebar = ({ collapsed, setCollapsed }) => {
                 </div>
                 
                 <SubMenu
-                  label={t('admin.oversight', 'System Oversight')}
+                  label={t('admin.dashboard', 'Admin Dashboard')}
                   icon={<FaShieldAlt size={18} />}
                   component={<Link to="/admin" />}
+                  open={isAdminOpen}
+                  onClick={(e) => {
+                    // If the click is on the expansion arrow or its wrapper, toggle expansion and prevent navigation
+                    if (e.target.closest('.ps-submenu-expand-icon')) {
+                      setIsAdminOpen(!isAdminOpen);
+                      e.preventDefault();
+                      e.stopPropagation();
+                    }
+                  }}
+                  onOpenChange={() => {}} // Disable internal toggling
                   active={location.pathname === '/admin'}
-                  defaultOpen={location.pathname.startsWith('/admin')}
+                  rootStyles={{
+                    '& .ps-submenu-expand-icon': {
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      width: '22px',
+                      height: '22px',
+                      borderRadius: '50%',
+                      transition: 'all 0.2s ease',
+                      backgroundColor: 'transparent',
+                      marginRight: '10px',
+                      zIndex: 10,
+                      '&:hover': {
+                        backgroundColor: '#e0e7ff !important', // indigo-100
+                        color: '#4338ca !important', // indigo-700
+                        boxShadow: '0 0 0 4px #e0e7ff',
+                        transform: 'scale(1.1)',
+                      }
+                    },
+                    '& .ps-menu-button:hover .ps-submenu-expand-icon': {
+                      color: '#4f46e5',
+                    }
+                  }}
                 >
                   {adminSubItems.map((item) => (
                     <MenuItem
