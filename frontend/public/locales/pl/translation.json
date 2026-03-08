@@ -353,6 +353,7 @@
       "newOnly": "Tylko nowe"
     },
     "autoResolveSuccess": "Automatyczne rozwiązywanie zakończone.",
+    "activeSessions": "Aktywne Importy",
     "autoResolveError": "Nie udało się automatycznie rozwiązać elementów."
   },
   "auth": {
@@ -431,6 +432,7 @@
       },
       "scan": {
         "title": "Głębokie skanowanie magazynu",
+        "sidebarTitle": "Skanowanie Magazynu",
         "description": "Przeprowadź pełną weryfikację fizycznego magazynu względem bazy danych, aby znaleźć osierocone pliki.",
         "button": "Rozpocznij głębokie skanowanie",
         "running": "Skanowanie...",

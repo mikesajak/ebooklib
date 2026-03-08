@@ -4,9 +4,83 @@ import { Link, useLocation } from 'react-router-dom';
 import { Sidebar, Menu, MenuItem } from 'react-pro-sidebar';
 import { 
   FaBook, FaUsers, FaLayerGroup, FaFileImport, FaShieldAlt, 
-  FaBars, FaUserCog, FaCog, FaTools, FaHdd, FaChevronRight 
+  FaBars, FaUserCog, FaCog, FaTools, FaHdd, FaChevronRight, FaSyncAlt
 } from 'react-icons/fa';
 import { useAuth } from './AuthContext';
+import { useImport } from './ImportContext';
+import { useNavigate } from 'react-router-dom';
+
+const ImportStatusWidget = () => {
+  const { t } = useTranslation();
+  const { sessions, scanStats } = useImport();
+  const navigate = useNavigate();
+
+  const isScanRunning = scanStats?.status === 'RUNNING' || scanStats?.status === 'PURGING';
+  const hasActiveSessions = sessions.length > 0;
+
+  if (!isScanRunning && !hasActiveSessions) return null;
+
+  return (
+    <div className="space-y-4 mb-6 animate-fade-in">
+      <div className="flex items-center justify-between text-[10px] font-black text-indigo-400 uppercase tracking-widest border-b border-indigo-50/50 pb-1">
+        <span className="flex items-center gap-1"><FaSyncAlt className="animate-spin-slow" /> {t('import.activeSessions')}</span>
+      </div>
+
+      {isScanRunning && (
+        <div 
+          onClick={() => navigate('/admin/maintenance')}
+          className="bg-white p-3 rounded-2xl border border-indigo-100 shadow-sm hover:shadow-md transition-all cursor-pointer group"
+        >
+          <div className="flex justify-between items-center mb-2">
+            <span className="text-[9px] font-black text-gray-500 uppercase tracking-tighter">{t('admin.maintenance.scan.sidebarTitle')}</span>
+            <span className="text-[10px] font-black text-indigo-600">{scanStats.progressPercent}%</span>
+          </div>
+          <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden border border-gray-50 relative">
+            {scanStats.status === 'RUNNING' ? (
+              <div className="absolute inset-0 bg-indigo-600/20">
+                <div className="h-full bg-indigo-600 w-1/3 rounded-full animate-indeterminate-progress"></div>
+              </div>
+            ) : (
+              <div 
+                className="h-full bg-indigo-600 rounded-full transition-all duration-500"
+                style={{ width: `${scanStats.progressPercent}%` }}
+              ></div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {sessions.map(session => {
+        const progress = session.totalFiles > 0 
+          ? Math.round(((session.processedFiles + session.failedFiles) * 100) / session.totalFiles)
+          : 0;
+        
+        return (
+          <div 
+            key={session.id}
+            onClick={() => navigate(`/import/session/${session.id}`)}
+            className="bg-white p-3 rounded-2xl border border-indigo-100 shadow-sm hover:shadow-md transition-all cursor-pointer group"
+          >
+            <div className="flex justify-between items-center mb-2">
+              <span className="text-[9px] font-black text-gray-400 uppercase tracking-tighter truncate max-w-[100px]">Session {session.id.substring(0, 8)}</span>
+              <span className="text-[10px] font-black text-indigo-600">{progress}%</span>
+            </div>
+            <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden border border-gray-50">
+              <div 
+                className="h-full bg-indigo-600 rounded-full transition-all duration-500"
+                style={{ width: `${progress}%` }}
+              ></div>
+            </div>
+            <div className="mt-2 flex justify-between text-[8px] font-bold uppercase tracking-widest text-gray-400">
+              <span>{session.processedFiles} {t('common.done', 'Done')}</span>
+              {session.failedFiles > 0 && <span className="text-rose-500">{session.failedFiles} {t('common.failed', 'Failed')}</span>}
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+};
 
 const AdminStatusWidget = () => {
   const { t } = useTranslation();
@@ -182,6 +256,7 @@ const AppSidebar = ({ collapsed, setCollapsed }) => {
         
         {!collapsed && (
           <div className="px-6 pb-8 mt-auto space-y-6">
+            <ImportStatusWidget />
             {isAdmin && <AdminStatusWidget />}
 
             <div className="p-4 bg-gray-50 rounded-2xl border border-gray-100 shadow-sm">

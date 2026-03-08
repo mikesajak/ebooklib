@@ -360,6 +360,7 @@
       "newOnly": "New Only"
     },
     "autoResolveSuccess": "Auto-resolution completed.",
+    "activeSessions": "Active Imports",
     "autoResolveError": "Failed to auto-resolve items."
   },
   "auth": {
@@ -438,6 +439,7 @@
       },
       "scan": {
         "title": "Deep Storage Scan",
+        "sidebarTitle": "Storage Scan",
         "description": "Perform a full verification of the physical storage against database records to find orphaned files.",
         "button": "Start Deep Scan",
         "running": "Scanning...",
