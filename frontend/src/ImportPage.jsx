@@ -1,81 +1,117 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { FaSpinner, FaCheck, FaExclamationTriangle, FaTrash, FaArrowRight, FaCheckDouble, FaChevronRight } from 'react-icons/fa';
+import { FaSpinner, FaCheck, FaExclamationTriangle, FaTrash, FaArrowRight, FaCheckDouble, FaChevronRight, FaFolderOpen, FaFileMedical, FaSearchPlus } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
+import { fetchWithCsrf } from './api';
+import { useImport } from './ImportContext';
 
 const ImportPage = () => {
     const { t } = useTranslation();
     const navigate = useNavigate();
-    const [files, setFiles] = useState([]); // List of file objects
-    const [uploads, setUploads] = useState({}); // Key: fileName, Value: { status, id, error, data }
+    const { sessions, refreshSessions } = useImport();
+    
+    const [files, setFiles] = useState([]); 
+    const [uploads, setUploads] = useState({}); 
     const [sessionId, setSessionId] = useState(null);
-    const [activeSessions, setActiveSessions] = useState([]);
     const [isUploading, setIsUploading] = useState(false);
+    const [supportedFormats, setSupportedFormats] = useState([]);
+    const [showFolderConfirm, setShowFolderConfirm] = useState(false);
+    
+    // Scan options
+    const [maxDepth, setMaxDepth] = useState(5);
+    const [noDepthLimit, setNoDepthLimit] = useState(false);
+    const [isScanning, setIsScanning] = useState(false);
 
-    const getCsrfToken = () => {
-        const name = 'XSRF-TOKEN';
-        const decodedCookie = decodeURIComponent(document.cookie);
-        const ca = decodedCookie.split(';');
-        for (let i = 0; i < ca.length; i++) {
-            let c = ca[i];
-            while (c.charAt(0) === ' ') {
-                c = c.substring(1);
-            }
-            if (c.indexOf(name + "=") === 0) {
-                return c.substring(name.length + 1, c.length);
-            }
-        }
-        return null;
-    };
-
-    const fetchActiveSessions = async () => {
-        try {
-            const response = await fetch('/api/import/sessions');
-            if (response.ok) {
-                const data = await response.json();
-                setActiveSessions(data);
-            }
-        } catch (error) {
-            console.error("Fetch active sessions error", error);
-        }
-    };
+    const fileInputRef = useRef(null);
+    const folderInputRef = useRef(null);
 
     useEffect(() => {
-        fetchActiveSessions();
+        const fetchFormats = async () => {
+            try {
+                const response = await fetch('/api/import/supported-formats');
+                if (response.ok) {
+                    const data = await response.json();
+                    setSupportedFormats(data);
+                }
+            } catch (error) {
+                console.error("Failed to fetch supported formats", error);
+            }
+        };
+        fetchFormats();
     }, []);
+
+    const supportedExtSet = useMemo(() => 
+        new Set(supportedFormats.map(f => f.extension.toLowerCase()))
+    , [supportedFormats]);
+
+    const acceptedExtensions = useMemo(() => 
+        supportedFormats.map(f => `.${f.extension}`).join(',')
+    , [supportedFormats]);
 
     const discardSession = async (sessId) => {
         if (!window.confirm(t('import.confirmDiscardSession', 'Are you sure you want to discard this session and all uploaded files?'))) return;
         try {
-            const response = await fetch(`/api/import/sessions/${sessId}`, {
-                method: 'DELETE',
-                headers: { 'X-XSRF-TOKEN': getCsrfToken() }
+            const response = await fetchWithCsrf(`/api/import/sessions/${sessId}`, {
+                method: 'DELETE'
             });
             if (response.ok) {
-                await fetchActiveSessions();
+                refreshSessions();
                 if (sessionId === sessId) setSessionId(null);
-            } else {
-                const errorText = await response.text();
-                alert("Failed to delete session: " + errorText);
             }
         } catch (error) {
             console.error("Discard session error", error);
-            alert("Error deleting session: " + error.message);
         }
     };
 
-    const handleFileSelect = (e) => {
-        const selectedFiles = Array.from(e.target.files);
-        const newFiles = selectedFiles.filter(file => !files.some(f => f.name === file.name));
-        setFiles(prev => [...prev, ...newFiles]);
+    const processFiles = (selectedFiles, depthLimit = null) => {
+        setIsScanning(true);
         
-        const newUploads = { ...uploads };
-        newFiles.forEach(file => {
-            if (!newUploads[file.name]) {
-                newUploads[file.name] = { status: 'PENDING', progress: 0 };
+        // Use a timeout to allow the UI to update (show loading state)
+        setTimeout(() => {
+            const newFileList = [];
+            const newUploads = {};
+
+            // Process in a single pass for efficiency
+            for (let i = 0; i < selectedFiles.length; i++) {
+                const file = selectedFiles[i];
+                const ext = file.name.split('.').pop().toLowerCase();
+                
+                // 1. Check if supported format
+                if (!supportedExtSet.has(ext)) continue;
+                
+                // 2. Check directory depth
+                if (file.webkitRelativePath && depthLimit !== null) {
+                    const depth = file.webkitRelativePath.split('/').length - 1;
+                    if (depth > depthLimit) continue;
+                }
+
+                // 3. Check if already in list
+                if (!files.some(f => f.name === file.name)) {
+                    newFileList.push(file);
+                    newUploads[file.name] = { status: 'PENDING', progress: 0 };
+                }
             }
-        });
-        setUploads(newUploads);
+
+            if (newFileList.length > 0) {
+                setFiles(prev => [...prev, ...newFileList]);
+                setUploads(prev => ({ ...prev, ...newUploads }));
+            }
+            
+            setIsScanning(false);
+        }, 100);
+    };
+
+    const handleFileSelect = (e) => {
+        processFiles(e.target.files);
+    };
+
+    const handleFolderSelect = (e) => {
+        processFiles(e.target.files, noDepthLimit ? null : maxDepth);
+        setShowFolderConfirm(false);
+    };
+
+    const triggerFolderPicker = () => {
+        folderInputRef.current.click();
     };
 
     const removeFile = (fileName) => {
@@ -96,13 +132,8 @@ const ImportPage = () => {
 
         if (sessionId) {
             try {
-                const response = await fetch(`/api/import/sessions/${sessionId}`, {
-                    method: 'DELETE',
-                    headers: { 'X-XSRF-TOKEN': getCsrfToken() }
-                });
-                if (response.ok) {
-                    await fetchActiveSessions();
-                }
+                await fetchWithCsrf(`/api/import/sessions/${sessionId}`, { method: 'DELETE' });
+                refreshSessions();
             } catch (error) {
                 console.error("Error discarding session during clear all", error);
             }
@@ -114,29 +145,8 @@ const ImportPage = () => {
         setIsUploading(false);
     };
 
-    const pollStatus = (fileName, uploadId) => {
-        const interval = setInterval(async () => {
-            try {
-                const response = await fetch(`/api/import/staged/${uploadId}`);
-                if (!response.ok) throw new Error('Poll failed');
-                
-                const data = await response.json();
-                
-                if (data.status === 'PARSED' || data.status === 'FAILED' || data.status === 'PROMOTED') {
-                    clearInterval(interval);
-                    setUploads(prev => ({ 
-                        ...prev, 
-                        [fileName]: { ...prev[fileName], status: data.status, data: data } 
-                    }));
-                }
-            } catch (error) {
-                console.error("Polling error", error);
-            }
-        }, 1000);
-    };
-
     const uploadFile = async (file, currentSessionId) => {
-        setUploads(prev => ({ ...prev, [file.name]: { ...prev[file.name], status: 'UPLOADING', progress: 0 } }));
+        setUploads(prev => ({ ...prev, [file.name]: { ...prev[file.name], status: 'UPLOADING' } }));
 
         const formData = new FormData();
         formData.append('file', file);
@@ -147,9 +157,8 @@ const ImportPage = () => {
 
         try {
             const url = `/api/import/upload?async=true${currentSessionId ? `&importSessionId=${currentSessionId}` : ''}`;
-            const response = await fetch(url, { 
+            const response = await fetchWithCsrf(url, { 
                 method: 'POST',
-                headers: { 'X-XSRF-TOKEN': getCsrfToken() },
                 body: formData
             });
 
@@ -160,8 +169,6 @@ const ImportPage = () => {
                 ...prev, 
                 [file.name]: { ...prev[file.name], status: 'PROCESSING', id: data.id } 
             }));
-            
-            pollStatus(file.name, data.id);
         } catch (error) {
              setUploads(prev => ({ 
                 ...prev, [file.name]: { ...prev[file.name], status: 'FAILED', error: error.message } 
@@ -176,13 +183,13 @@ const ImportPage = () => {
         setIsUploading(true);
         
         try {
-            const sessionResponse = await fetch(`/api/import/sessions?totalFiles=${pendingFiles.length}`, {
-                method: 'POST',
-                headers: { 'X-XSRF-TOKEN': getCsrfToken() }
+            const sessionResponse = await fetchWithCsrf(`/api/import/sessions?totalFiles=${pendingFiles.length}`, {
+                method: 'POST'
             });
             if (!sessionResponse.ok) throw new Error('Failed to create import session');
             const sessionData = await sessionResponse.json();
             setSessionId(sessionData.id);
+            refreshSessions();
 
             for (const file of pendingFiles) {
                 uploadFile(file, sessionData.id);
@@ -193,15 +200,12 @@ const ImportPage = () => {
         }
     };
 
-    const pendingFilesCount = files.filter(f => !uploads[f.name] || uploads[f.name].status === 'PENDING').length;
     const activeUploadsCount = Object.values(uploads).filter(u => ['UPLOADING', 'PROCESSING'].includes(u.status)).length;
     const completedUploadsCount = Object.values(uploads).filter(u => ['PARSED', 'PROMOTED', 'FAILED'].includes(u.status)).length;
-    const failedUploadsCount = Object.values(uploads).filter(u => u.status === 'FAILED').length;
     
     const isActuallyUploading = activeUploadsCount > 0;
     const isFullyCompleted = files.length > 0 && completedUploadsCount === files.length;
-    const hasPending = pendingFilesCount > 0;
-    const hasFailed = failedUploadsCount > 0;
+    const hasPending = files.some(f => !uploads[f.name] || uploads[f.name].status === 'PENDING');
 
     useEffect(() => {
         if (isUploading && !isActuallyUploading && completedUploadsCount > 0) {
@@ -220,6 +224,7 @@ const ImportPage = () => {
         }
 
         if (isFullyCompleted && !hasPending) {
+            const hasFailed = Object.values(uploads).some(u => u.status === 'FAILED');
             if (hasFailed) {
                 return {
                     label: t('import.uploadCompleteWithErrors', 'Upload Complete (with errors)'),
@@ -249,15 +254,15 @@ const ImportPage = () => {
 
     return (
         <div className="p-6">
-            <h1 className="text-2xl font-bold mb-4">{t('import.bulkUploadTitle', 'Bulk Upload')}</h1>
+            <h1 className="text-2xl font-black text-gray-900 tracking-tight mb-6">{t('import.bulkUploadTitle', 'Bulk Upload')}</h1>
             
-            {activeSessions.length > 0 && (
-                <div className="mb-8 p-6 bg-indigo-50 border border-indigo-100 rounded-[2rem] shadow-inner">
+            {sessions.length > 0 && (
+                <div className="mb-8 p-6 bg-indigo-50 border border-indigo-100 rounded-[2rem] shadow-inner animate-fade-in">
                     <h2 className="text-sm font-black uppercase tracking-[0.2em] mb-4 flex items-center gap-2 text-indigo-800">
                         <FaArrowRight className="text-indigo-600" /> {t('import.activeSessions', 'Ongoing Import Sessions')}
                     </h2>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        {activeSessions.map(session => (
+                        {sessions.map(session => (
                             <div 
                                 key={session.id} 
                                 onClick={() => navigate(`/import/session/${session.id}`)}
@@ -301,25 +306,44 @@ const ImportPage = () => {
                 </div>
             )}
 
-            <div className="mb-6">
+            <div className="flex flex-wrap gap-4 mb-8">
                 <input 
                     type="file" 
                     multiple 
+                    accept={acceptedExtensions}
                     onChange={handleFileSelect} 
-                    className="block w-full text-sm text-slate-500
-                        file:mr-4 file:py-2 file:px-4
-                        file:rounded-full file:border-0
-                        file:text-sm file:font-semibold
-                        file:bg-violet-50 file:text-violet-700
-                        hover:file:bg-violet-100"
+                    className="hidden"
+                    ref={fileInputRef}
                 />
-            </div>
-            
-            <div className="flex gap-4 mb-8">
+                <input 
+                    type="file" 
+                    webkitdirectory="true"
+                    directory="true"
+                    onChange={handleFolderSelect} 
+                    className="hidden"
+                    ref={folderInputRef}
+                />
+
+                <button 
+                    onClick={() => fileInputRef.current.click()}
+                    className="flex items-center justify-center gap-3 px-8 py-3 bg-white text-gray-600 border border-gray-200 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-indigo-50 hover:text-indigo-600 hover:border-indigo-100 transition-all shadow-sm transform active:scale-95"
+                >
+                    <FaFileMedical /> {t('import.selectFiles')}
+                </button>
+
+                <button 
+                    onClick={() => setShowFolderConfirm(true)}
+                    className="flex items-center justify-center gap-3 px-8 py-3 bg-white text-gray-600 border border-gray-200 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-amber-50 hover:text-amber-600 hover:border-amber-100 transition-all shadow-sm transform active:scale-95"
+                >
+                    <FaFolderOpen /> {t('import.selectFolder')}
+                </button>
+
+                <div className="flex-grow"></div>
+
                 <button 
                     onClick={startUploadAll}
                     disabled={!uploadBtn.enabled}
-                    className={`flex items-center justify-center gap-3 px-8 py-3 rounded-2xl font-black text-sm uppercase tracking-wider transition-all transform active:scale-95 shadow-xl ${uploadBtn.style}`}
+                    className={`flex items-center justify-center gap-3 px-10 py-3 rounded-2xl font-black text-xs uppercase tracking-widest transition-all transform active:scale-95 shadow-xl ${uploadBtn.style}`}
                 >
                     {uploadBtn.icon}
                     {uploadBtn.label}
@@ -328,7 +352,7 @@ const ImportPage = () => {
                 <button 
                     onClick={clearAll}
                     disabled={files.length === 0 || isUploading}
-                    className={`flex items-center justify-center gap-3 px-8 py-3 rounded-2xl font-black text-sm uppercase tracking-wider transition-all transform active:scale-95 shadow-xl ${
+                    className={`flex items-center justify-center gap-3 px-8 py-3 rounded-2xl font-black text-xs uppercase tracking-widest transition-all transform active:scale-95 shadow-xl ${
                         files.length === 0 || isUploading
                             ? 'bg-gray-100 text-gray-400 cursor-not-allowed shadow-none' 
                             : 'bg-rose-50 text-rose-600 border border-rose-100 shadow-rose-50 hover:bg-rose-100 hover:-translate-y-1'
@@ -341,22 +365,28 @@ const ImportPage = () => {
                 {sessionId && (
                     <button 
                         onClick={() => navigate(`/import/session/${sessionId}`)}
-                        className="flex items-center justify-center gap-3 px-8 py-3 rounded-2xl font-black text-sm uppercase tracking-wider transition-all transform active:scale-95 shadow-xl bg-green-600 text-white shadow-green-100 hover:bg-green-700 hover:-translate-y-1"
+                        className="flex items-center justify-center gap-3 px-8 py-3 rounded-2xl font-black text-xs uppercase tracking-widest transition-all transform active:scale-95 shadow-xl bg-green-600 text-white shadow-green-100 hover:bg-green-700 hover:-translate-y-1"
                     >
                         <FaArrowRight /> {t('import.goToDashboard', 'Go to Session Dashboard')}
                     </button>
                 )}
             </div>
 
-            <div className="bg-white shadow-xl rounded-2xl overflow-hidden border border-gray-100">
+            <div className="bg-white shadow-xl rounded-[2.5rem] overflow-hidden border border-gray-100 animate-fade-in relative">
+                {isScanning && (
+                    <div className="absolute inset-0 bg-white/60 backdrop-blur-[2px] z-10 flex items-center justify-center flex-col gap-4">
+                        <FaSpinner className="text-indigo-600 animate-spin text-4xl" />
+                        <span className="font-black text-xs uppercase tracking-widest text-indigo-600">{t('import.status.processing')}</span>
+                    </div>
+                )}
                 <div className="overflow-x-auto">
                     <table className="min-w-full divide-y divide-gray-200">
                         <thead className="bg-gray-50/50">
                             <tr className="text-gray-500 uppercase text-[10px] font-black tracking-widest border-b border-gray-200">
-                                <th className="px-6 py-4 text-left">{t('import.table.fileName', 'File Name')}</th>
-                                <th className="px-6 py-4 text-left">{t('import.table.status', 'Status')}</th>
-                                <th className="px-6 py-4 text-left">{t('import.table.details', 'Details')}</th>
-                                <th className="px-6 py-4 text-right">{t('import.table.actions', 'Actions')}</th>
+                                <th className="px-6 py-5 text-left">{t('import.table.fileName', 'File Name')}</th>
+                                <th className="px-6 py-5 text-left">{t('import.table.status', 'Status')}</th>
+                                <th className="px-6 py-5 text-left">{t('import.table.details', 'Details')}</th>
+                                <th className="px-6 py-5 text-right">{t('import.table.actions', 'Actions')}</th>
                             </tr>
                         </thead>
                         <tbody className="bg-white divide-y divide-gray-100">
@@ -399,12 +429,13 @@ const ImportPage = () => {
                                                     <div className="text-xs">{upload.data.metadata.authors?.join(', ')}</div>
                                                 </div>
                                             )}
-                                            {upload.error && <span className="text-red-500">{upload.error}</span>}
+                                            {upload.error && <span className="text-rose-500 font-bold text-[10px] uppercase tracking-tighter">{upload.error}</span>}
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                             <button 
                                                 onClick={() => removeFile(file.name)} 
-                                                className="p-2 text-rose-600 hover:bg-rose-50 rounded-lg transition-all"
+                                                disabled={isUploading && (upload.status === 'UPLOADING' || upload.status === 'PROCESSING')}
+                                                className={`p-2 rounded-lg transition-all ${isUploading && (upload.status === 'UPLOADING' || upload.status === 'PROCESSING') ? 'text-gray-200 cursor-not-allowed' : 'text-rose-600 hover:bg-rose-50'}`}
                                                 title={t('common.remove', 'Remove')}
                                             >
                                                 <FaTrash />
@@ -413,10 +444,85 @@ const ImportPage = () => {
                                     </tr>
                                 );
                             })}
+                            {files.length === 0 && (
+                                <tr>
+                                    <td colSpan="4" className="px-6 py-20 text-center text-gray-400 italic text-sm">
+                                        <FaFolderOpen className="text-4xl mx-auto mb-4 opacity-20" />
+                                        {t('common.noFilesSelected', 'No files selected for import.')}
+                                    </td>
+                                </tr>
+                            )}
                         </tbody>
                     </table>
                 </div>
             </div>
+
+            {showFolderConfirm && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-fade-in">
+                    <div className="bg-white rounded-[2.5rem] shadow-2xl w-full max-w-lg overflow-hidden border border-gray-100">
+                        <div className="p-8">
+                            <div className="flex items-center gap-4 mb-6">
+                                <div className="p-4 rounded-3xl bg-amber-50 text-amber-600 shadow-inner">
+                                    <FaSearchPlus size={32} />
+                                </div>
+                                <div>
+                                    <h2 className="text-2xl font-black text-gray-800 tracking-tight">{t('import.folderScanConfirmTitle')}</h2>
+                                    <p className="text-[10px] font-black text-amber-600 uppercase tracking-widest mt-1">{t('import.selectFolder')}</p>
+                                </div>
+                            </div>
+                            
+                            <p className="text-gray-500 font-bold text-sm leading-relaxed mb-8">
+                                {t('import.folderScanConfirmMessage')}
+                            </p>
+
+                            <div className="space-y-6 bg-gray-50 p-6 rounded-3xl border border-gray-100">
+                                <div className="flex items-center justify-between">
+                                    <label className="text-xs font-black text-gray-700 uppercase tracking-wider">{t('import.noDepthLimit')}</label>
+                                    <button 
+                                        onClick={() => setNoDepthLimit(!noDepthLimit)}
+                                        className={`relative w-12 h-6 rounded-full transition-colors ${noDepthLimit ? 'bg-indigo-600' : 'bg-gray-200'}`}
+                                    >
+                                        <div className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-transform ${noDepthLimit ? 'left-7' : 'left-1'}`}></div>
+                                    </button>
+                                </div>
+
+                                {!noDepthLimit && (
+                                    <div className="animate-fade-in">
+                                        <div className="flex justify-between items-center mb-2">
+                                            <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest">{t('import.maxDepth')}</label>
+                                            <span className="text-sm font-black text-indigo-600">{maxDepth}</span>
+                                        </div>
+                                        <input 
+                                            type="range" 
+                                            min="1" 
+                                            max="20" 
+                                            value={maxDepth} 
+                                            onChange={(e) => setMaxDepth(parseInt(e.target.value))}
+                                            className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-indigo-600"
+                                        />
+                                        <p className="text-[9px] text-gray-400 font-medium mt-2 italic">{t('import.depthHelp')}</p>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+
+                        <div className="px-8 py-6 bg-gray-50 border-t border-gray-100 flex justify-end gap-4">
+                            <button 
+                                onClick={() => setShowFolderConfirm(false)}
+                                className="px-8 py-3 text-gray-500 bg-white border border-gray-200 rounded-2xl hover:bg-gray-50 font-black text-xs uppercase tracking-widest transition-all transform active:scale-95 shadow-sm"
+                            >
+                                {t('common.cancel')}
+                            </button>
+                            <button 
+                                onClick={triggerFolderPicker}
+                                className="px-10 py-3 bg-indigo-600 text-white rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl shadow-indigo-100 hover:bg-indigo-700 transition-all transform active:scale-95"
+                            >
+                                {t('import.selectFolder')}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

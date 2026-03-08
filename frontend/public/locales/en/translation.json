@@ -361,6 +361,13 @@
     },
     "autoResolveSuccess": "Auto-resolution completed.",
     "activeSessions": "Active Imports",
+    "selectFiles": "Select Files",
+    "selectFolder": "Select Folder",
+    "maxDepth": "Max Scan Depth",
+    "noDepthLimit": "No Depth Limit",
+    "depthHelp": "Limit how deep to search for ebook files in subfolders.",
+    "folderScanConfirmTitle": "Scan Folder?",
+    "folderScanConfirmMessage": "Are you sure you want to scan this folder? It might contain many files.",
     "autoResolveError": "Failed to auto-resolve items."
   },
   "auth": {

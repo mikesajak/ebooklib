@@ -354,6 +354,13 @@
     },
     "autoResolveSuccess": "Automatyczne rozwiązywanie zakończone.",
     "activeSessions": "Aktywne Importy",
+    "selectFiles": "Wybierz Pliki",
+    "selectFolder": "Wybierz Folder",
+    "maxDepth": "Maks. głębokość skanowania",
+    "noDepthLimit": "Bez limitu głębokości",
+    "depthHelp": "Ogranicz głębokość szukania plików ebooków w podfolderach.",
+    "folderScanConfirmTitle": "Skanować Folder?",
+    "folderScanConfirmMessage": "Czy na pewno chcesz zeskanować ten folder? Może zawierać wiele plików.",
     "autoResolveError": "Nie udało się automatycznie rozwiązać elementów."
   },
   "auth": {
