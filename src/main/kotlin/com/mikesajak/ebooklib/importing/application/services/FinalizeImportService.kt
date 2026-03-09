@@ -122,7 +122,7 @@ class FinalizeImportService(
             if (promotedFileId != null) {
                 val formatType = extractFormatType(stagedUpload.fileName)
                 logger.info { "Linking promoted file $promotedFileId as format $formatType to book ${book.id}" }
-                addEbookFormatUseCase.addFormatFromStorage(book.id!!, promotedFileId, formatType)
+                addEbookFormatUseCase.addFormatFromStorage(book.id!!, promotedFileId, formatType, stagedUpload.fileName)
             }
         } catch (e: Exception) {
             logger.error(e) { "Failed to promote format ${stagedUpload.id} for book ${book.id}" }

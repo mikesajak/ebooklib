@@ -57,7 +57,7 @@ class EbookFormatService(
         return savedEbookFormatFile
     }
 
-    override fun addFormatFromStorage(bookId: BookId, storageKey: String, formatType: String): EbookFormatFile {
+    override fun addFormatFromStorage(bookId: BookId, storageKey: String, formatType: String, fileName: String?): EbookFormatFile {
         // 1. Verify book existence
         bookRepository.findById(bookId) ?: throw BookNotFoundException(bookId)
 
@@ -70,7 +70,7 @@ class EbookFormatService(
             id = UUID.randomUUID(),
             bookId = bookId,
             storageKey = storageKey,
-            fileName = fileMetadata.fileName,
+            fileName = fileName ?: fileMetadata.fileName,
             contentType = fileMetadata.contentType,
             fileSize = fileMetadata.size,
             formatType = formatType

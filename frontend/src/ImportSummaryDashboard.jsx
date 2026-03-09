@@ -421,9 +421,16 @@ const ImportSummaryDashboard = () => {
                                     </td>
                                     <td className="px-6 py-4">
                                         <div className="text-sm font-black text-gray-800 tracking-tight">{item.title}</div>
-                                        {item.authors?.length > 0 && (
-                                            <div className="text-[10px] font-bold text-gray-400 uppercase tracking-tighter mt-0.5">{item.authors.join(', ')}</div>
-                                        )}
+                                        <div className="flex flex-col gap-0.5 mt-0.5">
+                                            {item.authors?.length > 0 && (
+                                                <div className="text-[10px] font-bold text-gray-400 uppercase tracking-tighter">{item.authors.join(', ')}</div>
+                                            )}
+                                            {item.metadata?.originalFileName && item.metadata.originalFileName !== item.title && (
+                                                <div className="text-[9px] font-medium text-gray-400 italic truncate max-w-xs" title={item.metadata.originalFileName}>
+                                                    {item.metadata.originalFileName}
+                                                </div>
+                                            )}
+                                        </div>
                                     </td>
                                     <td className="px-6 py-4">
                                         <div className="flex flex-wrap gap-1">

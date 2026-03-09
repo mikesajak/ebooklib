@@ -194,13 +194,22 @@ const BookFormats = ({ bookId, formats: initialFormats, onUpdate }) => {
                 <FaFileAlt size={16} />
               </div>
               <div>
-                <div className="flex items-center gap-2">
-                  <span className="text-sm font-black text-gray-800 tracking-tight">{format.formatType}</span>
-                  <span className="text-[10px] font-black text-gray-400 uppercase tracking-tighter">({formatBytes(format.size)})</span>
+                <div className="flex flex-col">
+                  <span className="text-sm font-black text-gray-800 tracking-tight truncate max-w-[200px] sm:max-w-[300px]" title={format.fileName}>
+                    {format.fileName}
+                  </span>
+                  <div className="flex items-center gap-2 mt-0.5">
+                    <span className="px-1.5 py-0.5 bg-indigo-50 text-indigo-600 text-[9px] font-black rounded border border-indigo-100 uppercase tracking-tighter">
+                      {format.formatType}
+                    </span>
+                    <span className="text-[9px] font-black text-gray-400 uppercase tracking-tighter">
+                      {formatBytes(format.size)}
+                    </span>
+                  </div>
                 </div>
                 <a 
                   href={`/api/books/${bookId}/formats/${format.id}/download`}
-                  className="text-[10px] font-black text-indigo-600 hover:text-indigo-800 uppercase tracking-widest flex items-center gap-1 mt-1 transition-colors"
+                  className="text-[10px] font-black text-indigo-600 hover:text-indigo-800 uppercase tracking-widest flex items-center gap-1 mt-1.5 transition-colors"
                 >
                   <FaDownload size={8} /> {t('common.download', 'Download')}
                 </a>

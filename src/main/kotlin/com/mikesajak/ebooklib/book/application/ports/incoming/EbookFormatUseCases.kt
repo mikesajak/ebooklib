@@ -17,7 +17,8 @@ interface AddEbookFormatUseCase {
     fun addFormatFromStorage(
         bookId: BookId,
         storageKey: String,
-        formatType: String
+        formatType: String,
+        fileName: String? = null
     ): EbookFormatFile
 }
 
