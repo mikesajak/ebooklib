@@ -12,6 +12,7 @@ data class ResolutionItemResponseDto(
     val createdAt: Instant,
     val updatedAt: Instant,
     val metadataJson: String?,
+    val metadata: Map<String, Any?> = emptyMap(),
     val formats: List<ResolutionItemFormatDto>
 )
 

@@ -99,6 +99,7 @@ class ImportRestMapper(private val objectMapper: ObjectMapper) {
     }
 
     fun toResponse(item: ResolutionItem, formats: List<StagedEbookUpload>): ResolutionItemResponseDto {
+        val metadata = parseMetadata(item.metadataJson)
         return ResolutionItemResponseDto(
             id = item.id.toString(),
             importSessionId = item.importSessionId.toString(),
@@ -108,6 +109,7 @@ class ImportRestMapper(private val objectMapper: ObjectMapper) {
             createdAt = item.createdAt,
             updatedAt = item.updatedAt,
             metadataJson = item.metadataJson,
+            metadata = metadata,
             formats = formats.map { f ->
                 ResolutionItemFormatDto(
                     uploadId = f.id.toString(),
@@ -120,6 +122,7 @@ class ImportRestMapper(private val objectMapper: ObjectMapper) {
     }
 
     fun toResolutionItemResponse(upload: StagedEbookUpload): ResolutionItemResponseDto {
+        val metadata = parseMetadata(upload.metadataJson)
         return ResolutionItemResponseDto(
             id = upload.id.toString(),
             importSessionId = upload.importSessionId?.toString() ?: "",
@@ -134,6 +137,7 @@ class ImportRestMapper(private val objectMapper: ObjectMapper) {
             createdAt = upload.createdAt,
             updatedAt = upload.createdAt,
             metadataJson = upload.metadataJson,
+            metadata = metadata,
             formats = listOf(
                 ResolutionItemFormatDto(
                     uploadId = upload.id.toString(),
@@ -143,5 +147,16 @@ class ImportRestMapper(private val objectMapper: ObjectMapper) {
                 )
             )
         )
+    }
+
+    private fun parseMetadata(json: String?): Map<String, Any?> {
+        return try {
+            json?.let {
+                @Suppress("UNCHECKED_CAST")
+                objectMapper.readValue(it, Map::class.java) as Map<String, Any?>
+            } ?: emptyMap()
+        } catch (e: Exception) {
+            emptyMap()
+        }
     }
 }

@@ -68,6 +68,9 @@ class StagedUploadProcessor(
         logger.info { "Processing upload: $uploadId" }
         
         try {
+            val metadataMap = mutableMapOf<String, Any?>()
+            metadataMap["originalFileName"] = fileName
+
             // 1. Extract metadata
             val extracted = try {
                 metadataExtractor.extract(ByteArrayInputStream(fileBytes), fileName, contentType)
@@ -76,7 +79,6 @@ class StagedUploadProcessor(
                 null
             }
 
-            val metadataMap = mutableMapOf<String, Any?>()
             if (extracted != null) {
                 metadataMap["title"] = extracted.title
                 metadataMap["authors"] = extracted.authors
