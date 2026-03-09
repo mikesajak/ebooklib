@@ -383,7 +383,7 @@ const ImportPage = () => {
                                 <div className="absolute bottom-0 left-0 w-full h-1 bg-gray-50">
                                     <div 
                                         className="h-full bg-indigo-500 transition-all duration-1000" 
-                                        style={{ width: `${Math.min(100, (session.processedFiles / session.totalFiles) * 100)}%` }}
+                                        style={{ width: `${Math.min(100, ((session.processedFiles + session.failedFiles) / session.totalFiles) * 100)}%` }}
                                     />
                                 </div>
 

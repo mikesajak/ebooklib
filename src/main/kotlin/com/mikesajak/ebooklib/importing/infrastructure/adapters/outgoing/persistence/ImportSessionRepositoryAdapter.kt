@@ -28,4 +28,12 @@ class ImportSessionRepositoryAdapter(
     override fun delete(id: ImportSessionId) {
         repository.deleteById(id.value)
     }
+
+    override fun incrementProcessed(id: ImportSessionId) {
+        repository.incrementProcessed(id.value, Instant.now())
+    }
+
+    override fun incrementFailed(id: ImportSessionId) {
+        repository.incrementFailed(id.value, Instant.now())
+    }
 }

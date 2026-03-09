@@ -10,4 +10,6 @@ interface ImportSessionRepositoryPort {
     fun findAllByStatus(status: com.mikesajak.ebooklib.importing.domain.model.ImportSessionStatus): List<ImportSession>
     fun findAllExpired(now: Instant): List<ImportSession>
     fun delete(id: ImportSessionId)
+    fun incrementProcessed(id: ImportSessionId)
+    fun incrementFailed(id: ImportSessionId)
 }

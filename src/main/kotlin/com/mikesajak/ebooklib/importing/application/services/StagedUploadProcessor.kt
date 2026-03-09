@@ -173,10 +173,11 @@ class StagedUploadProcessor(
     private fun updateSessionProgress(upload: StagedEbookUpload) {
         upload.importSessionId?.let { sessionId ->
             try {
-                val sessionUploads = repository.findByImportSessionId(sessionId)
-                val processed = sessionUploads.count { it.status == StagedEbookUploadStatus.PARSED || it.status == StagedEbookUploadStatus.PROMOTED }
-                val failed = sessionUploads.count { it.status == StagedEbookUploadStatus.FAILED }
-                sessionUseCase.updateProgress(sessionId, processed, failed)
+                if (upload.status == StagedEbookUploadStatus.PARSED || upload.status == StagedEbookUploadStatus.PROMOTED) {
+                    sessionUseCase.incrementProcessed(sessionId)
+                } else if (upload.status == StagedEbookUploadStatus.FAILED) {
+                    sessionUseCase.incrementFailed(sessionId)
+                }
             } catch (e: Exception) {
                 logger.warn { "Failed to update session progress for $sessionId: ${e.message}" }
             }

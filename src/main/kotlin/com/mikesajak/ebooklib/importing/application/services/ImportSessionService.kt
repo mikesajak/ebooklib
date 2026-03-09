@@ -141,6 +141,22 @@ class ImportSessionService(
         }
     }
 
+    @Transactional
+    override fun incrementProcessed(id: ImportSessionId): ImportSession {
+        repository.incrementProcessed(id)
+        val updated = repository.findById(id) ?: throw IllegalArgumentException("Session $id not found")
+        notificationService.broadcast(NotificationEvent(NotificationType.IMPORT_PROGRESS, importRestMapper.toResponse(updated)))
+        return updated
+    }
+
+    @Transactional
+    override fun incrementFailed(id: ImportSessionId): ImportSession {
+        repository.incrementFailed(id)
+        val updated = repository.findById(id) ?: throw IllegalArgumentException("Session $id not found")
+        notificationService.broadcast(NotificationEvent(NotificationType.IMPORT_PROGRESS, importRestMapper.toResponse(updated)))
+        return updated
+    }
+
     private fun cleanupUpload(upload: StagedEbookUpload) {
         try {
             fileStoragePort.deleteFile("staged/${upload.id}")

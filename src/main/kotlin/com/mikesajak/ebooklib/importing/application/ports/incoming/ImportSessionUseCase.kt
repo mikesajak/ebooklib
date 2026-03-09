@@ -11,4 +11,6 @@ interface ImportSessionUseCase {
     fun finalizeSession(id: ImportSessionId): ImportSession
     fun cancelSession(id: ImportSessionId): ImportSession
     fun deleteSession(id: ImportSessionId)
+    fun incrementProcessed(id: ImportSessionId): ImportSession
+    fun incrementFailed(id: ImportSessionId): ImportSession
 }
