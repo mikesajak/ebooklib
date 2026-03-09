@@ -10,11 +10,11 @@ interface ImportSessionJpaRepository : JpaRepository<ImportSessionEntity, UUID> 
     fun findAllByExpiryAtBefore(now: Instant): List<ImportSessionEntity>
     fun findAllByStatus(status: com.mikesajak.ebooklib.importing.domain.model.ImportSessionStatus): List<ImportSessionEntity>
 
-    @Modifying(clearAutomatically = true)
+    @Modifying
     @Query("UPDATE ImportSessionEntity s SET s.processedFiles = s.processedFiles + 1, s.updatedAt = :now WHERE s.id = :id")
     fun incrementProcessed(id: UUID, now: Instant)
 
-    @Modifying(clearAutomatically = true)
+    @Modifying
     @Query("UPDATE ImportSessionEntity s SET s.failedFiles = s.failedFiles + 1, s.updatedAt = :now WHERE s.id = :id")
     fun incrementFailed(id: UUID, now: Instant)
 }

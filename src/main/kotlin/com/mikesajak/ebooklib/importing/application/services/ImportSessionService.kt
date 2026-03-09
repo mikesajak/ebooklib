@@ -16,6 +16,7 @@ import com.mikesajak.ebooklib.notification.domain.model.NotificationEvent
 import com.mikesajak.ebooklib.notification.domain.model.NotificationType
 import mu.KotlinLogging
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Propagation
 import org.springframework.transaction.annotation.Transactional
 import java.time.Instant
 import java.time.temporal.ChronoUnit
@@ -141,7 +142,7 @@ class ImportSessionService(
         }
     }
 
-    @Transactional
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     override fun incrementProcessed(id: ImportSessionId): ImportSession {
         repository.incrementProcessed(id)
         val updated = repository.findById(id) ?: throw IllegalArgumentException("Session $id not found")
@@ -149,7 +150,7 @@ class ImportSessionService(
         return updated
     }
 
-    @Transactional
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     override fun incrementFailed(id: ImportSessionId): ImportSession {
         repository.incrementFailed(id)
         val updated = repository.findById(id) ?: throw IllegalArgumentException("Session $id not found")
