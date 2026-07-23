@@ -11,7 +11,7 @@ version = "0.0.1-SNAPSHOT"
 description = "Ebook library"
 
 kotlin {
-    jvmToolchain(25)
+    jvmToolchain(21)
 
     compilerOptions {
         freeCompilerArgs.addAll("-Xjsr305=strict")
@@ -83,3 +83,84 @@ tasks.test {
         showStandardStreams = true
     }
 }
+
+// --- Container/Docker/Podman Image Tasks ---
+val buildImage = tasks.register<Exec>("buildImage") {
+    group = "docker"
+    description = "Builds the Podman container image for the application."
+    workingDir(file("."))
+
+    val command = listOf("podman", "build", "-t", "ebooklib-backend:latest", "-f", "Dockerfile", ".")
+    if (org.apache.tools.ant.taskdefs.condition.Os.isFamily(org.apache.tools.ant.taskdefs.condition.Os.FAMILY_WINDOWS)) {
+        commandLine(listOf("cmd", "/c") + command)
+    } else {
+        commandLine(command)
+    }
+}
+
+val buildImageArchive = tasks.register<Exec>("buildImageArchive") {
+    group = "docker"
+    description = "Builds and archives the Podman container image to a tarball."
+    dependsOn(buildImage)
+    workingDir(file("."))
+
+    doFirst {
+        val archive = file("build/ebooklib-backend.tar")
+        if (archive.exists()) {
+            archive.delete()
+        }
+        file("build").mkdirs()
+    }
+
+    val archivePath = "build/ebooklib-backend.tar"
+    val command = listOf("podman", "save", "-o", archivePath, "ebooklib-backend:latest")
+    if (org.apache.tools.ant.taskdefs.condition.Os.isFamily(org.apache.tools.ant.taskdefs.condition.Os.FAMILY_WINDOWS)) {
+        commandLine(listOf("cmd", "/c") + command)
+    } else {
+        commandLine(command)
+    }
+
+    doLast {
+        println("Production container image archived successfully to: ${file(archivePath).absolutePath}")
+    }
+}
+
+val tagImage = tasks.register<Exec>("tagImage") {
+    group = "docker"
+    description = "Tags the local image for the private registry."
+    dependsOn(buildImage)
+    workingDir(file("."))
+
+    val registryUrl = project.findProperty("registryUrl") as? String ?: "server.local:5000"
+    val imageName = "ebooklib-backend"
+    val imageTag = project.findProperty("imageTag") as? String ?: "latest"
+    val fullImageTarget = "$registryUrl/$imageName:$imageTag"
+
+    val command = listOf("podman", "tag", "$imageName:latest", fullImageTarget)
+    if (org.apache.tools.ant.taskdefs.condition.Os.isFamily(org.apache.tools.ant.taskdefs.condition.Os.FAMILY_WINDOWS)) {
+        commandLine(listOf("cmd", "/c") + command)
+    } else {
+        commandLine(command)
+    }
+}
+
+val pushImage = tasks.register<Exec>("pushImage") {
+    group = "docker"
+    description = "Pushes the container image to the private registry."
+    dependsOn(tagImage)
+    workingDir(file("."))
+
+    val registryUrl = project.findProperty("registryUrl") as? String ?: "server.local:5000"
+    val imageName = "ebooklib-backend"
+    val imageTag = project.findProperty("imageTag") as? String ?: "latest"
+    val fullImageTarget = "$registryUrl/$imageName:$imageTag"
+
+    // Uses --tls-verify=false as local registries often run on HTTP without SSL
+    val command = listOf("podman", "push", "--tls-verify=false", fullImageTarget)
+    if (org.apache.tools.ant.taskdefs.condition.Os.isFamily(org.apache.tools.ant.taskdefs.condition.Os.FAMILY_WINDOWS)) {
+        commandLine(listOf("cmd", "/c") + command)
+    } else {
+        commandLine(command)
+    }
+}
+

@@ -16,7 +16,7 @@ services:
       -c maintenance_work_mem=16MB
       -c max_connections=15
     ports:
-      - "${DB_PORT:-5432}:5432"
+      - "${DB_PORT:-5434}:5432"
     volumes:
       - ./data/prod_db:/var/lib/postgresql/data
     deploy:
@@ -29,7 +29,7 @@ services:
       - default
 
   minio:
-    image: docker.io/minio/minio:latest
+    image: docker.io/minio/minio:RELEASE.2024-03-03T17-50-39Z-cpuv1
     container_name: ebooklib-minio
     restart: always
     environment:
@@ -50,7 +50,7 @@ services:
       - default
 
   backend:
-    image: ${BACKEND_IMAGE:-localhost:5000/ebooklibrary-backend:latest}
+    image: ${BACKEND_IMAGE:-server.local:5000/ebooklib-backend:latest}
     container_name: ebooklib-backend
     restart: always
     environment:
@@ -76,7 +76,7 @@ services:
       - ingress-net
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.ebooklib-backend.rule=Host(`${APP_DOMAIN:-ebooklib.local}`)"
+      - "traefik.http.routers.ebooklib-backend.rule=Host(`${APP_DOMAIN:-ebooklib.server.home}`)"
       - "traefik.http.routers.ebooklib-backend.entrypoints=${TRAEFIK_ENTRYPOINT:-web}"
       - "traefik.http.services.ebooklib-backend.loadbalancer.server.port=8080"
 

@@ -10,7 +10,7 @@ elif [ -f "docker-compose.prod.yml" ]; then
 else
     COMPOSE_FILE="docker-compose.yml"
 fi
-TAR_FILE="ebooklibrary-backend.tar"
+TAR_FILE="ebooklib-backend.tar"
 
 # Print usage information
 usage() {

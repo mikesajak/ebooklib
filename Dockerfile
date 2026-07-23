@@ -1,23 +1,22 @@
-# Use a base image with Java
-FROM eclipse-temurin:21-jdk-jammy
+# Stage 1: Build the Spring Boot application and frontend
+FROM docker.io/library/gradle:8.12-jdk21 AS build
 
-# Set the working directory
+# Install Node.js & NPM
+USER root
+RUN apt-get update && apt-get install -y curl && \
+    curl -fsSL https://deb.nodesource.com/setup_20.x | bash - && \
+    apt-get install -y nodejs && \
+    rm -rf /var/lib/apt/lists/*
+
+USER gradle
 WORKDIR /app
+COPY --chown=gradle:gradle . .
+RUN ./gradlew bootJar --no-daemon
 
-# Copy the Gradle wrapper and build files
-COPY gradlew .
-COPY gradle/wrapper/gradle-wrapper.jar gradle/wrapper/
-COPY gradle/wrapper/gradle-wrapper.properties gradle/wrapper/
-COPY build.gradle.kts settings.gradle.kts ./
-
-# Copy the source code
-COPY src src/
-
-# Build the application
-RUN ./gradlew bootJar
-
-# Expose the port the application runs on
+# Stage 2: Run the application
+FROM docker.io/library/eclipse-temurin:21-jre-jammy
+WORKDIR /app
+COPY --from=build /app/build/libs/*.jar app.jar
 EXPOSE 8080
+ENTRYPOINT ["java", "-jar", "app.jar"]
 
-# Run the application
-ENTRYPOINT ["java", "-jar", "build/libs/EbookLibrary4-0.0.1-SNAPSHOT.jar"]
