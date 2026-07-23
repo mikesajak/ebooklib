@@ -6,11 +6,16 @@ import com.mikesajak.ebooklib.book.domain.model.Book
 import com.mikesajak.ebooklib.book.infrastructure.adapters.incoming.rest.BookRestMapper
 import com.mikesajak.ebooklib.book.infrastructure.adapters.incoming.rest.BookView
 import com.mikesajak.ebooklib.book.infrastructure.adapters.incoming.rest.dto.BookResponseDto
+import com.mikesajak.ebooklib.importing.application.ports.incoming.AutoResolutionUseCase
 import com.mikesajak.ebooklib.importing.application.ports.incoming.FinalizeImportUseCase
 import com.mikesajak.ebooklib.importing.application.ports.incoming.GetStagedCoverUseCase
 import com.mikesajak.ebooklib.importing.application.ports.incoming.GetStagedUploadUseCase
+import com.mikesajak.ebooklib.importing.application.ports.incoming.GetSupportedFormatsUseCase
+import com.mikesajak.ebooklib.importing.application.ports.incoming.ImportSessionUseCase
+import com.mikesajak.ebooklib.importing.application.ports.incoming.ResolutionItemUseCase
 import com.mikesajak.ebooklib.importing.application.ports.incoming.StagedCover
 import com.mikesajak.ebooklib.importing.application.ports.incoming.UploadToStagingUseCase
+import com.mikesajak.ebooklib.importing.application.ports.outgoing.StagedEbookUploadRepositoryPort
 import com.mikesajak.ebooklib.importing.domain.model.StagedEbookUpload
 import com.mikesajak.ebooklib.importing.domain.model.StagedEbookUploadId
 import com.mikesajak.ebooklib.importing.domain.model.StagedEbookUploadStatus
@@ -71,6 +76,21 @@ class ImportControllerComponentTest {
     private lateinit var finalizeImportUseCase: FinalizeImportUseCase
 
     @MockitoBean
+    private lateinit var autoResolutionUseCase: AutoResolutionUseCase
+
+    @MockitoBean
+    private lateinit var importSessionUseCase: ImportSessionUseCase
+
+    @MockitoBean
+    private lateinit var resolutionItemUseCase: ResolutionItemUseCase
+
+    @MockitoBean
+    private lateinit var getSupportedFormatsUseCase: GetSupportedFormatsUseCase
+
+    @MockitoBean
+    private lateinit var stagedUploadRepository: StagedEbookUploadRepositoryPort
+
+    @MockitoBean
     private lateinit var bookRestMapper: BookRestMapper
 
     @Test
@@ -92,7 +112,7 @@ class ImportControllerComponentTest {
             expiryAt = Instant.now().plusSeconds(3600)
         )
 
-        whenever(uploadToStagingUseCase.upload(any(), any(), any(), anyOrNull())).thenReturn(stagedUpload)
+        whenever(uploadToStagingUseCase.upload(any(), any(), any(), anyOrNull(), anyOrNull())).thenReturn(stagedUpload)
 
         // When & Then
         mockMvc.perform(multipart("/api/import/upload")
@@ -140,7 +160,7 @@ class ImportControllerComponentTest {
             expiryAt = Instant.now().plusSeconds(3600)
         )
 
-        whenever(uploadToStagingUseCase.upload(any(), any(), any(), anyOrNull())).thenReturn(stagedUpload)
+        whenever(uploadToStagingUseCase.upload(any(), any(), any(), anyOrNull(), anyOrNull())).thenReturn(stagedUpload)
 
         // When & Then
         mockMvc.perform(multipart("/api/import/upload")
@@ -172,7 +192,7 @@ class ImportControllerComponentTest {
             expiryAt = Instant.now().plusSeconds(3600)
         )
 
-        whenever(uploadToStagingUseCase.upload(any(), any(), any(), anyOrNull())).thenReturn(stagedUpload)
+        whenever(uploadToStagingUseCase.upload(any(), any(), any(), anyOrNull(), anyOrNull())).thenReturn(stagedUpload)
 
         // When & Then
         mockMvc.perform(multipart("/api/import/upload")
@@ -201,7 +221,7 @@ class ImportControllerComponentTest {
             expiryAt = Instant.now().plusSeconds(3600)
         )
 
-        whenever(uploadToStagingUseCase.uploadAsync(any(), any(), any(), anyOrNull())).thenReturn(stagedUpload)
+        whenever(uploadToStagingUseCase.uploadAsync(any(), any(), any(), anyOrNull(), anyOrNull())).thenReturn(stagedUpload)
 
         // When & Then
         mockMvc.perform(multipart("/api/import/upload")

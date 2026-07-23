@@ -149,12 +149,23 @@ const AdminStatusWidget = () => {
   );
 };
 
-const AppSidebar = ({ collapsed, setCollapsed }) => {
+const AppSidebar = ({ collapsed: propCollapsed, setCollapsed: propSetCollapsed }) => {
   const { t } = useTranslation();
   const { isAdmin } = useAuth();
   const location = useLocation();
+  const [internalCollapsed, setInternalCollapsed] = useState(false);
   const [isOnline, setIsOnline] = useState(navigator.onLine);
   const [isAdminOpen, setIsAdminOpen] = useState(location.pathname.startsWith('/admin'));
+
+  const collapsed = propCollapsed !== undefined ? propCollapsed : internalCollapsed;
+
+  const handleToggleCollapsed = () => {
+    if (propSetCollapsed) {
+      propSetCollapsed(!collapsed);
+    } else {
+      setInternalCollapsed((prev) => !prev);
+    }
+  };
 
   useEffect(() => {
     if (location.pathname.startsWith('/admin')) {
@@ -195,7 +206,7 @@ const AppSidebar = ({ collapsed, setCollapsed }) => {
     <Sidebar collapsed={collapsed} backgroundColor="#fff" rootStyles={{ borderRight: '1px solid #f3f4f6', height: '100%' }}>
       <div className="flex flex-col h-full overflow-hidden">
         <div className="p-6 flex items-center justify-center border-b border-gray-50 mb-4">
-          <button onClick={() => setCollapsed(!collapsed)} className="text-gray-400 hover:text-indigo-600 transition-colors">
+          <button onClick={handleToggleCollapsed} className="text-gray-400 hover:text-indigo-600 transition-colors">
             <FaBars className="text-xl" />
           </button>
           {!collapsed && (

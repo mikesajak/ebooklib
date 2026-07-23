@@ -23,6 +23,7 @@
       "publisher": "Publisher",
       "description": "Description",
       "labels": "Labels",
+      "formats": "Formats",
       "actions": "Actions"
     },
     "noBooksFound": "No books found.",

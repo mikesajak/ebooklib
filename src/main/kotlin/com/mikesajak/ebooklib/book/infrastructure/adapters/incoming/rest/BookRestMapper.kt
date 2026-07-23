@@ -13,6 +13,7 @@ import com.mikesajak.ebooklib.book.infrastructure.adapters.incoming.rest.dto.Ebo
 import com.mikesajak.ebooklib.series.application.ports.incoming.GetSeriesUseCase
 import com.mikesajak.ebooklib.series.domain.model.SeriesId
 import com.mikesajak.ebooklib.series.infrastructure.adapters.incoming.rest.SeriesRestMapper
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
 
 @Component
@@ -20,9 +21,9 @@ class BookRestMapper(
         private val authorRestMapper: AuthorRestMapper,
         private val seriesRestMapper: SeriesRestMapper,
 
-        private val getAuthorUseCase: GetAuthorUseCase,
-        private val getSeriesUseCase: GetSeriesUseCase,
-        private val listEbookFormatsUseCase: ListEbookFormatsUseCase
+        @Autowired(required = false) private val getAuthorUseCase: GetAuthorUseCase? = null,
+        @Autowired(required = false) private val getSeriesUseCase: GetSeriesUseCase? = null,
+        @Autowired(required = false) private val listEbookFormatsUseCase: ListEbookFormatsUseCase? = null
 ) {
     fun toResponse(book: Book, view: BookView) =
         when (view) {
@@ -37,8 +38,8 @@ class BookRestMapper(
                     publisher = book.publisher,
                     description = book.description,
                     labels = book.labels,
-                    formats = listEbookFormatsUseCase.listFormatFiles(book.id)
-                        .map {
+                    formats = listEbookFormatsUseCase?.listFormatFiles(book.id)
+                        ?.map {
                             EbookFormatFileDto(
                                 id = it.id.toString(),
                                 fileName = it.fileName,
@@ -59,7 +60,17 @@ class BookRestMapper(
                     publicationDate = book.publicationDate,
                     publisher = book.publisher,
                     description = null,
-                    labels = book.labels
+                    labels = book.labels,
+                    formats = listEbookFormatsUseCase?.listFormatFiles(book.id)
+                        ?.map {
+                            EbookFormatFileDto(
+                                id = it.id.toString(),
+                                fileName = it.fileName,
+                                contentType = it.contentType,
+                                size = it.fileSize,
+                                formatType = it.formatType
+                            )
+                        }
             )
 
             BookView.BY_AUTHOR -> BookResponseDto(
@@ -90,8 +101,8 @@ class BookRestMapper(
         }
 
     fun toDomain(bookRequestDto: BookRequestDto): Book {
-        val authors = bookRequestDto.authorIds.map { authorId -> getAuthorUseCase.getAuthor(AuthorId(authorId)) }
-        val series = bookRequestDto.seriesId?.let { seriesId -> getSeriesUseCase.getSeries(SeriesId(seriesId)) }
+        val authors = bookRequestDto.authorIds.map { authorId -> getAuthorUseCase?.getAuthor(AuthorId(authorId)) ?: error("GetAuthorUseCase not injected") }
+        val series = bookRequestDto.seriesId?.let { seriesId -> getSeriesUseCase?.getSeries(SeriesId(seriesId)) }
         return Book(null,
                     bookRequestDto.title,
                     authors,

@@ -25,6 +25,7 @@
       "publisher": "Wydawca",
       "description": "Opis",
       "labels": "Etykiety",
+      "formats": "Formaty",
       "actions": "Akcje"
     },
     "noBooksFound": "Nie znaleziono książek.",
