@@ -1,0 +1,87 @@
+version: '3.8'
+
+services:
+  db:
+    image: docker.io/library/postgres:16-alpine
+    container_name: ebooklib-postgres
+    restart: always
+    environment:
+      POSTGRES_DB: ${DB_NAME:-ebooklib_db}
+      POSTGRES_USER: ${DB_USER:-ebooklib_user}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-ebooklib_password}
+    command: >
+      postgres
+      -c shared_buffers=16MB
+      -c work_mem=2MB
+      -c maintenance_work_mem=16MB
+      -c max_connections=15
+    ports:
+      - "${DB_PORT:-5432}:5432"
+    volumes:
+      - ./data/prod_db:/var/lib/postgresql/data
+    deploy:
+      resources:
+        limits:
+          memory: 128M
+        reservations:
+          memory: 64M
+    networks:
+      - default
+
+  minio:
+    image: docker.io/minio/minio:latest
+    container_name: ebooklib-minio
+    restart: always
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-minioadmin}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-minioadmin}
+      GOGC: "50"
+      GOMEMLIMIT: "100MiB"
+    command: server /data
+    volumes:
+      - ./data/prod_minio:/data
+    deploy:
+      resources:
+        limits:
+          memory: 160M
+        reservations:
+          memory: 128M
+    networks:
+      - default
+
+  backend:
+    image: ${BACKEND_IMAGE:-localhost:5000/ebooklibrary-backend:latest}
+    container_name: ebooklib-backend
+    restart: always
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/${DB_NAME:-ebooklib_db}
+      - SPRING_DATASOURCE_USERNAME=${DB_USER:-ebooklib_user}
+      - SPRING_DATASOURCE_PASSWORD=${DB_PASSWORD:-ebooklib_password}
+      - MINIO_ENDPOINT=http://minio:9000
+      - MINIO_ACCESS_KEY=${MINIO_ROOT_USER:-minioadmin}
+      - MINIO_SECRET_KEY=${MINIO_ROOT_PASSWORD:-minioadmin}
+      - SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE:-default}
+      - JAVA_TOOL_OPTIONS=-XX:+UseSerialGC -Xmx256M -XX:MinHeapFreeRatio=10 -XX:MaxHeapFreeRatio=20 -XX:+ExitOnOutOfMemoryError
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+        reservations:
+          memory: 384M
+    depends_on:
+      - db
+      - minio
+    networks:
+      - default
+      - ingress-net
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.ebooklib-backend.rule=Host(`${APP_DOMAIN:-ebooklib.local}`)"
+      - "traefik.http.routers.ebooklib-backend.entrypoints=${TRAEFIK_ENTRYPOINT:-web}"
+      - "traefik.http.services.ebooklib-backend.loadbalancer.server.port=8080"
+
+networks:
+  default:
+  ingress-net:
+    external: true
+    name: ingress-net

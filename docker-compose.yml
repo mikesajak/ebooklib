@@ -1,0 +1,38 @@
+services:
+  db:
+    image: docker.io/library/postgres:16-alpine
+    container_name: ebooklib-postgres
+    restart: always
+    environment:
+      POSTGRES_DB: ${DB_NAME:-ebooklib_db}
+      POSTGRES_USER: ${DB_USER:-ebooklib_user}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-ebooklib_password}
+    ports:
+      - "${DB_PORT:-5432}:5432"
+    volumes:
+      - ./data/db:/var/lib/postgresql/data
+
+  pgweb:
+    image: docker.io/sosedoff/pgweb:latest
+    container_name: ebooklib-pgweb
+    restart: always
+    ports:
+      - "${PGWEB_PORT:-8090}:8081"
+    environment:
+      - DATABASE_URL=postgres://${DB_USER:-ebooklib_user}:${DB_PASSWORD:-ebooklib_password}@db:5432/${DB_NAME:-ebooklib_db}?sslmode=disable
+    depends_on:
+      - db
+
+  minio:
+    image: docker.io/minio/minio:latest
+    container_name: ebooklib-minio
+    restart: always
+    ports:
+      - "${MINIO_API_PORT:-9000}:9000"
+      - "${MINIO_CONSOLE_PORT:-9001}:9001"
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-minioadmin}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-minioadmin}
+    command: server /data --console-address ":9001"
+    volumes:
+      - ./data/minio:/data
