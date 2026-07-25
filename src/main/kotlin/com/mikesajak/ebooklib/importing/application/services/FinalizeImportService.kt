@@ -76,7 +76,7 @@ class FinalizeImportService(
 
         // 4. Handle Cover Promotion
         if (command.updateCover) {
-            promoteCover(mainStagedUpload, book)
+            promoteCover(mainStagedUpload, allUploads, book)
         }
 
         // 5. Cleanup Staging Records
@@ -130,17 +130,28 @@ class FinalizeImportService(
         }
     }
 
-    private fun promoteCover(stagedUpload: StagedEbookUpload, book: Book) {
-        val metadataMap = stagedUpload.metadataJson?.let {
-            @Suppress("UNCHECKED_CAST")
-            try {
-                objectMapper.readValue(it, Map::class.java) as Map<String, Any?>
-            } catch (e: Exception) {
-                null
+    private fun promoteCover(mainStagedUpload: StagedEbookUpload, allUploads: List<StagedEbookUpload>, book: Book) {
+        // Search mainStagedUpload first, then all sibling uploads in the resolution item for a cover
+        val uploadsToCheck = listOf(mainStagedUpload) + (allUploads - mainStagedUpload)
+
+        var coverStorageKey: String? = null
+        for (upload in uploadsToCheck) {
+            val metadataMap = upload.metadataJson?.let {
+                @Suppress("UNCHECKED_CAST")
+                try {
+                    objectMapper.readValue(it, Map::class.java) as Map<String, Any?>
+                } catch (e: Exception) {
+                    null
+                }
+            }
+            val key = metadataMap?.get("coverStorageKey") as? String
+            if (key != null) {
+                coverStorageKey = key
+                break
             }
         }
 
-        val coverStorageKey = metadataMap?.get("coverStorageKey") as? String ?: return
+        if (coverStorageKey == null) return
 
         try {
             if (fileStoragePort.getFileMetadata(coverStorageKey) != null) {

@@ -65,7 +65,25 @@ class AutoResolutionService(
 
         val validation = parseValidation(metadataMap["validation"])
         val enrichment = parseEnrichment(metadataMap["enrichment"])
-        val extracted = parseExtracted(metadataMap["metadata"])
+
+        val title = (metadataMap["title"] as? String) ?: item.title
+        @Suppress("UNCHECKED_CAST")
+        val authors = (metadataMap["authors"] as? List<String>) ?: item.authors
+        val publisher = metadataMap["publisher"] as? String
+        val publicationDateStr = metadataMap["publicationDate"] as? String
+        val publicationDate = publicationDateStr?.let {
+            try { java.time.LocalDate.parse(it) } catch (e: Exception) { null }
+        }
+        val description = metadataMap["description"] as? String
+
+        val hasExtractedCover = formats.any { upload ->
+            val map = upload.metadataJson?.let {
+                try {
+                    objectMapper.readValue(it, object : TypeReference<Map<String, Any?>>() {})
+                } catch (e: Exception) { null }
+            }
+            map?.get("coverStorageKey") != null
+        }
 
         val bestCandidate = validation?.candidates?.find { it.score >= 80 }
         val matchBookId = bestCandidate?.bookId?.let { BookId(it) }
@@ -77,18 +95,16 @@ class AutoResolutionService(
                     logger.info { "Item ${item.id} matched with book $matchBookId. Skipping NEW_ONLY strategy." }
                     return
                 }
-                buildIncomingCommand(primaryUpload.id, null, extracted, enrichment)
+                buildIncomingCommand(primaryUpload.id, null, title, authors, publisher, publicationDate, description, enrichment, hasExtractedCover)
             }
             AutoResolveStrategy.TRUST_INCOMING -> {
-                buildIncomingCommand(primaryUpload.id, matchBookId, extracted, enrichment)
+                buildIncomingCommand(primaryUpload.id, matchBookId, title, authors, publisher, publicationDate, description, enrichment, hasExtractedCover)
             }
             AutoResolveStrategy.TRUST_EXISTING -> {
                 if (matchBookId != null) {
                     buildExistingCommand(primaryUpload.id, matchBookId)
                 } else {
-                    // Fallback to incoming if no match? Or skip? 
-                    // Let's fallback to incoming so we don't leave things unresolved if they are new.
-                    buildIncomingCommand(primaryUpload.id, null, extracted, enrichment)
+                    buildIncomingCommand(primaryUpload.id, null, title, authors, publisher, publicationDate, description, enrichment, hasExtractedCover)
                 }
             }
         }
@@ -100,23 +116,28 @@ class AutoResolutionService(
     private fun buildIncomingCommand(
         uploadId: StagedEbookUploadId, 
         bookId: BookId?, 
-        extracted: ExtractedEbookMetadata?, 
-        enrichment: List<EnrichedMetadata>?
+        title: String,
+        authors: List<String>,
+        publisher: String?,
+        publicationDate: java.time.LocalDate?,
+        description: String?,
+        enrichment: List<EnrichedMetadata>?,
+        hasExtractedCover: Boolean
     ): FinalizeImportCommand {
         val external = enrichment?.firstOrNull()
         
         return FinalizeImportCommand(
             uploadId = uploadId,
             bookId = bookId,
-            title = external?.title ?: extracted?.title ?: "Untitled",
+            title = external?.title ?: title,
             authorIds = emptyList(), // We'll use authorNames for auto-resolve to avoid manual ID matching
-            authorNames = external?.authors ?: extracted?.authors ?: emptyList(),
-            publisher = external?.publisher ?: extracted?.publisher,
-            publicationDate = external?.publicationDate ?: extracted?.publicationDate,
-            description = external?.description ?: extracted?.description,
+            authorNames = external?.authors ?: authors,
+            publisher = external?.publisher ?: publisher,
+            publicationDate = external?.publicationDate ?: publicationDate,
+            description = external?.description ?: description,
             seriesId = null, // Auto-linking series by name is risky, leave for manual if needed
             volume = external?.volume,
-            updateCover = external?.coverUrl != null || extracted?.coverImage != null
+            updateCover = external?.coverUrl != null || hasExtractedCover
         )
     }
 

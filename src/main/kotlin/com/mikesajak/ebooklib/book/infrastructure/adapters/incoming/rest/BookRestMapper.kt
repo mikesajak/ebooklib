@@ -12,6 +12,7 @@ import com.mikesajak.ebooklib.book.infrastructure.adapters.incoming.rest.dto.Boo
 import com.mikesajak.ebooklib.book.infrastructure.adapters.incoming.rest.dto.EbookFormatFileDto
 import com.mikesajak.ebooklib.series.application.ports.incoming.GetSeriesUseCase
 import com.mikesajak.ebooklib.series.domain.model.SeriesId
+import com.mikesajak.ebooklib.book.application.ports.incoming.GetBookCoverUseCase
 import com.mikesajak.ebooklib.series.infrastructure.adapters.incoming.rest.SeriesRestMapper
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
@@ -23,7 +24,8 @@ class BookRestMapper(
 
         @Autowired(required = false) private val getAuthorUseCase: GetAuthorUseCase? = null,
         @Autowired(required = false) private val getSeriesUseCase: GetSeriesUseCase? = null,
-        @Autowired(required = false) private val listEbookFormatsUseCase: ListEbookFormatsUseCase? = null
+        @Autowired(required = false) private val listEbookFormatsUseCase: ListEbookFormatsUseCase? = null,
+        @Autowired(required = false) private val getBookCoverUseCase: GetBookCoverUseCase? = null
 ) {
     fun toResponse(book: Book, view: BookView) =
         when (view) {
@@ -47,7 +49,8 @@ class BookRestMapper(
                                 size = it.fileSize,
                                 formatType = it.formatType
                             )
-                        }
+                        },
+                    hasCover = getBookCoverUseCase?.hasCover(book.id) ?: false
             )
 
             BookView.COMPACT -> BookResponseDto(
@@ -70,7 +73,8 @@ class BookRestMapper(
                                 size = it.fileSize,
                                 formatType = it.formatType
                             )
-                        }
+                        },
+                    hasCover = getBookCoverUseCase?.hasCover(book.id) ?: false
             )
 
             BookView.BY_AUTHOR -> BookResponseDto(

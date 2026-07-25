@@ -38,10 +38,25 @@ const ResolveItemPage = () => {
 
             // 3. Fetch full details of the first format (to get enrichment and validation)
             if (itemData.formats && itemData.formats.length > 0) {
-                const uploadResponse = await fetchWithCsrf(`/api/import/staged/${itemData.formats[0].uploadId}`);
-                if (uploadResponse.ok) {
-                    const uploadData = await uploadResponse.json();
-                    
+                const uploadResponses = await Promise.all(
+                    itemData.formats.map(f => fetchWithCsrf(`/api/import/staged/${f.uploadId}`))
+                );
+                const uploadsData = await Promise.all(
+                    uploadResponses.filter(r => r.ok).map(r => r.json())
+                );
+
+                if (uploadsData.length > 0) {
+                    const uploadWithCover = uploadsData.find(u => u.metadata?.coverStorageKey);
+                    const primaryUpload = uploadWithCover || uploadsData[0];
+                    let uploadData = { ...primaryUpload };
+
+                    if (!uploadData.metadata?.coverStorageKey && uploadWithCover) {
+                        uploadData.metadata = {
+                            ...uploadData.metadata,
+                            coverStorageKey: uploadWithCover.metadata.coverStorageKey
+                        };
+                    }
+
                     // Inject enrichment from item if it's there
                     if (itemData.metadataJson) {
                         try {
