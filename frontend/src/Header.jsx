@@ -15,7 +15,7 @@ const Header = () => {
 
   return (
     <header className="bg-white border-b border-gray-100 shadow-sm sticky top-0 z-40 px-6 py-3">
-      <nav className="container mx-auto max-w-7xl">
+      <nav className="container mx-auto max-w-[1380px]">
         <div className="flex justify-between items-center">
           <Link to="/" className="flex items-center gap-3 group">
             <div className="bg-indigo-50 p-1.5 rounded-lg group-hover:bg-indigo-100 transition-colors">

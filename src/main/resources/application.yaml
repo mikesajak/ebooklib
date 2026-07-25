@@ -12,7 +12,7 @@ spring:
 
 app:
   security:
-    enabled: false
+    enabled: true
   import:
     cleanup:
       cron: "0 0 * * * *"

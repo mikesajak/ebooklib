@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate, Link, useLocation } from 'react-router-dom';
-import { FaBook, FaPlus, FaEdit, FaTrash } from 'react-icons/fa';
+import { FaBook, FaPlus, FaEdit, FaTrash, FaEllipsisV } from 'react-icons/fa';
 import Notification from './Notification';
 import { useTranslation } from 'react-i18next';
 import { useSearch } from './SearchContext';
@@ -56,6 +56,17 @@ const BookTable = () => {
   const { searchQuery, refreshTrigger } = useSearch('books');
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [bookToDelete, setBookToDelete] = useState(null);
+  const [activeActionMenuId, setActiveActionMenuId] = useState(null);
+
+  useEffect(() => {
+    const handleOutsideClick = (e) => {
+      if (!e.target.closest('.action-menu-container')) {
+        setActiveActionMenuId(null);
+      }
+    };
+    document.addEventListener('click', handleOutsideClick);
+    return () => document.removeEventListener('click', handleOutsideClick);
+  }, []);
 
   useEffect(() => {
     if (!tableContainerRef.current) return;
@@ -187,7 +198,7 @@ const BookTable = () => {
   };
 
   return (
-    <div className="container mx-auto p-4 max-w-7xl">
+    <div className="container mx-auto p-4 max-w-[1380px]">
       {notification && (
         <Notification
           message={notification.message}
@@ -257,7 +268,7 @@ const BookTable = () => {
                     )}
                     {showLabelsColumn && <th className="py-3 px-3 text-left w-28">{t('bookTable.header.labels')}</th>}
                     {showFormatsColumn && <th className="py-3 px-3 text-left w-24">{t('bookTable.header.formats', 'Formats')}</th>}
-                    <th className="py-3 px-3 text-center w-20 whitespace-nowrap">{t('bookTable.header.actions')}</th>
+                    <th className="py-3 px-2 text-center w-10 whitespace-nowrap"></th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-100 bg-white">
@@ -359,23 +370,42 @@ const BookTable = () => {
                             </div>
                           </td>
                         )}
-                        <td className="py-3 px-3 text-center whitespace-nowrap w-20">
-                          <div className="flex justify-center gap-1">
-                            <Link 
-                              to={`/books/${book.id}/edit`} 
-                              className="p-1.5 text-indigo-600 hover:bg-indigo-50 rounded-lg transition-all"
-                              title={t('common.edit')}
-                            >
-                              <FaEdit size={15} />
-                            </Link>
-                            <button 
-                              onClick={() => handleDeleteClick(book)} 
-                              className="p-1.5 text-rose-600 hover:bg-rose-50 rounded-lg transition-all"
-                              title={t('common.delete')}
-                            >
-                              <FaTrash size={15} />
-                            </button>
-                          </div>
+                        <td className="py-3 px-2 text-center whitespace-nowrap w-10 relative action-menu-container">
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setActiveActionMenuId(activeActionMenuId === book.id ? null : book.id);
+                            }}
+                            className={`p-1.5 rounded-lg text-gray-500 hover:text-indigo-600 hover:bg-gray-100 transition-all ${
+                              activeActionMenuId === book.id ? 'bg-indigo-50 text-indigo-600 opacity-100' : 'opacity-0 group-hover:opacity-100 focus:opacity-100'
+                            }`}
+                            title={t('bookTable.header.actions')}
+                          >
+                            <FaEllipsisV size={13} />
+                          </button>
+
+                          {activeActionMenuId === book.id && (
+                            <div className="absolute right-2 top-full mt-1 z-30 bg-white border border-gray-100 shadow-xl rounded-xl py-1 w-32 text-left animate-fade-in divide-y divide-gray-50">
+                              <Link
+                                to={`/books/${book.id}/edit`}
+                                className="flex items-center gap-2 px-3 py-2 text-xs font-semibold text-gray-700 hover:bg-indigo-50 hover:text-indigo-600 transition-colors"
+                                onClick={() => setActiveActionMenuId(null)}
+                              >
+                                <FaEdit size={13} className="text-indigo-500" />
+                                {t('common.edit')}
+                              </Link>
+                              <button
+                                onClick={() => {
+                                  setActiveActionMenuId(null);
+                                  handleDeleteClick(book);
+                                }}
+                                className="w-full flex items-center gap-2 px-3 py-2 text-xs font-semibold text-rose-600 hover:bg-rose-50 transition-colors text-left"
+                              >
+                                <FaTrash size={13} className="text-rose-500" />
+                                {t('common.delete')}
+                              </button>
+                            </div>
+                          )}
                         </td>
                       </tr>
                     ))
