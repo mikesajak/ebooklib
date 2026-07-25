@@ -6,6 +6,8 @@ import com.mikesajak.ebooklib.book.domain.model.EbookFormatFile
 import org.springframework.stereotype.Component
 import java.util.*
 
+import com.mikesajak.ebooklib.admin.domain.model.FormatTypeStats
+
 @Component
 class EbookFormatFileJpaRepositoryAdapter(
     private val ebookFormatFileJpaRepository: EbookFormatFileJpaRepository
@@ -29,6 +31,8 @@ class EbookFormatFileJpaRepositoryAdapter(
     override fun count(): Long = ebookFormatFileJpaRepository.count()
 
     override fun totalFileSize(): Long = ebookFormatFileJpaRepository.sumFileSize() ?: 0L
+
+    override fun getFormatTypeStats(): List<FormatTypeStats> = ebookFormatFileJpaRepository.getFormatTypeStats()
 
     override fun findAllKeys(): List<String> = ebookFormatFileJpaRepository.findAllStorageKeys()
 

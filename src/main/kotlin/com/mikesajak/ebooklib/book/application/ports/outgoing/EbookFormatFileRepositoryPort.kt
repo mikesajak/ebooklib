@@ -1,5 +1,6 @@
 package com.mikesajak.ebooklib.book.application.ports.outgoing
 
+import com.mikesajak.ebooklib.admin.domain.model.FormatTypeStats
 import com.mikesajak.ebooklib.book.domain.model.BookId
 import com.mikesajak.ebooklib.book.domain.model.EbookFormatFile
 import java.util.*
@@ -11,5 +12,6 @@ interface EbookFormatFileRepositoryPort {
     fun delete(ebookFormatFile: EbookFormatFile)
     fun count(): Long
     fun totalFileSize(): Long
+    fun getFormatTypeStats(): List<FormatTypeStats>
     fun findAllKeys(): List<String>
 }

@@ -405,7 +405,8 @@
       "totalSize": "Total Size",
       "formatDistribution": "Format Distribution",
       "entities": "Library Entities",
-      "storageBreakdown": "Storage Breakdown"
+      "storageBreakdown": "Storage Breakdown",
+      "files": "files"
     },
     "users": {
       "title": "User Management",

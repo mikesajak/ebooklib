@@ -119,7 +119,13 @@ const AdminDashboard = () => {
                   <span className="text-xs font-black text-gray-500 uppercase tracking-widest flex items-center gap-2">
                     <FaFileArchive className="text-indigo-500" /> {t('admin.stats.formats')}
                   </span>
-                  <span className="text-sm font-black text-gray-700">{formatSize(stats?.totalFormatSize)}</span>
+                  <div className="flex items-center gap-2 text-xs">
+                    <span className="font-bold text-gray-400">
+                      {stats?.formatCount || 0} {t('admin.stats.files', 'files')}
+                    </span>
+                    <span className="text-gray-300">•</span>
+                    <span className="text-sm font-black text-gray-700">{formatSize(stats?.totalFormatSize)}</span>
+                  </div>
                 </div>
                 <div className="h-3 bg-gray-100 rounded-full overflow-hidden">
                   <div 
@@ -127,6 +133,29 @@ const AdminDashboard = () => {
                     style={{ width: totalSize > 0 ? `${(stats.totalFormatSize / totalSize) * 100}%` : '0%' }}
                   ></div>
                 </div>
+
+                {stats?.formatBreakdown && stats.formatBreakdown.length > 0 && (
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    {stats.formatBreakdown.map((item) => {
+                      const typePercent = stats.totalFormatSize > 0
+                        ? Math.round((item.totalSize / stats.totalFormatSize) * 100)
+                        : 0;
+                      return (
+                        <div
+                          key={item.formatType}
+                          className="flex items-center gap-1.5 bg-indigo-50/70 border border-indigo-100/80 rounded-xl px-2.5 py-1 text-xs"
+                        >
+                          <span className="font-black text-indigo-700 uppercase tracking-wider">{item.formatType}</span>
+                          <span className="text-gray-400 font-medium">({item.count})</span>
+                          <span className="font-bold text-gray-700">{formatSize(item.totalSize)}</span>
+                          <span className="text-[10px] font-extrabold text-indigo-600 bg-indigo-100 px-1.5 py-0.5 rounded-md">
+                            {typePercent}%
+                          </span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
               </div>
 
               <div>
@@ -134,7 +163,13 @@ const AdminDashboard = () => {
                   <span className="text-xs font-black text-gray-500 uppercase tracking-widest flex items-center gap-2">
                     <FaImage className="text-violet-500" /> {t('admin.stats.covers')}
                   </span>
-                  <span className="text-sm font-black text-gray-700">{formatSize(stats?.totalCoverSize)}</span>
+                  <div className="flex items-center gap-2 text-xs">
+                    <span className="font-bold text-gray-400">
+                      {stats?.coverCount || 0} {t('admin.stats.files', 'files')}
+                    </span>
+                    <span className="text-gray-300">•</span>
+                    <span className="text-sm font-black text-gray-700">{formatSize(stats?.totalCoverSize)}</span>
+                  </div>
                 </div>
                 <div className="h-3 bg-gray-100 rounded-full overflow-hidden">
                   <div 

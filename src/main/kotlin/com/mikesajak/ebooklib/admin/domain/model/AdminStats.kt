@@ -7,5 +7,6 @@ data class AdminStats(
     val formatCount: Long,
     val coverCount: Long,
     val totalFormatSize: Long,
-    val totalCoverSize: Long
+    val totalCoverSize: Long,
+    val formatBreakdown: List<FormatTypeStats> = emptyList()
 )

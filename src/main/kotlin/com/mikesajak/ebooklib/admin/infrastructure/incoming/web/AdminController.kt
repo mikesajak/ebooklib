@@ -111,7 +111,8 @@ class AdminController(
         formatCount = formatCount,
         coverCount = coverCount,
         totalFormatSize = totalFormatSize,
-        totalCoverSize = totalCoverSize
+        totalCoverSize = totalCoverSize,
+        formatBreakdown = formatBreakdown.map { FormatTypeStatsDto(it.formatType, it.count, it.totalSize) }
     )
 
     private fun User.toDto() = UserDto(

@@ -408,7 +408,8 @@
       "totalSize": "Całkowity rozmiar",
       "formatDistribution": "Rozkład formatów",
       "entities": "Obiekty biblioteczne",
-      "storageBreakdown": "Rozkład pamięci"
+      "storageBreakdown": "Rozkład pamięci",
+      "files": "plików"
     },
     "users": {
       "title": "Zarządzanie Użytkownikami",

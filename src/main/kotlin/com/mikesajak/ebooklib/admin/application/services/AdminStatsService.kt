@@ -24,7 +24,8 @@ class AdminStatsService(
             formatCount = formatRepository.count(),
             coverCount = coverRepository.count(),
             totalFormatSize = formatRepository.totalFileSize(),
-            totalCoverSize = coverRepository.totalFileSize()
+            totalCoverSize = coverRepository.totalFileSize(),
+            formatBreakdown = formatRepository.getFormatTypeStats()
         )
     }
 }
