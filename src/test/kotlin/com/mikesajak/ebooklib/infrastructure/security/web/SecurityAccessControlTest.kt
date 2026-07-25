@@ -17,7 +17,7 @@ import software.amazon.awssdk.services.s3.S3Client
 @ActiveProfiles("test")
 @TestPropertySource(properties = [
     "app.security.enabled=true",
-    "spring.liquibase.contexts=schema,test-data"
+    "spring.liquibase.contexts=schema,default-user,test-data"
 ])
 class SecurityAccessControlTest : BaseIntegrationTest() {
 

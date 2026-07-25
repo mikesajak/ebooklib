@@ -3,7 +3,7 @@ server:
 
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:5432/ebooklib_db
+    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5434}/${DB_NAME:ebooklib_db}
     username: ebooklib_user
     password: ebooklib_password
     driver-class-name: org.postgresql.Driver
@@ -14,8 +14,9 @@ spring:
       hibernate:
         default_schema: ${db.schema}
   liquibase:
-    contexts: schema,test-data
+    contexts: schema,default-user,test-data
     default-schema: ${db.schema}
+    liquibase-schema: public
 
 minio:
   endpoint: http://localhost:9000

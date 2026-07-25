@@ -14,7 +14,7 @@ import kotlin.test.assertTrue
 @ActiveProfiles("test")
 @org.springframework.test.context.TestPropertySource(properties = [
     "app.security.enabled=true",
-    "spring.liquibase.contexts=schema, test-data"
+    "spring.liquibase.contexts=schema, default-user, test-data"
 ])
 class CustomUserDetailsServiceIntegrationTest : BaseIntegrationTest() {
 

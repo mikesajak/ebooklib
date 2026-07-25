@@ -1,8 +1,8 @@
 databaseChangeLog:
   - changeSet:
-      id: 801-insert-test-users
+      id: 801-insert-default-admin-user
       author: ebooklib
-      context: test-data
+      context: default-user
       changes:
         - insert:
             tableName: users
@@ -43,6 +43,11 @@ databaseChangeLog:
               - column:
                   name: role
                   value: 'ROLE_USER'
+  - changeSet:
+      id: 802-insert-test-user
+      author: ebooklib
+      context: test-data
+      changes:
         - insert:
             tableName: users
             columns:
