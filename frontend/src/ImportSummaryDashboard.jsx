@@ -115,6 +115,32 @@ const ImportSummaryDashboard = () => {
         }
     };
 
+    const handleMergeSelected = async () => {
+        if (selectedIds.length < 2) return;
+        if (!window.confirm(t('import.confirmMergeSelected', 'Merge {{count}} selected items into a single book?', { count: selectedIds.length }))) return;
+
+        try {
+            const primaryId = selectedIds[0];
+            const sourceIds = selectedIds.slice(1);
+            const params = new URLSearchParams();
+            params.append('primaryId', primaryId);
+            sourceIds.forEach(id => params.append('sourceIds', id));
+
+            const response = await fetch(`/api/import/items/merge?${params.toString()}`, {
+                method: 'POST',
+                headers: { 'X-XSRF-TOKEN': getCsrfToken() }
+            });
+            if (response.ok) {
+                setSelectedIds([]);
+                fetchItems();
+                setNotification({ type: 'success', message: t('import.mergeSuccess', 'Items merged successfully') });
+            }
+        } catch (error) {
+            console.error("Merge items error", error);
+            setNotification({ type: 'error', message: t('common.error') });
+        }
+    };
+
     const handleAutoResolve = async (strategy) => {
         const ids = selectedIds.length > 0 ? selectedIds : null;
         const confirmMsg = ids 
@@ -350,6 +376,14 @@ const ImportSummaryDashboard = () => {
                                     >
                                         {t('import.actions.restoreSelected', 'Restore Selected')}
                                     </button>
+                                    {selectedIds.length >= 2 && (
+                                        <button 
+                                            onClick={handleMergeSelected}
+                                            className="bg-indigo-600 text-white border border-indigo-600 px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-tighter hover:bg-indigo-700 transition-all shadow-sm flex items-center gap-1"
+                                        >
+                                            {t('import.actions.mergeSelected', 'Merge Items')}
+                                        </button>
+                                    )}
                                 </div>
                                 
                                 <div className="relative group border-l border-gray-200 pl-4">

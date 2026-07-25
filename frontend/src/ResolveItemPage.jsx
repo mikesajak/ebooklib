@@ -116,6 +116,20 @@ const ResolveItemPage = () => {
         }
     };
 
+    const handleDetachFormat = async (uploadId) => {
+        if (!window.confirm(t('import.resolve.confirmDetach', 'Detach this format into a separate resolution item?'))) return;
+        try {
+            const response = await fetchWithCsrf(`/api/import/staged/${uploadId}/detach`, {
+                method: 'POST'
+            });
+            if (response.ok) {
+                fetchData();
+            }
+        } catch (error) {
+            console.error("Detach format error", error);
+        }
+    };
+
     const handleIgnore = async () => {
         try {
             const response = await fetchWithCsrf(`/api/import/items/${itemId}/status?status=IGNORED`, { method: 'PATCH' });
@@ -202,10 +216,20 @@ const ResolveItemPage = () => {
                             <h2 className="text-xl font-bold text-gray-800">{item.title}</h2>
                             <p className="text-gray-500">{item.authors.join(', ')}</p>
                         </div>
-                        <div className="flex gap-2">
+                        <div className="flex flex-wrap gap-2">
                             {item.formats.map(f => (
-                                <span key={f.uploadId} className="px-3 py-1 bg-indigo-50 text-indigo-700 text-xs font-bold rounded-full border border-indigo-100 uppercase">
-                                    {f.contentType.split('/').pop()}
+                                <span key={f.uploadId} className="px-3 py-1 bg-indigo-50 text-indigo-700 text-xs font-bold rounded-full border border-indigo-100 flex items-center gap-2">
+                                    <span>{f.fileName}</span>
+                                    <span className="uppercase text-[10px] text-indigo-500 font-normal">({f.contentType.split('/').pop()})</span>
+                                    {item.formats.length > 1 && (
+                                        <button 
+                                            onClick={() => handleDetachFormat(f.uploadId)}
+                                            title={t('import.resolve.detachFormat', 'Detach format')}
+                                            className="text-rose-500 hover:text-rose-700 font-black text-xs ml-1 hover:bg-rose-100 px-1.5 py-0.5 rounded-full transition-all"
+                                        >
+                                            ✕
+                                        </button>
+                                    )}
                                 </span>
                             ))}
                         </div>

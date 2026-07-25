@@ -4,5 +4,5 @@ import com.mikesajak.ebooklib.importing.domain.model.ResolutionItemId
 import com.mikesajak.ebooklib.importing.domain.model.StagedEbookUploadId
 
 interface GroupUploadUseCase {
-    fun group(uploadId: StagedEbookUploadId, title: String, authors: List<String>): ResolutionItemId?
+    fun group(uploadId: StagedEbookUploadId, title: String, authors: List<String>, fileName: String): ResolutionItemId?
 }

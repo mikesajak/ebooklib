@@ -5,9 +5,11 @@ import com.mikesajak.ebooklib.importing.application.ports.outgoing.ResolutionIte
 import com.mikesajak.ebooklib.importing.application.ports.outgoing.StagedEbookUploadRepositoryPort
 import com.mikesajak.ebooklib.importing.domain.model.*
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Propagation
 import org.springframework.transaction.annotation.Transactional
 import java.time.Instant
 import java.util.*
+import java.util.concurrent.ConcurrentHashMap
 
 @Service
 class GroupingService(
@@ -15,49 +17,76 @@ class GroupingService(
     private val stagedUploadRepository: StagedEbookUploadRepositoryPort
 ) : GroupUploadUseCase {
 
+    private val sessionLocks = ConcurrentHashMap<UUID, Any>()
+
     @Transactional
-    override fun group(uploadId: StagedEbookUploadId, title: String, authors: List<String>): ResolutionItemId? {
+    override fun group(
+        uploadId: StagedEbookUploadId,
+        title: String,
+        authors: List<String>,
+        fileName: String
+    ): ResolutionItemId? {
         val upload = stagedUploadRepository.findById(uploadId) ?: throw IllegalArgumentException("Upload $uploadId not found")
-        val sessionId = upload.importSessionId
+        val sessionId = upload.importSessionId ?: return null
 
-        val normalizedTitle = normalize(title)
-        val normalizedAuthors = authors.map { normalize(it) }.sorted()
+        val lock = sessionLocks.computeIfAbsent(sessionId.value) { Any() }
 
-        // Search for existing ResolutionItem in the same session (if session exists)
-        val existing = if (sessionId != null) {
-            resolutionItemRepository.findByImportSessionId(sessionId).find { item ->
-                normalize(item.title) == normalizedTitle && 
-                item.authors.map { normalize(it) }.sorted() == normalizedAuthors
+        synchronized(lock) {
+            val normalizedTitle = normalize(title)
+            val normalizedAuthors = authors.map { normalize(it) }.sorted()
+            val fileNameStem = normalize(fileName.substringBeforeLast('.'))
+
+            val sessionItems = resolutionItemRepository.findByImportSessionId(sessionId)
+
+            // Search for existing ResolutionItem in the same session by title/author/filename stem similarity
+            val existing = sessionItems.find { item ->
+                val itemTitleNorm = normalize(item.title)
+                val itemAuthorsNorm = item.authors.map { normalize(it) }.sorted()
+
+                val titleMatches = itemTitleNorm.isNotBlank() && (
+                        itemTitleNorm == normalizedTitle ||
+                        itemTitleNorm == fileNameStem ||
+                        (normalizedTitle.isNotBlank() && (itemTitleNorm.contains(normalizedTitle) || normalizedTitle.contains(itemTitleNorm)))
+                )
+
+                val authorsMatch = itemAuthorsNorm == normalizedAuthors ||
+                        itemAuthorsNorm.isEmpty() ||
+                        normalizedAuthors.isEmpty()
+
+                val formatUploads = stagedUploadRepository.findByResolutionItemId(item.id.value)
+                val filenameStemMatches = formatUploads.any { existingUpload ->
+                    normalize(existingUpload.fileName.substringBeforeLast('.')) == fileNameStem
+                }
+
+                (titleMatches && authorsMatch) || filenameStemMatches
             }
-        } else {
-            null
-        }
 
-        return if (existing != null) {
-            val updatedUpload = upload.copy(resolutionItemId = existing.id.value)
-            stagedUploadRepository.save(updatedUpload)
-            existing.id
-        } else {
-            // If no session, we can't create a ResolutionItem because of the FK requirement
-            if (sessionId == null) {
-                return null
+            return if (existing != null) {
+                if (existing.authors.isEmpty() && authors.isNotEmpty()) {
+                    resolutionItemRepository.save(existing.copy(authors = authors, updatedAt = Instant.now()))
+                }
+                val updatedUpload = upload.copy(resolutionItemId = existing.id.value)
+                stagedUploadRepository.save(updatedUpload)
+                existing.id
+            } else {
+                val effectiveTitle = if (title.isNotBlank() && title != "Untitled") title else fileName.substringBeforeLast('.')
+
+                val newItem = ResolutionItem(
+                    id = ResolutionItemId(UUID.randomUUID()),
+                    importSessionId = sessionId,
+                    title = effectiveTitle,
+                    authors = authors,
+                    status = ResolutionItemStatus.UNRESOLVED,
+                    createdAt = Instant.now(),
+                    updatedAt = Instant.now()
+                )
+                resolutionItemRepository.save(newItem)
+
+                val updatedUpload = upload.copy(resolutionItemId = newItem.id.value)
+                stagedUploadRepository.save(updatedUpload)
+
+                newItem.id
             }
-
-            val newItem = ResolutionItem(
-                id = ResolutionItemId(UUID.randomUUID()),
-                importSessionId = sessionId,
-                title = title,
-                authors = authors,
-                status = ResolutionItemStatus.UNRESOLVED,
-                createdAt = Instant.now(),
-                updatedAt = Instant.now()
-            )
-            resolutionItemRepository.save(newItem)
-            
-            val updatedUpload = upload.copy(resolutionItemId = newItem.id.value)
-            stagedUploadRepository.save(updatedUpload)
-            
-            newItem.id
         }
     }
 

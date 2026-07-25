@@ -118,8 +118,12 @@ class StagedUploadProcessor(
                 metadataMap["validation"] = validation
 
                 // Grouping logic (REQ-003)
+                val titleForGrouping = when {
+                    !extracted.title.isNullOrBlank() -> extracted.title
+                    else -> fileName.substringBeforeLast('.')
+                }
                 val resolutionItemId = try {
-                    groupingService.group(uploadId, extracted.title ?: "Untitled", extracted.authors)
+                    groupingService.group(uploadId, titleForGrouping, extracted.authors, fileName)
                 } catch (e: Exception) {
                     logger.warn { "Failed to group upload $uploadId: ${e.message}" }
                     null

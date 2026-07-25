@@ -151,6 +151,106 @@ class GroupingIntegrationTest : BaseIntegrationTest() {
         assertThat(domainUpload1.resolutionItemId).isNotEqualTo(domainUpload2.resolutionItemId)
     }
 
+    @Test
+    @Transactional
+    fun `should group epub and pdf of same book into the same resolution item`() {
+        val sessionId = ImportSessionId(UUID.randomUUID())
+        val session = ImportSession(
+            id = sessionId,
+            status = ImportSessionStatus.ACTIVE,
+            totalFiles = 0,
+            processedFiles = 0,
+            failedFiles = 0,
+            createdAt = Instant.now(),
+            updatedAt = Instant.now(),
+            expiryAt = Instant.now().plus(1, ChronoUnit.HOURS)
+        )
+        sessionRepository.save(session)
+
+        // 1. Upload EPUB with title & author
+        val epubContent = createSimpleEpub("Clean Code", "Robert C. Martin")
+        val file1 = MockMultipartFile("file", "Clean Code.epub", "application/epub+zip", epubContent)
+        val result1 = mockMvc.perform(multipart("/api/import/upload")
+            .file(file1)
+            .param("importSessionId", sessionId.value.toString()))
+            .andExpect(status().isOk)
+            .andReturn()
+        val upload1 = objectMapper.readValue(result1.response.contentAsString, StagedUploadResponseDto::class.java)
+
+        // 2. Upload PDF without metadata (mock dummy pdf bytes)
+        val file2 = MockMultipartFile("file", "Clean Code.pdf", "application/pdf", "dummy pdf content".toByteArray())
+        val result2 = mockMvc.perform(multipart("/api/import/upload")
+            .file(file2)
+            .param("importSessionId", sessionId.value.toString()))
+            .andExpect(status().isOk)
+            .andReturn()
+        val upload2 = objectMapper.readValue(result2.response.contentAsString, StagedUploadResponseDto::class.java)
+
+        // 3. Verify both staged uploads share the same resolution item
+        val domainUpload1 = stagedUploadRepository.findById(com.mikesajak.ebooklib.importing.domain.model.StagedEbookUploadId(UUID.fromString(upload1.id)))!!
+        val domainUpload2 = stagedUploadRepository.findById(com.mikesajak.ebooklib.importing.domain.model.StagedEbookUploadId(UUID.fromString(upload2.id)))!!
+
+        assertThat(domainUpload1.resolutionItemId).isNotNull
+        assertThat(domainUpload2.resolutionItemId).isNotNull
+        assertThat(domainUpload1.resolutionItemId).isEqualTo(domainUpload2.resolutionItemId)
+    }
+
+    @Test
+    @Transactional
+    fun `should detach a format and merge resolution items`() {
+        val sessionId = ImportSessionId(UUID.randomUUID())
+        val session = ImportSession(
+            id = sessionId,
+            status = ImportSessionStatus.ACTIVE,
+            totalFiles = 0,
+            processedFiles = 0,
+            failedFiles = 0,
+            createdAt = Instant.now(),
+            updatedAt = Instant.now(),
+            expiryAt = Instant.now().plus(1, ChronoUnit.HOURS)
+        )
+        sessionRepository.save(session)
+
+        val epubContent = createSimpleEpub("Refactoring", "Martin Fowler")
+        val file1 = MockMultipartFile("file", "Refactoring.epub", "application/epub+zip", epubContent)
+        val result1 = mockMvc.perform(multipart("/api/import/upload")
+            .file(file1)
+            .param("importSessionId", sessionId.value.toString()))
+            .andExpect(status().isOk)
+            .andReturn()
+        val upload1 = objectMapper.readValue(result1.response.contentAsString, StagedUploadResponseDto::class.java)
+
+        val file2 = MockMultipartFile("file", "Refactoring.pdf", "application/pdf", "dummy pdf".toByteArray())
+        val result2 = mockMvc.perform(multipart("/api/import/upload")
+            .file(file2)
+            .param("importSessionId", sessionId.value.toString()))
+            .andExpect(status().isOk)
+            .andReturn()
+        val upload2 = objectMapper.readValue(result2.response.contentAsString, StagedUploadResponseDto::class.java)
+
+        // Initial state: grouped together
+        val domain1 = stagedUploadRepository.findById(com.mikesajak.ebooklib.importing.domain.model.StagedEbookUploadId(UUID.fromString(upload1.id)))!!
+        val domain2 = stagedUploadRepository.findById(com.mikesajak.ebooklib.importing.domain.model.StagedEbookUploadId(UUID.fromString(upload2.id)))!!
+        val origResolutionItemId = domain1.resolutionItemId!!
+        assertThat(domain1.resolutionItemId).isEqualTo(domain2.resolutionItemId)
+
+        // Detach upload 2
+        mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post("/api/import/staged/${upload2.id}/detach"))
+            .andExpect(status().isOk)
+
+        val detachedDomain2 = stagedUploadRepository.findById(com.mikesajak.ebooklib.importing.domain.model.StagedEbookUploadId(UUID.fromString(upload2.id)))!!
+        assertThat(detachedDomain2.resolutionItemId).isNotEqualTo(origResolutionItemId)
+
+        // Now merge them back together
+        mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post("/api/import/items/merge")
+            .param("primaryId", origResolutionItemId.toString())
+            .param("sourceIds", detachedDomain2.resolutionItemId.toString()))
+            .andExpect(status().isOk)
+
+        val mergedDomain2 = stagedUploadRepository.findById(com.mikesajak.ebooklib.importing.domain.model.StagedEbookUploadId(UUID.fromString(upload2.id)))!!
+        assertThat(mergedDomain2.resolutionItemId).isEqualTo(origResolutionItemId)
+    }
+
     private fun createSimpleEpub(title: String, author: String): ByteArray {
         val out = ByteArrayOutputStream()
         ZipOutputStream(out).use { zip ->

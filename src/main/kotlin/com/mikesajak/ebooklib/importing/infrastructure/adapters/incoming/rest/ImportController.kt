@@ -160,6 +160,26 @@ class ImportController(
         resolutionItemUseCase.bulkUpdateStatus(ids.map { ResolutionItemId(it) }, status)
     }
 
+    @PostMapping("/staged/{uploadId}/detach")
+    fun detachFormat(@PathVariable uploadId: UUID): ResolutionItemResponseDto {
+        val newItem = resolutionItemUseCase.detachFormat(StagedEbookUploadId(uploadId))
+        val formats = stagedUploadRepository.findByResolutionItemId(newItem.id.value)
+        return importRestMapper.toResponse(newItem, formats)
+    }
+
+    @PostMapping("/items/merge")
+    fun mergeItems(
+        @RequestParam("primaryId") primaryId: UUID,
+        @RequestParam("sourceIds") sourceIds: List<UUID>
+    ): ResolutionItemResponseDto {
+        val mergedItem = resolutionItemUseCase.mergeItems(
+            ResolutionItemId(primaryId),
+            sourceIds.map { ResolutionItemId(it) }
+        )
+        val formats = stagedUploadRepository.findByResolutionItemId(mergedItem.id.value)
+        return importRestMapper.toResponse(mergedItem, formats)
+    }
+
     @GetMapping("/staged/{uploadId}")
     fun getStagedUpload(@PathVariable uploadId: UUID): ResponseEntity<StagedUploadResponseDto> {
         val upload = getStagedUploadUseCase.getStagedUpload(StagedEbookUploadId(uploadId))

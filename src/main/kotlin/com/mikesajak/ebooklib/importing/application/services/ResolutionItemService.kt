@@ -10,9 +10,14 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.time.Instant
 
+import com.mikesajak.ebooklib.importing.application.ports.outgoing.StagedEbookUploadRepositoryPort
+import com.mikesajak.ebooklib.importing.domain.model.StagedEbookUploadId
+import java.util.*
+
 @Service
 class ResolutionItemService(
-    private val repository: ResolutionItemRepositoryPort
+    private val repository: ResolutionItemRepositoryPort,
+    private val stagedUploadRepository: StagedEbookUploadRepositoryPort
 ) : ResolutionItemUseCase {
 
     override fun getResolutionItems(sessionId: ImportSessionId): List<ResolutionItem> {
@@ -51,5 +56,66 @@ class ResolutionItemService(
                 repository.save(item.copy(status = status, updatedAt = now))
             }
         }
+    }
+
+    @Transactional
+    override fun detachFormat(uploadId: StagedEbookUploadId): ResolutionItem {
+        val upload = stagedUploadRepository.findById(uploadId)
+            ?: throw IllegalArgumentException("Staged upload $uploadId not found")
+
+        val currentResolutionItemId = upload.resolutionItemId
+        if (currentResolutionItemId != null) {
+            val siblingUploads = stagedUploadRepository.findByResolutionItemId(currentResolutionItemId)
+            if (siblingUploads.size <= 1) {
+                // Already the only upload in its resolution item
+                return repository.findById(ResolutionItemId(currentResolutionItemId))!!
+            }
+        }
+
+        val newItem = ResolutionItem(
+            id = ResolutionItemId(UUID.randomUUID()),
+            importSessionId = upload.importSessionId ?: throw IllegalStateException("Upload $uploadId has no session"),
+            title = upload.fileName.substringBeforeLast('.'),
+            authors = emptyList(),
+            status = ResolutionItemStatus.UNRESOLVED,
+            createdAt = Instant.now(),
+            updatedAt = Instant.now()
+        )
+        val savedNewItem = repository.save(newItem)
+
+        val updatedUpload = upload.copy(resolutionItemId = savedNewItem.id.value)
+        stagedUploadRepository.save(updatedUpload)
+
+        return savedNewItem
+    }
+
+    @Transactional
+    override fun mergeItems(primaryItemId: ResolutionItemId, sourceItemIds: List<ResolutionItemId>): ResolutionItem {
+        val primaryItem = repository.findById(primaryItemId)
+            ?: throw IllegalArgumentException("Primary ResolutionItem $primaryItemId not found")
+
+        var updatedAuthors = primaryItem.authors
+
+        sourceItemIds.distinct().forEach { sourceId ->
+            if (sourceId != primaryItemId) {
+                val sourceItem = repository.findById(sourceId)
+                if (sourceItem != null) {
+                    if (updatedAuthors.isEmpty() && sourceItem.authors.isNotEmpty()) {
+                        updatedAuthors = sourceItem.authors
+                    }
+                    val uploadsToMove = stagedUploadRepository.findByResolutionItemId(sourceId.value)
+                    uploadsToMove.forEach { upload ->
+                        stagedUploadRepository.save(upload.copy(resolutionItemId = primaryItemId.value))
+                    }
+                    repository.delete(sourceId)
+                }
+            }
+        }
+
+        val updatedPrimary = primaryItem.copy(
+            authors = updatedAuthors,
+            updatedAt = Instant.now()
+        )
+        return repository.save(updatedPrimary)
     }
 }
