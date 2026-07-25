@@ -258,12 +258,11 @@ const BookTable = () => {
       <div ref={tableContainerRef} className="bg-white shadow-xl rounded-2xl overflow-hidden border border-gray-100">
         <div className="overflow-x-auto">
           {(() => {
-            const showVolumeColumn = containerWidth >= 1300;     // Priority 1: Volume merges into Series
-            const showPublisherColumn = containerWidth >= 1200;   // Priority 2: Publisher folds into Title sub-line
-            const showPubDateColumn = containerWidth >= 1050;     // Priority 3: Pub Date folds into Title sub-line
-            const showLabelsColumn = containerWidth >= 940;       // Priority 4: Labels hide
-            const showFormatsColumn = containerWidth >= 750;      // Priority 5: Formats fold into Title sub-line
-            const visibleColCount = 4 + (showVolumeColumn ? 1 : 0) + (showPubDateColumn ? 1 : 0) + (showPublisherColumn ? 1 : 0) + (showLabelsColumn ? 1 : 0) + (showFormatsColumn ? 1 : 0);
+            const showPublisherColumn = containerWidth >= 1200;   // Priority 1: Publisher folds into Title sub-line
+            const showPubDateColumn = containerWidth >= 1050;     // Priority 2: Pub Date folds into Title sub-line
+            const showLabelsColumn = containerWidth >= 940;       // Priority 3: Labels hide
+            const showFormatsColumn = containerWidth >= 750;      // Priority 4: Formats fold into Title sub-line
+            const visibleColCount = 4 + (showPubDateColumn ? 1 : 0) + (showPublisherColumn ? 1 : 0) + (showLabelsColumn ? 1 : 0) + (showFormatsColumn ? 1 : 0);
 
             return (
               <table className="w-full table-auto text-sm">
@@ -273,14 +272,9 @@ const BookTable = () => {
                       {t('bookTable.header.title')}{getSortIndicator('title')}
                     </th>
                     <th className="py-3 px-3 text-left w-[14%] max-w-[180px]">{t('bookTable.header.authors')}</th>
-                    <th className="py-3 px-3 text-left cursor-pointer hover:text-indigo-600 transition-colors w-[14%] max-w-[180px]" onClick={() => handleSort('series.title')}>
+                    <th className="py-3 px-3 text-left cursor-pointer hover:text-indigo-600 transition-colors w-[18%] max-w-[220px]" onClick={() => handleSort('series.title')}>
                       {t('bookTable.header.series')}{getSortIndicator('series.title')}
                     </th>
-                    {showVolumeColumn && (
-                      <th className="py-3 px-3 text-left cursor-pointer hover:text-indigo-600 transition-colors w-14" onClick={() => handleSort('volume')}>
-                        {t('bookTable.header.volume')}{getSortIndicator('volume')}
-                      </th>
-                    )}
                     {showPubDateColumn && (
                       <th className="py-3 px-3 text-left cursor-pointer hover:text-indigo-600 transition-colors w-24" onClick={() => handleSort('publicationDate')}>
                         {t('bookTable.header.publicationDate', 'Publication Date')}{getSortIndicator('publicationDate')}
@@ -349,21 +343,24 @@ const BookTable = () => {
                             </div>
                           ))}
                         </td>
-                        <td className="py-3 px-3 text-left max-w-[180px] truncate text-sm text-gray-600">
+                        <td className="py-3 px-3 text-left max-w-[220px] text-sm text-gray-600">
                           {book.series ? (
-                            <Link to={`/series/${book.series.id}`} className="series-link hover:underline truncate block" title={book.volume ? `${book.series.title} (#${book.volume})` : book.series.title}>
-                              {book.series.title}
-                              {!showVolumeColumn && book.volume && <span className="font-medium text-gray-400 ml-1">(#{book.volume})</span>}
-                            </Link>
-                          ) : !showVolumeColumn && book.volume ? (
+                            <div className="flex items-center gap-1.5 min-w-0" title={book.volume ? `${book.series.title} (#${book.volume})` : book.series.title}>
+                              <Link to={`/series/${book.series.id}`} className="series-link hover:underline truncate min-w-0 flex-1">
+                                {book.series.title}
+                              </Link>
+                              {book.volume && (
+                                <span className="shrink-0 text-gray-400 font-medium text-xs">
+                                  (#{book.volume})
+                                </span>
+                              )}
+                            </div>
+                          ) : book.volume ? (
                             <span className="text-gray-600 font-medium">Vol. {book.volume}</span>
                           ) : (
                             <span className="text-gray-300 italic">{t('common.na')}</span>
                           )}
                         </td>
-                        {showVolumeColumn && (
-                          <td className="py-3 px-3 text-left text-sm text-gray-600">{book.volume || <span className="text-gray-300">−</span>}</td>
-                        )}
                         {showPubDateColumn && (
                           <td className="py-3 px-3 text-left text-sm text-gray-600 whitespace-nowrap">{book.publicationDate || <span className="text-gray-300">−</span>}</td>
                         )}
