@@ -9,7 +9,7 @@ import com.mikesajak.ebooklib.importing.application.ports.incoming.*
 import com.mikesajak.ebooklib.importing.application.ports.outgoing.StagedEbookUploadRepositoryPort
 import com.mikesajak.ebooklib.importing.domain.model.*
 import com.mikesajak.ebooklib.series.domain.model.SeriesId
-import mu.KotlinLogging
+import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.util.*

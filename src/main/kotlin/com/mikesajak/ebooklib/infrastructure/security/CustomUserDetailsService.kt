@@ -1,7 +1,7 @@
 package com.mikesajak.ebooklib.infrastructure.security
 
 import com.mikesajak.ebooklib.infrastructure.security.persistence.UserJpaRepository
-import mu.KotlinLogging
+import io.github.oshai.kotlinlogging.KotlinLogging
 import org.slf4j.LoggerFactory
 import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.security.core.userdetails.User

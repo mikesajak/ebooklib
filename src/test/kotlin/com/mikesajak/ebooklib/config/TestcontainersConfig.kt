@@ -21,6 +21,7 @@ class TestcontainersConfig : ApplicationContextInitializer<ConfigurableApplicati
             .withUserName("minioadmin")
             .withPassword("minioadmin")
             .withReuse(true)
+            .withStartupTimeout(java.time.Duration.ofMinutes(5))
     }
 
     override fun initialize(applicationContext: ConfigurableApplicationContext) {

@@ -107,7 +107,7 @@ describe('PaginatedAuthorTable', () => {
       expect(screen.getByText(/Smith/i)).toBeInTheDocument();
     });
     // Verify that the Pagination component is rendered by checking for an element it renders, e.g., the page info or buttons.
-    expect(screen.getByText(/Page \d of \d \(\d+ total\)/)).toBeInTheDocument();
+    expect(screen.getByText(/Showing/)).toBeInTheDocument();
   });
 
   it('handles error state', async () => {
@@ -127,7 +127,7 @@ describe('PaginatedAuthorTable', () => {
       expect(screen.getByText(/Peter/i)).toBeInTheDocument();
       expect(screen.getByText(/Jones/i)).toBeInTheDocument();
     });
-    expect(screen.getByText(/Page \d of \d \(\d+ total\)/)).toBeInTheDocument();
+    expect(screen.getByText(/Showing/)).toBeInTheDocument();
   });
 
   it('navigates to the previous page', async () => {
@@ -139,7 +139,7 @@ describe('PaginatedAuthorTable', () => {
 
     fireEvent.click(screen.getByRole('button', { name: /Previous/i }));
     await waitFor(() => expect(screen.getByText(/John/i)).toBeInTheDocument());
-    expect(screen.getByText(/Page \d of \d \(\d+ total\)/)).toBeInTheDocument();
+    expect(screen.getByText(/Showing/)).toBeInTheDocument();
   });
 
   it('changes page size', async () => {
@@ -187,7 +187,7 @@ describe('PaginatedAuthorTable', () => {
     await waitFor(() => {
       expect(screen.getByText(/Peter/i)).toBeInTheDocument(); // All authors should be on one page
     });
-    expect(screen.getByText(/Page \d of \d \(\d+ total\)/)).toBeInTheDocument();
+    expect(screen.queryByText(/Showing/)).not.toBeInTheDocument();
     expect(global.fetch).toHaveBeenCalledWith(expect.stringContaining('/api/authors/search'), expect.anything());
     expect(global.fetch).toHaveBeenCalledWith(expect.stringContaining('size=5'), expect.anything());
   });

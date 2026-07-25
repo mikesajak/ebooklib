@@ -5,7 +5,7 @@ import com.mikesajak.ebooklib.book.domain.exception.BookNotFoundException
 import com.mikesajak.ebooklib.book.domain.exception.EbookFormatFileNotFoundException
 import com.mikesajak.ebooklib.search.infrastructure.adapters.outgoing.persistence.rsql.SearchQueryException
 import com.mikesajak.ebooklib.series.domain.exception.SeriesNotFoundException
-import mu.KotlinLogging
+import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity

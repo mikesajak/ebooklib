@@ -41,8 +41,10 @@ const Pagination = ({ page, size, totalPages, totalElements, onPageChange, onPag
     <div className="flex flex-col sm:flex-row justify-between items-center gap-6 py-2">
       <div className="flex flex-wrap items-center gap-4">
         <div className="flex items-center gap-2">
-          <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest">{t('common.pagination.rowsPerPage', 'Rows per page:')}</label>
+          <label htmlFor="rows-per-page-select" className="text-[10px] font-black text-gray-400 uppercase tracking-widest">{t('common.pagination.rowsPerPage', 'Rows per page:')}</label>
           <select
+            id="rows-per-page-select"
+            aria-label="Page Size"
             value={size}
             onChange={(e) => onPageSizeChange(Number(e.target.value))}
             className={`bg-white border border-gray-200 text-gray-700 text-xs font-black rounded-lg focus:ring-2 ${focusClasses[theme]} p-1.5 outline-none transition-all shadow-sm cursor-pointer`}
@@ -63,6 +65,7 @@ const Pagination = ({ page, size, totalPages, totalElements, onPageChange, onPag
 
       <div className="flex items-center gap-2">
         <button
+          aria-label={t('common.pagination.previous', 'Previous')}
           onClick={() => onPageChange(Math.max(0, page - 1))}
           disabled={page === 0}
           className={`p-2.5 rounded-xl border border-gray-200 text-gray-400 hover:bg-white ${btnHoverTextClasses[theme]} disabled:opacity-30 disabled:cursor-not-allowed transition-all shadow-sm active:scale-95`}
@@ -94,6 +97,7 @@ const Pagination = ({ page, size, totalPages, totalElements, onPageChange, onPag
         </div>
 
         <button
+          aria-label={t('common.pagination.next', 'Next')}
           onClick={() => onPageChange(Math.min(totalPages - 1, page + 1))}
           disabled={page >= totalPages - 1}
           className={`p-2.5 rounded-xl border border-gray-200 text-gray-400 hover:bg-white ${btnHoverTextClasses[theme]} disabled:opacity-30 disabled:cursor-not-allowed transition-all shadow-sm active:scale-95`}

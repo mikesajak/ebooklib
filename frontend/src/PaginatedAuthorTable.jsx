@@ -132,6 +132,10 @@ const PaginatedAuthorTable = () => {
     return <div className="p-8 text-center text-gray-500 italic">{t('common.loading')}</div>;
   }
 
+  if (error) {
+    return <div className="p-8 text-center text-rose-600 font-bold">Error: {error}</div>;
+  }
+
   return (
     <div className="bg-white overflow-hidden">
       <div className="flex items-center gap-3 p-6 border-b border-gray-100">

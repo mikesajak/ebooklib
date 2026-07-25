@@ -10,6 +10,7 @@ import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest
+import org.springframework.boot.autoconfigure.jackson.JacksonAutoConfiguration
 import org.springframework.context.annotation.Import
 import org.springframework.test.context.ContextConfiguration
 import java.time.Instant
@@ -19,7 +20,7 @@ import java.util.*
 @DataJpaTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @ContextConfiguration(initializers = [TestcontainersConfig::class])
-@Import(StagedEbookUploadEntityMapper::class, StagedEbookUploadRepositoryAdapter::class)
+@Import(StagedEbookUploadEntityMapper::class, StagedEbookUploadRepositoryAdapter::class, JacksonAutoConfiguration::class)
 class StagedEbookUploadRepositoryAdapterIntegrationTest {
 
     @Autowired

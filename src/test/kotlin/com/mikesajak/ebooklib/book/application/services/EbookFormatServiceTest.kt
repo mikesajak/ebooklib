@@ -63,7 +63,7 @@ class EbookFormatServiceTest {
 
         whenever(bookRepository.findById(bookId))
                 .thenReturn(book)
-        whenever(fileStoragePort.uploadFile(any(), eq(originalFileName), eq(contentType)))
+        whenever(fileStoragePort.uploadFile(any(), eq(originalFileName), eq(contentType), anyOrNull()))
                 .thenReturn(fileMetadata)
         whenever(ebookFormatFileRepository.save(any()))
                 .thenReturn(expectedEbookFormatFile)
@@ -74,7 +74,7 @@ class EbookFormatServiceTest {
         // Then
         assertThat(result).isEqualTo(expectedEbookFormatFile)
         verify(bookRepository).findById(bookId)
-        verify(fileStoragePort).uploadFile(any(), eq(originalFileName), eq(contentType))
+        verify(fileStoragePort).uploadFile(any(), eq(originalFileName), eq(contentType), anyOrNull())
         verify(ebookFormatFileRepository).save(any())
     }
 

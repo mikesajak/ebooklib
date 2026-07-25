@@ -6,7 +6,7 @@ import com.mikesajak.ebooklib.importing.application.ports.incoming.GetStagedCove
 import com.mikesajak.ebooklib.importing.application.ports.incoming.StagedCover
 import com.mikesajak.ebooklib.importing.application.ports.outgoing.StagedEbookUploadRepositoryPort
 import com.mikesajak.ebooklib.importing.domain.model.StagedEbookUploadId
-import mu.KotlinLogging
+import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.stereotype.Service
 import jakarta.transaction.Transactional
 

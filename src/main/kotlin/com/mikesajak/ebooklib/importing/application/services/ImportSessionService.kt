@@ -14,7 +14,7 @@ import com.mikesajak.ebooklib.importing.infrastructure.adapters.incoming.rest.Im
 import com.mikesajak.ebooklib.notification.application.NotificationService
 import com.mikesajak.ebooklib.notification.domain.model.NotificationEvent
 import com.mikesajak.ebooklib.notification.domain.model.NotificationType
-import mu.KotlinLogging
+import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Propagation
 import org.springframework.transaction.annotation.Transactional

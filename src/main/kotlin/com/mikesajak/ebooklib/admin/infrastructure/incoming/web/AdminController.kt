@@ -12,7 +12,7 @@ import com.mikesajak.ebooklib.admin.domain.model.AdminStats
 import com.mikesajak.ebooklib.admin.domain.model.StorageScanStats
 import com.mikesajak.ebooklib.admin.domain.model.User
 import com.mikesajak.ebooklib.admin.domain.model.SystemSetting
-import mu.KotlinLogging
+import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.security.core.Authentication
 import org.springframework.web.bind.annotation.*
 import java.util.*

@@ -2,7 +2,7 @@ package com.mikesajak.ebooklib.search.infrastructure.adapters.outgoing.persisten
 
 import cz.jirutka.rsql.parser.RSQLParser
 import cz.jirutka.rsql.parser.ast.ComparisonOperator
-import mu.KotlinLogging
+import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.data.jpa.domain.Specification
 import org.springframework.stereotype.Component
 

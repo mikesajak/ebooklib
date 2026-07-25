@@ -2,7 +2,7 @@ package com.mikesajak.ebooklib.notification.application
 
 import com.mikesajak.ebooklib.notification.domain.model.NotificationEvent
 import com.mikesajak.ebooklib.notification.domain.model.NotificationType
-import mu.KotlinLogging
+import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Service
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter

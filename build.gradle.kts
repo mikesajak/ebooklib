@@ -1,7 +1,7 @@
 plugins {
-    kotlin("jvm") version "2.3.0"
-    kotlin("plugin.spring") version "2.3.0"
-    id("org.springframework.boot") version "3.5.9"
+    kotlin("jvm") version "2.4.10"
+    kotlin("plugin.spring") version "2.4.10"
+    id("org.springframework.boot") version "3.5.16"
     id("io.spring.dependency-management") version "1.1.7"
     kotlin("plugin.jpa") version "2.4.10"
 }
@@ -11,7 +11,7 @@ version = "0.0.1-SNAPSHOT"
 description = "Ebook library"
 
 kotlin {
-    jvmToolchain(21)
+    jvmToolchain(25)
 
     compilerOptions {
         freeCompilerArgs.addAll("-Xjsr305=strict")
@@ -37,12 +37,12 @@ dependencies {
     implementation("net.lbruun.springboot:preliquibase-spring-boot-starter:1.6.1")
     runtimeOnly("org.postgresql:postgresql")
 
-    implementation("io.github.microutils:kotlin-logging-jvm:2.1.20")
+    implementation("io.github.oshai:kotlin-logging-jvm:7.0.5")
 
-    implementation("org.apache.tika:tika-core:3.0.0")
-    implementation("org.apache.tika:tika-parsers-standard-package:3.0.0")
+    implementation("org.apache.tika:tika-core:3.1.0")
+    implementation("org.apache.tika:tika-parsers-standard-package:3.1.0")
 
-    implementation(platform("software.amazon.awssdk:bom:2.38.0"))
+    implementation(platform("software.amazon.awssdk:bom:2.39.0"))
     implementation("software.amazon.awssdk:s3")
 
     implementation("cz.jirutka.rsql:rsql-parser:2.1.0")
@@ -52,9 +52,9 @@ dependencies {
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 
-    testImplementation("io.mockk:mockk:1.13.12")
+    testImplementation("io.mockk:mockk:1.13.13")
     testImplementation("org.mockito.kotlin:mockito-kotlin:5.4.0")
-    testImplementation("org.assertj:assertj-core:3.26.3")
+    testImplementation("org.assertj:assertj-core:3.27.3")
 
     testImplementation("org.testcontainers:testcontainers")
     testImplementation("org.testcontainers:junit-jupiter")

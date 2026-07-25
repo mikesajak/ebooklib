@@ -13,7 +13,7 @@ import com.mikesajak.ebooklib.book.domain.model.BookCoverMetadata
 import com.mikesajak.ebooklib.book.domain.model.BookId
 import com.mikesajak.ebooklib.file.application.ports.outgoing.FileStoragePort
 import jakarta.transaction.Transactional
-import mu.KotlinLogging
+import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.stereotype.Service
 import software.amazon.awssdk.services.s3.model.NoSuchKeyException
 import java.io.InputStream

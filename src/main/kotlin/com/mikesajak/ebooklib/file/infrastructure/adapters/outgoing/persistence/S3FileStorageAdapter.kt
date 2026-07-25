@@ -3,7 +3,7 @@ package com.mikesajak.ebooklib.file.infrastructure.adapters.outgoing.persistence
 import com.mikesajak.ebooklib.file.application.ports.outgoing.FileEntry
 import com.mikesajak.ebooklib.file.application.ports.outgoing.FileMetadata
 import com.mikesajak.ebooklib.file.application.ports.outgoing.FileStoragePort
-import mu.KotlinLogging
+import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component
 import software.amazon.awssdk.core.sync.RequestBody

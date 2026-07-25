@@ -7,7 +7,7 @@ import com.mikesajak.ebooklib.importing.application.ports.incoming.*
 import com.mikesajak.ebooklib.importing.application.ports.outgoing.StagedEbookUploadRepositoryPort
 import com.mikesajak.ebooklib.importing.domain.model.*
 import com.mikesajak.ebooklib.importing.infrastructure.adapters.incoming.rest.dto.*
-import mu.KotlinLogging
+import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.core.io.InputStreamResource
 import org.springframework.http.HttpHeaders
 import org.springframework.http.MediaType

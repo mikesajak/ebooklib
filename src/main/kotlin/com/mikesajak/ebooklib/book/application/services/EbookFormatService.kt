@@ -12,7 +12,7 @@ import com.mikesajak.ebooklib.book.domain.model.BookId
 import com.mikesajak.ebooklib.book.domain.model.EbookFormatFile
 import com.mikesajak.ebooklib.file.application.ports.outgoing.FileStoragePort
 import jakarta.transaction.Transactional
-import mu.KotlinLogging
+import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.stereotype.Service
 import java.io.InputStream
 import java.util.*

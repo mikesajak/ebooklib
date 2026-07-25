@@ -10,7 +10,7 @@ import com.mikesajak.ebooklib.importing.application.ports.outgoing.StagedEbookUp
 import com.mikesajak.ebooklib.notification.application.NotificationService
 import com.mikesajak.ebooklib.notification.domain.model.NotificationEvent
 import com.mikesajak.ebooklib.notification.domain.model.NotificationType
-import mu.KotlinLogging
+import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.scheduling.annotation.Async
 import org.springframework.stereotype.Service
 import java.time.Instant

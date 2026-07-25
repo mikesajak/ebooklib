@@ -1,0 +1,2041 @@
+{
+  "version": "2.10",
+  "children": [
+    {
+      "type": "frame",
+      "id": "cPp4z",
+      "x": -1500,
+      "y": 0,
+      "name": "Button/Primary",
+      "reusable": true,
+      "fill": "$primary",
+      "cornerRadius": "$radius_md",
+      "gap": "$spacing_sm",
+      "padding": [
+        "$spacing_sm",
+        "$spacing_md"
+      ],
+      "justifyContent": "center",
+      "alignItems": "center",
+      "children": [
+        {
+          "type": "text",
+          "id": "psgL2",
+          "name": "Label",
+          "fill": "$white",
+          "content": "Button",
+          "fontFamily": "Inter",
+          "fontSize": 16,
+          "fontWeight": "bold"
+        }
+      ]
+    },
+    {
+      "type": "frame",
+      "id": "h1D7X",
+      "x": -1500,
+      "y": 100,
+      "name": "Component/Sidebar/Item",
+      "reusable": true,
+      "width": "fill_container(0)",
+      "gap": 12,
+      "padding": [
+        12,
+        24
+      ],
+      "alignItems": "center",
+      "children": [
+        {
+          "type": "text",
+          "id": "PakhA",
+          "name": "Label",
+          "fill": "$sidebar_text",
+          "content": "Sidebar Link",
+          "fontFamily": "Inter",
+          "fontSize": 14,
+          "fontWeight": "normal"
+        }
+      ]
+    },
+    {
+      "type": "frame",
+      "id": "aDLbG",
+      "x": -1500,
+      "y": 200,
+      "name": "Component/Card",
+      "reusable": true,
+      "width": 240,
+      "fill": "$bg_card",
+      "cornerRadius": "$radius_md",
+      "stroke": {
+        "thickness": 1,
+        "fill": "$border_color"
+      },
+      "layout": "vertical",
+      "gap": 12,
+      "padding": 16,
+      "children": [
+        {
+          "type": "frame",
+          "id": "HUE9T",
+          "name": "ImagePlaceholder",
+          "metadata": {
+            "type": "unsplash",
+            "username": "thoughtcatalog",
+            "link": "https://unsplash.com/@thoughtcatalog",
+            "author": "Thought Catalog"
+          },
+          "width": "fill_container",
+          "height": 320,
+          "fill": {
+            "type": "image",
+            "enabled": true,
+            "url": "https://images.unsplash.com/photo-1511108690759-009324a90311?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w4NDM0ODN8MHwxfHJhbmRvbXx8fHx8fHx8fDE3NzUyNTg3NTl8&ixlib=rb-4.1.0&q=80&w=1080",
+            "mode": "fill"
+          },
+          "cornerRadius": 4
+        },
+        {
+          "type": "frame",
+          "id": "8PuLX",
+          "name": "cardInfo",
+          "layout": "vertical",
+          "gap": 4,
+          "children": [
+            {
+              "type": "text",
+              "id": "gF3lz",
+              "name": "Title",
+              "fill": "$text_primary",
+              "content": "Book Title",
+              "fontFamily": "Inter",
+              "fontSize": 16,
+              "fontWeight": "bold"
+            },
+            {
+              "type": "text",
+              "id": "XWKb2",
+              "name": "Subtitle",
+              "fill": "$text_secondary",
+              "content": "Author Name",
+              "fontFamily": "Inter",
+              "fontSize": 14,
+              "fontWeight": "normal"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "frame",
+      "id": "DSIZh",
+      "x": -1500,
+      "y": 700,
+      "name": "Component/Badge",
+      "reusable": true,
+      "fill": "$border_color",
+      "cornerRadius": 4,
+      "padding": [
+        4,
+        8
+      ],
+      "children": [
+        {
+          "type": "text",
+          "id": "yY3QQ",
+          "name": "Label",
+          "fill": "$text_primary",
+          "content": "EPUB",
+          "fontFamily": "Inter",
+          "fontSize": 12,
+          "fontWeight": "normal"
+        }
+      ]
+    },
+    {
+      "type": "frame",
+      "id": "Zi0NK",
+      "x": -1500,
+      "y": 800,
+      "name": "Component/Form/LabeledInput",
+      "reusable": true,
+      "width": "fill_container(0)",
+      "layout": "vertical",
+      "gap": 8,
+      "children": [
+        {
+          "type": "text",
+          "id": "EQI66",
+          "name": "Label",
+          "fill": "$text_primary",
+          "content": "Input Label",
+          "fontFamily": "Inter",
+          "fontSize": 14,
+          "fontWeight": "bold"
+        },
+        {
+          "type": "frame",
+          "id": "TAgbD",
+          "name": "InputField",
+          "width": "fill_container",
+          "height": 40,
+          "cornerRadius": 4,
+          "stroke": {
+            "thickness": 1,
+            "fill": "$border_color"
+          },
+          "padding": [
+            0,
+            12
+          ],
+          "alignItems": "center",
+          "children": [
+            {
+              "type": "text",
+              "id": "h5pcI",
+              "name": "Placeholder",
+              "fill": "$text_secondary",
+              "content": "Enter value...",
+              "fontFamily": "Inter",
+              "fontSize": 14,
+              "fontWeight": "normal"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "frame",
+      "id": "HRKP4",
+      "x": -3500,
+      "y": 0,
+      "name": "Component/ViewContainer",
+      "reusable": true,
+      "width": 1440,
+      "height": 900,
+      "fill": "$bg_app",
+      "children": [
+        {
+          "type": "frame",
+          "id": "OiRD7",
+          "name": "Sidebar",
+          "width": 280,
+          "height": "fill_container",
+          "fill": "$bg_sidebar",
+          "layout": "vertical",
+          "gap": 8,
+          "padding": 24,
+          "justifyContent": "space_between",
+          "children": [
+            {
+              "type": "frame",
+              "id": "SQVLq",
+              "name": "vSidebarNav",
+              "layout": "vertical",
+              "gap": 8,
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "VLI3I",
+                  "name": "vLogo",
+                  "padding": [
+                    0,
+                    0,
+                    32,
+                    0
+                  ],
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "Rb52H",
+                      "fill": "$white",
+                      "content": "LIBRIUM",
+                      "fontFamily": "Inter",
+                      "fontSize": 24,
+                      "fontWeight": "bold"
+                    }
+                  ]
+                },
+                {
+                  "id": "7BYdS",
+                  "type": "ref",
+                  "ref": "h1D7X",
+                  "width": "fill_container",
+                  "y": 69,
+                  "height": "fit_content",
+                  "x": 0,
+                  "descendants": {
+                    "PakhA": {
+                      "content": "Books",
+                      "fill": "$sidebar_text_active",
+                      "x": 24,
+                      "y": 12
+                    }
+                  }
+                },
+                {
+                  "id": "OS9ib",
+                  "type": "ref",
+                  "ref": "h1D7X",
+                  "width": "fill_container",
+                  "y": 118,
+                  "height": "fit_content",
+                  "x": 0,
+                  "descendants": {
+                    "PakhA": {
+                      "content": "Authors",
+                      "x": 24,
+                      "y": 12
+                    }
+                  }
+                },
+                {
+                  "id": "BYWD7",
+                  "type": "ref",
+                  "ref": "h1D7X",
+                  "width": "fill_container",
+                  "y": 167,
+                  "height": "fit_content",
+                  "x": 0,
+                  "descendants": {
+                    "PakhA": {
+                      "content": "Series",
+                      "x": 24,
+                      "y": 12
+                    }
+                  }
+                },
+                {
+                  "id": "gS64N",
+                  "type": "ref",
+                  "ref": "h1D7X",
+                  "width": "fill_container",
+                  "y": 216,
+                  "height": "fit_content",
+                  "x": 0,
+                  "descendants": {
+                    "PakhA": {
+                      "content": "Import",
+                      "x": 24,
+                      "y": 12
+                    }
+                  }
+                },
+                {
+                  "id": "7gdQK",
+                  "type": "ref",
+                  "ref": "h1D7X",
+                  "width": "fill_container",
+                  "y": 265,
+                  "height": "fit_content",
+                  "x": 0,
+                  "descendants": {
+                    "PakhA": {
+                      "content": "Admin",
+                      "x": 24,
+                      "y": 12
+                    }
+                  }
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "FHa7G",
+              "name": "vSidebarStats",
+              "stroke": {
+                "thickness": {
+                  "top": 1
+                },
+                "fill": "$sidebar_text"
+              },
+              "layout": "vertical",
+              "gap": 16,
+              "padding": [
+                24,
+                0,
+                0,
+                0
+              ],
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "xM79Y",
+                  "name": "vBizStats",
+                  "layout": "vertical",
+                  "gap": 4,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "IdASM",
+                      "fill": "$sidebar_text",
+                      "content": "Library Stats",
+                      "fontFamily": "Inter",
+                      "fontSize": 12,
+                      "fontWeight": "bold"
+                    },
+                    {
+                      "type": "text",
+                      "id": "qqg2f",
+                      "fill": "$sidebar_text",
+                      "content": "Books: 1,240",
+                      "fontFamily": "Inter",
+                      "fontSize": 12,
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "type": "text",
+                      "id": "MV316",
+                      "fill": "$sidebar_text",
+                      "content": "Authors: 450",
+                      "fontFamily": "Inter",
+                      "fontSize": 12,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "rNzsW",
+          "name": "ContentSlot",
+          "width": "fill_container",
+          "height": "fill_container",
+          "layout": "vertical",
+          "gap": 32,
+          "padding": 48
+        }
+      ]
+    },
+    {
+      "id": "t0Bod",
+      "type": "ref",
+      "ref": "HRKP4",
+      "x": 300,
+      "y": 1000,
+      "name": "Page/BooksList",
+      "descendants": {
+        "OiRD7": {
+          "height": "fill_container"
+        },
+        "SQVLq": {
+          "width": "fit_content",
+          "height": "fit_content",
+          "x": 24,
+          "y": 24
+        },
+        "VLI3I": {
+          "width": "fit_content",
+          "height": "fit_content"
+        },
+        "7BYdS": {
+          "width": "fill_container",
+          "height": "fit_content",
+          "x": 0,
+          "y": 69
+        },
+        "7BYdS/PakhA": {
+          "x": 24,
+          "y": 12
+        },
+        "OS9ib": {
+          "width": "fill_container",
+          "height": "fit_content",
+          "x": 0,
+          "y": 118
+        },
+        "OS9ib/PakhA": {
+          "x": 24,
+          "y": 12
+        },
+        "BYWD7": {
+          "width": "fill_container",
+          "height": "fit_content",
+          "x": 0,
+          "y": 167
+        },
+        "BYWD7/PakhA": {
+          "x": 24,
+          "y": 12
+        },
+        "gS64N": {
+          "width": "fill_container",
+          "height": "fit_content",
+          "x": 0,
+          "y": 216
+        },
+        "gS64N/PakhA": {
+          "x": 24,
+          "y": 12
+        },
+        "7gdQK": {
+          "width": "fill_container",
+          "height": "fit_content",
+          "x": 0,
+          "y": 265
+        },
+        "7gdQK/PakhA": {
+          "x": 24,
+          "y": 12
+        },
+        "FHa7G": {
+          "width": "fit_content",
+          "height": "fit_content",
+          "x": 24,
+          "y": 799
+        },
+        "xM79Y": {
+          "width": "fit_content",
+          "height": "fit_content",
+          "y": 24
+        },
+        "qqg2f": {
+          "y": 19
+        },
+        "MV316": {
+          "y": 38
+        },
+        "rNzsW": {
+          "type": "frame",
+          "id": "NXV3m",
+          "name": "booksContent",
+          "width": "fill_container",
+          "height": "fill_container",
+          "layout": "vertical",
+          "gap": 32,
+          "padding": 48,
+          "children": [
+            {
+              "type": "text",
+              "id": "dAL4P",
+              "fill": "$text_primary",
+              "content": "Books",
+              "fontFamily": "Inter",
+              "fontSize": 32,
+              "fontWeight": "bold"
+            },
+            {
+              "type": "frame",
+              "id": "fE15Z",
+              "name": "searchBar",
+              "width": "fill_container",
+              "height": 48,
+              "fill": "$bg_card",
+              "cornerRadius": 8,
+              "stroke": {
+                "thickness": 1,
+                "fill": "$border_color"
+              },
+              "padding": [
+                0,
+                16
+              ],
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "text",
+                  "id": "pe0DE",
+                  "fill": "$text_secondary",
+                  "content": "Search library...",
+                  "fontFamily": "Inter",
+                  "fontSize": 16,
+                  "fontWeight": "normal"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "rWDt2",
+              "name": "bookGrid",
+              "width": "fill_container",
+              "gap": 24,
+              "children": [
+                {
+                  "id": "SqXfv",
+                  "type": "ref",
+                  "ref": "aDLbG",
+                  "height": "fit_content",
+                  "x": 0,
+                  "y": 0,
+                  "descendants": {
+                    "HUE9T": {
+                      "width": "fill_container",
+                      "x": 16,
+                      "y": 16
+                    },
+                    "8PuLX": {
+                      "width": "fit_content",
+                      "height": "fit_content",
+                      "x": 16,
+                      "y": 348
+                    },
+                    "XWKb2": {
+                      "y": 23
+                    }
+                  }
+                },
+                {
+                  "id": "E6F9I",
+                  "type": "ref",
+                  "ref": "aDLbG",
+                  "x": 264,
+                  "height": "fit_content",
+                  "y": 0,
+                  "descendants": {
+                    "HUE9T": {
+                      "width": "fill_container",
+                      "x": 16,
+                      "y": 16
+                    },
+                    "8PuLX": {
+                      "width": "fit_content",
+                      "height": "fit_content",
+                      "x": 16,
+                      "y": 348
+                    },
+                    "XWKb2": {
+                      "y": 23
+                    }
+                  }
+                },
+                {
+                  "id": "sxiT7",
+                  "type": "ref",
+                  "ref": "aDLbG",
+                  "x": 528,
+                  "height": "fit_content",
+                  "y": 0,
+                  "descendants": {
+                    "HUE9T": {
+                      "width": "fill_container",
+                      "x": 16,
+                      "y": 16
+                    },
+                    "8PuLX": {
+                      "width": "fit_content",
+                      "height": "fit_content",
+                      "x": 16,
+                      "y": 348
+                    },
+                    "XWKb2": {
+                      "y": 23
+                    }
+                  }
+                },
+                {
+                  "id": "mSSiu",
+                  "type": "ref",
+                  "ref": "aDLbG",
+                  "x": 792,
+                  "height": "fit_content",
+                  "y": 0,
+                  "descendants": {
+                    "HUE9T": {
+                      "width": "fill_container",
+                      "x": 16,
+                      "y": 16
+                    },
+                    "8PuLX": {
+                      "width": "fit_content",
+                      "height": "fit_content",
+                      "x": 16,
+                      "y": 348
+                    },
+                    "XWKb2": {
+                      "y": 23
+                    }
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "PFAfT",
+      "type": "ref",
+      "ref": "HRKP4",
+      "x": 1800,
+      "y": 1000,
+      "name": "Page/BookDetails",
+      "descendants": {
+        "OiRD7": {
+          "height": "fill_container"
+        },
+        "SQVLq": {
+          "width": "fit_content",
+          "height": "fit_content",
+          "x": 24,
+          "y": 24
+        },
+        "VLI3I": {
+          "width": "fit_content",
+          "height": "fit_content"
+        },
+        "7BYdS": {
+          "width": "fill_container",
+          "height": "fit_content",
+          "x": 0,
+          "y": 69
+        },
+        "7BYdS/PakhA": {
+          "x": 24,
+          "y": 12
+        },
+        "OS9ib": {
+          "width": "fill_container",
+          "height": "fit_content",
+          "x": 0,
+          "y": 118
+        },
+        "OS9ib/PakhA": {
+          "x": 24,
+          "y": 12
+        },
+        "BYWD7": {
+          "width": "fill_container",
+          "height": "fit_content",
+          "x": 0,
+          "y": 167
+        },
+        "BYWD7/PakhA": {
+          "x": 24,
+          "y": 12
+        },
+        "gS64N": {
+          "width": "fill_container",
+          "height": "fit_content",
+          "x": 0,
+          "y": 216
+        },
+        "gS64N/PakhA": {
+          "x": 24,
+          "y": 12
+        },
+        "7gdQK": {
+          "width": "fill_container",
+          "height": "fit_content",
+          "x": 0,
+          "y": 265
+        },
+        "7gdQK/PakhA": {
+          "x": 24,
+          "y": 12
+        },
+        "FHa7G": {
+          "width": "fit_content",
+          "height": "fit_content",
+          "x": 24,
+          "y": 799
+        },
+        "xM79Y": {
+          "width": "fit_content",
+          "height": "fit_content",
+          "y": 24
+        },
+        "qqg2f": {
+          "y": 19
+        },
+        "MV316": {
+          "y": 38
+        },
+        "rNzsW": {
+          "type": "frame",
+          "id": "rY6sU",
+          "name": "detailsContent",
+          "width": "fill_container",
+          "height": "fill_container",
+          "layout": "vertical",
+          "gap": 32,
+          "padding": 48,
+          "children": [
+            {
+              "type": "text",
+              "id": "OrTaY",
+              "fill": "$text_primary",
+              "content": "Book Details",
+              "fontFamily": "Inter",
+              "fontSize": 32,
+              "fontWeight": "bold"
+            },
+            {
+              "type": "frame",
+              "id": "Qzdx4",
+              "name": "detailsGrid",
+              "width": "fill_container",
+              "gap": 48,
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "8Z8HJ",
+                  "name": "cover",
+                  "metadata": {
+                    "type": "unsplash",
+                    "username": "laurachouette",
+                    "link": "https://unsplash.com/@laurachouette",
+                    "author": "Laura Chouette"
+                  },
+                  "width": 300,
+                  "height": 450,
+                  "fill": {
+                    "type": "image",
+                    "enabled": true,
+                    "url": "https://images.unsplash.com/photo-1605087156563-fdc6f3e8e6f7?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w4NDM0ODN8MHwxfHJhbmRvbXx8fHx8fHx8fDE3NzUyNTg0NjB8&ixlib=rb-4.1.0&q=80&w=1080",
+                    "mode": "fill"
+                  },
+                  "cornerRadius": 8
+                },
+                {
+                  "type": "frame",
+                  "id": "6frQD",
+                  "name": "infoCol",
+                  "width": "fill_container",
+                  "layout": "vertical",
+                  "gap": 24,
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "iPVrv",
+                      "name": "meta",
+                      "layout": "vertical",
+                      "gap": 8,
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "osSBr",
+                          "fill": "$text_primary",
+                          "content": "The Great Gatsby",
+                          "fontFamily": "Inter",
+                          "fontSize": 28,
+                          "fontWeight": "bold"
+                        },
+                        {
+                          "type": "text",
+                          "id": "zLw7h",
+                          "fill": "$text_secondary",
+                          "content": "by F. Scott Fitzgerald",
+                          "fontFamily": "Inter",
+                          "fontSize": 18,
+                          "fontWeight": "normal"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "text",
+                      "id": "dxMFm",
+                      "name": "desc",
+                      "fill": "$text_primary",
+                      "textGrowth": "fixed-width",
+                      "width": "fill_container",
+                      "content": "A story of Gatsby and Daisy.",
+                      "fontFamily": "Inter",
+                      "fontSize": 16,
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "type": "frame",
+                      "id": "ETDzJ",
+                      "name": "formats",
+                      "layout": "vertical",
+                      "gap": 12,
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "htxG9",
+                          "fill": "$text_primary",
+                          "content": "Available Formats",
+                          "fontFamily": "Inter",
+                          "fontSize": 16,
+                          "fontWeight": "bold"
+                        },
+                        {
+                          "type": "frame",
+                          "id": "MRHMB",
+                          "name": "formatRow",
+                          "gap": 12,
+                          "children": [
+                            {
+                              "id": "MEzMa",
+                              "type": "ref",
+                              "ref": "DSIZh",
+                              "width": "fit_content",
+                              "height": "fit_content",
+                              "x": 0,
+                              "y": 0,
+                              "descendants": {
+                                "yY3QQ": {
+                                  "content": "EPUB",
+                                  "fill": "$primary",
+                                  "x": 8,
+                                  "y": 4
+                                }
+                              }
+                            },
+                            {
+                              "id": "Vaiyw",
+                              "type": "ref",
+                              "ref": "DSIZh",
+                              "width": "fit_content",
+                              "x": 60,
+                              "height": "fit_content",
+                              "y": 0,
+                              "descendants": {
+                                "yY3QQ": {
+                                  "content": "PDF",
+                                  "x": 8,
+                                  "y": 4
+                                }
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "9H120",
+      "type": "ref",
+      "ref": "HRKP4",
+      "x": 3300,
+      "y": 1000,
+      "name": "Page/AddBook",
+      "descendants": {
+        "OiRD7": {
+          "height": "fill_container"
+        },
+        "SQVLq": {
+          "width": "fit_content",
+          "height": "fit_content",
+          "x": 24,
+          "y": 24
+        },
+        "VLI3I": {
+          "width": "fit_content",
+          "height": "fit_content"
+        },
+        "7BYdS": {
+          "width": "fill_container",
+          "height": "fit_content",
+          "x": 0,
+          "y": 69
+        },
+        "7BYdS/PakhA": {
+          "x": 24,
+          "y": 12
+        },
+        "OS9ib": {
+          "width": "fill_container",
+          "height": "fit_content",
+          "x": 0,
+          "y": 118
+        },
+        "OS9ib/PakhA": {
+          "x": 24,
+          "y": 12
+        },
+        "BYWD7": {
+          "width": "fill_container",
+          "height": "fit_content",
+          "x": 0,
+          "y": 167
+        },
+        "BYWD7/PakhA": {
+          "x": 24,
+          "y": 12
+        },
+        "gS64N": {
+          "width": "fill_container",
+          "height": "fit_content",
+          "x": 0,
+          "y": 216
+        },
+        "gS64N/PakhA": {
+          "x": 24,
+          "y": 12
+        },
+        "7gdQK": {
+          "width": "fill_container",
+          "height": "fit_content",
+          "x": 0,
+          "y": 265
+        },
+        "7gdQK/PakhA": {
+          "x": 24,
+          "y": 12
+        },
+        "FHa7G": {
+          "width": "fit_content",
+          "height": "fit_content",
+          "x": 24,
+          "y": 799
+        },
+        "xM79Y": {
+          "width": "fit_content",
+          "height": "fit_content",
+          "y": 24
+        },
+        "qqg2f": {
+          "y": 19
+        },
+        "MV316": {
+          "y": 38
+        },
+        "rNzsW": {
+          "type": "frame",
+          "id": "ysoAI",
+          "name": "addBookContent",
+          "width": "fill_container",
+          "height": "fill_container",
+          "layout": "vertical",
+          "gap": 32,
+          "padding": 48,
+          "children": [
+            {
+              "type": "text",
+              "id": "VpL5u",
+              "fill": "$text_primary",
+              "content": "Add New Book",
+              "fontFamily": "Inter",
+              "fontSize": 32,
+              "fontWeight": "bold"
+            },
+            {
+              "type": "frame",
+              "id": "3p4V8",
+              "name": "formGrid",
+              "width": "fill_container",
+              "gap": 48,
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "omPdb",
+                  "name": "leftForm",
+                  "width": 300,
+                  "layout": "vertical",
+                  "gap": 24,
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "iNcQH",
+                      "name": "CoverUpload",
+                      "width": 300,
+                      "height": 450,
+                      "cornerRadius": 8,
+                      "stroke": {
+                        "thickness": 1,
+                        "fill": "$border_color"
+                      },
+                      "layout": "vertical",
+                      "justifyContent": "center",
+                      "alignItems": "center"
+                    },
+                    {
+                      "type": "text",
+                      "id": "n9Onf",
+                      "fill": "$text_secondary",
+                      "content": "Click to upload cover",
+                      "fontFamily": "Inter",
+                      "fontSize": 14,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "OsWYR",
+                  "name": "rightForm",
+                  "width": "fill_container",
+                  "layout": "vertical",
+                  "gap": 16,
+                  "children": [
+                    {
+                      "id": "pIGAv",
+                      "type": "ref",
+                      "ref": "Zi0NK",
+                      "width": "fill_container",
+                      "height": "fit_content",
+                      "x": 0,
+                      "y": 0,
+                      "descendants": {
+                        "EQI66": {
+                          "content": "Title"
+                        },
+                        "TAgbD": {
+                          "width": "fill_container",
+                          "y": 25
+                        },
+                        "h5pcI": {
+                          "content": "e.g. The Great Gatsby",
+                          "x": 12,
+                          "y": 11.5
+                        }
+                      }
+                    },
+                    {
+                      "id": "iDhLX",
+                      "type": "ref",
+                      "ref": "Zi0NK",
+                      "width": "fill_container",
+                      "y": 81,
+                      "height": "fit_content",
+                      "x": 0,
+                      "descendants": {
+                        "EQI66": {
+                          "content": "Authors"
+                        },
+                        "TAgbD": {
+                          "width": "fill_container",
+                          "y": 25
+                        },
+                        "h5pcI": {
+                          "content": "e.g. F. Scott Fitzgerald",
+                          "x": 12,
+                          "y": 11.5
+                        }
+                      }
+                    },
+                    {
+                      "id": "kPTu1",
+                      "type": "ref",
+                      "ref": "Zi0NK",
+                      "width": "fill_container",
+                      "y": 162,
+                      "height": "fit_content",
+                      "x": 0,
+                      "descendants": {
+                        "EQI66": {
+                          "content": "Year"
+                        },
+                        "TAgbD": {
+                          "width": "fill_container",
+                          "y": 25
+                        },
+                        "h5pcI": {
+                          "content": "e.g. 1925",
+                          "x": 12,
+                          "y": 11.5
+                        }
+                      }
+                    },
+                    {
+                      "id": "AtFw5",
+                      "type": "ref",
+                      "ref": "Zi0NK",
+                      "width": "fill_container",
+                      "y": 243,
+                      "height": "fit_content",
+                      "x": 0,
+                      "descendants": {
+                        "EQI66": {
+                          "content": "Publisher"
+                        },
+                        "TAgbD": {
+                          "width": "fill_container",
+                          "y": 25
+                        },
+                        "h5pcI": {
+                          "content": "e.g. Charles Scribner's Sons",
+                          "x": 12,
+                          "y": 11.5
+                        }
+                      }
+                    },
+                    {
+                      "id": "FNwJX",
+                      "type": "ref",
+                      "ref": "Zi0NK",
+                      "width": "fill_container",
+                      "y": 324,
+                      "height": "fit_content",
+                      "x": 0,
+                      "descendants": {
+                        "EQI66": {
+                          "content": "Tags"
+                        },
+                        "TAgbD": {
+                          "width": "fill_container",
+                          "y": 25
+                        },
+                        "h5pcI": {
+                          "content": "e.g. Classic, Fiction",
+                          "x": 12,
+                          "y": 11.5
+                        }
+                      }
+                    },
+                    {
+                      "id": "mnKXU",
+                      "type": "ref",
+                      "ref": "Zi0NK",
+                      "width": "fill_container",
+                      "y": 405,
+                      "height": "fit_content",
+                      "x": 0,
+                      "descendants": {
+                        "EQI66": {
+                          "content": "Description"
+                        },
+                        "TAgbD": {
+                          "width": "fill_container",
+                          "y": 25
+                        },
+                        "h5pcI": {
+                          "content": "Write a summary...",
+                          "x": 12,
+                          "y": 11.5
+                        }
+                      }
+                    },
+                    {
+                      "id": "lzqtn",
+                      "type": "ref",
+                      "ref": "cPp4z",
+                      "name": "saveBtn",
+                      "y": 486,
+                      "width": "fit_content",
+                      "height": "fit_content",
+                      "x": 0,
+                      "descendants": {
+                        "psgL2": {
+                          "content": "Save Book",
+                          "x": 16,
+                          "y": 8
+                        }
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "hW9zV",
+      "type": "ref",
+      "ref": "HRKP4",
+      "x": 300,
+      "y": 2000,
+      "name": "Page/AuthorsList",
+      "descendants": {
+        "OiRD7": {
+          "height": "fill_container"
+        },
+        "SQVLq": {
+          "width": "fit_content",
+          "height": "fit_content",
+          "x": 24,
+          "y": 24
+        },
+        "VLI3I": {
+          "width": "fit_content",
+          "height": "fit_content"
+        },
+        "7BYdS": {
+          "width": "fill_container",
+          "height": "fit_content",
+          "x": 0,
+          "y": 69
+        },
+        "7BYdS/PakhA": {
+          "x": 24,
+          "y": 12
+        },
+        "OS9ib": {
+          "width": "fill_container",
+          "height": "fit_content",
+          "x": 0,
+          "y": 118
+        },
+        "OS9ib/PakhA": {
+          "x": 24,
+          "y": 12
+        },
+        "BYWD7": {
+          "width": "fill_container",
+          "height": "fit_content",
+          "x": 0,
+          "y": 167
+        },
+        "BYWD7/PakhA": {
+          "x": 24,
+          "y": 12
+        },
+        "gS64N": {
+          "width": "fill_container",
+          "height": "fit_content",
+          "x": 0,
+          "y": 216
+        },
+        "gS64N/PakhA": {
+          "x": 24,
+          "y": 12
+        },
+        "7gdQK": {
+          "width": "fill_container",
+          "height": "fit_content",
+          "x": 0,
+          "y": 265
+        },
+        "7gdQK/PakhA": {
+          "x": 24,
+          "y": 12
+        },
+        "FHa7G": {
+          "width": "fit_content",
+          "height": "fit_content",
+          "x": 24,
+          "y": 799
+        },
+        "xM79Y": {
+          "width": "fit_content",
+          "height": "fit_content",
+          "y": 24
+        },
+        "qqg2f": {
+          "y": 19
+        },
+        "MV316": {
+          "y": 38
+        },
+        "rNzsW": {
+          "type": "frame",
+          "id": "0q3zH",
+          "name": "authorContent",
+          "width": "fill_container",
+          "height": "fill_container",
+          "layout": "vertical",
+          "gap": 32,
+          "padding": 48,
+          "children": [
+            {
+              "type": "text",
+              "id": "kK4yQ",
+              "fill": "$text_primary",
+              "content": "Authors",
+              "fontFamily": "Inter",
+              "fontSize": 32,
+              "fontWeight": "bold"
+            },
+            {
+              "type": "frame",
+              "id": "n6muE",
+              "name": "authorSearchBar",
+              "width": "fill_container",
+              "height": 48,
+              "fill": "$bg_card",
+              "cornerRadius": 8,
+              "stroke": {
+                "thickness": 1,
+                "fill": "$border_color"
+              },
+              "padding": [
+                0,
+                16
+              ],
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "text",
+                  "id": "mDhET",
+                  "fill": "$text_secondary",
+                  "content": "Search authors...",
+                  "fontFamily": "Inter",
+                  "fontSize": 16,
+                  "fontWeight": "normal"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "oRHOQ",
+              "name": "authorGrid",
+              "width": "fill_container",
+              "gap": 24,
+              "children": [
+                {
+                  "id": "jjBfG",
+                  "type": "ref",
+                  "ref": "aDLbG",
+                  "height": "fit_content",
+                  "x": 0,
+                  "y": 0,
+                  "descendants": {
+                    "HUE9T": {
+                      "fill": {
+                        "type": "image",
+                        "enabled": true,
+                        "url": "https://images.unsplash.com/photo-1659377214798-404c709af327?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w4NDM0ODN8MHwxfHJhbmRvbXx8fHx8fHx8fDE3NzUyNTg3NjF8&ixlib=rb-4.1.0&q=80&w=1080",
+                        "mode": "fill"
+                      },
+                      "width": "fill_container",
+                      "x": 16,
+                      "y": 16
+                    },
+                    "8PuLX": {
+                      "height": "fit_content",
+                      "width": "fit_content",
+                      "x": 16,
+                      "y": 348
+                    },
+                    "gF3lz": {
+                      "content": "F. Scott Fitzgerald"
+                    },
+                    "XWKb2": {
+                      "content": "1896 - 1940",
+                      "y": 23
+                    }
+                  }
+                },
+                {
+                  "id": "aRwgP",
+                  "type": "ref",
+                  "ref": "aDLbG",
+                  "height": "fit_content",
+                  "x": 264,
+                  "y": 0,
+                  "descendants": {
+                    "HUE9T": {
+                      "fill": {
+                        "type": "image",
+                        "enabled": true,
+                        "url": "https://images.unsplash.com/photo-1590332679110-902edfdf86ed?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w4NDM0ODN8MHwxfHJhbmRvbXx8fHx8fHx8fDE3NzUyNTg3NjJ8&ixlib=rb-4.1.0&q=80&w=1080",
+                        "mode": "fill"
+                      },
+                      "width": "fill_container",
+                      "x": 16,
+                      "y": 16
+                    },
+                    "8PuLX": {
+                      "height": "fit_content",
+                      "width": "fit_content",
+                      "x": 16,
+                      "y": 348
+                    },
+                    "gF3lz": {
+                      "content": "Ernest Hemingway"
+                    },
+                    "XWKb2": {
+                      "content": "1899 - 1961",
+                      "y": 23
+                    }
+                  }
+                },
+                {
+                  "id": "WgzUH",
+                  "type": "ref",
+                  "ref": "aDLbG",
+                  "height": "fit_content",
+                  "x": 528,
+                  "y": 0,
+                  "descendants": {
+                    "HUE9T": {
+                      "fill": {
+                        "type": "image",
+                        "enabled": true,
+                        "url": "https://images.unsplash.com/photo-1694420895484-29a05cc8ab19?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w4NDM0ODN8MHwxfHJhbmRvbXx8fHx8fHx8fDE3NzUyNTg3NjJ8&ixlib=rb-4.1.0&q=80&w=1080",
+                        "mode": "fill"
+                      },
+                      "width": "fill_container",
+                      "x": 16,
+                      "y": 16
+                    },
+                    "8PuLX": {
+                      "height": "fit_content",
+                      "width": "fit_content",
+                      "x": 16,
+                      "y": 348
+                    },
+                    "gF3lz": {
+                      "content": "George Orwell"
+                    },
+                    "XWKb2": {
+                      "content": "1903 - 1950",
+                      "y": 23
+                    }
+                  }
+                },
+                {
+                  "id": "tJZSQ",
+                  "type": "ref",
+                  "ref": "aDLbG",
+                  "height": "fit_content",
+                  "x": 792,
+                  "y": 0,
+                  "descendants": {
+                    "HUE9T": {
+                      "fill": {
+                        "type": "image",
+                        "enabled": true,
+                        "url": "https://images.unsplash.com/photo-1664895633067-7f4c8b6b9fae?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w4NDM0ODN8MHwxfHJhbmRvbXx8fHx8fHx8fDE3NzUyNTg3NjN8&ixlib=rb-4.1.0&q=80&w=1080",
+                        "mode": "fill"
+                      },
+                      "width": "fill_container",
+                      "x": 16,
+                      "y": 16
+                    },
+                    "8PuLX": {
+                      "height": "fit_content",
+                      "width": "fit_content",
+                      "x": 16,
+                      "y": 348
+                    },
+                    "gF3lz": {
+                      "content": "Virginia Woolf"
+                    },
+                    "XWKb2": {
+                      "content": "1882 - 1941",
+                      "y": 23
+                    }
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "Ncjpo",
+      "type": "ref",
+      "ref": "HRKP4",
+      "x": 1800,
+      "y": 2000,
+      "name": "Page/AuthorDetails",
+      "descendants": {
+        "OiRD7": {
+          "height": "fill_container"
+        },
+        "SQVLq": {
+          "width": "fit_content",
+          "height": "fit_content",
+          "x": 24,
+          "y": 24
+        },
+        "VLI3I": {
+          "width": "fit_content",
+          "height": "fit_content"
+        },
+        "7BYdS": {
+          "width": "fill_container",
+          "height": "fit_content",
+          "x": 0,
+          "y": 69
+        },
+        "7BYdS/PakhA": {
+          "x": 24,
+          "y": 12
+        },
+        "OS9ib": {
+          "width": "fill_container",
+          "height": "fit_content",
+          "x": 0,
+          "y": 118
+        },
+        "OS9ib/PakhA": {
+          "x": 24,
+          "y": 12
+        },
+        "BYWD7": {
+          "width": "fill_container",
+          "height": "fit_content",
+          "x": 0,
+          "y": 167
+        },
+        "BYWD7/PakhA": {
+          "x": 24,
+          "y": 12
+        },
+        "gS64N": {
+          "width": "fill_container",
+          "height": "fit_content",
+          "x": 0,
+          "y": 216
+        },
+        "gS64N/PakhA": {
+          "x": 24,
+          "y": 12
+        },
+        "7gdQK": {
+          "width": "fill_container",
+          "height": "fit_content",
+          "x": 0,
+          "y": 265
+        },
+        "7gdQK/PakhA": {
+          "x": 24,
+          "y": 12
+        },
+        "FHa7G": {
+          "width": "fit_content",
+          "height": "fit_content",
+          "x": 24,
+          "y": 799
+        },
+        "xM79Y": {
+          "width": "fit_content",
+          "height": "fit_content",
+          "y": 24
+        },
+        "qqg2f": {
+          "y": 19
+        },
+        "MV316": {
+          "y": 38
+        },
+        "rNzsW": {
+          "type": "frame",
+          "id": "5NCgF",
+          "name": "authorDetailsContent",
+          "width": "fill_container",
+          "height": "fill_container",
+          "layout": "vertical",
+          "gap": 32,
+          "padding": 48,
+          "children": [
+            {
+              "type": "text",
+              "id": "B5qsZ",
+              "fill": "$text_primary",
+              "content": "Author Details",
+              "fontFamily": "Inter",
+              "fontSize": 32,
+              "fontWeight": "bold"
+            },
+            {
+              "type": "frame",
+              "id": "NulsQ",
+              "name": "authorHeader",
+              "width": "fill_container",
+              "gap": 48,
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "zx9E2",
+                  "name": "authorPhoto",
+                  "metadata": {
+                    "type": "unsplash",
+                    "username": "ludvigwiese",
+                    "link": "https://unsplash.com/@ludvigwiese",
+                    "author": "Ludvig Wiese"
+                  },
+                  "width": 200,
+                  "height": 200,
+                  "fill": {
+                    "type": "image",
+                    "enabled": true,
+                    "url": "https://images.unsplash.com/photo-1509460913899-515f1df34fea?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w4NDM0ODN8MHwxfHJhbmRvbXx8fHx8fHx8fDE3NzUyNTg0OTB8&ixlib=rb-4.1.0&q=80&w=1080",
+                    "mode": "fill"
+                  },
+                  "cornerRadius": 100
+                },
+                {
+                  "type": "frame",
+                  "id": "nHIrr",
+                  "name": "authorInfo",
+                  "width": "fill_container",
+                  "layout": "vertical",
+                  "gap": 16,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "Rj020",
+                      "fill": "$text_primary",
+                      "content": "F. Scott Fitzgerald",
+                      "fontFamily": "Inter",
+                      "fontSize": 28,
+                      "fontWeight": "bold"
+                    },
+                    {
+                      "type": "text",
+                      "id": "y9qvW",
+                      "fill": "$text_secondary",
+                      "textGrowth": "fixed-width",
+                      "width": "fill_container",
+                      "content": "American novelist, essayist, and short story writer. Best known for 'The Great Gatsby'.",
+                      "fontFamily": "Inter",
+                      "fontSize": 16,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "waVPm",
+              "name": "authorBooks",
+              "layout": "vertical",
+              "gap": 16,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "Mi4dZ",
+                  "fill": "$text_primary",
+                  "content": "Books by this Author",
+                  "fontFamily": "Inter",
+                  "fontSize": 20,
+                  "fontWeight": "bold"
+                },
+                {
+                  "type": "frame",
+                  "id": "aC4zA",
+                  "name": "authorBookGrid",
+                  "width": "fill_container",
+                  "gap": 24,
+                  "children": [
+                    {
+                      "id": "MYoRF",
+                      "type": "ref",
+                      "ref": "aDLbG",
+                      "height": "fit_content",
+                      "x": 0,
+                      "y": 0,
+                      "descendants": {
+                        "HUE9T": {
+                          "fill": {
+                            "type": "image",
+                            "enabled": true,
+                            "url": "https://images.unsplash.com/photo-1654124803495-0f8c81002e0e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w4NDM0ODN8MHwxfHJhbmRvbXx8fHx8fHx8fDE3NzUyNTg3NjR8&ixlib=rb-4.1.0&q=80&w=1080",
+                            "mode": "fill"
+                          },
+                          "width": "fill_container",
+                          "x": 16,
+                          "y": 16
+                        },
+                        "8PuLX": {
+                          "height": "fit_content",
+                          "width": "fit_content",
+                          "x": 16,
+                          "y": 348
+                        },
+                        "gF3lz": {
+                          "content": "The Great Gatsby"
+                        },
+                        "XWKb2": {
+                          "content": "1925",
+                          "y": 23
+                        }
+                      }
+                    },
+                    {
+                      "id": "4XYFM",
+                      "type": "ref",
+                      "ref": "aDLbG",
+                      "height": "fit_content",
+                      "x": 264,
+                      "y": 0,
+                      "descendants": {
+                        "HUE9T": {
+                          "fill": {
+                            "type": "image",
+                            "enabled": true,
+                            "url": "https://images.unsplash.com/photo-1609089986059-5de86af4de42?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w4NDM0ODN8MHwxfHJhbmRvbXx8fHx8fHx8fDE3NzUyNTg3NjR8&ixlib=rb-4.1.0&q=80&w=1080",
+                            "mode": "fill"
+                          },
+                          "width": "fill_container",
+                          "x": 16,
+                          "y": 16
+                        },
+                        "8PuLX": {
+                          "height": "fit_content",
+                          "width": "fit_content",
+                          "x": 16,
+                          "y": 348
+                        },
+                        "gF3lz": {
+                          "content": "This Side of Paradise"
+                        },
+                        "XWKb2": {
+                          "content": "1920",
+                          "y": 23
+                        }
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "gR6YV",
+      "type": "ref",
+      "ref": "HRKP4",
+      "x": 3300,
+      "y": 2000,
+      "name": "Page/AddAuthor",
+      "descendants": {
+        "OiRD7": {
+          "height": "fill_container"
+        },
+        "SQVLq": {
+          "width": "fit_content",
+          "height": "fit_content",
+          "x": 24,
+          "y": 24
+        },
+        "VLI3I": {
+          "width": "fit_content",
+          "height": "fit_content"
+        },
+        "7BYdS": {
+          "width": "fill_container",
+          "height": "fit_content",
+          "x": 0,
+          "y": 69
+        },
+        "7BYdS/PakhA": {
+          "x": 24,
+          "y": 12
+        },
+        "OS9ib": {
+          "width": "fill_container",
+          "height": "fit_content",
+          "x": 0,
+          "y": 118
+        },
+        "OS9ib/PakhA": {
+          "x": 24,
+          "y": 12
+        },
+        "BYWD7": {
+          "width": "fill_container",
+          "height": "fit_content",
+          "x": 0,
+          "y": 167
+        },
+        "BYWD7/PakhA": {
+          "x": 24,
+          "y": 12
+        },
+        "gS64N": {
+          "width": "fill_container",
+          "height": "fit_content",
+          "x": 0,
+          "y": 216
+        },
+        "gS64N/PakhA": {
+          "x": 24,
+          "y": 12
+        },
+        "7gdQK": {
+          "width": "fill_container",
+          "height": "fit_content",
+          "x": 0,
+          "y": 265
+        },
+        "7gdQK/PakhA": {
+          "x": 24,
+          "y": 12
+        },
+        "FHa7G": {
+          "width": "fit_content",
+          "height": "fit_content",
+          "x": 24,
+          "y": 799
+        },
+        "xM79Y": {
+          "width": "fit_content",
+          "height": "fit_content",
+          "y": 24
+        },
+        "qqg2f": {
+          "y": 19
+        },
+        "MV316": {
+          "y": 38
+        },
+        "rNzsW": {
+          "type": "frame",
+          "id": "Dmc3r",
+          "name": "addAuthorContent",
+          "width": "fill_container",
+          "height": "fill_container",
+          "layout": "vertical",
+          "gap": 32,
+          "padding": 48,
+          "children": [
+            {
+              "type": "text",
+              "id": "3f6kc",
+              "fill": "$text_primary",
+              "content": "Add New Author",
+              "fontFamily": "Inter",
+              "fontSize": 32,
+              "fontWeight": "bold"
+            },
+            {
+              "type": "frame",
+              "id": "KS5RZ",
+              "name": "addAuthorForm",
+              "width": 600,
+              "layout": "vertical",
+              "gap": 24,
+              "children": [
+                {
+                  "id": "bLKlJ",
+                  "type": "ref",
+                  "ref": "Zi0NK",
+                  "width": "fill_container",
+                  "height": "fit_content",
+                  "x": 0,
+                  "y": 0,
+                  "descendants": {
+                    "EQI66": {
+                      "content": "Name"
+                    },
+                    "TAgbD": {
+                      "width": "fill_container",
+                      "y": 25
+                    },
+                    "h5pcI": {
+                      "content": "e.g. F. Scott Fitzgerald",
+                      "x": 12,
+                      "y": 11.5
+                    }
+                  }
+                },
+                {
+                  "id": "BAhxv",
+                  "type": "ref",
+                  "ref": "Zi0NK",
+                  "width": "fill_container",
+                  "y": 89,
+                  "height": "fit_content",
+                  "x": 0,
+                  "descendants": {
+                    "EQI66": {
+                      "content": "Birth/Death Dates"
+                    },
+                    "TAgbD": {
+                      "width": "fill_container",
+                      "y": 25
+                    },
+                    "h5pcI": {
+                      "content": "e.g. 1896 - 1940",
+                      "x": 12,
+                      "y": 11.5
+                    }
+                  }
+                },
+                {
+                  "id": "C5j6M",
+                  "type": "ref",
+                  "ref": "Zi0NK",
+                  "width": "fill_container",
+                  "y": 178,
+                  "height": "fit_content",
+                  "x": 0,
+                  "descendants": {
+                    "EQI66": {
+                      "content": "Biography"
+                    },
+                    "TAgbD": {
+                      "width": "fill_container",
+                      "y": 25
+                    },
+                    "h5pcI": {
+                      "content": "Write a short bio...",
+                      "x": 12,
+                      "y": 11.5
+                    }
+                  }
+                },
+                {
+                  "id": "jRsL5",
+                  "type": "ref",
+                  "ref": "cPp4z",
+                  "name": "saveAuthorBtn",
+                  "y": 267,
+                  "width": "fit_content",
+                  "height": "fit_content",
+                  "x": 0,
+                  "descendants": {
+                    "psgL2": {
+                      "content": "Save Author",
+                      "x": 16,
+                      "y": 8
+                    }
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "variables": {
+    "primary": {
+      "type": "color",
+      "value": "#007BFF"
+    },
+    "primary_hover": {
+      "type": "color",
+      "value": "#0056B3"
+    },
+    "radius_md": {
+      "type": "number",
+      "value": 8
+    },
+    "spacing_md": {
+      "type": "number",
+      "value": 16
+    },
+    "spacing_sm": {
+      "type": "number",
+      "value": 8
+    },
+    "white": {
+      "type": "color",
+      "value": "#FFFFFF"
+    },
+    "bg_app": {
+      "type": "color",
+      "value": "#F8F9FA"
+    },
+    "bg_card": {
+      "type": "color",
+      "value": "#FFFFFF"
+    },
+    "bg_sidebar": {
+      "type": "color",
+      "value": "#212529"
+    },
+    "border_color": {
+      "type": "color",
+      "value": "#DEE2E6"
+    },
+    "sidebar_text": {
+      "type": "color",
+      "value": "#ADB5BD"
+    },
+    "sidebar_text_active": {
+      "type": "color",
+      "value": "#FFFFFF"
+    },
+    "text_primary": {
+      "type": "color",
+      "value": "#212529"
+    },
+    "text_secondary": {
+      "type": "color",
+      "value": "#6C757D"
+    }
+  }
+}

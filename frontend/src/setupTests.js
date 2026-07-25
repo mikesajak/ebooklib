@@ -16,3 +16,31 @@ i18n.use(initReactI18next).init({
   },
 });
 
+const storageMock = (() => {
+  let store = {};
+  return {
+    getItem: (key) => store[key] || null,
+    setItem: (key, value) => {
+      store[key] = String(value);
+    },
+    removeItem: (key) => {
+      delete store[key];
+    },
+    clear: () => {
+      store = {};
+    },
+  };
+})();
+
+Object.defineProperty(globalThis, 'localStorage', {
+  value: storageMock,
+  writable: true,
+  configurable: true,
+});
+Object.defineProperty(window, 'localStorage', {
+  value: storageMock,
+  writable: true,
+  configurable: true,
+});
+
+

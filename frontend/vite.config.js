@@ -26,6 +26,10 @@ export default defineConfig({
         target: `http://localhost:${backendPort}`,
         changeOrigin: true,
       },
+      '/assets': {
+        target: `http://localhost:${backendPort}`,
+        changeOrigin: true,
+      },
     },
   },
   test: {

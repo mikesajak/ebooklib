@@ -3,7 +3,7 @@ package com.mikesajak.ebooklib.importing.infrastructure.adapters.outgoing.extrac
 import com.mikesajak.ebooklib.importing.application.ports.incoming.EbookMetadataExtractorUseCase
 import com.mikesajak.ebooklib.importing.domain.model.ExtractedCoverImage
 import com.mikesajak.ebooklib.importing.domain.model.ExtractedEbookMetadata
-import mu.KotlinLogging
+import io.github.oshai.kotlinlogging.KotlinLogging
 import org.apache.tika.extractor.EmbeddedDocumentExtractor
 import org.apache.tika.metadata.Metadata
 import org.apache.tika.metadata.TikaCoreProperties

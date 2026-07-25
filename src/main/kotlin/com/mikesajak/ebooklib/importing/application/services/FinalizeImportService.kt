@@ -22,7 +22,7 @@ import com.mikesajak.ebooklib.importing.domain.model.StagedEbookUpload
 import com.mikesajak.ebooklib.importing.domain.model.StagedEbookUploadId
 import com.mikesajak.ebooklib.series.application.ports.incoming.GetSeriesUseCase
 import jakarta.transaction.Transactional
-import mu.KotlinLogging
+import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.stereotype.Service
 
 private val logger = KotlinLogging.logger {}

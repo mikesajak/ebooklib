@@ -8,7 +8,7 @@ import com.mikesajak.ebooklib.importing.domain.model.StagedEbookUpload
 import com.mikesajak.ebooklib.importing.domain.model.StagedEbookUploadId
 import com.mikesajak.ebooklib.importing.domain.model.StagedEbookUploadStatus
 import jakarta.transaction.Transactional
-import mu.KotlinLogging
+import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.stereotype.Service
 import org.springframework.transaction.support.TransactionSynchronization
 import org.springframework.transaction.support.TransactionSynchronizationManager
@@ -78,21 +78,29 @@ class UploadToStagingService(
         )
         val saved = repository.save(stagedUpload)
 
-        // 3. Process Async after commit
-        TransactionSynchronizationManager.registerSynchronization(object : TransactionSynchronization {
-            override fun afterCommit() {
-                stagedUploadProcessor.processAsync(uploadId, fileBytes, fileName, contentType, currentBookId)
-            }
-        })
+        // 3. Process Async after commit (if transaction synchronization is active)
+        if (TransactionSynchronizationManager.isSynchronizationActive()) {
+            TransactionSynchronizationManager.registerSynchronization(object : TransactionSynchronization {
+                override fun afterCommit() {
+                    stagedUploadProcessor.processAsync(uploadId, fileBytes, fileName, contentType, currentBookId)
+                }
+            })
+        } else {
+            stagedUploadProcessor.processAsync(uploadId, fileBytes, fileName, contentType, currentBookId)
+        }
         
         return saved
     }
 
     override fun retryProcessing(uploadId: UUID) {
-        TransactionSynchronizationManager.registerSynchronization(object : TransactionSynchronization {
-            override fun afterCommit() {
-                stagedUploadProcessor.retryAsync(StagedEbookUploadId(uploadId))
-            }
-        })
+        if (TransactionSynchronizationManager.isSynchronizationActive()) {
+            TransactionSynchronizationManager.registerSynchronization(object : TransactionSynchronization {
+                override fun afterCommit() {
+                    stagedUploadProcessor.retryAsync(StagedEbookUploadId(uploadId))
+                }
+            })
+        } else {
+            stagedUploadProcessor.retryAsync(StagedEbookUploadId(uploadId))
+        }
     }
 }

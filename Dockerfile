@@ -1,5 +1,5 @@
 # Stage 1: Build the Spring Boot application and frontend
-FROM docker.io/library/gradle:8.12-jdk21 AS build
+FROM docker.io/library/gradle:8.12-jdk25 AS build
 
 # Install Node.js & NPM
 USER root
@@ -14,9 +14,9 @@ COPY --chown=gradle:gradle . .
 RUN ./gradlew bootJar --no-daemon
 
 # Stage 2: Run the application
-FROM docker.io/library/eclipse-temurin:21-jre-jammy
+FROM docker.io/library/eclipse-temurin:25-jre
 WORKDIR /app
 COPY --from=build /app/build/libs/*.jar app.jar
 EXPOSE 8080
-ENTRYPOINT ["java", "-jar", "app.jar"]
+ENTRYPOINT ["java", "-XX:+UseCompactObjectHeaders", "-XX:+UseSerialGC", "-XX:MaxRAMPercentage=75.0", "-jar", "app.jar"]
 

@@ -169,6 +169,7 @@ const AuthorList = () => {
               <label htmlFor="grouping-criteria" className="text-[10px] font-bold text-gray-400 uppercase mr-2 tracking-tighter">{t('authorList.groupBy')}:</label>
               <select 
                 id="grouping-criteria" 
+                data-testid="grouping-criteria-select"
                 value={groupingCriteria} 
                 onChange={handleGroupingChange} 
                 className="bg-transparent text-sm font-bold text-gray-700 focus:outline-none py-1"
@@ -215,6 +216,10 @@ const AuthorList = () => {
         <div className="py-12 flex flex-col items-center gap-2 text-gray-400 italic">
           <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-emerald-600"></div>
           {t('authorList.loading')}
+        </div>
+      ) : error ? (
+        <div className="py-12 text-center text-rose-600 font-bold bg-white rounded-2xl border border-dashed border-rose-200 shadow-inner">
+          Error: {error}
         </div>
       ) : authors.length === 0 ? (
         <div className="py-12 text-center text-gray-400 italic bg-white rounded-2xl border border-dashed border-gray-200 shadow-inner">
