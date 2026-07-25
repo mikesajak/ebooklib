@@ -6,6 +6,7 @@ import Notification from './Notification';
 import ConfirmationDialog from './ConfirmationDialog';
 import BookFormats from './BookFormats';
 import { fetchWithCsrf } from './api';
+import CoverImagePreview from './CoverImagePreview';
 
 const BookDetails = () => {
   const { id } = useParams();
@@ -74,11 +75,17 @@ const BookDetails = () => {
           
           <div className="w-20 h-28 bg-indigo-600 text-white rounded-2xl shadow-xl shadow-indigo-100 flex items-center justify-center relative overflow-hidden group shrink-0">
             {book.hasCover ? (
-              <img src={`/api/books/${book.id}/cover`} alt={book.title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
+              <CoverImagePreview 
+                src={`/api/books/${book.id}/cover`} 
+                alt={book.title} 
+                title={book.title}
+                containerClassName="w-full h-full"
+                className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" 
+              />
             ) : (
               <FaBook size={32} className="opacity-50" />
             )}
-            <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
+            <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent pointer-events-none"></div>
           </div>
           
           <div className="flex-grow">

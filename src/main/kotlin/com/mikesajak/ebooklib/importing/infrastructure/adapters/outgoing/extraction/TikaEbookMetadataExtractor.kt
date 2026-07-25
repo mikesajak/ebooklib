@@ -14,9 +14,11 @@ import org.apache.tika.parser.pdf.PDFParserConfig
 import org.apache.tika.sax.BodyContentHandler
 import org.springframework.stereotype.Component
 import org.xml.sax.ContentHandler
+import java.io.ByteArrayInputStream
 import java.io.InputStream
 import java.time.LocalDate
 import java.util.*
+import javax.imageio.ImageIO
 
 private val logger = KotlinLogging.logger {}
 
@@ -68,7 +70,21 @@ class TikaEbookMetadataExtractor : EbookMetadataExtractorUseCase {
     }
 
     private class CoverImageExtractor : EmbeddedDocumentExtractor {
-        var coverImage: ExtractedCoverImage? = null
+        private val candidateImages = mutableListOf<ExtractedCandidateImage>()
+
+        val coverImage: ExtractedCoverImage?
+            get() = selectBestCoverImage()
+
+        private data class ExtractedCandidateImage(
+            val fileName: String,
+            val contentType: String,
+            val data: ByteArray,
+            val width: Int,
+            val height: Int
+        ) {
+            val pixelCount: Long = width.toLong() * height.toLong()
+            val isExplicitCoverName: Boolean = fileName.contains("cover", ignoreCase = true)
+        }
 
         override fun shouldParseEmbedded(metadata: Metadata): Boolean {
             val contentType = metadata.get(Metadata.CONTENT_TYPE)
@@ -77,19 +93,58 @@ class TikaEbookMetadataExtractor : EbookMetadataExtractorUseCase {
         }
 
         override fun parseEmbedded(stream: InputStream, handler: ContentHandler, metadata: Metadata, outputHtml: Boolean) {
-            if (coverImage != null) return
-
             val contentType = metadata.get(Metadata.CONTENT_TYPE) ?: "application/octet-stream"
             val fileName = metadata.get(TikaCoreProperties.RESOURCE_NAME_KEY) ?: "unknown_cover"
 
             if (contentType.startsWith("image/")) {
-                logger.debug { "Potential cover image found: $fileName ($contentType)" }
-                coverImage = ExtractedCoverImage(
-                    fileName = fileName,
-                    contentType = contentType,
-                    data = stream.readAllBytes()
-                )
+                try {
+                    val data = stream.readAllBytes()
+                    if (data.isEmpty()) return
+
+                    var width = 0
+                    var height = 0
+                    try {
+                        val bufferedImage = ImageIO.read(ByteArrayInputStream(data))
+                        if (bufferedImage != null) {
+                            width = bufferedImage.width
+                            height = bufferedImage.height
+                        }
+                    } catch (e: Exception) {
+                        logger.debug { "Failed to read image dimensions for $fileName: ${e.message}" }
+                    }
+
+                    logger.debug { "Found embedded candidate image: $fileName ($contentType, ${data.size} bytes, ${width}x${height})" }
+                    candidateImages.add(
+                        ExtractedCandidateImage(
+                            fileName = fileName,
+                            contentType = contentType,
+                            data = data,
+                            width = width,
+                            height = height
+                        )
+                    )
+                } catch (e: Exception) {
+                    logger.warn(e) { "Failed to read embedded image data for $fileName" }
+                }
             }
+        }
+
+        private fun selectBestCoverImage(): ExtractedCoverImage? {
+            if (candidateImages.isEmpty()) return null
+
+            val bestCandidate = candidateImages.maxWithOrNull(
+                compareBy<ExtractedCandidateImage> { it.isExplicitCoverName }
+                    .thenBy { it.pixelCount }
+                    .thenBy { it.data.size }
+            ) ?: return null
+
+            logger.info { "Selected best cover image candidate: ${bestCandidate.fileName} (${bestCandidate.contentType}, ${bestCandidate.data.size} bytes, ${bestCandidate.width}x${bestCandidate.height})" }
+
+            return ExtractedCoverImage(
+                fileName = bestCandidate.fileName,
+                contentType = bestCandidate.contentType,
+                data = bestCandidate.data
+            )
         }
     }
 }

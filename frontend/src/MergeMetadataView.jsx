@@ -2,6 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { FaDatabase, FaFileAlt, FaPencilAlt, FaGlobe } from 'react-icons/fa';
 import SearchableDropdown from './SearchableDropdown';
+import CoverImagePreview from './CoverImagePreview';
 
 const MergeMetadataView = ({
   stagedUpload,
@@ -424,10 +425,12 @@ const MergeMetadataView = ({
                   {external?.coverUrl ? t('import.review.externalCoverHint', "Using external high-res cover if available") : (existingBook ? t('import.review.useExtractedCoverSubtext') : t('import.review.importCoverSubtext'))}
                 </p>
               </div>
-              <div className="p-1 bg-white rounded-lg border border-green-300 shadow-inner group-hover:scale-105 transition-transform">
-                <img 
+              <div className="p-1 bg-white rounded-lg border border-green-300 shadow-inner group-hover:scale-105 transition-transform" onClick={(e) => e.stopPropagation()}>
+                <CoverImagePreview 
                   src={external?.coverUrl || (stagedUpload?.id ? `/api/import/staged/${stagedUpload.id}/cover` : '')} 
                   alt="Extracted Cover" 
+                  title={draftBook?.title || 'Extracted Cover'}
+                  containerClassName="h-24 w-16"
                   className="h-24 w-16 object-cover rounded shadow-sm"
                 />
               </div>
