@@ -37,6 +37,22 @@ const saveBook = async (bookData, isEditMode, bookId) => {
   return response.json();
 }
 
+const SectionHeader = ({ icon: Icon, title, description }) => (
+  <div className="mb-4">
+    <div className="flex items-center gap-2 text-indigo-900 mb-1">
+      <Icon className="text-indigo-500" />
+      <h3 className="font-extrabold uppercase text-xs tracking-widest">{title}</h3>
+    </div>
+    {description && <p className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">{description}</p>}
+  </div>
+);
+
+const InputCard = ({ children, isDirty }) => (
+  <div className={`p-6 rounded-2xl border-2 transition-all shadow-sm mb-10 ${isDirty ? 'bg-yellow-50 border-yellow-200 ring-4 ring-yellow-50' : 'bg-white border-gray-100'}`}>
+    {children}
+  </div>
+);
+
 const AddBook = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
@@ -308,21 +324,7 @@ const AddBook = () => {
     return false;
   };
 
-  const SectionHeader = ({ icon: Icon, title, description }) => (
-    <div className="mb-4">
-      <div className="flex items-center gap-2 text-indigo-900 mb-1">
-        <Icon className="text-indigo-500" />
-        <h3 className="font-extrabold uppercase text-xs tracking-widest">{title}</h3>
-      </div>
-      {description && <p className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">{description}</p>}
-    </div>
-  );
 
-  const InputCard = ({ children, isDirty }) => (
-    <div className={`p-6 rounded-2xl border-2 transition-all shadow-sm mb-10 ${isDirty ? 'bg-yellow-50 border-yellow-200 ring-4 ring-yellow-50' : 'bg-white border-gray-100'}`}>
-      {children}
-    </div>
-  );
 
   if (loading) return (
     <AddPage title={t(isEditMode ? 'addBook.editTitle' : 'addBook.title')} color="indigo" icon={FaBook}>

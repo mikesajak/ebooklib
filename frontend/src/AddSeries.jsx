@@ -31,6 +31,22 @@ const saveSeries = async (seriesData, isEditMode, seriesId) => {
   return response.json();
 };
 
+const SectionHeader = ({ icon: Icon, title, description }) => (
+  <div className="mb-4">
+    <div className="flex items-center gap-2 text-amber-900 mb-1">
+      <Icon className="text-amber-500" />
+      <h3 className="font-extrabold uppercase text-xs tracking-widest">{title}</h3>
+    </div>
+    {description && <p className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">{description}</p>}
+  </div>
+);
+
+const InputCard = ({ children, isDirty }) => (
+  <div className={`p-6 rounded-2xl border-2 transition-all shadow-sm mb-10 ${isDirty ? 'bg-yellow-50 border-yellow-200 ring-4 ring-yellow-50' : 'bg-white border-gray-100'}`}>
+    {children}
+  </div>
+);
+
 const AddSeries = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
@@ -98,21 +114,7 @@ const AddSeries = () => {
 
   const isSaveDisabled = !series.title.trim() || isSaving || (isEditMode && !hasChanges());
 
-  const SectionHeader = ({ icon: Icon, title, description }) => (
-    <div className="mb-4">
-      <div className="flex items-center gap-2 text-amber-900 mb-1">
-        <Icon className="text-amber-500" />
-        <h3 className="font-extrabold uppercase text-xs tracking-widest">{title}</h3>
-      </div>
-      {description && <p className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">{description}</p>}
-    </div>
-  );
 
-  const InputCard = ({ children, isDirty }) => (
-    <div className={`p-6 rounded-2xl border-2 transition-all shadow-sm mb-10 ${isDirty ? 'bg-yellow-50 border-yellow-200 ring-4 ring-yellow-50' : 'bg-white border-gray-100'}`}>
-      {children}
-    </div>
-  );
 
   if (loading) return <AddPage title={t(isEditMode ? 'addSeries.editTitle' : 'addSeries.title')} color="amber" icon={FaLayerGroup}><p>{t('common.loading')}</p></AddPage>;
 
