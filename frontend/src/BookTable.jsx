@@ -38,6 +38,31 @@ const formatBytes = (bytes) => {
   return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
 };
 
+const renderPillList = (items, renderPill, getItemTitle, maxVisible = 6) => {
+  if (!items || items.length === 0) {
+    return <span className="text-gray-300 text-sm">−</span>;
+  }
+
+  const hasOverflow = items.length > maxVisible;
+  const visibleItems = hasOverflow ? items.slice(0, maxVisible - 1) : items;
+  const hiddenItems = hasOverflow ? items.slice(maxVisible - 1) : [];
+  const hiddenTitles = hiddenItems.map(getItemTitle).join(', ');
+
+  return (
+    <div className="flex flex-wrap gap-1 max-h-[44px] overflow-hidden items-center">
+      {visibleItems.map((item, idx) => renderPill(item, idx))}
+      {hasOverflow && (
+        <span
+          className="bg-gray-200 hover:bg-gray-300 text-gray-700 text-[10px] font-extrabold px-1.5 py-0.5 rounded-full border border-gray-300 shadow-xs transition-colors cursor-help"
+          title={hiddenTitles}
+        >
+          +{hiddenItems.length}
+        </span>
+      )}
+    </div>
+  );
+};
+
 const BookTable = () => {
   const { t, ready } = useTranslation();
   const navigate = useNavigate();
@@ -198,7 +223,7 @@ const BookTable = () => {
   };
 
   return (
-    <div className="container mx-auto p-4 max-w-[1380px]">
+    <div className="container mx-auto p-4 max-w-[1440px]">
       {notification && (
         <Notification
           message={notification.message}
@@ -244,30 +269,30 @@ const BookTable = () => {
               <table className="w-full table-auto text-sm">
                 <thead className="bg-gray-50/80 border-b border-gray-200">
                   <tr className="text-gray-500 uppercase text-[10px] font-black tracking-widest">
-                    <th className="py-3 px-3 text-left cursor-pointer hover:text-indigo-600 transition-colors w-1/4 max-w-[260px]" onClick={() => handleSort('title')}>
+                    <th className="py-3 px-3 text-left cursor-pointer hover:text-indigo-600 transition-colors w-1/5 max-w-[260px]" onClick={() => handleSort('title')}>
                       {t('bookTable.header.title')}{getSortIndicator('title')}
                     </th>
-                    <th className="py-3 px-3 text-left w-1/6 max-w-[180px]">{t('bookTable.header.authors')}</th>
-                    <th className="py-3 px-3 text-left cursor-pointer hover:text-indigo-600 transition-colors w-1/6 max-w-[180px]" onClick={() => handleSort('series.title')}>
+                    <th className="py-3 px-3 text-left w-[14%] max-w-[180px]">{t('bookTable.header.authors')}</th>
+                    <th className="py-3 px-3 text-left cursor-pointer hover:text-indigo-600 transition-colors w-[14%] max-w-[180px]" onClick={() => handleSort('series.title')}>
                       {t('bookTable.header.series')}{getSortIndicator('series.title')}
                     </th>
                     {showVolumeColumn && (
-                      <th className="py-3 px-3 text-left cursor-pointer hover:text-indigo-600 transition-colors w-16" onClick={() => handleSort('volume')}>
+                      <th className="py-3 px-3 text-left cursor-pointer hover:text-indigo-600 transition-colors w-14" onClick={() => handleSort('volume')}>
                         {t('bookTable.header.volume')}{getSortIndicator('volume')}
                       </th>
                     )}
                     {showPubDateColumn && (
-                      <th className="py-3 px-3 text-left cursor-pointer hover:text-indigo-600 transition-colors w-28" onClick={() => handleSort('publicationDate')}>
+                      <th className="py-3 px-3 text-left cursor-pointer hover:text-indigo-600 transition-colors w-24" onClick={() => handleSort('publicationDate')}>
                         {t('bookTable.header.publicationDate', 'Publication Date')}{getSortIndicator('publicationDate')}
                       </th>
                     )}
                     {showPublisherColumn && (
-                      <th className="py-3 px-3 text-left cursor-pointer hover:text-indigo-600 transition-colors w-32" onClick={() => handleSort('publisher')}>
+                      <th className="py-3 px-3 text-left cursor-pointer hover:text-indigo-600 transition-colors w-28" onClick={() => handleSort('publisher')}>
                         {t('bookTable.header.publisher', 'Publisher')}{getSortIndicator('publisher')}
                       </th>
                     )}
-                    {showLabelsColumn && <th className="py-3 px-3 text-left w-28">{t('bookTable.header.labels')}</th>}
-                    {showFormatsColumn && <th className="py-3 px-3 text-left w-24">{t('bookTable.header.formats', 'Formats')}</th>}
+                    {showLabelsColumn && <th className="py-3 px-3 text-left min-w-[110px] max-w-[240px] w-48">{t('bookTable.header.labels')}</th>}
+                    {showFormatsColumn && <th className="py-3 px-3 text-left min-w-[90px] max-w-[180px] w-36">{t('bookTable.header.formats', 'Formats')}</th>}
                     <th className="py-3 px-2 text-center w-10 whitespace-nowrap"></th>
                   </tr>
                 </thead>
@@ -297,16 +322,21 @@ const BookTable = () => {
                             {!showPubDateColumn && book.publicationDate && <span>{!showPublisherColumn && book.publisher ? '· ' : ''}{book.publicationDate}</span>}
                           </div>
                           {!showFormatsColumn && book.formats && book.formats.length > 0 && (
-                            <div className="flex flex-wrap gap-1 mt-1">
-                              {book.formats.map((fmt) => (
-                                <span
-                                  key={fmt.id || fmt.formatType}
-                                  className={`${getFormatBadgeStyle(fmt.formatType)} text-[9px] font-extrabold px-1.5 py-0.5 rounded-full uppercase tracking-tight border shadow-xs`}
-                                  title={fmt.fileName ? `${fmt.fileName}${fmt.size ? ` (${formatBytes(fmt.size)})` : ''}` : formatBytes(fmt.size)}
-                                >
-                                  {fmt.formatType}
-                                </span>
-                              ))}
+                            <div className="mt-1">
+                              {renderPillList(
+                                book.formats,
+                                (fmt) => (
+                                  <span
+                                    key={fmt.id || fmt.formatType}
+                                    className={`${getFormatBadgeStyle(fmt.formatType)} text-[9px] font-extrabold px-1.5 py-0.5 rounded-full uppercase tracking-tight border shadow-xs`}
+                                    title={fmt.fileName ? `${fmt.fileName}${fmt.size ? ` (${formatBytes(fmt.size)})` : ''}` : formatBytes(fmt.size)}
+                                  >
+                                    {fmt.formatType}
+                                  </span>
+                                ),
+                                (fmt) => fmt.formatType,
+                                6
+                              )}
                             </div>
                           )}
                         </td>
@@ -341,33 +371,35 @@ const BookTable = () => {
                           <td className="py-3 px-3 text-left text-sm text-gray-600 truncate max-w-[140px]" title={book.publisher}>{book.publisher || <span className="text-gray-300">−</span>}</td>
                         )}
                         {showLabelsColumn && (
-                          <td className="py-3 px-3 text-left">
-                            <div className="flex flex-wrap gap-1">
-                              {book.labels && book.labels.length > 0 ? book.labels.map(label => (
-                                <span key={label} className="bg-gray-100 text-gray-600 text-[10px] font-bold px-1.5 py-0.5 rounded-full uppercase tracking-tighter border border-gray-200">
+                          <td className="py-3 px-3 text-left min-w-[110px] max-w-[240px]">
+                            {renderPillList(
+                              book.labels,
+                              (label) => (
+                                <span key={label} className="bg-gray-100 text-gray-600 text-[10px] font-bold px-1.5 py-0.5 rounded-full uppercase tracking-tighter border border-gray-200 truncate max-w-[120px]" title={label}>
                                   {label}
                                 </span>
-                              )) : <span className="text-gray-300 text-sm">−</span>}
-                            </div>
+                              ),
+                              (label) => label,
+                              6
+                            )}
                           </td>
                         )}
                         {showFormatsColumn && (
-                          <td className="py-3 px-3 text-left">
-                            <div className="flex flex-wrap gap-1">
-                              {book.formats && book.formats.length > 0 ? (
-                                book.formats.map((fmt) => (
-                                  <span
-                                    key={fmt.id || fmt.formatType}
-                                    className={`${getFormatBadgeStyle(fmt.formatType)} text-[10px] font-extrabold px-1.5 py-0.5 rounded-full uppercase tracking-tight border shadow-xs`}
-                                    title={fmt.fileName ? `${fmt.fileName}${fmt.size ? ` (${formatBytes(fmt.size)})` : ''}` : formatBytes(fmt.size)}
-                                  >
-                                    {fmt.formatType}
-                                  </span>
-                                ))
-                              ) : (
-                                <span className="text-gray-300 text-sm">−</span>
-                              )}
-                            </div>
+                          <td className="py-3 px-3 text-left min-w-[90px] max-w-[180px]">
+                            {renderPillList(
+                              book.formats,
+                              (fmt) => (
+                                <span
+                                  key={fmt.id || fmt.formatType}
+                                  className={`${getFormatBadgeStyle(fmt.formatType)} text-[10px] font-extrabold px-1.5 py-0.5 rounded-full uppercase tracking-tight border shadow-xs`}
+                                  title={fmt.fileName ? `${fmt.fileName}${fmt.size ? ` (${formatBytes(fmt.size)})` : ''}` : formatBytes(fmt.size)}
+                                >
+                                  {fmt.formatType}
+                                </span>
+                              ),
+                              (fmt) => fmt.formatType,
+                              6
+                            )}
                           </td>
                         )}
                         <td className="py-3 px-2 text-center whitespace-nowrap w-10 relative action-menu-container">
