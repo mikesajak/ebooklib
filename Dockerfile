@@ -1,5 +1,4 @@
-# Stage 1: Build the Spring Boot application and frontend
-FROM docker.io/library/gradle:8.12-jdk25 AS build
+FROM docker.io/library/eclipse-temurin:25-jdk AS build
 
 # Install Node.js & NPM
 USER root
@@ -8,9 +7,8 @@ RUN apt-get update && apt-get install -y curl && \
     apt-get install -y nodejs && \
     rm -rf /var/lib/apt/lists/*
 
-USER gradle
 WORKDIR /app
-COPY --chown=gradle:gradle . .
+COPY . .
 RUN ./gradlew bootJar --no-daemon
 
 # Stage 2: Run the application
