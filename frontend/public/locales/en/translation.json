@@ -349,6 +349,7 @@
       "confirmCreate": "Create Book & Import",
       "confirmUpdate": "Update & Add Format",
       "processing": "Processing Import...",
+      "editFieldPlaceholder": "Edit {{label}}...",
       "sources": {
         "library": "Library",
         "form": "Form",
@@ -357,6 +358,7 @@
         "extracted": "Extracted",
         "external": "External",
         "new": "New",
+        "custom": "Manually Edited",
         "finalList": "Final Assigned List"
       }
     },

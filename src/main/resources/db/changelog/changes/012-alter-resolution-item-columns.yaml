@@ -1,0 +1,17 @@
+databaseChangeLog:
+  - changeSet:
+      id: 012-1
+      author: mikesajak
+      changes:
+        - modifyDataType:
+            tableName: resolution_item
+            columnName: metadata_json
+            newDataType: text
+        - modifyDataType:
+            tableName: resolution_item
+            columnName: title
+            newDataType: text
+        - modifyDataType:
+            tableName: resolution_item
+            columnName: authors
+            newDataType: text

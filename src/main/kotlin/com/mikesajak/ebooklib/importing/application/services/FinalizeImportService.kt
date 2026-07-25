@@ -79,12 +79,37 @@ class FinalizeImportService(
             promoteCover(mainStagedUpload, allUploads, book)
         }
 
-        // 5. Cleanup Staging Records
-        allUploads.forEach { stagedRepository.delete(it.id) }
+        // 5. Update Resolution Item metadata and status
+        mainStagedUpload.resolutionItemId?.let { resItemId ->
+            val authorNamesList = if (command.authorNames.isNotEmpty()) {
+                command.authorNames
+            } else {
+                allAuthors.map { "${it.firstName} ${it.lastName}".trim() }
+            }
 
-        // 6. Update Resolution Item status
-        mainStagedUpload.resolutionItemId?.let {
-            resolutionItemUseCase.updateStatus(ResolutionItemId(it), ResolutionItemStatus.RESOLVED)
+            val resolvedDataMap = mapOf(
+                "bookId" to book.id?.value?.toString(),
+                "title" to command.title,
+                "authorIds" to command.authorIds.map { it.value.toString() },
+                "authorNames" to command.authorNames,
+                "publisher" to command.publisher,
+                "publicationDate" to command.publicationDate,
+                "description" to command.description,
+                "seriesId" to command.seriesId?.value?.toString(),
+                "volume" to command.volume,
+                "labels" to command.labels,
+                "updateCover" to command.updateCover,
+                "skipFormatLink" to command.skipFormatLink
+            )
+            val json = objectMapper.writeValueAsString(resolvedDataMap)
+
+            resolutionItemUseCase.updateResolvedItem(
+                ResolutionItemId(resItemId),
+                title = command.title,
+                authors = authorNamesList,
+                status = ResolutionItemStatus.RESOLVED,
+                metadataJson = json
+            )
         }
 
         return getBookUseCase.getBook(book.id!!)

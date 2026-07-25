@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { FaTimes, FaSearchPlus } from 'react-icons/fa';
 
 /**
@@ -36,13 +37,18 @@ const CoverImagePreview = ({
   };
 
   const handleOpen = (e) => {
+    e.preventDefault();
     e.stopPropagation();
     if (src) {
       setIsOpen(true);
     }
   };
 
-  const handleClose = () => {
+  const handleClose = (e) => {
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
     setIsOpen(false);
   };
 
@@ -68,6 +74,59 @@ const CoverImagePreview = ({
 
   if (!src) return null;
 
+  const modalContent = isOpen && mode === 'modal' && (
+    <div 
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200"
+      onClick={handleClose}
+      role="dialog"
+      aria-modal="true"
+      aria-label={title ? `Cover preview for ${title}` : 'Cover preview'}
+    >
+      {/* Main Modal Card */}
+      <div 
+        className="relative flex flex-col items-center max-w-[90vw] max-h-[90vh] bg-gray-900/90 p-4 rounded-2xl shadow-2xl border border-gray-700/50"
+        onClick={(e) => e.stopPropagation()} // Prevent backdrop click from closing when clicking modal content
+      >
+        {/* Close Button */}
+        <button
+          onClick={handleClose}
+          className="absolute -top-3 -right-3 p-2.5 bg-gray-800 hover:bg-gray-700 text-white rounded-full shadow-lg border border-gray-600 transition-transform active:scale-95 z-10"
+          aria-label="Close cover preview"
+        >
+          <FaTimes size={16} />
+        </button>
+
+        {/* Image Container with Natural Dimensions Lock */}
+        <div className="relative flex items-center justify-center overflow-hidden rounded-xl">
+          <img
+            src={src}
+            alt={alt}
+            className="w-auto h-auto max-w-[90vw] max-h-[80vh] object-contain rounded-lg shadow-md"
+            style={{
+              // Protect against upscaling beyond natural size if natural dimensions are loaded
+              maxWidth: naturalWidth ? `min(90vw, ${naturalWidth}px)` : '90vw',
+              maxHeight: naturalHeight ? `min(80vh, ${naturalHeight}px)` : '80vh',
+            }}
+          />
+        </div>
+
+        {/* Optional Title & Info Bar */}
+        {title && (
+          <div className="mt-3 text-center px-4">
+            <p className="text-sm font-semibold text-gray-200 truncate max-w-[70vw]">
+              {title}
+            </p>
+            {naturalWidth && naturalHeight && (
+              <p className="text-[11px] text-gray-400 mt-0.5">
+                {naturalWidth} × {naturalHeight} px
+              </p>
+            )}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+
   return (
     <>
       {/* Thumbnail Trigger */}
@@ -89,59 +148,7 @@ const CoverImagePreview = ({
         )}
       </div>
 
-      {/* Lightbox Modal (Option 1) */}
-      {isOpen && mode === 'modal' && (
-        <div 
-          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200"
-          onClick={handleClose}
-          role="dialog"
-          aria-modal="true"
-          aria-label={title ? `Cover preview for ${title}` : 'Cover preview'}
-        >
-          {/* Main Modal Card */}
-          <div 
-            className="relative flex flex-col items-center max-w-[90vw] max-h-[90vh] bg-gray-900/90 p-4 rounded-2xl shadow-2xl border border-gray-700/50"
-            onClick={(e) => e.stopPropagation()} // Prevent backdrop click from closing when clicking modal content
-          >
-            {/* Close Button */}
-            <button
-              onClick={handleClose}
-              className="absolute -top-3 -right-3 p-2.5 bg-gray-800 hover:bg-gray-700 text-white rounded-full shadow-lg border border-gray-600 transition-transform active:scale-95 z-10"
-              aria-label="Close cover preview"
-            >
-              <FaTimes size={16} />
-            </button>
-
-            {/* Image Container with Natural Dimensions Lock */}
-            <div className="relative flex items-center justify-center overflow-hidden rounded-xl">
-              <img
-                src={src}
-                alt={alt}
-                className="w-auto h-auto max-w-[90vw] max-h-[80vh] object-contain rounded-lg shadow-md"
-                style={{
-                  // Protect against upscaling beyond natural size if natural dimensions are loaded
-                  maxWidth: naturalWidth ? `min(90vw, ${naturalWidth}px)` : '90vw',
-                  maxHeight: naturalHeight ? `min(80vh, ${naturalHeight}px)` : '80vh',
-                }}
-              />
-            </div>
-
-            {/* Optional Title & Info Bar */}
-            {title && (
-              <div className="mt-3 text-center px-4">
-                <p className="text-sm font-semibold text-gray-200 truncate max-w-[70vw]">
-                  {title}
-                </p>
-                {naturalWidth && naturalHeight && (
-                  <p className="text-[11px] text-gray-400 mt-0.5">
-                    {naturalWidth} × {naturalHeight} px
-                  </p>
-                )}
-              </div>
-            )}
-          </div>
-        </div>
-      )}
+      {modalContent && createPortal(modalContent, document.body)}
     </>
   );
 };

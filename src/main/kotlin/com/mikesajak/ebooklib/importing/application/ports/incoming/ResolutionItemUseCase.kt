@@ -12,6 +12,7 @@ interface ResolutionItemUseCase {
     fun getResolutionItem(id: ResolutionItemId): ResolutionItem?
     fun updateStatus(id: ResolutionItemId, status: ResolutionItemStatus): ResolutionItem
     fun updateMetadata(id: ResolutionItemId, metadataJson: String?): ResolutionItem
+    fun updateResolvedItem(id: ResolutionItemId, title: String, authors: List<String>, status: ResolutionItemStatus, metadataJson: String?): ResolutionItem
     fun bulkUpdateStatus(ids: List<ResolutionItemId>, status: ResolutionItemStatus)
     fun detachFormat(uploadId: StagedEbookUploadId): ResolutionItem
     fun mergeItems(primaryItemId: ResolutionItemId, sourceItemIds: List<ResolutionItemId>): ResolutionItem

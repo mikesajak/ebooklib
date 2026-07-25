@@ -176,102 +176,22 @@ const MergeMetadataView = ({
     setMergedData(prev => ({ ...prev, updateCover: newValue }));
   };
 
-  const MultiSourceButton = ({ sources, value, field, isSelected }) => {
-    const sourceConfigs = {
-      existing: { label: t('import.review.sources.library', 'Library'), icon: FaDatabase, colorClass: 'ring-blue-500 bg-blue-100' },
-      draft: { label: t('import.review.sources.form', 'Form'), icon: FaPencilAlt, colorClass: 'ring-yellow-500 bg-yellow-100' },
-      extracted: { label: t('import.review.sources.file', 'File'), icon: FaFileAlt, colorClass: 'ring-green-500 bg-green-100' },
-      external: { label: t('import.review.sources.web', 'Web'), icon: FaGlobe, colorClass: 'ring-purple-500 bg-purple-100' }
-    };
-
-    const firstSource = sources[0];
-    const ringClass = isSelected ? sourceConfigs[firstSource].colorClass : 'bg-white border-gray-200 hover:border-gray-300';
-
-    return (
-      <div 
-        className={`flex-1 p-2 rounded border cursor-pointer transition-all flex flex-col gap-1
-          ${isSelected ? `ring-2 ring-inset ${ringClass} border-transparent shadow-sm` : 'bg-white border-gray-200 hover:border-gray-300'}`}
-        onClick={() => toggleField(field, firstSource)}
-      >
-        <div className="flex flex-wrap items-center gap-2">
-          {sources.map(src => {
-            const Config = sourceConfigs[src];
-            return (
-              <div key={src} className={`flex items-center gap-1 text-[9px] font-bold uppercase tracking-wider ${isSelected ? 'text-gray-900' : 'text-gray-400'}`}>
-                <Config.icon className={isSelected ? '' : 'opacity-50'} />
-                {Config.label}
-              </div>
-            );
-          })}
-        </div>
-        <div className={`text-sm break-words ${!value ? 'italic text-gray-400' : 'text-gray-700'}`}>
-          {value || t('common.na')}
-        </div>
-      </div>
-    );
-  };
-
-  const FieldComparison = ({ label, field, existingValue, extractedValue, draftValue, externalValue }) => {
-    // Determine which sources to show - ORDER MATTERS HERE for stable layout
-    const sourceValues = [];
+  const handleDirectFieldChange = (field, value) => {
+    setMergedData(prev => ({ ...prev, [field]: value }));
     
-    // 1. Library (Existing)
-    if (existingValue || (!extractedValue && !externalValue)) {
-      sourceValues.push({ id: 'existing', value: existingValue || '' });
-    }
-    
-    // 2. Form (Draft)
-    const isDraftRelevant = dirtyFields?.has(field) || (draftValue && draftValue !== extractedValue && draftValue !== externalValue);
-    if (draftValue && isDraftRelevant) {
-      sourceValues.push({ id: 'draft', value: draftValue });
-    }
-    
-    // 3. File (Extracted)
-    if (extractedValue) {
-      sourceValues.push({ id: 'extracted', value: extractedValue });
+    // Check if the manual value happens to match an existing source
+    let matchedSource = 'manual';
+    if (external && external[field] && String(external[field]) === String(value)) {
+      matchedSource = 'external';
+    } else if (extracted && extracted[field] && String(extracted[field]) === String(value)) {
+      matchedSource = 'extracted';
+    } else if (draftBook && draftBook[field] && String(draftBook[field]) === String(value)) {
+      matchedSource = 'draft';
+    } else if (existingBook && existingBook[field] && String(existingBook[field]) === String(value)) {
+      matchedSource = 'existing';
     }
 
-    // 4. Web (External)
-    if (externalValue && externalValue !== extractedValue) {
-      sourceValues.push({ id: 'external', value: externalValue });
-    }
-
-    // Group identical values while preserving the order of the first occurrence
-    const groups = [];
-    sourceValues.forEach(sv => {
-      const existingGroup = groups.find(g => g.value === sv.value);
-      if (existingGroup) {
-        existingGroup.sources.push(sv.id);
-      } else {
-        groups.push({ value: sv.value, sources: [sv.id] });
-      }
-    });
-
-    // Ensure the groups themselves are sorted based on the "highest priority" source in them
-    // Priority: draft > existing > external > extracted
-    const sourcePriority = { draft: 0, existing: 1, external: 2, extracted: 3 };
-    groups.sort((a, b) => {
-      const aMin = Math.min(...a.sources.map(s => sourcePriority[s]));
-      const bMin = Math.min(...b.sources.map(s => sourcePriority[s]));
-      return aMin - bMin;
-    });
-
-    return (
-      <div className="mb-6 last:mb-2">
-        <label className="block text-sm font-bold text-gray-700 mb-2">{label}</label>
-        <div className="flex flex-col sm:flex-row gap-3">
-          {groups.map((group, idx) => (
-            <MultiSourceButton 
-              key={idx}
-              sources={group.sources}
-              value={group.value}
-              field={field}
-              isSelected={group.sources.includes(selectedSources[field])}
-            />
-          ))}
-        </div>
-      </div>
-    );
+    setSelectedSources(prev => ({ ...prev, [field]: matchedSource }));
   };
 
   return (
@@ -303,6 +223,12 @@ const MergeMetadataView = ({
         extractedValue={extracted.title} 
         draftValue={draftBook?.title}
         externalValue={external?.title}
+        selectedSources={selectedSources}
+        mergedData={mergedData}
+        dirtyFields={dirtyFields}
+        onToggleField={toggleField}
+        onDirectFieldChange={handleDirectFieldChange}
+        t={t}
       />
 
       <div className="mb-6 pb-2">
@@ -387,6 +313,12 @@ const MergeMetadataView = ({
         extractedValue={extracted.publisher} 
         draftValue={draftBook?.publisher}
         externalValue={external?.publisher}
+        selectedSources={selectedSources}
+        mergedData={mergedData}
+        dirtyFields={dirtyFields}
+        onToggleField={toggleField}
+        onDirectFieldChange={handleDirectFieldChange}
+        t={t}
       />
 
       <FieldComparison 
@@ -396,6 +328,13 @@ const MergeMetadataView = ({
         extractedValue={extracted.publicationDate} 
         draftValue={draftBook?.publicationDate} 
         externalValue={external?.publicationDate}
+        inputType="date"
+        selectedSources={selectedSources}
+        mergedData={mergedData}
+        dirtyFields={dirtyFields}
+        onToggleField={toggleField}
+        onDirectFieldChange={handleDirectFieldChange}
+        t={t}
       />
 
       <FieldComparison 
@@ -405,6 +344,13 @@ const MergeMetadataView = ({
         extractedValue={extracted.description} 
         draftValue={draftBook?.description} 
         externalValue={external?.description}
+        inputType="textarea"
+        selectedSources={selectedSources}
+        mergedData={mergedData}
+        dirtyFields={dirtyFields}
+        onToggleField={toggleField}
+        onDirectFieldChange={handleDirectFieldChange}
+        t={t}
       />
 
       {(extracted.coverStorageKey || external?.coverUrl) && (
@@ -437,6 +383,153 @@ const MergeMetadataView = ({
             </div>
           </label>
         </div>
+      )}
+    </div>
+  );
+};
+
+const MultiSourceButton = ({ sources, value, field, isSelected, onToggle, t }) => {
+  const sourceConfigs = {
+    existing: { label: t('import.review.sources.library', 'Library'), icon: FaDatabase, colorClass: 'ring-blue-500 bg-blue-100' },
+    draft: { label: t('import.review.sources.form', 'Form'), icon: FaPencilAlt, colorClass: 'ring-yellow-500 bg-yellow-100' },
+    extracted: { label: t('import.review.sources.file', 'File'), icon: FaFileAlt, colorClass: 'ring-green-500 bg-green-100' },
+    external: { label: t('import.review.sources.web', 'Web'), icon: FaGlobe, colorClass: 'ring-purple-500 bg-purple-100' }
+  };
+
+  const firstSource = sources[0];
+  const ringClass = isSelected ? sourceConfigs[firstSource].colorClass : 'bg-white border-gray-200 hover:border-gray-300';
+
+  return (
+    <div 
+      className={`flex-1 p-2 rounded border cursor-pointer transition-all flex flex-col gap-1
+        ${isSelected ? `ring-2 ring-inset ${ringClass} border-transparent shadow-sm` : 'bg-white border-gray-200 hover:border-gray-300'}`}
+      onClick={() => onToggle(field, firstSource)}
+    >
+      <div className="flex flex-wrap items-center gap-2">
+        {sources.map(src => {
+          const Config = sourceConfigs[src];
+          return (
+            <div key={src} className={`flex items-center gap-1 text-[9px] font-bold uppercase tracking-wider ${isSelected ? 'text-gray-900' : 'text-gray-400'}`}>
+              <Config.icon className={isSelected ? '' : 'opacity-50'} />
+              {Config.label}
+            </div>
+          );
+        })}
+      </div>
+      <div className={`text-sm break-words ${!value ? 'italic text-gray-400' : 'text-gray-700'}`}>
+        {value || t('common.na')}
+      </div>
+    </div>
+  );
+};
+
+const FieldComparison = ({
+  label,
+  field,
+  existingValue,
+  extractedValue,
+  draftValue,
+  externalValue,
+  inputType = 'text',
+  selectedSources,
+  mergedData,
+  dirtyFields,
+  onToggleField,
+  onDirectFieldChange,
+  t
+}) => {
+  // Determine which sources to show - ORDER MATTERS HERE for stable layout
+  const sourceValues = [];
+  
+  // 1. Library (Existing)
+  if (existingValue || (!extractedValue && !externalValue)) {
+    sourceValues.push({ id: 'existing', value: existingValue || '' });
+  }
+  
+  // 2. Form (Draft)
+  const isDraftRelevant = dirtyFields?.has(field) || (draftValue && draftValue !== extractedValue && draftValue !== externalValue);
+  if (draftValue && isDraftRelevant) {
+    sourceValues.push({ id: 'draft', value: draftValue });
+  }
+  
+  // 3. File (Extracted)
+  if (extractedValue) {
+    sourceValues.push({ id: 'extracted', value: extractedValue });
+  }
+
+  // 4. Web (External)
+  if (externalValue && externalValue !== extractedValue) {
+    sourceValues.push({ id: 'external', value: externalValue });
+  }
+
+  // Group identical values while preserving the order of the first occurrence
+  const groups = [];
+  sourceValues.forEach(sv => {
+    const existingGroup = groups.find(g => g.value === sv.value);
+    if (existingGroup) {
+      existingGroup.sources.push(sv.id);
+    } else {
+      groups.push({ value: sv.value, sources: [sv.id] });
+    }
+  });
+
+  // Ensure the groups themselves are sorted based on the "highest priority" source in them
+  // Priority: draft > existing > external > extracted
+  const sourcePriority = { draft: 0, existing: 1, external: 2, extracted: 3 };
+  groups.sort((a, b) => {
+    const aMin = Math.min(...a.sources.map(s => sourcePriority[s]));
+    const bMin = Math.min(...b.sources.map(s => sourcePriority[s]));
+    return aMin - bMin;
+  });
+
+  const isManual = selectedSources[field] === 'manual';
+
+  return (
+    <div className="mb-6 last:mb-2">
+      <div className="flex items-center justify-between mb-2">
+        <label className="block text-sm font-bold text-gray-700">{label}</label>
+        {isManual && (
+          <span className="text-[10px] font-bold uppercase tracking-wider text-amber-600 bg-amber-50 border border-amber-200 px-2 py-0.5 rounded-full flex items-center gap-1">
+            <FaPencilAlt size={10} /> {t('import.review.sources.custom', 'Manually Edited')}
+          </span>
+        )}
+      </div>
+      <div className="flex flex-col sm:flex-row gap-3 mb-2">
+        {groups.map((group, idx) => (
+          <MultiSourceButton 
+            key={idx}
+            sources={group.sources}
+            value={group.value}
+            field={field}
+            isSelected={group.sources.includes(selectedSources[field])}
+            onToggle={onToggleField}
+            t={t}
+          />
+        ))}
+      </div>
+      {inputType === 'textarea' ? (
+        <textarea
+          rows={3}
+          value={mergedData[field] || ''}
+          onChange={(e) => onDirectFieldChange(field, e.target.value)}
+          placeholder={t('import.review.editFieldPlaceholder', 'Edit {{label}}...', { label })}
+          className="w-full text-sm p-2.5 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 shadow-sm"
+        />
+      ) : inputType === 'date' ? (
+        <input
+          type="date"
+          value={mergedData[field] || ''}
+          onChange={(e) => onDirectFieldChange(field, e.target.value)}
+          className="w-full text-sm p-2.5 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 shadow-sm"
+        />
+      ) : (
+        <input
+          type="text"
+          value={mergedData[field] || ''}
+          onChange={(e) => onDirectFieldChange(field, e.target.value)}
+          placeholder={t('import.review.editFieldPlaceholder', 'Edit {{label}}...', { label })}
+          className="w-full text-sm p-2.5 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 shadow-sm"
+        />
       )}
     </div>
   );

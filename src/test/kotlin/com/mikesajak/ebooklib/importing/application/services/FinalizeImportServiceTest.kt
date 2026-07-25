@@ -82,8 +82,7 @@ class FinalizeImportServiceTest {
         every { fileStoragePort.getFileMetadata("staged/$uploadId") } returns FileMetadata("staged/$uploadId", "the-hobbit.epub", "application/epub+zip", 1000L)
         every { fileStoragePort.moveFile("staged/$uploadId", null) } returns FileMetadata("permanent-key", "the-hobbit.epub", "application/epub+zip", 1000L)
         every { addEbookFormatUseCase.addFormatFromStorage(newBook.id!!, "permanent-key", "EPUB", "the-hobbit.epub") } returns mockk()
-        every { stagedRepository.delete(StagedEbookUploadId(uploadId)) } returns Unit
-        every { resolutionItemUseCase.updateStatus(any(), any()) } returns mockk()
+        every { resolutionItemUseCase.updateResolvedItem(any(), any(), any(), any(), any()) } returns mockk()
         every { getBookUseCase.getBook(newBook.id!!) } returns newBook
 
         // when
@@ -91,11 +90,10 @@ class FinalizeImportServiceTest {
 
         // then
         assertThat(result).isEqualTo(newBook)
-        verify { resolutionItemUseCase.updateStatus(ResolutionItemId(resolutionItemId), ResolutionItemStatus.RESOLVED) }
+        verify { resolutionItemUseCase.updateResolvedItem(ResolutionItemId(resolutionItemId), eq("The Hobbit"), any(), eq(ResolutionItemStatus.RESOLVED), any()) }
         verify { addBookUseCase.addBook(match { it.title == "The Hobbit" }) }
         verify { fileStoragePort.moveFile("staged/$uploadId", null) }
         verify { addEbookFormatUseCase.addFormatFromStorage(newBook.id!!, "permanent-key", "EPUB", "the-hobbit.epub") }
-        verify { stagedRepository.delete(StagedEbookUploadId(uploadId)) }
     }
 
     @Test
@@ -136,8 +134,7 @@ class FinalizeImportServiceTest {
         every { fileStoragePort.getFileMetadata("staged/$uploadId") } returns FileMetadata("staged/$uploadId", "the-hobbit.epub", "application/epub+zip", 1000L)
         every { fileStoragePort.moveFile("staged/$uploadId", null) } returns FileMetadata("permanent-key", "the-hobbit.epub", "application/epub+zip", 1000L)
         every { addEbookFormatUseCase.addFormatFromStorage(BookId(bookId), "permanent-key", "EPUB", "the-hobbit.epub") } returns mockk()
-        every { stagedRepository.delete(StagedEbookUploadId(uploadId)) } returns Unit
-        every { resolutionItemUseCase.updateStatus(any(), any()) } returns mockk()
+        every { resolutionItemUseCase.updateResolvedItem(any(), any(), any(), any(), any()) } returns mockk()
         every { getBookUseCase.getBook(BookId(bookId)) } returns updatedBook
 
         // when
@@ -145,9 +142,8 @@ class FinalizeImportServiceTest {
 
         // then
         assertThat(result.title).isEqualTo("The Hobbit (Updated)")
-        verify { resolutionItemUseCase.updateStatus(ResolutionItemId(resolutionItemId), ResolutionItemStatus.RESOLVED) }
+        verify { resolutionItemUseCase.updateResolvedItem(ResolutionItemId(resolutionItemId), eq("The Hobbit (Updated)"), any(), eq(ResolutionItemStatus.RESOLVED), any()) }
         verify { updateBookUseCase.updateBook(match { it.title == "The Hobbit (Updated)" }) }
         verify { fileStoragePort.moveFile("staged/$uploadId", null) }
-        verify { stagedRepository.delete(StagedEbookUploadId(uploadId)) }
     }
 }

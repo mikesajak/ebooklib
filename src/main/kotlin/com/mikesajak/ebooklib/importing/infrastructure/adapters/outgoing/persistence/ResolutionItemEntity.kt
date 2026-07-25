@@ -14,10 +14,10 @@ class ResolutionItemEntity(
     @Column(name = "import_session_id", nullable = false)
     val importSessionId: UUID,
 
-    @Column(nullable = false)
+    @Column(nullable = false, columnDefinition = "TEXT")
     val title: String,
 
-    @Column(nullable = false)
+    @Column(nullable = false, columnDefinition = "TEXT")
     val authors: String, // Comma separated or JSON? Let's use comma separated for now.
 
     @Enumerated(EnumType.STRING)
@@ -30,6 +30,6 @@ class ResolutionItemEntity(
     @Column(name = "updated_at", nullable = false)
     val updatedAt: Instant,
 
-    @Column(name = "metadata_json")
+    @Column(name = "metadata_json", columnDefinition = "TEXT")
     val metadataJson: String?
 )

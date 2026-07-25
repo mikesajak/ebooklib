@@ -19,6 +19,8 @@ const ResolveItemPage = () => {
     const [seriesOptions, setSeriesOptions] = useState([]);
     const [loading, setLoading] = useState(true);
     const [isProcessing, setIsProcessing] = useState(false);
+    const [draftBook, setDraftBook] = useState(null);
+    const [dirtyFields, setDirtyFields] = useState(new Set());
 
     const fetchData = useCallback(async () => {
         try {
@@ -29,6 +31,38 @@ const ResolveItemPage = () => {
             const itemData = await response.json();
             setItem(itemData);
 
+            // Parse saved draft metadata if present (for RESOLVED items or items with stored resolution state)
+            let parsedDraft = null;
+            let parsedDirtyFields = new Set();
+            let savedBookId = null;
+
+            if (itemData.metadataJson) {
+                try {
+                    const metadata = JSON.parse(itemData.metadataJson);
+                    if (metadata.title) {
+                        parsedDraft = {
+                            title: metadata.title,
+                            publisher: metadata.publisher || '',
+                            publicationDate: metadata.publicationDate || '',
+                            description: metadata.description || '',
+                            authors: metadata.authorNames?.map(name => ({ firstName: '', lastName: name })) || [],
+                            series: metadata.seriesId ? { id: metadata.seriesId } : null,
+                            volume: metadata.volume || null,
+                            labels: metadata.labels || []
+                        };
+                        parsedDirtyFields = new Set(['title', 'publisher', 'publicationDate', 'description', 'authors', 'series', 'volume']);
+                    }
+                    if (metadata.bookId) {
+                        savedBookId = metadata.bookId;
+                    }
+                } catch (e) {
+                    console.error("Failed to parse resolution item metadataJson", e);
+                }
+            }
+
+            setDraftBook(parsedDraft);
+            setDirtyFields(parsedDirtyFields);
+
             // 2. Fetch all items in session for navigation
             const sessionItemsResponse = await fetchWithCsrf(`/api/import/sessions/${itemData.importSessionId}/items`);
             if (sessionItemsResponse.ok) {
@@ -36,7 +70,8 @@ const ResolveItemPage = () => {
                 setAllSessionItems(sessionItems);
             }
 
-            // 3. Fetch full details of the first format (to get enrichment and validation)
+            // 3. Fetch full details of formats
+            let primaryUploadData = null;
             if (itemData.formats && itemData.formats.length > 0) {
                 const uploadResponses = await Promise.all(
                     itemData.formats.map(f => fetchWithCsrf(`/api/import/staged/${f.uploadId}`))
@@ -48,36 +83,38 @@ const ResolveItemPage = () => {
                 if (uploadsData.length > 0) {
                     const uploadWithCover = uploadsData.find(u => u.metadata?.coverStorageKey);
                     const primaryUpload = uploadWithCover || uploadsData[0];
-                    let uploadData = { ...primaryUpload };
+                    primaryUploadData = { ...primaryUpload };
 
-                    if (!uploadData.metadata?.coverStorageKey && uploadWithCover) {
-                        uploadData.metadata = {
-                            ...uploadData.metadata,
+                    if (!primaryUploadData.metadata?.coverStorageKey && uploadWithCover) {
+                        primaryUploadData.metadata = {
+                            ...primaryUploadData.metadata,
                             coverStorageKey: uploadWithCover.metadata.coverStorageKey
                         };
                     }
+                }
+            }
 
-                    // Inject enrichment from item if it's there
-                    if (itemData.metadataJson) {
-                        try {
-                            const enrichment = JSON.parse(itemData.metadataJson);
-                            uploadData.metadata = { ...uploadData.metadata, enrichment };
-                        } catch (e) {
-                            console.error("Failed to parse item enrichment", e);
-                        }
-                    }
-                    
-                    setStagedUpload(uploadData);
+            if (primaryUploadData) {
+                setStagedUpload(primaryUploadData);
+            } else {
+                // Fallback synthetic stagedUpload if staged records were cleaned up or unavailable
+                setStagedUpload({
+                    id: itemData.formats?.[0]?.uploadId || itemData.id,
+                    metadata: {
+                        title: itemData.title,
+                        authors: itemData.authors
+                    },
+                    validation: {}
+                });
+            }
 
-                    // 4. Fetch the best candidate if available
-                    const bestCandidate = uploadData.validation?.candidates?.find(c => c.score >= 80) || uploadData.validation?.candidates?.[0];
-                    if (bestCandidate) {
-                        const bookResponse = await fetchWithCsrf(`/api/books/${bestCandidate.bookId}`);
-                        if (bookResponse.ok) {
-                            const bookData = await bookResponse.json();
-                            setExistingBook(bookData);
-                        }
-                    }
+            // 4. Fetch the existing/candidate book
+            const targetBookId = savedBookId || (primaryUploadData?.validation?.candidates?.find(c => c.score >= 80) || primaryUploadData?.validation?.candidates?.[0])?.bookId;
+            if (targetBookId) {
+                const bookResponse = await fetchWithCsrf(`/api/books/${targetBookId}`);
+                if (bookResponse.ok) {
+                    const bookData = await bookResponse.json();
+                    setExistingBook(bookData);
                 }
             }
 
@@ -254,8 +291,8 @@ const ResolveItemPage = () => {
                         <MergeMetadataView 
                             stagedUpload={stagedUpload}
                             existingBook={existingBook}
-                            draftBook={null} // No draft for now in this view
-                            dirtyFields={new Set()}
+                            draftBook={draftBook}
+                            dirtyFields={dirtyFields}
                             authorOptions={authorOptions}
                             seriesOptions={seriesOptions}
                             onMergedDataChange={setMergedData}
