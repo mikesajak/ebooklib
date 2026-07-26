@@ -13,4 +13,10 @@ object ImportUtils {
         if (clean.all { it.isDigit() }) return true
         return UNLIKELY_PLACEHOLDERS.contains(clean)
     }
+
+    fun extractTitleFromFileName(fileName: String): String {
+        val nameOnly = fileName.substringAfterLast('/').substringAfterLast('\\')
+        return nameOnly.substringBeforeLast('.')
+    }
 }
+

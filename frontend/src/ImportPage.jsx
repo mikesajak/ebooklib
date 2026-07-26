@@ -392,22 +392,39 @@ const ImportPage = () => {
         return { status: 'PENDING' };
     };
 
-    const activeUploadsCount = files.filter(f => {
-        const status = getFileStatus(f.name).status;
-        return ['UPLOADING', 'PROCESSING'].includes(status);
-    }).length;
+    const batchCounts = useMemo(() => {
+        let parsed = 0, processing = 0, uploading = 0, queued = 0, pending = 0, failed = 0;
+        files.forEach(f => {
+            const st = getFileStatus(f.name).status;
+            if (['PARSED', 'PROMOTED', 'UNRESOLVED', 'RESOLVED', 'STAGED'].includes(st)) parsed++;
+            else if (st === 'PROCESSING') processing++;
+            else if (st === 'UPLOADING') uploading++;
+            else if (st === 'QUEUED') queued++;
+            else if (st === 'PENDING') pending++;
+            else if (['FAILED', 'ERROR'].includes(st)) failed++;
+        });
+        return { parsed, processing, uploading, queued, pending, failed };
+    }, [files, sessionItemsMap, localUploadStatus]);
 
-    const completedUploadsCount = files.filter(f => {
-        const status = getFileStatus(f.name).status;
-        return ['PARSED', 'PROMOTED', 'UNRESOLVED', 'RESOLVED', 'STAGED', 'FAILED', 'ERROR'].includes(status);
-    }).length;
+    const batchPcts = useMemo(() => {
+        const total = Math.max(1, files.length);
+        return {
+            parsed: (batchCounts.parsed / total) * 100,
+            processing: (batchCounts.processing / total) * 100,
+            uploading: (batchCounts.uploading / total) * 100,
+            queued: (batchCounts.queued / total) * 100,
+            pending: (batchCounts.pending / total) * 100,
+            failed: (batchCounts.failed / total) * 100
+        };
+    }, [files.length, batchCounts]);
+
+    const activeUploadsCount = batchCounts.uploading + batchCounts.processing;
+
+    const completedUploadsCount = batchCounts.parsed + batchCounts.failed;
     
     const isActuallyUploading = activeUploadsCount > 0;
     const isFullyCompleted = files.length > 0 && completedUploadsCount === files.length;
-    const hasPending = files.some(f => {
-        const status = getFileStatus(f.name).status;
-        return status === 'PENDING';
-    });
+    const hasPending = batchCounts.pending > 0;
 
     useEffect(() => {
         if (isUploading && !isActuallyUploading && (completedUploadsCount > 0 || hasPending === false)) {
@@ -466,14 +483,40 @@ const ImportPage = () => {
                     </h2>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                         {sessions.map(session => {
-                            const total = session.totalFiles || 1;
-                            const processed = session.processedFiles || 0;
-                            const failed = session.failedFiles || 0;
-                            const queuedOrProcessing = Math.max(0, total - (processed + failed));
+                            const isCurrentSession = session.id === sessionId && files.length > 0;
+                            let parsedCount = 0;
+                            let processingCount = 0;
+                            let uploadingCount = 0;
+                            let queuedCount = 0;
+                            let pendingCount = 0;
+                            let failedCount = 0;
 
-                            const processedPct = Math.min(100, (processed / total) * 100);
-                            const failedPct = Math.min(100 - processedPct, (failed / total) * 100);
-                            const activePct = Math.max(0, 100 - (processedPct + failedPct));
+                            if (isCurrentSession) {
+                                parsedCount = batchCounts.parsed;
+                                processingCount = batchCounts.processing;
+                                uploadingCount = batchCounts.uploading;
+                                queuedCount = batchCounts.queued;
+                                pendingCount = batchCounts.pending;
+                                failedCount = batchCounts.failed;
+                            } else {
+                                parsedCount = session.processedFiles || 0;
+                                processingCount = session.processingFiles || 0;
+                                uploadingCount = 0;
+                                queuedCount = session.queuedFiles || 0;
+                                failedCount = session.failedFiles || 0;
+                                pendingCount = session.pendingFiles !== undefined 
+                                    ? session.pendingFiles 
+                                    : Math.max(0, (session.totalFiles || 0) - (parsedCount + processingCount + queuedCount + failedCount));
+                            }
+
+                            const total = Math.max(1, session.totalFiles || (parsedCount + processingCount + uploadingCount + queuedCount + pendingCount + failedCount));
+
+                            const parsedPct = (parsedCount / total) * 100;
+                            const processingPct = (processingCount / total) * 100;
+                            const uploadingPct = (uploadingCount / total) * 100;
+                            const queuedPct = (queuedCount / total) * 100;
+                            const pendingPct = (pendingCount / total) * 100;
+                            const failedPct = (failedCount / total) * 100;
 
                             return (
                                 <div 
@@ -490,7 +533,7 @@ const ImportPage = () => {
                                                 </span>
                                             </div>
                                             <div className="text-[10px] font-black text-indigo-600 uppercase tracking-widest mt-1">
-                                                {session.processedFiles} / {session.totalFiles} {t('import.processedCount', 'processed')}
+                                                {parsedCount} / {session.totalFiles || total} {t('import.processedCount', 'processed')}
                                             </div>
                                         </div>
                                         
@@ -504,32 +547,70 @@ const ImportPage = () => {
                                     </div>
 
                                     {/* Multi-Segment Progress Bar */}
-                                    <div className="flex h-2 w-full bg-gray-100 rounded-full overflow-hidden mb-3 border border-gray-100">
-                                        <div 
-                                            className="h-full bg-emerald-500 transition-all duration-500" 
-                                            style={{ width: `${processedPct}%` }}
-                                            title={`Parsed: ${processed}`}
-                                        />
-                                        <div 
-                                            className="h-full bg-amber-500 animate-pulse transition-all duration-500" 
-                                            style={{ width: `${activePct}%` }}
-                                            title={`Queued/Processing: ${queuedOrProcessing}`}
-                                        />
-                                        <div 
-                                            className="h-full bg-rose-500 transition-all duration-500" 
-                                            style={{ width: `${failedPct}%` }}
-                                            title={`Failed: ${failed}`}
-                                        />
+                                    <div className="flex h-2.5 w-full bg-gray-100 rounded-full overflow-hidden mb-3 border border-gray-100">
+                                        {parsedPct > 0 && (
+                                            <div 
+                                                className="h-full bg-emerald-500 transition-all duration-500" 
+                                                style={{ width: `${parsedPct}%` }}
+                                                title={`${t('import.status.parsed', 'Parsed')}: ${parsedCount}`}
+                                            />
+                                        )}
+                                        {processingPct > 0 && (
+                                            <div 
+                                                className="h-full bg-amber-500 animate-pulse transition-all duration-500" 
+                                                style={{ width: `${processingPct}%` }}
+                                                title={`${t('import.status.processing', 'Processing')}: ${processingCount}`}
+                                            />
+                                        )}
+                                        {uploadingPct > 0 && (
+                                            <div 
+                                                className="h-full bg-indigo-500 animate-pulse transition-all duration-500" 
+                                                style={{ width: `${uploadingPct}%` }}
+                                                title={`${t('import.status.uploading', 'Uploading')}: ${uploadingCount}`}
+                                            />
+                                        )}
+                                        {queuedPct > 0 && (
+                                            <div 
+                                                className="h-full bg-sky-400 transition-all duration-500" 
+                                                style={{ width: `${queuedPct}%` }}
+                                                title={`${t('import.status.queued', 'Queued')}: ${queuedCount}`}
+                                            />
+                                        )}
+                                        {pendingPct > 0 && (
+                                            <div 
+                                                className="h-full bg-gray-300 transition-all duration-500" 
+                                                style={{ width: `${pendingPct}%` }}
+                                                title={`${t('import.status.pending', 'Pending')}: ${pendingCount}`}
+                                            />
+                                        )}
+                                        {failedPct > 0 && (
+                                            <div 
+                                                className="h-full bg-rose-500 transition-all duration-500" 
+                                                style={{ width: `${failedPct}%` }}
+                                                title={`${t('import.status.failed', 'Failed')}: ${failedCount}`}
+                                            />
+                                        )}
                                     </div>
 
                                     {/* Granular Breakdown Pills */}
                                     <div className="flex flex-wrap items-center gap-1.5 mb-2 text-[9px] font-black uppercase tracking-wider">
-                                        <span className="px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-700 border border-emerald-100">{processed} {t('import.status.parsed', 'Parsed')}</span>
-                                        {queuedOrProcessing > 0 && (
-                                            <span className="px-2 py-0.5 rounded-md bg-amber-50 text-amber-700 border border-amber-100 animate-pulse">{queuedOrProcessing} {t('import.status.processing', 'Processing / Queued')}</span>
+                                        {parsedCount > 0 && (
+                                            <span className="px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-700 border border-emerald-100">{parsedCount} {t('import.status.parsed', 'Parsed')}</span>
                                         )}
-                                        {failed > 0 && (
-                                            <span className="px-2 py-0.5 rounded-md bg-rose-50 text-rose-700 border border-rose-100">{failed} {t('import.status.failed', 'Failed')}</span>
+                                        {processingCount > 0 && (
+                                            <span className="px-2 py-0.5 rounded-md bg-amber-50 text-amber-700 border border-amber-100 animate-pulse">{processingCount} {t('import.status.processing', 'Processing')}</span>
+                                        )}
+                                        {uploadingCount > 0 && (
+                                            <span className="px-2 py-0.5 rounded-md bg-indigo-50 text-indigo-700 border border-indigo-100 animate-pulse">{uploadingCount} {t('import.status.uploading', 'Uploading')}</span>
+                                        )}
+                                        {queuedCount > 0 && (
+                                            <span className="px-2 py-0.5 rounded-md bg-sky-50 text-sky-700 border border-sky-100">{queuedCount} {t('import.status.queued', 'Queued')}</span>
+                                        )}
+                                        {pendingCount > 0 && (
+                                            <span className="px-2 py-0.5 rounded-md bg-gray-100 text-gray-700 border border-gray-200">{pendingCount} {t('import.status.pending', 'Pending')}</span>
+                                        )}
+                                        {failedCount > 0 && (
+                                            <span className="px-2 py-0.5 rounded-md bg-rose-50 text-rose-700 border border-rose-100">{failedCount} {t('import.status.failed', 'Failed')}</span>
                                         )}
                                     </div>
 
@@ -626,6 +707,83 @@ const ImportPage = () => {
                         <span className="font-black text-xs uppercase tracking-widest text-indigo-600">{t('import.status.processing')}</span>
                     </div>
                 )}
+
+                {files.length > 0 && (
+                    <div className="p-6 bg-gray-50/50 border-b border-gray-100">
+                        <div className="flex flex-wrap justify-between items-center gap-4 mb-3">
+                            <div className="text-xs font-black text-gray-700 uppercase tracking-wider">
+                                {t('import.batchSummary', 'Batch Progress')} ({files.length} {t('import.table.files', 'files')})
+                            </div>
+                            <div className="flex flex-wrap items-center gap-1.5 text-[9px] font-black uppercase tracking-wider">
+                                {batchCounts.parsed > 0 && (
+                                    <span className="px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-700 border border-emerald-100">{batchCounts.parsed} {t('import.status.parsed', 'Parsed')}</span>
+                                )}
+                                {batchCounts.processing > 0 && (
+                                    <span className="px-2 py-0.5 rounded-md bg-amber-50 text-amber-700 border border-amber-100 animate-pulse">{batchCounts.processing} {t('import.status.processing', 'Processing')}</span>
+                                )}
+                                {batchCounts.uploading > 0 && (
+                                    <span className="px-2 py-0.5 rounded-md bg-indigo-50 text-indigo-700 border border-indigo-100 animate-pulse">{batchCounts.uploading} {t('import.status.uploading', 'Uploading')}</span>
+                                )}
+                                {batchCounts.queued > 0 && (
+                                    <span className="px-2 py-0.5 rounded-md bg-sky-50 text-sky-700 border border-sky-100">{batchCounts.queued} {t('import.status.queued', 'Queued')}</span>
+                                )}
+                                {batchCounts.pending > 0 && (
+                                    <span className="px-2 py-0.5 rounded-md bg-gray-100 text-gray-700 border border-gray-200">{batchCounts.pending} {t('import.status.pending', 'Pending')}</span>
+                                )}
+                                {batchCounts.failed > 0 && (
+                                    <span className="px-2 py-0.5 rounded-md bg-rose-50 text-rose-700 border border-rose-100">{batchCounts.failed} {t('import.status.failed', 'Failed')}</span>
+                                )}
+                            </div>
+                        </div>
+
+                        {/* Multi-Segment Progress Bar */}
+                        <div className="flex h-2.5 w-full bg-gray-200 rounded-full overflow-hidden border border-gray-200">
+                            {batchPcts.parsed > 0 && (
+                                <div 
+                                    className="h-full bg-emerald-500 transition-all duration-500" 
+                                    style={{ width: `${batchPcts.parsed}%` }}
+                                    title={`${t('import.status.parsed', 'Parsed')}: ${batchCounts.parsed}`}
+                                />
+                            )}
+                            {batchPcts.processing > 0 && (
+                                <div 
+                                    className="h-full bg-amber-500 animate-pulse transition-all duration-500" 
+                                    style={{ width: `${batchPcts.processing}%` }}
+                                    title={`${t('import.status.processing', 'Processing')}: ${batchCounts.processing}`}
+                                />
+                            )}
+                            {batchPcts.uploading > 0 && (
+                                <div 
+                                    className="h-full bg-indigo-500 animate-pulse transition-all duration-500" 
+                                    style={{ width: `${batchPcts.uploading}%` }}
+                                    title={`${t('import.status.uploading', 'Uploading')}: ${batchCounts.uploading}`}
+                                />
+                            )}
+                            {batchPcts.queued > 0 && (
+                                <div 
+                                    className="h-full bg-sky-400 transition-all duration-500" 
+                                    style={{ width: `${batchPcts.queued}%` }}
+                                    title={`${t('import.status.queued', 'Queued')}: ${batchCounts.queued}`}
+                                />
+                            )}
+                            {batchPcts.pending > 0 && (
+                                <div 
+                                    className="h-full bg-gray-300 transition-all duration-500" 
+                                    style={{ width: `${batchPcts.pending}%` }}
+                                    title={`${t('import.status.pending', 'Pending')}: ${batchCounts.pending}`}
+                                />
+                            )}
+                            {batchPcts.failed > 0 && (
+                                <div 
+                                    className="h-full bg-rose-500 transition-all duration-500" 
+                                    style={{ width: `${batchPcts.failed}%` }}
+                                    title={`${t('import.status.failed', 'Failed')}: ${batchCounts.failed}`}
+                                />
+                            )}
+                        </div>
+                    </div>
+                )}
+
                 <div className="overflow-x-auto">
                     <table className="min-w-full divide-y divide-gray-200">
                         <thead className="bg-gray-50/50">

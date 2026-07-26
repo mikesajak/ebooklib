@@ -82,14 +82,18 @@ class ImportController(
 
     @GetMapping("/sessions")
     fun getActiveSessions(): List<ImportSessionResponseDto> {
-        return importSessionUseCase.getActiveSessions().map { importRestMapper.toResponse(it) }
+        return importSessionUseCase.getActiveSessions().map { session ->
+            val uploads = stagedUploadRepository.findByImportSessionId(session.id)
+            importRestMapper.toResponse(session, uploads)
+        }
     }
 
     @GetMapping("/sessions/{sessionId}")
     fun getSession(@PathVariable sessionId: UUID): ResponseEntity<ImportSessionResponseDto> {
         val session = importSessionUseCase.getSession(ImportSessionId(sessionId))
             ?: return ResponseEntity.notFound().build()
-        return ResponseEntity.ok(importRestMapper.toResponse(session))
+        val uploads = stagedUploadRepository.findByImportSessionId(session.id)
+        return ResponseEntity.ok(importRestMapper.toResponse(session, uploads))
     }
 
     @DeleteMapping("/sessions/{sessionId}")

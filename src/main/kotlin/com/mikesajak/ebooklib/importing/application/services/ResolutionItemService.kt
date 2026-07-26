@@ -4,6 +4,7 @@ import com.mikesajak.ebooklib.file.application.ports.outgoing.FileStoragePort
 import com.mikesajak.ebooklib.importing.application.ports.incoming.ResolutionItemUseCase
 import com.mikesajak.ebooklib.importing.application.ports.outgoing.ResolutionItemRepositoryPort
 import com.mikesajak.ebooklib.importing.domain.model.ImportSessionId
+import com.mikesajak.ebooklib.importing.domain.model.ImportUtils
 import com.mikesajak.ebooklib.importing.domain.model.ResolutionItem
 import com.mikesajak.ebooklib.importing.domain.model.ResolutionItemId
 import com.mikesajak.ebooklib.importing.domain.model.ResolutionItemStatus
@@ -47,7 +48,7 @@ class ResolutionItemService(
         val newItem = ResolutionItem(
             id = id,
             importSessionId = upload.importSessionId ?: throw IllegalStateException("Upload $id has no session"),
-            title = upload.fileName.substringBeforeLast('.'),
+            title = ImportUtils.extractTitleFromFileName(upload.fileName),
             authors = emptyList(),
             status = status,
             createdAt = Instant.now(),
@@ -114,7 +115,7 @@ class ResolutionItemService(
         val newItem = ResolutionItem(
             id = ResolutionItemId(UUID.randomUUID()),
             importSessionId = upload.importSessionId ?: throw IllegalStateException("Upload $uploadId has no session"),
-            title = upload.fileName.substringBeforeLast('.'),
+            title = ImportUtils.extractTitleFromFileName(upload.fileName),
             authors = emptyList(),
             status = ResolutionItemStatus.UNRESOLVED,
             createdAt = Instant.now(),

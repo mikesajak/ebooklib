@@ -95,7 +95,7 @@ class StagedUploadProcessor(
         }
 
         try {
-            val fileNameTitle = fileName.substringBeforeLast('.')
+            val fileNameTitle = ImportUtils.extractTitleFromFileName(fileName)
             val metadataMap = mutableMapOf<String, Any?>()
             metadataMap["originalFileName"] = fileName
             metadataMap["fileNameTitle"] = fileNameTitle
@@ -208,7 +208,7 @@ class StagedUploadProcessor(
                     var resId = existing.resolutionItemId
                     if (resId == null) {
                         resId = try {
-                            groupingService.group(uploadId, fileName.substringBeforeLast('.'), emptyList(), fileName)?.value
+                            groupingService.group(uploadId, ImportUtils.extractTitleFromFileName(fileName), emptyList(), fileName)?.value
                         } catch (groupEx: Exception) {
                             logger.warn { "Failed to group upload $uploadId on error: ${groupEx.message}" }
                             null

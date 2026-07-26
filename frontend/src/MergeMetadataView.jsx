@@ -40,7 +40,8 @@ const MergeMetadataView = ({
   const getFilenameTitle = () => {
     const rawName = stagedUpload?.fileName || extracted?.originalFileName || extracted?.fileNameTitle || '';
     if (!rawName) return '';
-    return rawName.includes('.') ? rawName.substring(0, rawName.lastIndexOf('.')) : rawName;
+    const nameOnly = rawName.split(/[/\\]/).pop();
+    return nameOnly.includes('.') ? nameOnly.substring(0, nameOnly.lastIndexOf('.')) : nameOnly;
   };
 
   const filenameTitle = getFilenameTitle();

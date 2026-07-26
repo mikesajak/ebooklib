@@ -8,7 +8,10 @@ data class ImportSessionResponseDto(
     val status: ImportSessionStatus,
     val totalFiles: Int,
     val processedFiles: Int,
+    val processingFiles: Int = 0,
+    val queuedFiles: Int = 0,
     val failedFiles: Int,
+    val pendingFiles: Int = 0,
     val createdAt: Instant,
     val updatedAt: Instant,
     val expiryAt: Instant

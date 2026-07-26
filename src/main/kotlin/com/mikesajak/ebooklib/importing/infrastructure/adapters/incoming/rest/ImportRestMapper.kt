@@ -85,13 +85,23 @@ class ImportRestMapper(private val objectMapper: ObjectMapper) {
         )
     }
 
-    fun toResponse(session: ImportSession): ImportSessionResponseDto {
+    fun toResponse(
+        session: ImportSession,
+        uploads: List<StagedEbookUpload> = emptyList()
+    ): ImportSessionResponseDto {
+        val queued = uploads.count { it.status == StagedEbookUploadStatus.QUEUED }
+        val processing = uploads.count { it.status == StagedEbookUploadStatus.PROCESSING }
+        val pending = (session.totalFiles - (session.processedFiles + session.failedFiles + processing + queued)).coerceAtLeast(0)
+
         return ImportSessionResponseDto(
             id = session.id.toString(),
             status = session.status,
             totalFiles = session.totalFiles,
             processedFiles = session.processedFiles,
+            processingFiles = processing,
+            queuedFiles = queued,
             failedFiles = session.failedFiles,
+            pendingFiles = pending,
             createdAt = session.createdAt,
             updatedAt = session.updatedAt,
             expiryAt = session.expiryAt

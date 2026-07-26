@@ -38,4 +38,12 @@ class ImportUtilsTest {
         assertFalse(ImportUtils.isUnlikelyTitle("Clean Code"))
         assertFalse(ImportUtils.isUnlikelyTitle("Chapter 1: The Beginning"))
     }
+
+    @Test
+    fun `extractTitleFromFileName strips extension and path directory components`() {
+        org.junit.jupiter.api.Assertions.assertEquals("The Great Gatsby", ImportUtils.extractTitleFromFileName("The Great Gatsby.epub"))
+        org.junit.jupiter.api.Assertions.assertEquals("The Great Gatsby", ImportUtils.extractTitleFromFileName("books/fiction/The Great Gatsby.epub"))
+        org.junit.jupiter.api.Assertions.assertEquals("The Great Gatsby", ImportUtils.extractTitleFromFileName("C:\\Users\\User\\Books\\The Great Gatsby.epub"))
+        org.junit.jupiter.api.Assertions.assertEquals("Clean Code", ImportUtils.extractTitleFromFileName("some/path/Clean Code"))
+    }
 }

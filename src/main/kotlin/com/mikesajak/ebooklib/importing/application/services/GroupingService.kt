@@ -34,7 +34,7 @@ class GroupingService(
         synchronized(lock) {
             val normalizedTitle = normalize(title)
             val normalizedAuthors = authors.map { normalize(it) }.sorted()
-            val fileNameStem = normalize(fileName.substringBeforeLast('.'))
+            val fileNameStem = normalize(ImportUtils.extractTitleFromFileName(fileName))
 
             val sessionItems = resolutionItemRepository.findByImportSessionId(sessionId)
 
@@ -55,7 +55,7 @@ class GroupingService(
 
                 val formatUploads = stagedUploadRepository.findByResolutionItemId(item.id.value)
                 val filenameStemMatches = formatUploads.any { existingUpload ->
-                    normalize(existingUpload.fileName.substringBeforeLast('.')) == fileNameStem
+                    normalize(ImportUtils.extractTitleFromFileName(existingUpload.fileName)) == fileNameStem
                 }
 
                 (titleMatches && authorsMatch) || filenameStemMatches
@@ -69,7 +69,7 @@ class GroupingService(
                 stagedUploadRepository.save(updatedUpload)
                 existing.id
             } else {
-                val effectiveTitle = if (title.isNotBlank() && !ImportUtils.isUnlikelyTitle(title)) title else fileName.substringBeforeLast('.')
+                val effectiveTitle = if (title.isNotBlank() && !ImportUtils.isUnlikelyTitle(title)) title else ImportUtils.extractTitleFromFileName(fileName)
 
                 val newItem = ResolutionItem(
                     id = ResolutionItemId(UUID.randomUUID()),
