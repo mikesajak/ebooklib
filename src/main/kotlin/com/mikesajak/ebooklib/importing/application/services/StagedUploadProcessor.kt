@@ -17,6 +17,7 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.scheduling.annotation.Async
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import org.springframework.transaction.support.TransactionTemplate
 import java.io.ByteArrayInputStream
 import java.util.*
 
@@ -34,39 +35,65 @@ class StagedUploadProcessor(
     private val groupingService: GroupingService,
     private val enrichmentUseCase: MetadataEnrichmentUseCase,
     private val sessionUseCase: ImportSessionUseCase,
-    private val resolutionItemUseCase: ResolutionItemUseCase
+    private val resolutionItemUseCase: ResolutionItemUseCase,
+    private val transactionTemplate: TransactionTemplate
 ) {
 
-    @Async
-    @Transactional
+    @Async("importProcessingExecutor")
     fun processAsync(uploadId: StagedEbookUploadId, fileBytes: ByteArray, fileName: String, contentType: String, currentBookId: UUID?) {
         process(uploadId, fileBytes, fileName, contentType, currentBookId)
     }
 
-    @Async
-    @Transactional
+    @Async("importProcessingExecutor")
     fun retryAsync(uploadId: StagedEbookUploadId) {
         val stagedUpload = repository.findById(uploadId) ?: throw IllegalArgumentException("Upload $uploadId not found")
         
         logger.info { "Retrying processing for upload: $uploadId (${stagedUpload.fileName})" }
         
-        // Mark as processing first
-        repository.save(stagedUpload.copy(status = StagedEbookUploadStatus.PROCESSING))
+        // Mark as processing first in an immediate committed transaction
+        transactionTemplate.execute {
+            repository.save(stagedUpload.copy(status = StagedEbookUploadStatus.PROCESSING))
+        }
 
         try {
             val fileBytes = fileStoragePort.downloadFile("staged/${uploadId.value}").readAllBytes()
             process(uploadId, fileBytes, stagedUpload.fileName, stagedUpload.contentType, null)
         } catch (e: Exception) {
             logger.error(e) { "Failed to retry processing for upload $uploadId" }
-            repository.save(stagedUpload.copy(status = StagedEbookUploadStatus.FAILED))
+            transactionTemplate.execute {
+                repository.save(stagedUpload.copy(status = StagedEbookUploadStatus.FAILED))
+            }
             updateSessionProgress(stagedUpload.copy(status = StagedEbookUploadStatus.FAILED))
         }
     }
 
-    @Transactional
     fun process(uploadId: StagedEbookUploadId, fileBytes: ByteArray, fileName: String, contentType: String, currentBookId: UUID?): StagedEbookUpload {
         logger.info { "Processing upload: $uploadId" }
         
+        val initialUpload = repository.findById(uploadId)
+        
+        // Early abort check: verify session exists and is ACTIVE
+        if (initialUpload?.importSessionId != null) {
+            val session = sessionUseCase.getSession(initialUpload.importSessionId)
+            if (session == null || session.status == ImportSessionStatus.CANCELLED) {
+                logger.info { "Aborting background processing for upload $uploadId: session ${initialUpload.importSessionId} is cancelled or deleted." }
+                try {
+                    fileStoragePort.deleteFile("staged/${uploadId.value}")
+                } catch (e: Exception) {
+                    logger.warn { "Failed to delete staged file for cancelled session upload $uploadId: ${e.message}" }
+                }
+                return initialUpload.copy(status = StagedEbookUploadStatus.FAILED)
+            }
+        }
+
+        // Update status to PROCESSING as thread starts work and commit immediately
+        transactionTemplate.execute {
+            val current = repository.findById(uploadId)
+            if (current != null && current.status == StagedEbookUploadStatus.QUEUED) {
+                repository.save(current.copy(status = StagedEbookUploadStatus.PROCESSING))
+            }
+        }
+
         try {
             val metadataMap = mutableMapOf<String, Any?>()
             metadataMap["originalFileName"] = fileName
@@ -78,6 +105,8 @@ class StagedUploadProcessor(
                 logger.warn(e) { "Failed to extract metadata for $fileName" }
                 null
             }
+
+            var resolutionItemId: ResolutionItemId? = null
 
             if (extracted != null) {
                 metadataMap["title"] = extracted.title
@@ -122,7 +151,7 @@ class StagedUploadProcessor(
                     !extracted.title.isNullOrBlank() -> extracted.title
                     else -> fileName.substringBeforeLast('.')
                 }
-                val resolutionItemId = try {
+                resolutionItemId = try {
                     groupingService.group(uploadId, titleForGrouping, extracted.authors, fileName)
                 } catch (e: Exception) {
                     logger.warn { "Failed to group upload $uploadId: ${e.message}" }
@@ -148,27 +177,36 @@ class StagedUploadProcessor(
             val metadataJson = objectMapper.writeValueAsString(metadataMap)
 
 
-            val existing = repository.findById(uploadId)
-            val result = if (existing != null) {
-                val updated = existing.copy(
-                    metadataJson = metadataJson,
-                    status = if (extracted != null) StagedEbookUploadStatus.PARSED else StagedEbookUploadStatus.STAGED
-                )
-                repository.save(updated)
-            } else {
-                logger.error { "Upload $uploadId not found during processing" }
-                throw IllegalStateException("Upload $uploadId not found")
-            }
+            val result = transactionTemplate.execute {
+                val existing = repository.findById(uploadId)
+                if (existing != null) {
+                    val updated = existing.copy(
+                        metadataJson = metadataJson,
+                        resolutionItemId = resolutionItemId?.value,
+                        status = if (extracted != null) StagedEbookUploadStatus.PARSED else StagedEbookUploadStatus.STAGED
+                    )
+                    repository.save(updated)
+                } else {
+                    logger.error { "Upload $uploadId not found during processing" }
+                    throw IllegalStateException("Upload $uploadId not found")
+                }
+            }!!
 
             updateSessionProgress(result)
 
             return result
         } catch (e: Exception) {
             logger.error(e) { "Unhandled error during processing of upload $uploadId" }
-            val existing = repository.findById(uploadId)
-            if (existing != null) {
-                val updated = existing.copy(status = StagedEbookUploadStatus.FAILED)
-                val saved = repository.save(updated)
+            val saved = transactionTemplate.execute {
+                val existing = repository.findById(uploadId)
+                if (existing != null) {
+                    val updated = existing.copy(status = StagedEbookUploadStatus.FAILED)
+                    repository.save(updated)
+                } else {
+                    null
+                }
+            }
+            if (saved != null) {
                 updateSessionProgress(saved)
                 return saved
             }
@@ -179,7 +217,9 @@ class StagedUploadProcessor(
     private fun updateSessionProgress(upload: StagedEbookUpload) {
         upload.importSessionId?.let { sessionId ->
             try {
-                if (upload.status == StagedEbookUploadStatus.PARSED || upload.status == StagedEbookUploadStatus.PROMOTED) {
+                if (upload.status == StagedEbookUploadStatus.PARSED || 
+                    upload.status == StagedEbookUploadStatus.PROMOTED || 
+                    upload.status == StagedEbookUploadStatus.STAGED) {
                     sessionUseCase.incrementProcessed(sessionId)
                 } else if (upload.status == StagedEbookUploadStatus.FAILED) {
                     sessionUseCase.incrementFailed(sessionId)

@@ -129,6 +129,7 @@ class ImportRestMapper(private val objectMapper: ObjectMapper) {
             title = upload.fileName,
             authors = emptyList(),
             status = when (upload.status) {
+                StagedEbookUploadStatus.QUEUED -> ResolutionItemStatus.QUEUED
                 StagedEbookUploadStatus.PROCESSING -> ResolutionItemStatus.PROCESSING
                 StagedEbookUploadStatus.STAGED -> ResolutionItemStatus.STAGED
                 StagedEbookUploadStatus.FAILED -> ResolutionItemStatus.ERROR

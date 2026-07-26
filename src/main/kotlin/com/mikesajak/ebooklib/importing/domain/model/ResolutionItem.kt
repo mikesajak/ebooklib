@@ -8,6 +8,7 @@ data class ResolutionItemId(val value: UUID) {
 }
 
 enum class ResolutionItemStatus {
+    QUEUED,
     UNRESOLVED,
     RESOLVED,
     IGNORED,

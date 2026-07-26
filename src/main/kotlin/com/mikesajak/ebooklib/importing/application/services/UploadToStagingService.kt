@@ -71,7 +71,7 @@ class UploadToStagingService(
             contentType = contentType,
             fileSize = ebookMetadata.size,
             metadataJson = null,
-            status = StagedEbookUploadStatus.PROCESSING,
+            status = StagedEbookUploadStatus.QUEUED,
             createdAt = Instant.now(),
             expiryAt = Instant.now().plus(24, ChronoUnit.HOURS),
             importSessionId = importSessionId?.let { ImportSessionId(it) }

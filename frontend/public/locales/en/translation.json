@@ -278,6 +278,7 @@
     "discardSuccess": "Import session discarded.",
     "table": {
       "fileName": "File Name",
+      "size": "Size",
       "status": "Status",
       "details": "Details",
       "actions": "Actions",
@@ -293,6 +294,8 @@
     },
     "status": {
       "pending": "Pending",
+      "queued": "Queued",
+      "queuedProcessing": "Queued for Processing",
       "uploading": "Uploading...",
       "processing": "Processing...",
       "parsed": "Parsed",

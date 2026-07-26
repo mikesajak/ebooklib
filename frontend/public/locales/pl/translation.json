@@ -281,6 +281,7 @@
     "discardSuccess": "Sesja importu została odrzucona.",
     "table": {
       "fileName": "Nazwa Pliku",
+      "size": "Rozmiar",
       "status": "Status",
       "details": "Szczegóły",
       "actions": "Akcje",
@@ -296,6 +297,8 @@
     },
     "status": {
       "pending": "Oczekiwanie",
+      "queued": "W kolejce",
+      "queuedProcessing": "W kolejce do przetwarzania",
       "uploading": "Przesyłanie...",
       "processing": "Przetwarzanie...",
       "parsed": "Przetworzono",

@@ -8,6 +8,7 @@ data class StagedEbookUploadId(val value: UUID) {
 }
 
 enum class StagedEbookUploadStatus {
+    QUEUED,
     STAGED,
     PROCESSING,
     PARSED,

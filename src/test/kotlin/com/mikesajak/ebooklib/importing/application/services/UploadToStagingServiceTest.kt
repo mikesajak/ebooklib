@@ -76,7 +76,7 @@ class UploadToStagingServiceTest {
         // then
         assertThat(result).isEqualTo(stagedUpload)
         verify { fileStoragePort.uploadFile(any(), fileName, contentType, "staged") }
-        verify { repository.save(match { it.status == StagedEbookUploadStatus.PROCESSING }) }
+        verify { repository.save(match { it.status == StagedEbookUploadStatus.QUEUED }) }
         verify { stagedUploadProcessor.processAsync(StagedEbookUploadId(uploadId), fileContent, fileName, contentType, null) }
     }
 }
