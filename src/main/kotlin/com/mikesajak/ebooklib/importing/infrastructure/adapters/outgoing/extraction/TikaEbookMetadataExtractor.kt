@@ -25,8 +25,24 @@ private val logger = KotlinLogging.logger {}
 @Component
 class TikaEbookMetadataExtractor : EbookMetadataExtractorUseCase {
 
+    private val mobiExtractor = MobiEbookMetadataExtractor()
+
     override fun extract(fileContent: InputStream, fileName: String, contentType: String): ExtractedEbookMetadata {
         logger.info { "Extracting metadata from file: $fileName ($contentType)" }
+
+        val fileBytes = fileContent.readAllBytes()
+
+        if (isMobiFormat(fileName, contentType)) {
+            try {
+                val mobiMetadata = mobiExtractor.extract(ByteArrayInputStream(fileBytes))
+                if (mobiMetadata != null && (mobiMetadata.title != null || mobiMetadata.authors.isNotEmpty())) {
+                    logger.info { "Successfully extracted MOBI metadata for $fileName: title='${mobiMetadata.title}', authors=${mobiMetadata.authors}" }
+                    return mobiMetadata
+                }
+            } catch (e: Exception) {
+                logger.warn(e) { "Native MOBI extractor failed for $fileName, falling back to Tika" }
+            }
+        }
 
         val parser = AutoDetectParser()
         val handler = BodyContentHandler(-1)
@@ -42,7 +58,7 @@ class TikaEbookMetadataExtractor : EbookMetadataExtractorUseCase {
         context.set(EmbeddedDocumentExtractor::class.java, coverImageExtractor)
 
         try {
-            parser.parse(fileContent, handler, metadata, context)
+            parser.parse(ByteArrayInputStream(fileBytes), handler, metadata, context)
         } catch (e: Exception) {
             logger.error(e) { "Failed to parse metadata for file: $fileName" }
         }
@@ -56,6 +72,13 @@ class TikaEbookMetadataExtractor : EbookMetadataExtractorUseCase {
             description = metadata.get(TikaCoreProperties.DESCRIPTION),
             coverImage = coverImageExtractor.coverImage
         )
+    }
+
+    private fun isMobiFormat(fileName: String, contentType: String): Boolean {
+        val lowerName = fileName.lowercase(Locale.getDefault())
+        val lowerType = contentType.lowercase(Locale.getDefault())
+        return lowerType == "application/x-mobipocket-ebook" || lowerType == "application/vnd.amazon.mobi8-ebook" || lowerName.endsWith(".mobi") || lowerName.endsWith(
+            ".azw") || lowerName.endsWith(".azw3")
     }
 
     private fun parseDate(dateStr: String?): LocalDate? {
