@@ -95,8 +95,10 @@ class StagedUploadProcessor(
         }
 
         try {
+            val fileNameTitle = fileName.substringBeforeLast('.')
             val metadataMap = mutableMapOf<String, Any?>()
             metadataMap["originalFileName"] = fileName
+            metadataMap["fileNameTitle"] = fileNameTitle
 
             // 1. Extract metadata
             val extracted = try {
@@ -148,8 +150,8 @@ class StagedUploadProcessor(
 
                 // Grouping logic (REQ-003)
                 val titleForGrouping = when {
-                    !extracted.title.isNullOrBlank() -> extracted.title
-                    else -> fileName.substringBeforeLast('.')
+                    !extracted.title.isNullOrBlank() && !ImportUtils.isUnlikelyTitle(extracted.title) -> extracted.title
+                    else -> fileNameTitle
                 }
                 resolutionItemId = try {
                     groupingService.group(uploadId, titleForGrouping, extracted.authors, fileName)
@@ -159,18 +161,21 @@ class StagedUploadProcessor(
                 }
 
                 // External Metadata Enrichment (REQ-004)
-                if (extracted.title != null) {
-                    try {
-                        val enrichment = enrichmentUseCase.enrichMetadata(extracted.title, extracted.authors)
-                        metadataMap["enrichment"] = enrichment
+                val searchTitle = if (!extracted.title.isNullOrBlank() && !ImportUtils.isUnlikelyTitle(extracted.title)) {
+                    extracted.title
+                } else {
+                    fileNameTitle
+                }
+                try {
+                    val enrichment = enrichmentUseCase.enrichMetadata(searchTitle, extracted.authors)
+                    metadataMap["enrichment"] = enrichment
 
-                        // Also update ResolutionItem if present (REQ-007)
-                        if (resolutionItemId != null && enrichment.isNotEmpty()) {
-                            resolutionItemUseCase.updateMetadata(resolutionItemId, objectMapper.writeValueAsString(enrichment))
-                        }
-                    } catch (e: Exception) {
-                        logger.warn(e) { "Failed to enrich metadata for upload $uploadId" }
+                    // Also update ResolutionItem if present (REQ-007)
+                    if (resolutionItemId != null && enrichment.isNotEmpty()) {
+                        resolutionItemUseCase.updateMetadata(resolutionItemId, objectMapper.writeValueAsString(enrichment))
                     }
+                } catch (e: Exception) {
+                    logger.warn(e) { "Failed to enrich metadata for upload $uploadId" }
                 }
             }
 
@@ -200,7 +205,27 @@ class StagedUploadProcessor(
             val saved = transactionTemplate.execute {
                 val existing = repository.findById(uploadId)
                 if (existing != null) {
-                    val updated = existing.copy(status = StagedEbookUploadStatus.FAILED)
+                    var resId = existing.resolutionItemId
+                    if (resId == null) {
+                        resId = try {
+                            groupingService.group(uploadId, fileName.substringBeforeLast('.'), emptyList(), fileName)?.value
+                        } catch (groupEx: Exception) {
+                            logger.warn { "Failed to group upload $uploadId on error: ${groupEx.message}" }
+                            null
+                        }
+                    }
+                    if (resId != null) {
+                        try {
+                            resolutionItemUseCase.updateStatus(ResolutionItemId(resId), ResolutionItemStatus.ERROR)
+                        } catch (statusEx: Exception) {
+                            logger.warn { "Failed to set status ERROR on resolution item $resId: ${statusEx.message}" }
+                        }
+                    }
+                    val current = repository.findById(uploadId) ?: existing
+                    val updated = current.copy(
+                        status = StagedEbookUploadStatus.FAILED,
+                        resolutionItemId = resId ?: current.resolutionItemId
+                    )
                     repository.save(updated)
                 } else {
                     null

@@ -1,12 +1,27 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { FaDatabase, FaFileAlt, FaPencilAlt, FaGlobe } from 'react-icons/fa';
+import { FaDatabase, FaFileAlt, FaPencilAlt, FaGlobe, FaFileCode, FaExclamationTriangle, FaLink, FaUnlink } from 'react-icons/fa';
 import SearchableDropdown from './SearchableDropdown';
 import CoverImagePreview from './CoverImagePreview';
+
+const isUnlikelyTitle = (val) => {
+  if (!val) return true;
+  const clean = val.toString().trim().toLowerCase();
+  if (clean.length <= 1) return true;
+  if (/^\d+$/.test(clean)) return true;
+  const unlikelyPlaceholders = [
+    'untitled', 'cover', 'document', 'unknown', 'page 1', 'chapter 1',
+    'table of contents', 'index', 'no title', 'default'
+  ];
+  return unlikelyPlaceholders.includes(clean);
+};
 
 const MergeMetadataView = ({
   stagedUpload,
   existingBook,
+  candidateBook,
+  isCreateNew,
+  onToggleCreateNew,
   draftBook,
   dirtyFields,
   authorOptions,
@@ -21,6 +36,15 @@ const MergeMetadataView = ({
   const validation = stagedUpload?.validation || {};
   const enrichmentList = extracted.enrichment || [];
   const external = enrichmentList.length > 0 ? enrichmentList[0] : null;
+
+  const getFilenameTitle = () => {
+    const rawName = stagedUpload?.fileName || extracted?.originalFileName || extracted?.fileNameTitle || '';
+    if (!rawName) return '';
+    return rawName.includes('.') ? rawName.substring(0, rawName.lastIndexOf('.')) : rawName;
+  };
+
+  const filenameTitle = getFilenameTitle();
+  const isExtractedTitleUnlikely = isUnlikelyTitle(extracted.title);
 
   const resolveInitialAuthors = () => {
     const draftAuthors = draftBook?.authors || [];
@@ -72,14 +96,29 @@ const MergeMetadataView = ({
 
   const getInitialSource = (field) => {
     if (dirtyFields?.has(field)) return 'draft';
+    if (field === 'title' && isExtractedTitleUnlikely) {
+      if (external && external.title && external.title.toString().trim() !== '') return 'external';
+      if (filenameTitle && filenameTitle.trim() !== '') return 'filename';
+    }
     if (external && external[field] && external[field].toString().trim() !== '') return 'external';
+    if (extracted && extracted[field] && extracted[field].toString().trim() !== '' && !(field === 'title' && isExtractedTitleUnlikely)) return 'extracted';
+    if (field === 'title' && filenameTitle && filenameTitle.trim() !== '') return 'filename';
     if (extracted && extracted[field] && extracted[field].toString().trim() !== '') return 'extracted';
     if (existingBook && existingBook[field]) return 'existing';
     return 'extracted';
   };
 
+  const getInitialTitle = () => {
+    if (dirtyFields?.has('title')) return draftBook?.title || '';
+    if (isExtractedTitleUnlikely) {
+      if (external?.title) return external.title;
+      if (filenameTitle) return filenameTitle;
+    }
+    return external?.title || extracted.title || filenameTitle || existingBook?.title || '';
+  };
+
   const [mergedData, setMergedData] = useState({
-    title: (dirtyFields?.has('title') ? draftBook?.title : (external?.title || extracted.title || existingBook?.title || '')),
+    title: getInitialTitle(),
     authorIds: initialAuthors.authorIds,
     authorNames: initialAuthors.authorNames,
     publisher: (dirtyFields?.has('publisher') ? draftBook?.publisher : (external?.publisher || extracted.publisher || existingBook?.publisher || '')),
@@ -111,6 +150,8 @@ const MergeMetadataView = ({
       value = external[field];
     } else if (source === 'extracted') {
       value = extracted[field];
+    } else if (source === 'filename') {
+      value = filenameTitle;
     } else if (source === 'draft') {
       value = draftBook ? (field === 'series' ? draftBook.series?.id : draftBook[field]) : '';
     } else {
@@ -183,6 +224,8 @@ const MergeMetadataView = ({
     let matchedSource = 'manual';
     if (external && external[field] && String(external[field]) === String(value)) {
       matchedSource = 'external';
+    } else if (field === 'title' && filenameTitle && String(filenameTitle) === String(value)) {
+      matchedSource = 'filename';
     } else if (extracted && extracted[field] && String(extracted[field]) === String(value)) {
       matchedSource = 'extracted';
     } else if (draftBook && draftBook[field] && String(draftBook[field]) === String(value)) {
@@ -196,24 +239,69 @@ const MergeMetadataView = ({
 
   return (
     <div className="merge-metadata-view max-h-[65vh] overflow-y-auto px-4 pr-3 custom-scrollbar">
-      <div className="mb-6 p-4 bg-indigo-50 border-l-4 border-indigo-500 rounded-r-lg shadow-sm text-sm">
-        <h4 className="font-bold text-indigo-900 mb-1">{t('import.review.statusTitle')}</h4>
-        {existingBook ? (
-          <div className="flex items-center gap-2 text-indigo-800">
-            <FaDatabase />
-            <span>
-              {t('import.review.matchingWith', 'Matching with:')} <span className="font-bold">{existingBook.title}</span>
-              {validation.titleMatch && validation.authorMatch 
-                ? ` (${t('import.review.statusMatch', 'Matches an existing book in your library')})` 
-                : ` (${t('import.review.statusMismatch', 'Potential metadata mismatch with existing book')})`}
-            </span>
+      <div className={`mb-6 p-4 rounded-xl border shadow-sm text-sm transition-all ${
+        existingBook 
+          ? (validation.titleMatch && validation.authorMatch ? 'bg-indigo-50 border-indigo-200 text-indigo-900' : 'bg-amber-50 border-amber-200 text-amber-900') 
+          : 'bg-emerald-50 border-emerald-200 text-emerald-900'
+      }`}>
+        <div className="flex flex-wrap items-center justify-between gap-4">
+          <div>
+            <h4 className="font-bold mb-1 uppercase tracking-wider text-xs opacity-75">{t('import.review.statusTitle')}</h4>
+            {existingBook ? (
+              <div>
+                <div className="flex items-center gap-2 font-medium">
+                  <FaDatabase />
+                  <span>
+                    {t('import.review.matchingWith', 'Matching with:')} <span className="font-bold">{existingBook.title}</span>
+                    {validation.titleMatch && validation.authorMatch 
+                      ? ` (${t('import.review.statusMatch', 'Matches an existing book in your library')})` 
+                      : ` (${t('import.review.statusMismatch', 'Potential metadata mismatch with existing book')})`}
+                  </span>
+                </div>
+                <p className="mt-2 text-xs opacity-90 border-t border-amber-200/60 pt-2 font-normal">
+                  {t('import.review.mergeWarningNote', { title: existingBook.title, defaultValue: `Resolving while linked will add this format to "${existingBook.title}" in your library and update its metadata (title, author, cover, etc.) based on your selections below.` })}
+                  {' '}
+                  <span className="font-semibold">{t('import.review.mergeWarningHint', 'If this is a separate book, click "Import as New Book" above.')}</span>
+                </p>
+              </div>
+            ) : candidateBook && isCreateNew ? (
+              <div className="flex items-center gap-2 font-medium">
+                <FaPencilAlt />
+                <span>
+                  {t('import.resolve.createNewBookTitle', 'Importing as New Book Entry')}
+                  <span className="opacity-75 ml-1">({t('import.resolve.unmatchedFrom', { title: candidateBook.title, defaultValue: `Unmatched from "${candidateBook.title}"` })})</span>
+                </span>
+              </div>
+            ) : (
+              <div className="flex items-center gap-2 font-medium">
+                <FaPencilAlt />
+                <span>{t('import.review.statusNewBook', 'This is a new book entry')}</span>
+              </div>
+            )}
           </div>
-        ) : (
-          <div className="flex items-center gap-2 text-indigo-800">
-            <FaPencilAlt />
-            <span>{t('import.review.statusNewBook', 'This is a new book entry')}</span>
-          </div>
-        )}
+
+          {onToggleCreateNew && candidateBook && (
+            <button
+              type="button"
+              onClick={onToggleCreateNew}
+              className={`px-4 py-2 rounded-xl text-xs font-black uppercase tracking-wider transition-all shadow-sm flex items-center gap-2 border ${
+                isCreateNew 
+                  ? 'bg-white text-indigo-700 border-indigo-300 hover:bg-indigo-50' 
+                  : 'bg-white text-amber-700 border-amber-300 hover:bg-amber-100'
+              }`}
+            >
+              {isCreateNew ? (
+                <>
+                  <FaLink size={12} /> {t('import.resolve.relinkBook', 'Link with existing book')}
+                </>
+              ) : (
+                <>
+                  <FaUnlink size={12} /> {t('import.resolve.createNewBook', 'Import as New Book')}
+                </>
+              )}
+            </button>
+          )}
+        </div>
       </div>
 
       <FieldComparison 
@@ -221,11 +309,13 @@ const MergeMetadataView = ({
         field="title" 
         existingValue={existingBook?.title} 
         extractedValue={extracted.title} 
+        filenameValue={filenameTitle}
         draftValue={draftBook?.title}
         externalValue={external?.title}
         selectedSources={selectedSources}
         mergedData={mergedData}
         dirtyFields={dirtyFields}
+        unlikelyWarning={isExtractedTitleUnlikely}
         onToggleField={toggleField}
         onDirectFieldChange={handleDirectFieldChange}
         t={t}
@@ -393,6 +483,7 @@ const MultiSourceButton = ({ sources, value, field, isSelected, onToggle, t }) =
     existing: { label: t('import.review.sources.library', 'Library'), icon: FaDatabase, colorClass: 'ring-blue-500 bg-blue-100' },
     draft: { label: t('import.review.sources.form', 'Form'), icon: FaPencilAlt, colorClass: 'ring-yellow-500 bg-yellow-100' },
     extracted: { label: t('import.review.sources.file', 'File'), icon: FaFileAlt, colorClass: 'ring-green-500 bg-green-100' },
+    filename: { label: t('import.review.sources.filename', 'Filename'), icon: FaFileCode, colorClass: 'ring-teal-500 bg-teal-100' },
     external: { label: t('import.review.sources.web', 'Web'), icon: FaGlobe, colorClass: 'ring-purple-500 bg-purple-100' }
   };
 
@@ -428,12 +519,14 @@ const FieldComparison = ({
   field,
   existingValue,
   extractedValue,
+  filenameValue,
   draftValue,
   externalValue,
   inputType = 'text',
   selectedSources,
   mergedData,
   dirtyFields,
+  unlikelyWarning,
   onToggleField,
   onDirectFieldChange,
   t
@@ -442,12 +535,12 @@ const FieldComparison = ({
   const sourceValues = [];
   
   // 1. Library (Existing)
-  if (existingValue || (!extractedValue && !externalValue)) {
+  if (existingValue || (!extractedValue && !externalValue && !filenameValue)) {
     sourceValues.push({ id: 'existing', value: existingValue || '' });
   }
   
   // 2. Form (Draft)
-  const isDraftRelevant = dirtyFields?.has(field) || (draftValue && draftValue !== extractedValue && draftValue !== externalValue);
+  const isDraftRelevant = dirtyFields?.has(field) || (draftValue && draftValue !== extractedValue && draftValue !== externalValue && draftValue !== filenameValue);
   if (draftValue && isDraftRelevant) {
     sourceValues.push({ id: 'draft', value: draftValue });
   }
@@ -457,8 +550,13 @@ const FieldComparison = ({
     sourceValues.push({ id: 'extracted', value: extractedValue });
   }
 
-  // 4. Web (External)
-  if (externalValue && externalValue !== extractedValue) {
+  // 4. Filename
+  if (filenameValue && filenameValue !== extractedValue && filenameValue !== externalValue) {
+    sourceValues.push({ id: 'filename', value: filenameValue });
+  }
+
+  // 5. Web (External)
+  if (externalValue && externalValue !== extractedValue && externalValue !== filenameValue) {
     sourceValues.push({ id: 'external', value: externalValue });
   }
 
@@ -474,8 +572,8 @@ const FieldComparison = ({
   });
 
   // Ensure the groups themselves are sorted based on the "highest priority" source in them
-  // Priority: draft > existing > external > extracted
-  const sourcePriority = { draft: 0, existing: 1, external: 2, extracted: 3 };
+  // Priority: draft > existing > external > filename > extracted
+  const sourcePriority = { draft: 0, existing: 1, external: 2, filename: 3, extracted: 4 };
   groups.sort((a, b) => {
     const aMin = Math.min(...a.sources.map(s => sourcePriority[s]));
     const bMin = Math.min(...b.sources.map(s => sourcePriority[s]));
@@ -486,8 +584,14 @@ const FieldComparison = ({
 
   return (
     <div className="mb-6 last:mb-2">
-      <div className="flex items-center justify-between mb-2">
+      <div className="flex flex-wrap items-center justify-between gap-2 mb-2">
         <label className="block text-sm font-bold text-gray-700">{label}</label>
+        {unlikelyWarning && (
+          <span className="text-[11px] font-bold text-amber-800 bg-amber-50 border border-amber-200 px-2.5 py-0.5 rounded-full flex items-center gap-1 shadow-sm">
+            <FaExclamationTriangle size={11} className="text-amber-500 shrink-0" />
+            {t('import.review.unlikelyTitleHint', { title: extractedValue, defaultValue: `Extracted title ('${extractedValue}') appears to be a placeholder or number. Filename suggested.` })}
+          </span>
+        )}
         {isManual && (
           <span className="text-[10px] font-bold uppercase tracking-wider text-amber-600 bg-amber-50 border border-amber-200 px-2 py-0.5 rounded-full flex items-center gap-1">
             <FaPencilAlt size={10} /> {t('import.review.sources.custom', 'Manually Edited')}

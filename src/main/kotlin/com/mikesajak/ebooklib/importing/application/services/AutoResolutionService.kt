@@ -66,7 +66,9 @@ class AutoResolutionService(
         val validation = parseValidation(metadataMap["validation"])
         val enrichment = parseEnrichment(metadataMap["enrichment"])
 
-        val title = (metadataMap["title"] as? String) ?: item.title
+        val rawTitle = (metadataMap["title"] as? String) ?: item.title
+        val fileNameTitle = (metadataMap["fileNameTitle"] as? String) ?: primaryUpload.fileName.substringBeforeLast('.')
+        val title = if (!rawTitle.isNullOrBlank() && !ImportUtils.isUnlikelyTitle(rawTitle)) rawTitle else fileNameTitle
         @Suppress("UNCHECKED_CAST")
         val authors = (metadataMap["authors"] as? List<String>) ?: item.authors
         val publisher = metadataMap["publisher"] as? String

@@ -95,6 +95,26 @@ const ImportSummaryDashboard = () => {
         }
     };
 
+    const handleDeleteItem = async (itemId) => {
+        if (!window.confirm(t('import.confirmDeleteItem', 'Are you sure you want to remove this item from the import session?'))) return;
+        try {
+            const response = await fetch(`/api/import/items/${itemId}`, {
+                method: 'DELETE',
+                headers: { 'X-XSRF-TOKEN': getCsrfToken() }
+            });
+            if (response.ok) {
+                fetchItems();
+                fetchSession();
+                setNotification({ type: 'info', message: t('import.itemDeleted', 'Item removed from import') });
+            } else {
+                setNotification({ type: 'error', message: t('common.error') });
+            }
+        } catch (error) {
+            console.error("Delete item error", error);
+            setNotification({ type: 'error', message: t('common.error') });
+        }
+    };
+
     const bulkUpdateStatus = async (status) => {
         if (selectedIds.length === 0) return;
         try {
@@ -488,7 +508,7 @@ const ImportSummaryDashboard = () => {
                                         {item.status === 'STAGED' && <span className="px-3 py-1 inline-flex text-[10px] leading-5 font-black rounded-full bg-blue-50 text-blue-600 uppercase tracking-tighter border border-blue-100">{t('import.status.staged')}</span>}
                                     </td>
                                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                        <div className="flex justify-end gap-2 transition-all">
+                                        <div className="flex justify-end gap-2 transition-all items-center">
                                             {(item.status === 'UNRESOLVED' || item.status === 'RESOLVED') && (
                                                 <>
                                                     <button 
@@ -512,14 +532,32 @@ const ImportSummaryDashboard = () => {
                                                 </>
                                             )}
                                             {item.status === 'ERROR' && (
-                                                <button 
-                                                    onClick={() => handleRetry(item.id)}
-                                                    className="flex items-center gap-2 px-3 py-1.5 bg-amber-50 text-amber-600 hover:bg-amber-100 rounded-lg transition-all font-black text-[10px] uppercase tracking-widest border border-amber-100 shadow-sm transform active:scale-95"
-                                                    title={t('import.actions.retry', "Retry")}
-                                                >
-                                                    <FaRedo size={12} />
-                                                    {t('import.actions.retry')}
-                                                </button>
+                                                <>
+                                                    <button 
+                                                        onClick={() => navigate(`/import/resolve/${item.id}`)}
+                                                        className="flex items-center gap-2 px-3 py-1.5 bg-indigo-50 text-indigo-600 hover:bg-indigo-100 rounded-lg transition-all font-black text-[10px] uppercase tracking-widest border border-indigo-100 shadow-sm transform active:scale-95"
+                                                        title={t('import.actions.resolve', "Resolve")}
+                                                    >
+                                                        <FaInfoCircle size={14} />
+                                                        {t('import.actions.resolve')}
+                                                    </button>
+                                                    <button 
+                                                        onClick={() => handleRetry(item.id)}
+                                                        className="flex items-center gap-2 px-3 py-1.5 bg-amber-50 text-amber-600 hover:bg-amber-100 rounded-lg transition-all font-black text-[10px] uppercase tracking-widest border border-amber-100 shadow-sm transform active:scale-95"
+                                                        title={t('import.actions.retry', "Retry")}
+                                                    >
+                                                        <FaRedo size={12} />
+                                                        {t('import.actions.retry')}
+                                                    </button>
+                                                    <button 
+                                                        onClick={() => updateItemStatus(item.id, 'IGNORED')}
+                                                        className="flex items-center gap-2 px-3 py-1.5 bg-gray-50 text-gray-400 hover:text-rose-600 hover:bg-rose-50 hover:border-rose-100 rounded-lg transition-all font-black text-[10px] uppercase tracking-widest border border-gray-200 shadow-sm transform active:scale-95"
+                                                        title={t('import.actions.ignore', "Ignore")}
+                                                    >
+                                                        <FaBan size={14} />
+                                                        {t('import.actions.ignore')}
+                                                    </button>
+                                                </>
                                             )}
                                             {item.status === 'IGNORED' && (
                                                 <button 
@@ -530,6 +568,13 @@ const ImportSummaryDashboard = () => {
                                                     {t('import.actions.restore', "Restore")}
                                                 </button>
                                             )}
+                                            <button 
+                                                onClick={() => handleDeleteItem(item.id)}
+                                                className="p-2 text-gray-300 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-all"
+                                                title={t('common.delete', 'Delete')}
+                                            >
+                                                <FaTrash size={13} />
+                                            </button>
                                         </div>
                                     </td>
                                 </tr>

@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
-import { FaSpinner, FaCheck, FaExclamationTriangle, FaTrash, FaArrowRight, FaCheckDouble, FaChevronRight, FaFolderOpen, FaFileMedical, FaSearchPlus } from 'react-icons/fa';
+import { FaSpinner, FaCheck, FaExclamationTriangle, FaTrash, FaArrowRight, FaCheckDouble, FaChevronRight, FaFolderOpen, FaFileMedical, FaSearchPlus, FaRedo } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 import { fetchWithCsrf } from './api';
 import { useImport } from './ImportContext';
@@ -288,6 +288,41 @@ const ImportPage = () => {
         }
     };
 
+    const retrySingleFile = async (file) => {
+        const local = localUploadStatus[file.name];
+        const uploadId = local?.id || sessionItemsMap[file.name]?.id;
+        
+        setLocalUploadStatus(prev => ({
+            ...prev,
+            [file.name]: { status: 'PROCESSING' }
+        }));
+
+        if (uploadId) {
+            try {
+                const response = await fetchWithCsrf(`/api/import/staged/${uploadId}/retry`, { method: 'POST' });
+                if (response.ok) {
+                    fetchSessionItems();
+                } else {
+                    await uploadFile(file, sessionId);
+                }
+            } catch (err) {
+                await uploadFile(file, sessionId);
+            }
+        } else {
+            await uploadFile(file, sessionId);
+        }
+    };
+
+    const retryFailedFiles = async () => {
+        const failed = files.filter(f => {
+            const status = getFileStatus(f.name).status;
+            return status === 'FAILED' || status === 'ERROR';
+        });
+        for (const file of failed) {
+            await retrySingleFile(file);
+        }
+    };
+
     const startUploadAll = async () => {
         // Filter files that are not yet in sessionItemsMap and not currently uploading
         const pendingFiles = files.filter(f => {
@@ -542,6 +577,16 @@ const ImportPage = () => {
 
                 <div className="flex-grow"></div>
 
+                {files.some(f => ['FAILED', 'ERROR'].includes(getFileStatus(f.name).status)) && (
+                    <button 
+                        onClick={retryFailedFiles}
+                        disabled={isUploading}
+                        className="flex items-center justify-center gap-3 px-8 py-3 bg-amber-500 text-white rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-amber-600 transition-all shadow-xl shadow-amber-100 transform active:scale-95"
+                    >
+                        <FaRedo /> {t('import.actions.retryFailed', 'Retry Failed')}
+                    </button>
+                )}
+
                 <button 
                     onClick={startUploadAll}
                     disabled={!uploadBtn.enabled}
@@ -645,14 +690,25 @@ const ImportPage = () => {
                                             {error && <span className="text-rose-500 font-bold text-[10px] uppercase tracking-tighter">{error}</span>}
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                            <button 
-                                                onClick={() => removeFile(file.name)} 
-                                                disabled={isUploading && (status === 'UPLOADING' || status === 'PROCESSING')}
-                                                className={`p-2 rounded-lg transition-all ${isUploading && (status === 'UPLOADING' || status === 'PROCESSING') ? 'text-gray-200 cursor-not-allowed' : 'text-rose-600 hover:bg-rose-50'}`}
-                                                title={t('common.remove', 'Remove')}
-                                            >
-                                                <FaTrash />
-                                            </button>
+                                            <div className="flex items-center justify-end gap-2">
+                                                {(status === 'FAILED' || status === 'ERROR') && (
+                                                    <button 
+                                                        onClick={() => retrySingleFile(file)}
+                                                        className="flex items-center gap-1.5 px-3 py-1.5 bg-amber-50 text-amber-600 hover:bg-amber-100 rounded-lg transition-all font-black text-[10px] uppercase tracking-widest border border-amber-100 shadow-sm transform active:scale-95"
+                                                        title={t('import.actions.retry', 'Retry')}
+                                                    >
+                                                        <FaRedo size={12} /> {t('import.actions.retry', 'Retry')}
+                                                    </button>
+                                                )}
+                                                <button 
+                                                    onClick={() => removeFile(file.name)} 
+                                                    disabled={isUploading && (status === 'UPLOADING' || status === 'PROCESSING')}
+                                                    className={`p-2 rounded-lg transition-all ${isUploading && (status === 'UPLOADING' || status === 'PROCESSING') ? 'text-gray-200 cursor-not-allowed' : 'text-rose-600 hover:bg-rose-50'}`}
+                                                    title={t('common.remove', 'Remove')}
+                                                >
+                                                    <FaTrash />
+                                                </button>
+                                            </div>
                                         </td>
                                     </tr>
                                 );

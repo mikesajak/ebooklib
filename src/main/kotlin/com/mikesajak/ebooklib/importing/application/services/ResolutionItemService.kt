@@ -1,5 +1,6 @@
 package com.mikesajak.ebooklib.importing.application.services
 
+import com.mikesajak.ebooklib.file.application.ports.outgoing.FileStoragePort
 import com.mikesajak.ebooklib.importing.application.ports.incoming.ResolutionItemUseCase
 import com.mikesajak.ebooklib.importing.application.ports.outgoing.ResolutionItemRepositoryPort
 import com.mikesajak.ebooklib.importing.domain.model.ImportSessionId
@@ -17,7 +18,8 @@ import java.util.*
 @Service
 class ResolutionItemService(
     private val repository: ResolutionItemRepositoryPort,
-    private val stagedUploadRepository: StagedEbookUploadRepositoryPort
+    private val stagedUploadRepository: StagedEbookUploadRepositoryPort,
+    private val fileStoragePort: FileStoragePort
 ) : ResolutionItemUseCase {
 
     override fun getResolutionItems(sessionId: ImportSessionId): List<ResolutionItem> {
@@ -30,12 +32,30 @@ class ResolutionItemService(
 
     @Transactional
     override fun updateStatus(id: ResolutionItemId, status: ResolutionItemStatus): ResolutionItem {
-        val item = repository.findById(id) ?: throw IllegalArgumentException("ResolutionItem $id not found")
-        val updated = item.copy(
+        val item = repository.findById(id)
+        if (item != null) {
+            val updated = item.copy(
+                status = status,
+                updatedAt = Instant.now()
+            )
+            return repository.save(updated)
+        }
+
+        val upload = stagedUploadRepository.findById(StagedEbookUploadId(id.value))
+            ?: throw IllegalArgumentException("ResolutionItem or StagedUpload $id not found")
+
+        val newItem = ResolutionItem(
+            id = id,
+            importSessionId = upload.importSessionId ?: throw IllegalStateException("Upload $id has no session"),
+            title = upload.fileName.substringBeforeLast('.'),
+            authors = emptyList(),
             status = status,
+            createdAt = Instant.now(),
             updatedAt = Instant.now()
         )
-        return repository.save(updated)
+        val savedItem = repository.save(newItem)
+        stagedUploadRepository.save(upload.copy(resolutionItemId = savedItem.id.value))
+        return savedItem
     }
 
     @Transactional
@@ -136,5 +156,32 @@ class ResolutionItemService(
             updatedAt = Instant.now()
         )
         return repository.save(updatedPrimary)
+    }
+
+    @Transactional
+    override fun deleteItem(id: UUID) {
+        val resItem = repository.findById(ResolutionItemId(id))
+        if (resItem != null) {
+            val uploads = stagedUploadRepository.findByResolutionItemId(id)
+            uploads.forEach { upload ->
+                try {
+                    fileStoragePort.deleteFile("staged/${upload.id.value}")
+                } catch (e: Exception) {
+                    // Ignore deletion error from file storage if file was already missing
+                }
+                stagedUploadRepository.delete(upload.id)
+            }
+            repository.delete(resItem.id)
+        } else {
+            val upload = stagedUploadRepository.findById(StagedEbookUploadId(id))
+            if (upload != null) {
+                try {
+                    fileStoragePort.deleteFile("staged/${upload.id.value}")
+                } catch (e: Exception) {
+                    // Ignore
+                }
+                stagedUploadRepository.delete(upload.id)
+            }
+        }
     }
 }

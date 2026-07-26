@@ -10,9 +10,11 @@ import com.mikesajak.ebooklib.infrastructure.web.toDomainPage
 import com.mikesajak.ebooklib.infrastructure.web.toSpringPageable
 import com.mikesajak.ebooklib.series.domain.model.SeriesId
 import org.springframework.stereotype.Repository
+import org.springframework.transaction.annotation.Transactional
 import java.util.*
 
 @Repository
+@Transactional(readOnly = true)
 class BookRepositoryAdapter(
         private val bookJpaRepository: BookJpaRepository,
         private val mapper: BookEntityMapper

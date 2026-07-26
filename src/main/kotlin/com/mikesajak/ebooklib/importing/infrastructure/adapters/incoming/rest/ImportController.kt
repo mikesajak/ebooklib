@@ -137,9 +137,19 @@ class ImportController(
     @GetMapping("/items/{itemId}")
     fun getResolutionItem(@PathVariable itemId: UUID): ResponseEntity<ResolutionItemResponseDto> {
         val item = resolutionItemUseCase.getResolutionItem(ResolutionItemId(itemId))
+        if (item != null) {
+            val formats = stagedUploadRepository.findByResolutionItemId(item.id.value)
+            return ResponseEntity.ok(importRestMapper.toResponse(item, formats))
+        }
+
+        val upload = stagedUploadRepository.findById(StagedEbookUploadId(itemId))
             ?: return ResponseEntity.notFound().build()
-        val formats = stagedUploadRepository.findByResolutionItemId(item.id.value)
-        return ResponseEntity.ok(importRestMapper.toResponse(item, formats))
+        return ResponseEntity.ok(importRestMapper.toResolutionItemResponse(upload))
+    }
+
+    @DeleteMapping("/items/{itemId}")
+    fun deleteResolutionItem(@PathVariable itemId: UUID) {
+        resolutionItemUseCase.deleteItem(itemId)
     }
 
     @PatchMapping("/items/{itemId}/status")

@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { FaArrowLeft, FaChevronLeft, FaChevronRight, FaCheck, FaBan, FaSpinner } from 'react-icons/fa';
+import { FaArrowLeft, FaChevronLeft, FaChevronRight, FaCheck, FaBan, FaSpinner, FaPlus, FaLink, FaUnlink } from 'react-icons/fa';
 import MergeMetadataView from './MergeMetadataView';
 import { fetchWithCsrf } from './api';
 
@@ -14,6 +14,7 @@ const ResolveItemPage = () => {
     const [allSessionItems, setAllSessionItems] = useState([]);
     const [stagedUpload, setStagedUpload] = useState(null);
     const [existingBook, setExistingBook] = useState(null);
+    const [isCreateNew, setIsCreateNew] = useState(false);
     const [mergedData, setMergedData] = useState(null);
     const [authorOptions, setAuthorOptions] = useState([]);
     const [seriesOptions, setSeriesOptions] = useState([]);
@@ -25,6 +26,7 @@ const ResolveItemPage = () => {
     const fetchData = useCallback(async () => {
         try {
             setLoading(true);
+            setIsCreateNew(false);
             // 1. Fetch the ResolutionItem
             const response = await fetchWithCsrf(`/api/import/items/${itemId}`);
             if (!response.ok) throw new Error('Failed to fetch resolution item');
@@ -115,7 +117,11 @@ const ResolveItemPage = () => {
                 if (bookResponse.ok) {
                     const bookData = await bookResponse.json();
                     setExistingBook(bookData);
+                } else {
+                    setExistingBook(null);
                 }
+            } else {
+                setExistingBook(null);
             }
 
             // 5. Fetch options
@@ -153,7 +159,7 @@ const ResolveItemPage = () => {
                 body: JSON.stringify({
                     ...mergedData,
                     uploadId: stagedUpload.id,
-                    bookId: existingBook?.id
+                    bookId: isCreateNew ? null : existingBook?.id
                 })
             });
 
@@ -290,7 +296,10 @@ const ResolveItemPage = () => {
                     {stagedUpload && (
                         <MergeMetadataView 
                             stagedUpload={stagedUpload}
-                            existingBook={existingBook}
+                            existingBook={isCreateNew ? null : existingBook}
+                            candidateBook={existingBook}
+                            isCreateNew={isCreateNew}
+                            onToggleCreateNew={() => setIsCreateNew(!isCreateNew)}
                             draftBook={draftBook}
                             dirtyFields={dirtyFields}
                             authorOptions={authorOptions}
