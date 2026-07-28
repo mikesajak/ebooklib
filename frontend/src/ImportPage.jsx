@@ -700,16 +700,16 @@ const ImportPage = () => {
                 )}
             </div>
 
-            <div className="bg-white shadow-xl rounded-[2.5rem] overflow-hidden border border-gray-100 animate-fade-in relative">
+            <div className="bg-white shadow-xl rounded-[2.5rem] border border-gray-100 animate-fade-in relative">
                 {isScanning && (
-                    <div className="absolute inset-0 bg-white/60 backdrop-blur-[2px] z-10 flex items-center justify-center flex-col gap-4">
+                    <div className="absolute inset-0 bg-white/60 backdrop-blur-[2px] z-30 flex items-center justify-center flex-col gap-4 rounded-[2.5rem]">
                         <FaSpinner className="text-indigo-600 animate-spin text-4xl" />
                         <span className="font-black text-xs uppercase tracking-widest text-indigo-600">{t('import.status.processing')}</span>
                     </div>
                 )}
 
                 {files.length > 0 && (
-                    <div className="p-6 bg-gray-50/50 border-b border-gray-100">
+                    <div className="sticky top-0 z-20 p-6 bg-white/95 backdrop-blur-md border-b border-gray-100 shadow-sm rounded-t-[2.5rem]">
                         <div className="flex flex-wrap justify-between items-center gap-4 mb-3">
                             <div className="text-xs font-black text-gray-700 uppercase tracking-wider">
                                 {t('import.batchSummary', 'Batch Progress')} ({files.length} {t('import.table.files', 'files')})
@@ -784,7 +784,7 @@ const ImportPage = () => {
                     </div>
                 )}
 
-                <div className="overflow-x-auto">
+                <div className="overflow-x-auto rounded-b-[2.5rem]">
                     <table className="min-w-full divide-y divide-gray-200">
                         <thead className="bg-gray-50/50">
                             <tr className="text-gray-500 uppercase text-[10px] font-black tracking-widest border-b border-gray-200">
