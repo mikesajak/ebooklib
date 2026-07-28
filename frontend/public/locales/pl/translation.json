@@ -558,5 +558,27 @@
       "pl": "Polski"
     },
     "footer": "Ebook Library Management System v0.8"
+  },
+  "profile": {
+    "title": "Profil Użytkownika",
+    "headerTag": "Przegląd Konta",
+    "titlePrefix": "Profil",
+    "titleSuffix": "Użytkownika",
+    "description": "Zarządzaj bezpieczeństwem swojego konta i danymi logowania.",
+    "changePassword": {
+      "title": "Zmień Hasło",
+      "subtitle": "Upewnij się, że Twoje konto jest bezpieczne stosując silne hasło",
+      "currentPassword": "Aktualne Hasło",
+      "newPassword": "Nowe Hasło",
+      "confirmPassword": "Potwierdź Nowe Hasło",
+      "submit": "Zaktualizuj Hasło",
+      "success": "Hasło zostało pomyślnie zaktualizowane!",
+      "errors": {
+        "currentRequired": "Aktualne hasło jest wymagane.",
+        "minLength": "Nowe hasło musi mieć co najmniej 6 znaków.",
+        "match": "Nowe hasła nie są identyczne.",
+        "failed": "Nie udało się zaktualizować hasła. Sprawdź poprawność aktualnego hasła."
+      }
+    }
   }
 }

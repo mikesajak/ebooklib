@@ -19,6 +19,7 @@ import MaintenancePanel from './MaintenancePanel'
 import ImportPage from './ImportPage'
 import ImportSummaryDashboard from './ImportSummaryDashboard'
 import ResolveItemPage from './ResolveItemPage'
+import UserProfile from './UserProfile'
 import ProtectedRoute from './ProtectedRoute'
 import { SearchProvider } from './SearchContext'
 import { AuthProvider } from './AuthContext'
@@ -38,6 +39,7 @@ function App() {
                 <Routes>
                   <Route path="/login" element={<LoginPage />} />
                   <Route path="/" element={<ProtectedRoute><BookTable /></ProtectedRoute>} />
+                  <Route path="/profile" element={<ProtectedRoute><UserProfile /></ProtectedRoute>} />
                   <Route path="/books/add" element={<ProtectedRoute><AddBook /></ProtectedRoute>} />
                   <Route path="/book/:id" element={<ProtectedRoute><BookDetails /></ProtectedRoute>} />
                   <Route path="/books/:id/edit" element={<ProtectedRoute><AddBook /></ProtectedRoute>} />

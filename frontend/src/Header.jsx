@@ -7,7 +7,7 @@ import { FaUserCircle, FaSignOutAlt, FaCog } from 'react-icons/fa';
 
 const Header = () => {
   const { t, ready } = useTranslation();
-  const { user, isAuthenticated, logout } = useAuth();
+  const { user, isAuthenticated, isAdmin, logout } = useAuth();
 
   if (!ready) {
     return null;
@@ -29,20 +29,28 @@ const Header = () => {
           <div className="flex items-center gap-6">
             {isAuthenticated && (
               <div className="flex items-center gap-4 bg-gray-50 px-4 py-1.5 rounded-full border border-gray-100 shadow-inner">
-                <div className="flex items-center gap-2">
-                  <FaUserCircle className="text-gray-400 text-lg" />
-                  <span className="text-sm font-bold text-gray-700">
+                <Link
+                  to="/profile"
+                  className="flex items-center gap-2 text-gray-700 hover:text-indigo-600 transition-colors"
+                  title={t('profile.title', 'User Profile')}
+                >
+                  <FaUserCircle className="text-gray-400 text-lg hover:text-indigo-600 transition-colors" />
+                  <span className="text-sm font-bold">
                     {user?.username}
                   </span>
-                </div>
-                <div className="w-px h-4 bg-gray-200"></div>
-                <Link
-                  to="/admin/settings"
-                  className="p-2 text-gray-400 hover:text-indigo-600 transition-colors"
-                  title={t('admin.settings.title')}
-                >
-                  <FaCog className="text-lg hover:rotate-90 transition-transform duration-500" />
                 </Link>
+                {isAdmin && (
+                  <>
+                    <div className="w-px h-4 bg-gray-200"></div>
+                    <Link
+                      to="/admin/settings"
+                      className="p-2 text-gray-400 hover:text-indigo-600 transition-colors"
+                      title={t('admin.settings.title')}
+                    >
+                      <FaCog className="text-lg hover:rotate-90 transition-transform duration-500" />
+                    </Link>
+                  </>
+                )}
                 <div className="w-px h-4 bg-gray-200"></div>
                 <button
                   onClick={logout}

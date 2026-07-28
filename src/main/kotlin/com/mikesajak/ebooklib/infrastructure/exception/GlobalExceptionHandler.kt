@@ -112,6 +112,16 @@ class GlobalExceptionHandler {
                 .body(ErrorResponse(HttpStatus.BAD_REQUEST.value(), e.message ?: "Invalid search query"))
     }
 
+    @ExceptionHandler(IllegalArgumentException::class)
+    fun handleIllegalArgumentException(e: IllegalArgumentException): ResponseEntity<ErrorResponse> {
+        logger.warn { "Invalid request: ${e.message}" }
+        return ResponseEntity
+            .status(HttpStatus.BAD_REQUEST)
+            .contentType(MediaType.APPLICATION_JSON)
+            .body(ErrorResponse(HttpStatus.BAD_REQUEST.value(), e.message ?: "Invalid request"))
+    }
+
+
     @ExceptionHandler(AsyncRequestNotUsableException::class)
     fun handleAsyncRequestNotUsableException(e: AsyncRequestNotUsableException) {
         logger.debug { "Async request not usable (likely client disconnected): ${e.message}" }

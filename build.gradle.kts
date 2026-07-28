@@ -164,3 +164,57 @@ val pushImage = tasks.register<Exec>("pushImage") {
     }
 }
 
+val buildImageLocal = tasks.register<Exec>("buildImageLocal") {
+    group = "docker"
+    description = "Builds the Podman container image locally using pre-built JAR from host bootJar."
+    dependsOn(tasks.bootJar)
+    workingDir(file("."))
+
+    val command = listOf("podman", "build", "-t", "ebooklib-backend:latest", "-f", "Dockerfile.local", ".")
+    if (org.apache.tools.ant.taskdefs.condition.Os.isFamily(org.apache.tools.ant.taskdefs.condition.Os.FAMILY_WINDOWS)) {
+        commandLine(listOf("cmd", "/c") + command)
+    } else {
+        commandLine(command)
+    }
+}
+
+val tagImageLocal = tasks.register<Exec>("tagImageLocal") {
+    group = "docker"
+    description = "Tags the local image (built via Approach B) for the private registry."
+    dependsOn(buildImageLocal)
+    workingDir(file("."))
+
+    val registryUrl = project.findProperty("registryUrl") as? String ?: "server.local:5000"
+    val imageName = "ebooklib-backend"
+    val imageTag = project.findProperty("imageTag") as? String ?: "latest"
+    val fullImageTarget = "$registryUrl/$imageName:$imageTag"
+
+    val command = listOf("podman", "tag", "$imageName:latest", fullImageTarget)
+    if (org.apache.tools.ant.taskdefs.condition.Os.isFamily(org.apache.tools.ant.taskdefs.condition.Os.FAMILY_WINDOWS)) {
+        commandLine(listOf("cmd", "/c") + command)
+    } else {
+        commandLine(command)
+    }
+}
+
+val pushImageLocal = tasks.register<Exec>("pushImageLocal") {
+    group = "docker"
+    description = "Pushes the local container image (built via Approach B) to the private registry."
+    dependsOn(tagImageLocal)
+    workingDir(file("."))
+
+    val registryUrl = project.findProperty("registryUrl") as? String ?: "server.local:5000"
+    val imageName = "ebooklib-backend"
+    val imageTag = project.findProperty("imageTag") as? String ?: "latest"
+    val fullImageTarget = "$registryUrl/$imageName:$imageTag"
+
+    // Uses --tls-verify=false as local registries often run on HTTP without SSL
+    val command = listOf("podman", "push", "--tls-verify=false", fullImageTarget)
+    if (org.apache.tools.ant.taskdefs.condition.Os.isFamily(org.apache.tools.ant.taskdefs.condition.Os.FAMILY_WINDOWS)) {
+        commandLine(listOf("cmd", "/c") + command)
+    } else {
+        commandLine(command)
+    }
+}
+
+

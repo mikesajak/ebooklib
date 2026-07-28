@@ -555,5 +555,27 @@
       "pl": "Polish"
     },
     "footer": "Ebook Library Management System v0.8"
+  },
+  "profile": {
+    "title": "User Profile",
+    "headerTag": "Account Overview",
+    "titlePrefix": "User",
+    "titleSuffix": "Profile",
+    "description": "Manage your account security and user credentials.",
+    "changePassword": {
+      "title": "Change Password",
+      "subtitle": "Ensure your account stays secure with a strong password",
+      "currentPassword": "Current Password",
+      "newPassword": "New Password",
+      "confirmPassword": "Confirm New Password",
+      "submit": "Update Password",
+      "success": "Password updated successfully!",
+      "errors": {
+        "currentRequired": "Current password is required.",
+        "minLength": "New password must be at least 6 characters long.",
+        "match": "New passwords do not match.",
+        "failed": "Failed to update password. Please verify current password."
+      }
+    }
   }
 }
